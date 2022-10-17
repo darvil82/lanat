@@ -1,17 +1,15 @@
 package argparser;
 
-import java.util.Arrays;
-
 public abstract class ArgumentType<T> {
 	protected T value;
 
 	public abstract void parseArgValues(String[] args);
-	public byte getNumberOfArgValues() {
-		return 1;
+	public ArgValueCount getNumberOfArgValues() {
+		return new ArgValueCount(1);
 	}
 	public String getRepresentation() {
 		return this.getClass().getName();
-	};
+	}
 	public T getFinalValue() {
 		return this.value;
 	}
@@ -48,7 +46,7 @@ class BooleanArgument extends ArgumentType<Boolean> {
 
 	@Override
 	// this is a boolean type. if the arg is present, that's enough.
-	public byte getNumberOfArgValues() {
-		return 0;
+	public ArgValueCount getNumberOfArgValues() {
+		return new ArgValueCount(0);
 	}
 }

@@ -48,7 +48,7 @@ public class ArgumentParser {
 			String arg = args[x];
 			for (var argument : this.arguments) {
 				if (argument.checkMatch(arg)) {
-					byte argValueSkipCount = argument.getNumberOfValues();
+					byte argValueSkipCount = argument.getNumberOfValues().max();
 					argument.parseValues(Arrays.copyOfRange(args, x + 1, x + argValueSkipCount + 1));
 					x += argValueSkipCount;
 
@@ -91,7 +91,7 @@ class Argument<TInner, Type extends ArgumentType<TInner>> {
 		this.usageCount++;
 	}
 
-	public byte getNumberOfValues() {
+	public ArgValueCount getNumberOfValues() {
 		return this.argType.getNumberOfArgValues();
 	}
 

@@ -1,3 +1,4 @@
+import argparser.ArgValueCount;
 import argparser.ArgumentParser;
 import argparser.ArgumentType;
 
@@ -5,8 +6,8 @@ import java.util.Arrays;
 
 class Multiplier extends ArgumentType<Float[]> {
 	@Override
-	public byte getNumberOfArgValues() {
-		return 3;
+	public ArgValueCount getNumberOfArgValues() {
+		return new ArgValueCount(3);
 	}
 
 	@Override

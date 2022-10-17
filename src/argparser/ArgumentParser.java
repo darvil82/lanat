@@ -48,7 +48,7 @@ public class ArgumentParser {
 			String arg = args[x];
 			for (var argument : this.arguments) {
 				if (argument.checkMatch(arg)) {
-					byte argValueSkipCount = argument.getNumberOfValues().max();
+					byte argValueSkipCount = argument.getNumberOfValues().max;
 					argument.parseValues(Arrays.copyOfRange(args, x + 1, x + argValueSkipCount + 1));
 					x += argValueSkipCount;
 

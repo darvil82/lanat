@@ -1,10 +1,15 @@
 package argparser;
 
-public record ArgValueCount(byte min, byte max) {
+public class ArgValueCount {
+	public final byte min, max;
+
 	public ArgValueCount(int min, int max) {
-		this((byte)max, (byte)max);
+		if (min > max) throw new IllegalArgumentException("min value cannot be higher than max");
+		this.min = (byte)min;
+		this.max = (byte)max;
 	}
-	public ArgValueCount(int max) {
-		this(max, max);
+
+	public ArgValueCount(int value) {
+		this(value, value);
 	}
 }

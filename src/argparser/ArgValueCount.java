@@ -1,5 +1,10 @@
 package argparser;
 
+
+/**
+ * Used to specify the number values an argument may accept. This is essentially a classic range,
+ * but if only one value is specified, both min and max will have that value.
+ */
 public class ArgValueCount {
 	public final byte min, max;
 

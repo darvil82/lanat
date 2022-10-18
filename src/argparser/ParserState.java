@@ -23,7 +23,7 @@ class ParserState {
 		for (this.currentArgIndex = 0; this.currentArgIndex < this.cli_args.length; this.currentArgIndex++) {
 			String arg = this.cli_args[currentArgIndex];
 
-			if (this.isArgumentSpecifier(arg)) {
+			if (this.isArgNames(arg)) {
 				this.parseSimpleArgs(arg.substring(1).toCharArray());
 				continue;
 			}
@@ -65,11 +65,11 @@ class ParserState {
 	private boolean isArgAlias(String str) {
 		// first try to figure out if the prefix is used, to save time (does it start with '--'? (assuming the prefix is '-'))
 		if (
-				str.length() > 1 // make sure we are working with long enough strings
+			str.length() > 1 // make sure we are working with long enough strings
 				&& str.charAt(0) == str.charAt(1) // first and second chars are equal?
 				&& this.possiblePrefixes.contains(str.charAt(0)) // okay lets check if the prefix is valid
 		) {
-			// now check if the aliases actually exist
+			// now check if the alias actually exist
 			return this.specified_arguments.stream().allMatch(a -> a.checkMatch(str));
 		}
 
@@ -94,17 +94,26 @@ class ParserState {
 
 	private void executeArgParse(Argument<?, ?> arg) {
 		ArgValueCount argumentValuesRange = arg.getNumberOfValues();
-		byte skipCount = argumentValuesRange.min;
+
+		// just skip the whole thing if it doesn't need any values
+		if (argumentValuesRange.isZero()) {
+			arg.parseValues(new String[]{});
+			return;
+		}
+
+		short skipCount = argumentValuesRange.min;
 
 		// first capture the minimum required values...
 		ArrayList<String> temp_args = new ArrayList<>(Arrays.stream(
-				Arrays.copyOfRange(this.cli_args, currentArgIndex + 1, currentArgIndex + argumentValuesRange.min + 1)
+			Arrays.copyOfRange(this.cli_args, currentArgIndex + 1, currentArgIndex + argumentValuesRange.min + 1)
 		).toList());
 
 		// next add more values until we get to the max of the type, or we encounter another argument specifier
-		for (int x = argumentValuesRange.min + 1; x < argumentValuesRange.max + 1; x++, skipCount++) {
-			if (currentArgIndex + x > this.cli_args.length) break;
-
+		for (
+			int x = argumentValuesRange.min + 1;
+			x <= argumentValuesRange.max && currentArgIndex + x < this.cli_args.length;
+			x++, skipCount++
+		) {
 			var actual_value = this.cli_args[currentArgIndex + x];
 			if (isArgumentSpecifier(actual_value)) break;
 			temp_args.add(actual_value);
@@ -115,5 +124,4 @@ class ParserState {
 
 		this.currentArgIndex += skipCount;
 	}
-
 }

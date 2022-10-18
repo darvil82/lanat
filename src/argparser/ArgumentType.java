@@ -3,20 +3,26 @@ package argparser;
 public abstract class ArgumentType<T> {
 	protected T value;
 
+	// Easy to access values. These are methods because we don't want to use the same instance everywhere.
+	public static IntArgument INTEGER() {return new IntArgument();}
+
+	public static BooleanArgument BOOLEAN() {return new BooleanArgument();}
+
+	public static CounterArgument COUNTER() {return new CounterArgument();}
+
 	public abstract void parseArgValues(String[] args);
+
 	public ArgValueCount getNumberOfArgValues() {
 		return new ArgValueCount(1);
 	}
+
 	public String getRepresentation() {
 		return this.getClass().getName();
 	}
+
 	public T getFinalValue() {
 		return this.value;
 	}
-
-	// Easy to access values. These are methods because we don't want to use the same instance everywhere.
-	public static IntArgument INTEGER() { return new IntArgument(); }
-	public static BooleanArgument BOOLEAN() { return new BooleanArgument(); }
 }
 
 
@@ -48,5 +54,23 @@ class BooleanArgument extends ArgumentType<Boolean> {
 	// this is a boolean type. if the arg is present, that's enough.
 	public ArgValueCount getNumberOfArgValues() {
 		return new ArgValueCount(0);
+	}
+}
+
+
+class CounterArgument extends ArgumentType<Short> {
+	// prevent nullptr exceptions
+	public CounterArgument() {
+		this.value = (short)0;
+	}
+
+	@Override
+	public ArgValueCount getNumberOfArgValues() {
+		return ArgValueCount.ANY;
+	}
+
+	@Override
+	public void parseArgValues(String[] args) {
+		this.value++;
 	}
 }

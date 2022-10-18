@@ -19,18 +19,19 @@ class Multiplier extends ArgumentType<Float[]> {
 
 public class Testing {
 	public static void main(String[] args) {
-		var argparser = new ArgumentParser("My Program");
-		argparser.addArgument(new Argument<>('g').callback((b) -> System.out.println("I was used!")));
-		argparser.addArgument(new Argument<>('t', "testing", ArgumentType.INTEGER()).callback(System.out::println));
-		argparser.addArgument(
-				new Argument<>('h', "my-arg", new Multiplier())
-						.callback(h -> {
-									for (var f : h) {
-										System.out.print(f + ", ");
-									}
-								}
-						));
+		var ap = new ArgumentParser("Testing");
+		ap.addArgument(new Argument<>('g', ArgumentType.COUNTER())
+			.callback((b) -> System.out.println("I was used " + b + " times")));
+		ap.addArgument(new Argument<>('t', "testing", ArgumentType.INTEGER()).callback(System.out::println));
+		ap.addArgument(
+			new Argument<>('h', "my-arg", new Multiplier())
+				.callback(h -> {
+						for (var f : h) {
+							System.out.print(f + ", ");
+						}
+					}
+				));
 
-		argparser.parseArgs("--testing 234 --my-arg 5 2.12 -g --testing 1".split(" "));
+		ap.parseArgs("--testing 234 --my-arg 5 2.12 -g --testing 112".split(" "));
 	}
 }

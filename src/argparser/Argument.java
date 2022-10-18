@@ -28,7 +28,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 	public Argument(Character name) {this(name, null, (Type)ArgumentType.BOOLEAN()); }
 
 	public void setAlias(String alias) {
-		if (alias == null || !Argument.checkInvalidAlias(alias)) return;
+		if (alias == null || !Argument.isInvalidAlias(alias)) return;
 		this.alias = alias.replaceAll('^' + Character.toString(this.prefix) + "+", "");
 	}
 
@@ -68,7 +68,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 	 * Checks if the specified alias is invalid or not
 	 * @return <code>true</code> if the alias is valid
 	 */
-	private static boolean checkInvalidAlias(String alias) {
+	private static boolean isInvalidAlias(String alias) {
 		for (char invalidChar : Argument.INVALID_CHARACTERS) {
 			if (alias.contains(Character.toString(invalidChar))) {
 				return false;

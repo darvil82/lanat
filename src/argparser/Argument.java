@@ -3,7 +3,7 @@ package argparser;
 import java.util.function.Consumer;
 
 public class Argument<Type extends ArgumentType<TInner>, TInner> {
-	private final char prefix = '-';
+	public final char prefix = '-';
 	private final Type argType;
 	private Character name;
 	private String alias;

@@ -1,8 +1,6 @@
 package argparser;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.function.Consumer;
 
 public class ArgumentParser {
 	protected final String programName, description;
@@ -33,20 +31,7 @@ public class ArgumentParser {
 	}
 
 	public void parseArgs(String[] args) {
-		for (int x = 0; x < args.length; x++) {
-			String arg = args[x];
-			for (var argument : this.arguments) {
-				if (argument.checkMatch(arg)) {
-					byte argValueSkipCount = argument.getNumberOfValues().max;
-					argument.parseValues(Arrays.copyOfRange(args, x + 1, x + argValueSkipCount + 1));
-					x += argValueSkipCount;
-
-					break;
-				}
-			}
-		}
-
-		this.arguments.forEach(Argument::invokeCallback);
+		ParserState ps = new ParserState(args, this.arguments);
+		ps.parse();
 	}
 }
-

@@ -10,6 +10,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 	private Consumer<TInner> callback;
 	private byte usageCount = 0;
 	private boolean obligatory = false;
+	public static final char[] INVALID_CHARACTERS = {'=', ' '};
 
 	public Argument(Character name, String alias, Type argType) {
 		this.setAlias(alias);
@@ -27,8 +28,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 	public Argument(Character name) {this(name, null, (Type)ArgumentType.BOOLEAN()); }
 
 	public void setAlias(String alias) {
-		if (alias == null) return;
-		this.alias = alias.replaceAll('^' + Character.toString(this.prefix), "");
+		if (alias == null || !Argument.checkInvalidAlias(alias)) return;
+		this.alias = alias.replaceAll('^' + Character.toString(this.prefix) + "+", "");
 	}
 
 	public Argument<?, ?> obligatory() {
@@ -61,5 +62,18 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 
 	public boolean checkMatch(char name) {
 		return name == this.name;
+	}
+
+	/**
+	 * Checks if the specified alias is invalid or not
+	 * @return <code>true</code> if the alias is valid
+	 */
+	private static boolean checkInvalidAlias(String alias) {
+		for (char invalidChar : Argument.INVALID_CHARACTERS) {
+			if (alias.contains(Character.toString(invalidChar))) {
+				return false;
+			}
+		}
+		return true;
 	}
 }

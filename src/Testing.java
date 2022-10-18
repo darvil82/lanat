@@ -31,6 +31,6 @@ public class Testing {
 								}
 						));
 
-		argparser.parseArgs(new String[]{"--testing", "234", "--my-arg", "5", "2.12", "-g", "--testing", "1"});
+		argparser.parseArgs("--testing 234 --my-arg 5 2.12 -g --testing 1".split(" "));
 	}
 }

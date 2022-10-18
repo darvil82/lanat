@@ -23,12 +23,14 @@ class ParserState {
 		for (this.currentArgIndex = 0; this.currentArgIndex < this.cli_args.length; this.currentArgIndex++) {
 			String arg = this.cli_args[currentArgIndex];
 
-			if (this.possiblePrefixes.contains(arg.charAt(0)) && !this.possiblePrefixes.contains(arg.charAt(1))) {
+			if (this.isArgumentSpecifier(arg)) {
 				this.parseSimpleArgs(arg.substring(1).toCharArray());
 				continue;
 			}
 
-			checkMatchOfArg(arg);
+			if (!checkMatchOfArg(arg)) {
+				throw new IllegalArgumentException("Unknown argument " + arg);
+			}
 		}
 
 		this.specified_arguments.forEach(Argument::invokeCallback);
@@ -40,22 +42,24 @@ class ParserState {
 		}
 	}
 
-	private void checkMatchOfArg(String argAlias) {
+	private boolean checkMatchOfArg(String argAlias) {
 		for (var argument : this.specified_arguments) {
 			if (argument.checkMatch(argAlias)) {
 				executeArgParse(argument);
-				break;
+				return true;
 			}
 		}
+		return false;
 	}
 
-	private void checkMatchOfArg(char argName) {
+	private boolean checkMatchOfArg(char argName) {
 		for (var argument : this.specified_arguments) {
 			if (argument.checkMatch(argName)) {
 				executeArgParse(argument);
-				break;
+				return true;
 			}
 		}
+		return false;
 	}
 
 	private boolean isArgAlias(String str) {
@@ -99,6 +103,8 @@ class ParserState {
 
 		// next add more values until we get to the max of the type, or we encounter another argument specifier
 		for (int x = argumentValuesRange.min + 1; x < argumentValuesRange.max + 1; x++, skipCount++) {
+			if (currentArgIndex + x > this.cli_args.length) break;
+
 			var actual_value = this.cli_args[currentArgIndex + x];
 			if (isArgumentSpecifier(actual_value)) break;
 			temp_args.add(actual_value);
@@ -109,4 +115,5 @@ class ParserState {
 
 		this.currentArgIndex += skipCount;
 	}
+
 }

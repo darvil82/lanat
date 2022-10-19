@@ -32,6 +32,6 @@ public class Testing {
 					}
 				).positional().obligatory());
 
-		ap.parseArgs("--my-arg [5 2.12 hola que tal] --testing \"hola que tal\" -g ".split(" "));
+		ap.parseArgs("--my-arg [5 2.12 hola que tal] --testing \"hola que tal\" -ggg".split(" "));
 	}
 }

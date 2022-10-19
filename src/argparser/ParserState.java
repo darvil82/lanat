@@ -55,7 +55,6 @@ class ParserState {
 	 *
 	 * @param argAlias
 	 * @param f
-	 *
 	 * @return <code>true</code> if an argument was found
 	 */
 	private boolean runForArgument(String argAlias, Consumer<Argument<?, ?>> f) {
@@ -69,11 +68,10 @@ class ParserState {
 	}
 
 	/**
-	 * Executes a callback for the argument found by the alias specified.
+	 * Executes a callback for the argument found by the name specified.
 	 *
 	 * @param argName
 	 * @param f
-	 *
 	 * @return <code>true</code> if an argument was found
 	 */
 	private boolean runForArgument(char argName, Consumer<Argument<?, ?>> f) {
@@ -176,10 +174,10 @@ class ParserState {
 				tupleOpen = false;
 			} else if (stringOpen) {
 				currentValue.append(chars[i]);
-			} else if (chars[i] == ' ' && !tupleOpen) {
+			} else if ((chars[i] == ' ' && !tupleOpen && !currentValue.isEmpty()) || i == chars.length - 1) {
 				result.add(this.tokenizeSection(currentValue.toString()));
 				currentValue = new StringBuilder();
-			} else {
+			} else if (chars[i] != ' ') {
 				currentValue.append(chars[i]);
 			}
 		}

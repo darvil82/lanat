@@ -34,7 +34,7 @@ public class ArgumentParser {
 		ParserState ps = new ParserState(args, this.arguments);
 
 		for (var ball : ps.tokenize()) {
-			System.out.printf("%s: %s%n", ball.type(), ball.contents());
+			System.out.printf("%s: '%s'%n", ball.type(), ball.contents());
 		}
 
 	}

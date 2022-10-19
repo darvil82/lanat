@@ -12,7 +12,7 @@ public class ArgumentParser {
 		this.description = description;
 //		this.addArgument('h', "help", ArgumentType.BOOLEAN(), t -> System.out.println(this.getHelp()));
 		this.addArgument(new Argument<>('h', "help", ArgumentType.BOOLEAN())
-				.callback(t -> System.out.println(this.getHelp()))
+			.callback(t -> System.out.println(this.getHelp()))
 		);
 	}
 
@@ -20,18 +20,22 @@ public class ArgumentParser {
 		this(programName, "");
 	}
 
+
 	public String getHelp() {
 		return "This is the help of the program.";
 	}
-
 
 	public <T extends ArgumentType<TInner>, TInner>
 	void addArgument(Argument<T, TInner> argument) {
 		arguments.add(argument);
 	}
 
-	public void parseArgs(String[] args) {
+	public void parseArgs(String[] args) throws Exception {
 		ParserState ps = new ParserState(args, this.arguments);
-		ps.parse();
+
+		for (var ball : ps.tokenize()) {
+			System.out.printf("%s: %s%n", ball.type(), ball.contents());
+		}
+
 	}
 }

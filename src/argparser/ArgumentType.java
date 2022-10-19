@@ -5,10 +5,9 @@ public abstract class ArgumentType<T> {
 
 	// Easy to access values. These are methods because we don't want to use the same instance everywhere.
 	public static IntArgument INTEGER() {return new IntArgument();}
-
 	public static BooleanArgument BOOLEAN() {return new BooleanArgument();}
-
 	public static CounterArgument COUNTER() {return new CounterArgument();}
+	public static StringArgument STRING() {return new StringArgument();}
 
 	public abstract void parseArgValues(String[] args);
 
@@ -72,5 +71,17 @@ class CounterArgument extends ArgumentType<Short> {
 	@Override
 	public void parseArgValues(String[] args) {
 		this.value++;
+	}
+}
+
+class StringArgument extends ArgumentType<String> {
+	@Override
+	public ArgValueCount getNumberOfArgValues() {
+		return new ArgValueCount(1);
+	}
+
+	@Override
+	public void parseArgValues(String[] args) {
+		this.value = args[0];
 	}
 }

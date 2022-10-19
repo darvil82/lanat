@@ -8,8 +8,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 	private Character name;
 	private String alias;
 	private Consumer<TInner> callback;
-	private byte usageCount = 0;
-	private boolean obligatory = false;
+	private short usageCount = 0;
+	private boolean obligatory = false, positional = false;
 	public static final char[] INVALID_CHARACTERS = {'=', ' '};
 
 	public Argument(Character name, String alias, Type argType) {
@@ -34,6 +34,11 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 
 	public Argument<?, ?> obligatory() {
 		this.obligatory = true;
+		return this;
+	}
+
+	public Argument<?, ?> positional() {
+		this.positional = true;
 		return this;
 	}
 

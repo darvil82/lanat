@@ -18,11 +18,11 @@ class Multiplier extends ArgumentType<Float[]> {
 }
 
 public class Testing {
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		var ap = new ArgumentParser("Testing");
 		ap.addArgument(new Argument<>('g', ArgumentType.COUNTER())
 			.callback((b) -> System.out.println("I was used " + b + " times")));
-		ap.addArgument(new Argument<>('t', "testing", ArgumentType.INTEGER()).callback(System.out::println));
+		ap.addArgument(new Argument<>('t', "testing", ArgumentType.STRING()).callback(System.out::println));
 		ap.addArgument(
 			new Argument<>('h', "my-arg", new Multiplier())
 				.callback(h -> {
@@ -30,8 +30,8 @@ public class Testing {
 							System.out.print(f + ", ");
 						}
 					}
-				));
+				).positional().obligatory());
 
-		ap.parseArgs("--testing 234 --my-arg 5 2.12 -g --testing 112".split(" "));
+		ap.parseArgs("--my-arg [5 2.12 hola que tal] --testing \"hola que tal\" -g ".split(" "));
 	}
 }

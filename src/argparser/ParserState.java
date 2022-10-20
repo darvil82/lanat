@@ -37,7 +37,9 @@ class ParserState {
 			if (c_token.type() == TokenType.ArgumentAlias) {
 				runForArgument(c_token.contents(), this::executeArgParse);
 			} else if (c_token.type() == TokenType.ArgumentNameList) {
-				parseSimpleArgs(c_token.contents().substring(1));
+				if (!parseSimpleArgs(c_token.contents().substring(1)).correct) {
+					System.out.println("ufkc");
+				}
 			}
 		}
 

@@ -25,12 +25,16 @@ public class ParseResult {
 	public ParseResult() {}
 
 	public ParseResult correctByAny() {
-		this.correct = this.subResults.stream().anyMatch(r -> r.correct);
+		if (!this.subResults.isEmpty()) {
+			this.correct = this.subResults.stream().anyMatch(r -> r.correctByAny().correct);
+		}
 		return this;
 	}
 
 	public ParseResult correctByAll() {
-		this.correct = this.subResults.stream().allMatch(r -> r.correct);
+		if (!this.subResults.isEmpty()) {
+			this.correct = this.subResults.stream().allMatch(r -> r.correctByAll().correct);
+		}
 		return this;
 	}
 

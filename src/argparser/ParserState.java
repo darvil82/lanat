@@ -13,6 +13,7 @@ import java.util.function.Function;
 class ParserState {
 	private final String[] cli_args;
 	private final ArrayList<Argument<?, ?>> specified_arguments;
+	private final Argument<?, ?>[] positionalArguments;
 	private final Pair<Character, Character> TUPLE_CHARS;
 	/**
 	 * All the possible argument prefixes that we can encounter.
@@ -26,10 +27,16 @@ class ParserState {
 		this.specified_arguments = u_args;
 		this.possiblePrefixes = u_args.stream().map(a -> a.prefix).distinct().toList();
 		this.TUPLE_CHARS = tc.getCharPair();
+		this.positionalArguments = u_args.stream().filter(Argument::isPositional).toArray(Argument[]::new);
 	}
 
 	public void parse() throws Exception {
 		this.tokens = this.tokenize();
+
+		// DEBUG
+		System.out.println("Tokenize list:");
+		Arrays.stream(this.tokens).toList().forEach(t -> System.out.printf("\t%s: %s%n", t.type(), t.contents()));
+		System.out.println("--------------");
 
 		for (this.currentTokenIndex = 0; this.currentTokenIndex < tokens.length; this.currentTokenIndex++) {
 			Token c_token = this.tokens[currentTokenIndex];
@@ -37,13 +44,26 @@ class ParserState {
 			if (c_token.type() == TokenType.ArgumentAlias) {
 				runForArgument(c_token.contents(), this::executeArgParse);
 			} else if (c_token.type() == TokenType.ArgumentNameList) {
-				if (!parseSimpleArgs(c_token.contents().substring(1)).correct) {
-					System.out.println("ufkc");
+				parseSimpleArgs(c_token.contents().substring(1));
+			} else if (c_token.type() == TokenType.ArgumentValue) { // this is most likely a positional argument
+				var a = getArgumentByPositionalIndex(this.currentTokenIndex);
+				if (a != null) {
+					this.currentTokenIndex--; // subtract one here because we need to start parsing from this index
+					executeArgParse(a);
 				}
 			}
 		}
 
 		this.specified_arguments.forEach(Argument::invokeCallback);
+	}
+
+	private Argument<?, ?> getArgumentByPositionalIndex(short index) {
+		for (short i = 0; i < this.positionalArguments.length; i++) {
+			if (i == index) {
+				return this.positionalArguments[i];
+			}
+		}
+		return null;
 	}
 
 	private boolean isPossiblePrefix(String str) {

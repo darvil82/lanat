@@ -34,7 +34,6 @@ public class ArgumentParser {
 		ParserState ps = new ParserState(args, this.arguments, tupleCharacter);
 
 		ps.parse();
-
 	}
 
 	public ArgumentParser tupleCharacter(TupleCharacter tupleCharacter) {

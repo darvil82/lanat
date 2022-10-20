@@ -22,7 +22,7 @@ public class Testing {
 		var ap = new ArgumentParser("Testing");
 		ap.addArgument(new Argument<>('g', ArgumentType.COUNTER())
 			.callback((b) -> System.out.println("I was used " + b + " times")));
-		ap.addArgument(new Argument<>('t', "testing", ArgumentType.STRING()).callback(System.out::println));
+		ap.addArgument(new Argument<>('t', "testing", ArgumentType.STRING()).callback(System.out::println).positional());
 		ap.addArgument(
 			new Argument<>('h', "my-arg", new Multiplier())
 				.callback(h -> {
@@ -30,9 +30,8 @@ public class Testing {
 							System.out.print(f + ", ");
 						}
 					}
-				).positional().obligatory());
+				).obligatory());
 
-		ap.parseArgs("--my-arg 12 5 2 --help -gt".split(" "));
-
+		ap.parseArgs("67 -g -tvalue".split(" "));
 	}
 }

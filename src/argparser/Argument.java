@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 
 public class Argument<Type extends ArgumentType<TInner>, TInner> {
 	public static final char[] INVALID_CHARACTERS = {'=', ' '};
-	public final char prefix = '-';
+	public char prefix = '-';
 	private final Type argType;
 	private final Character name;
 	private String alias;
@@ -63,6 +63,11 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 		return this;
 	}
 
+	public Argument<Type, TInner> prefix(char prefix) {
+		this.prefix = prefix;
+		return this;
+	}
+
 	public void invokeCallback() {
 		if (this.usageCount == 0 || this.callback == null) return;
 		this.callback.accept(this.argType.getFinalValue());
@@ -83,5 +88,13 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 
 	public boolean checkMatch(char name) {
 		return name == this.name;
+	}
+
+	public boolean isObligatory() {
+		return obligatory;
+	}
+
+	public boolean isPositional() {
+		return positional;
 	}
 }

@@ -9,4 +9,8 @@ enum TokenType {
 	String,
 }
 
-public record Token(TokenType type, String contents) {}
+public record Token(TokenType type, String contents) {
+	public boolean isArgumentSpecifier() {
+		return this.type == TokenType.ArgumentAlias || this.type == TokenType.ArgumentNameList;
+	}
+}

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 public class ArgumentParser {
 	protected final String programName, description;
 	protected ArrayList<Argument<?, ?>> arguments = new ArrayList<>();
+	private TupleCharacter tupleCharacter = TupleCharacter.SquareBrackets;
 
 
 	public ArgumentParser(String programName, String description) {
@@ -20,7 +21,6 @@ public class ArgumentParser {
 		this(programName, "");
 	}
 
-
 	public String getHelp() {
 		return "This is the help of the program.";
 	}
@@ -31,11 +31,14 @@ public class ArgumentParser {
 	}
 
 	public void parseArgs(String[] args) throws Exception {
-		ParserState ps = new ParserState(args, this.arguments);
+		ParserState ps = new ParserState(args, this.arguments, tupleCharacter);
 
-		for (var ball : ps.tokenize()) {
-			System.out.printf("%s: '%s'%n", ball.type(), ball.contents());
-		}
+		ps.parse();
 
+	}
+
+	public ArgumentParser tupleCharacter(TupleCharacter tupleCharacter) {
+		this.tupleCharacter = tupleCharacter;
+		return this;
 	}
 }

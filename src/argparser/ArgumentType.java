@@ -1,13 +1,20 @@
 package argparser;
 
+import java.io.File;
+
 public abstract class ArgumentType<T> {
 	protected T value;
 
 	// Easy to access values. These are methods because we don't want to use the same instance everywhere.
 	public static IntArgument INTEGER() {return new IntArgument();}
+
 	public static BooleanArgument BOOLEAN() {return new BooleanArgument();}
+
 	public static CounterArgument COUNTER() {return new CounterArgument();}
+
 	public static StringArgument STRING() {return new StringArgument();}
+
+	public static FileArgument FILE() {return new FileArgument();}
 
 	public abstract void parseArgValues(String[] args);
 
@@ -83,5 +90,17 @@ class StringArgument extends ArgumentType<String> {
 	@Override
 	public void parseArgValues(String[] args) {
 		this.value = args[0];
+	}
+}
+
+class FileArgument extends ArgumentType<File> {
+	@Override
+	public ArgValueCount getNumberOfArgValues() {
+		return new ArgValueCount(1);
+	}
+
+	@Override
+	public void parseArgValues(String[] args) {
+		this.value = new File(args[0]);
 	}
 }

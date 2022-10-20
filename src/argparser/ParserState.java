@@ -1,5 +1,7 @@
 package argparser;
 
+import argparser.utils.Pair;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -8,32 +10,30 @@ import java.util.function.Consumer;
 
 class ParserState {
 	private final String[] cli_args;
+	private Token[] tokens;
 	private final ArrayList<Argument<?, ?>> specified_arguments;
-	private final char TUPLE_START = '[';
-	private final char TUPLE_END = ']';
+	private final Pair<Character, Character> TUPLE_CHARS;
 	/**
 	 * All the possible argument prefixes that we can encounter.
 	 */
 	private final List<Character> possiblePrefixes;
-	private short currentArgIndex = 0;
+	private short currentTokenIndex = 0;
 
-	public ParserState(String[] cli_args, ArrayList<Argument<?, ?>> specified_arguments) {
+	public ParserState(String[] cli_args, ArrayList<Argument<?, ?>> u_args, TupleCharacter tc) {
 		this.cli_args = cli_args;
-		this.specified_arguments = specified_arguments;
-		this.possiblePrefixes = specified_arguments.stream().map(a -> a.prefix).distinct().toList();
+		this.specified_arguments = u_args;
+		this.possiblePrefixes = u_args.stream().map(a -> a.prefix).distinct().toList();
+		this.TUPLE_CHARS = tc.getCharPair();
 	}
 
-	public void parse() {
-		for (this.currentArgIndex = 0; this.currentArgIndex < this.cli_args.length; this.currentArgIndex++) {
-			String arg = this.cli_args[currentArgIndex];
+	public void parse() throws Exception {
+		this.tokens = this.tokenize();
 
-			if (this.isArgNames(arg)) {
-				this.parseSimpleArgs(arg.substring(1).toCharArray());
-				continue;
-			}
+		for (this.currentTokenIndex = 0; this.currentTokenIndex < tokens.length; this.currentTokenIndex++) {
+			Token c_token = this.tokens[currentTokenIndex];
 
-			if (!this.runForArgument(arg, this::executeArgParse)) {
-				throw new IllegalArgumentException("Unknown argument " + arg);
+			if (c_token.isArgumentSpecifier()) {
+				runForArgument(c_token.contents(), this::executeArgParse);
 			}
 		}
 
@@ -127,31 +127,33 @@ class ParserState {
 		short skipCount = argumentValuesRange.min;
 
 		// first capture the minimum required values...
-		ArrayList<String> temp_args = new ArrayList<>(Arrays.stream(
-			Arrays.copyOfRange(this.cli_args, currentArgIndex + 1, currentArgIndex + argumentValuesRange.min + 1)
+		ArrayList<Token> temp_args = new ArrayList<>(Arrays.stream(
+			Arrays.copyOfRange(this.tokens, currentTokenIndex + 1, currentTokenIndex + argumentValuesRange.min + 1)
 		).toList());
 
 		// next add more values until we get to the max of the type, or we encounter another argument specifier
 		for (
 			int x = argumentValuesRange.min + 1;
-			x <= argumentValuesRange.max && currentArgIndex + x < this.cli_args.length;
+			x <= argumentValuesRange.max && currentTokenIndex + x < this.tokens.length;
 			x++, skipCount++
 		) {
-			var actual_value = this.cli_args[currentArgIndex + x];
-			if (isArgumentSpecifier(actual_value)) break;
-			temp_args.add(actual_value);
+			var actual_token = this.tokens[currentTokenIndex + x];
+			if (actual_token.isArgumentSpecifier()) break;
+			temp_args.add(actual_token);
 		}
 
 		// pass the arg values to the argument subparser
-		arg.parseValues(temp_args.toArray(String[]::new));
+		arg.parseValues(temp_args.stream().map(Token::contents).toArray(String[]::new));
 
-		this.currentArgIndex += skipCount;
+		this.currentTokenIndex += skipCount;
 	}
 
-	public Token[] tokenize() throws Exception {
+	private Token[] tokenize() throws Exception {
 		var result = new ArrayList<Token>();
+		final var currentValue = new StringBuilder();
 		BiConsumer<TokenType, String> addToken = (t, c) -> result.add(new Token(t, c));
-		var currentValue = new StringBuilder();
+		Runnable tokenizeSection = () -> result.add(this.tokenizeSection(currentValue.toString()));
+
 		boolean stringOpen = false;
 		boolean tupleOpen = false;
 
@@ -161,27 +163,37 @@ class ParserState {
 			if (chars[i] == '"') {
 				if (stringOpen) {
 					addToken.accept(TokenType.ArgumentValue, currentValue.toString());
-					currentValue = new StringBuilder();
+					currentValue.setLength(0);
 				}
 				stringOpen = !stringOpen;
-			} else if (chars[i] == TUPLE_START && !stringOpen) {
-				addToken.accept(TokenType.ArgumentValueTupleStart, String.valueOf(TUPLE_START));
+			} else if (chars[i] == TUPLE_CHARS.first() && !stringOpen) {
+				addToken.accept(TokenType.ArgumentValueTupleStart, null);
 				tupleOpen = true;
-			} else if (chars[i] == TUPLE_END && !stringOpen) {
-				addToken.accept(TokenType.ArgumentValue, currentValue.toString());
-				addToken.accept(TokenType.ArgumentValueTupleEnd, String.valueOf(TUPLE_END));
-				currentValue = new StringBuilder();
+			} else if (chars[i] == TUPLE_CHARS.second() && !stringOpen) {
+				if (!tupleOpen) {
+					throw new Exception("Unexpected tuple end");
+				}
+				if (!currentValue.isEmpty()) {
+					addToken.accept(TokenType.ArgumentValue, currentValue.toString());
+				}
+				addToken.accept(TokenType.ArgumentValueTupleEnd, null);
+				currentValue.setLength(0);
 				tupleOpen = false;
 			} else if (stringOpen) {
 				currentValue.append(chars[i]);
-			} else if ((chars[i] == ' ' && !tupleOpen && !currentValue.isEmpty()) || i == chars.length - 1) {
-				result.add(this.tokenizeSection(currentValue.toString()));
-				currentValue = new StringBuilder();
+			} else if (chars[i] == ' ' && !currentValue.isEmpty()) {
+				tokenizeSection.run();
+				currentValue.setLength(0);
+			} else if (i == chars.length - 1) {
+				if (tupleOpen) {
+					throw new Exception("Unexpected EOL. Tuple isn't closed");
+				}
+				currentValue.append(chars[i]);
+				tokenizeSection.run();
 			} else if (chars[i] != ' ') {
 				currentValue.append(chars[i]);
 			}
 		}
-
 
 		return result.toArray(Token[]::new);
 	}

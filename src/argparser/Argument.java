@@ -5,7 +5,7 @@ import java.util.function.Consumer;
 public class Argument<Type extends ArgumentType<TInner>, TInner> {
 	public final char prefix = '-';
 	private final Type argType;
-	private Character name;
+	private final Character name;
 	private String alias;
 	private Consumer<TInner> callback;
 	private short usageCount = 0;
@@ -21,28 +21,30 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 	public Argument(Character name, Type argType) {
 		this(name, null, argType);
 	}
+
 	public Argument(String alias, Type argType) {
 		this(null, alias, argType);
 	}
+
 	@SuppressWarnings("unchecked cast") // we know for sure type returned by BOOLEAN is compatible
-	public Argument(Character name) {this(name, null, (Type)ArgumentType.BOOLEAN()); }
+	public Argument(Character name) {this(name, null, (Type)ArgumentType.BOOLEAN());}
 
 	public void setAlias(String alias) {
 		if (alias == null || !Argument.isInvalidAlias(alias)) return;
 		this.alias = alias.replaceAll('^' + Character.toString(this.prefix) + "+", "");
 	}
 
-	public Argument<?, ?> obligatory() {
+	public Argument<Type, TInner> obligatory() {
 		this.obligatory = true;
 		return this;
 	}
 
-	public Argument<?, ?> positional() {
+	public Argument<Type, TInner> positional() {
 		this.positional = true;
 		return this;
 	}
 
-	public Argument<?, ?> callback(Consumer<TInner> cb) {
+	public Argument<Type, TInner> callback(Consumer<TInner> cb) {
 		this.callback = cb;
 		return this;
 	}
@@ -71,6 +73,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 
 	/**
 	 * Checks if the specified alias is invalid or not
+	 *
 	 * @return <code>true</code> if the alias is valid
 	 */
 	private static boolean isInvalidAlias(String alias) {

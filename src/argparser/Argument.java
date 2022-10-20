@@ -3,6 +3,7 @@ package argparser;
 import java.util.function.Consumer;
 
 public class Argument<Type extends ArgumentType<TInner>, TInner> {
+	public static final char[] INVALID_CHARACTERS = {'=', ' '};
 	public final char prefix = '-';
 	private final Type argType;
 	private final Character name;
@@ -10,7 +11,6 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 	private Consumer<TInner> callback;
 	private short usageCount = 0;
 	private boolean obligatory = false, positional = false;
-	public static final char[] INVALID_CHARACTERS = {'=', ' '};
 
 	public Argument(Character name, String alias, Type argType) {
 		this.setAlias(alias);
@@ -28,6 +28,20 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 
 	@SuppressWarnings("unchecked cast") // we know for sure type returned by BOOLEAN is compatible
 	public Argument(Character name) {this(name, null, (Type)ArgumentType.BOOLEAN());}
+
+	/**
+	 * Checks if the specified alias is invalid or not
+	 *
+	 * @return <code>true</code> if the alias is valid
+	 */
+	private static boolean isInvalidAlias(String alias) {
+		for (char invalidChar : Argument.INVALID_CHARACTERS) {
+			if (alias.contains(Character.toString(invalidChar))) {
+				return false;
+			}
+		}
+		return true;
+	}
 
 	public void setAlias(String alias) {
 		if (alias == null || !Argument.isInvalidAlias(alias)) return;
@@ -69,19 +83,5 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 
 	public boolean checkMatch(char name) {
 		return name == this.name;
-	}
-
-	/**
-	 * Checks if the specified alias is invalid or not
-	 *
-	 * @return <code>true</code> if the alias is valid
-	 */
-	private static boolean isInvalidAlias(String alias) {
-		for (char invalidChar : Argument.INVALID_CHARACTERS) {
-			if (alias.contains(Character.toString(invalidChar))) {
-				return false;
-			}
-		}
-		return true;
 	}
 }

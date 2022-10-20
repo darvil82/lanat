@@ -19,7 +19,7 @@ public abstract class ArgumentType<T> {
 	public abstract void parseArgValues(String[] args);
 
 	public ArgValueCount getNumberOfArgValues() {
-		return new ArgValueCount(1);
+		return ArgValueCount.ONE;
 	}
 
 	public String getRepresentation() {
@@ -59,7 +59,7 @@ class BooleanArgument extends ArgumentType<Boolean> {
 	@Override
 	// this is a boolean type. if the arg is present, that's enough.
 	public ArgValueCount getNumberOfArgValues() {
-		return new ArgValueCount(0);
+		return ArgValueCount.NONE;
 	}
 }
 
@@ -72,7 +72,7 @@ class CounterArgument extends ArgumentType<Short> {
 
 	@Override
 	public ArgValueCount getNumberOfArgValues() {
-		return ArgValueCount.ANY;
+		return ArgValueCount.NONE;
 	}
 
 	@Override
@@ -83,22 +83,12 @@ class CounterArgument extends ArgumentType<Short> {
 
 class StringArgument extends ArgumentType<String> {
 	@Override
-	public ArgValueCount getNumberOfArgValues() {
-		return new ArgValueCount(1);
-	}
-
-	@Override
 	public void parseArgValues(String[] args) {
 		this.value = args[0];
 	}
 }
 
 class FileArgument extends ArgumentType<File> {
-	@Override
-	public ArgValueCount getNumberOfArgValues() {
-		return new ArgValueCount(1);
-	}
-
 	@Override
 	public void parseArgValues(String[] args) {
 		this.value = new File(args[0]);

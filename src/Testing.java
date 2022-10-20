@@ -32,7 +32,7 @@ public class Testing {
 					}
 				).positional().obligatory());
 
-		ap.parseArgs("--my-arg 12 5 2 --help".split(" "));
+		ap.parseArgs("--my-arg 12 5 2 --help -g".split(" "));
 
 	}
 }

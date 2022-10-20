@@ -1,22 +1,24 @@
 package argparser;
 
+import argparser.exceptions.ArgParserException;
+import argparser.exceptions.ParseResult;
 import argparser.utils.Pair;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
+import java.util.function.Function;
 
 class ParserState {
 	private final String[] cli_args;
-	private Token[] tokens;
 	private final ArrayList<Argument<?, ?>> specified_arguments;
 	private final Pair<Character, Character> TUPLE_CHARS;
 	/**
 	 * All the possible argument prefixes that we can encounter.
 	 */
 	private final List<Character> possiblePrefixes;
+	private Token[] tokens;
 	private short currentTokenIndex = 0;
 
 	public ParserState(String[] cli_args, ArrayList<Argument<?, ?>> u_args, TupleCharacter tc) {
@@ -32,22 +34,40 @@ class ParserState {
 		for (this.currentTokenIndex = 0; this.currentTokenIndex < tokens.length; this.currentTokenIndex++) {
 			Token c_token = this.tokens[currentTokenIndex];
 
-			if (c_token.isArgumentSpecifier()) {
+			if (c_token.type() == TokenType.ArgumentAlias) {
 				runForArgument(c_token.contents(), this::executeArgParse);
+			} else if (c_token.type() == TokenType.ArgumentNameList) {
+				parseSimpleArgs(c_token.contents().substring(1));
 			}
 		}
 
 		this.specified_arguments.forEach(Argument::invokeCallback);
 	}
 
-	private boolean isPossiblePrefix(String prefix) {
-		return this.possiblePrefixes.contains(prefix.charAt(0));
+	private boolean isPossiblePrefix(String str) {
+		return this.possiblePrefixes.contains(str.charAt(0));
 	}
 
-	private void parseSimpleArgs(char[] args) {
-		for (char simple_arg : args) {
-			this.runForArgument(simple_arg, this::executeArgParse);
+	private ParseResult parseSimpleArgs(String args) {
+		// if its only one, we can parse the arg without problem
+		if (args.length() == 1) {
+			return runForArgument(args.charAt(0), this::executeArgParse);
 		}
+
+		var res = new ParseResult();
+
+		// its multiple of them. We can only do this with arguments that accept 0 values.
+		for (char simple_arg : args.toCharArray()) {
+			res.addSubResult(this.runForArgument(simple_arg, a -> {
+				if (a.getNumberOfValues().isZero()) {
+					return this.executeArgParse(a);
+				}
+				return new ParseResult("Multiple arguments in name list cannot accept values");
+			}));
+		}
+
+		// only return a correct result if all subresults are ok
+		return res.correctByAll();
 	}
 
 	/**
@@ -57,14 +77,13 @@ class ParserState {
 	 * @param f
 	 * @return <code>true</code> if an argument was found
 	 */
-	private boolean runForArgument(String argAlias, Consumer<Argument<?, ?>> f) {
+	private ParseResult runForArgument(String argAlias, Function<Argument<?, ?>, ParseResult> f) throws ArgParserException {
 		for (var argument : this.specified_arguments) {
 			if (argument.checkMatch(argAlias)) {
-				f.accept(argument);
-				return true;
+				return f.apply(argument);
 			}
 		}
-		return false;
+		return new ParseResult(String.format("Could not find an argument with the alias '%s'", argAlias));
 	}
 
 	/**
@@ -74,14 +93,13 @@ class ParserState {
 	 * @param f
 	 * @return <code>true</code> if an argument was found
 	 */
-	private boolean runForArgument(char argName, Consumer<Argument<?, ?>> f) {
+	private ParseResult runForArgument(char argName, Function<Argument<?, ?>, ParseResult> f) {
 		for (var argument : this.specified_arguments) {
 			if (argument.checkMatch(argName)) {
-				f.accept(argument);
-				return true;
+				return f.apply(argument);
 			}
 		}
-		return false;
+		return new ParseResult(String.format("Could not find an argument with the name '%s'", argName));
 	}
 
 
@@ -115,13 +133,13 @@ class ParserState {
 		return isArgAlias(str) || isArgNames(str);
 	}
 
-	private void executeArgParse(Argument<?, ?> arg) {
+	private ParseResult executeArgParse(Argument<?, ?> arg) {
 		ArgValueCount argumentValuesRange = arg.getNumberOfValues();
 
 		// just skip the whole thing if it doesn't need any values
 		if (argumentValuesRange.isZero()) {
 			arg.parseValues(new String[]{});
-			return;
+			return ParseResult.CORRECT;
 		}
 
 		short skipCount = argumentValuesRange.min;
@@ -133,11 +151,11 @@ class ParserState {
 
 		// next add more values until we get to the max of the type, or we encounter another argument specifier
 		for (
-			int x = argumentValuesRange.min + 1;
-			x <= argumentValuesRange.max && currentTokenIndex + x < this.tokens.length;
-			x++, skipCount++
+			int i = argumentValuesRange.min + 1;
+			i <= argumentValuesRange.max && currentTokenIndex + i < this.tokens.length;
+			i++, skipCount++
 		) {
-			var actual_token = this.tokens[currentTokenIndex + x];
+			var actual_token = this.tokens[currentTokenIndex + i];
 			if (actual_token.isArgumentSpecifier()) break;
 			temp_args.add(actual_token);
 		}
@@ -146,6 +164,7 @@ class ParserState {
 		arg.parseValues(temp_args.stream().map(Token::contents).toArray(String[]::new));
 
 		this.currentTokenIndex += skipCount;
+		return ParseResult.CORRECT;
 	}
 
 	private Token[] tokenize() throws Exception {

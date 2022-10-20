@@ -7,6 +7,8 @@ package argparser;
  */
 public class ArgValueCount {
 	public static final ArgValueCount ANY = new ArgValueCount(0, Short.MAX_VALUE);
+	public static final ArgValueCount NONE = new ArgValueCount(0);
+	public static final ArgValueCount ONE = new ArgValueCount(1);
 
 	public final short min, max;
 

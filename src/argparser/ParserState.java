@@ -78,11 +78,6 @@ class ParserState {
 
 		short argumentAliasCount = 0;
 
-		// DEBUG
-		System.out.println("Tokenize list:");
-		Arrays.stream(this.tokens).toList().forEach(t -> System.out.printf("\t%s: %s%n", t.type(), t.contents()));
-		System.out.println("--------------");
-
 		for (this.currentTokenIndex = 0; this.currentTokenIndex < tokens.length; this.currentTokenIndex++) {
 			Token c_token = this.tokens[currentTokenIndex];
 
@@ -218,7 +213,7 @@ class ParserState {
 		if (currentTokenIndex < this.tokens.length - 1) {
 			isInTuple = this.tokens[currentTokenIndex + 1].type() == TokenType.ArgumentValueTupleStart;
 		}
-		
+
 		// just skip the whole thing if it doesn't need any values
 		if (argumentValuesRange.isZero()) {
 			arg.parseValues(new String[]{});

@@ -31,8 +31,11 @@ public class ArgumentParser {
 	}
 
 	public void parseArgs(String[] args) throws Exception {
-		ParserState ps = new ParserState(args, this.arguments, tupleCharacter);
+		this.parseArgs(String.join("", args));
+	}
 
+	public void parseArgs(String args) throws Exception {
+		ParserState ps = new ParserState(String.join("", args), this.arguments, tupleCharacter);
 		ps.parse();
 	}
 

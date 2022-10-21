@@ -10,16 +10,37 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+/**
+ * An instance of this class represents the state of the parser while parsing the passed arguments.
+ */
 class ParserState {
-	private final String[] cliArgs;
+	private final char[] cliArgs;
 	private final ArrayList<Argument<?, ?>> specifiedArguments;
+
+	/**
+	 * The array that contains the arguments that are positional.
+	 * This exists for later ease with looking for positional arguments.
+	 */
 	private final Argument<?, ?>[] positionalArguments;
-	private final Pair<Character, Character> TUPLE_CHARS;
+
+	/**
+	 * The characters that will represent the start and end of a tuple when tokenizing.
+	 */
+	private final Pair<Character, Character> tupleChars;
+
 	/**
 	 * All the possible argument prefixes that we can encounter.
 	 */
 	private final List<Character> possiblePrefixes;
+
+	/**
+	 * Array of all the tokens that we have parsed from the CLI arguments.
+	 */
 	private Token[] tokens;
+
+	/**
+	 * The index of the current token that we are parsing.
+	 */
 	private short currentTokenIndex = 0;
 
 	enum ParseErrorType {
@@ -44,16 +65,18 @@ class ParserState {
 		public static final ParseResult CORRECT = new ParseResult(true, 0, null);
 	}
 
-	public ParserState(String[] cliArgs, ArrayList<Argument<?, ?>> u_args, TupleCharacter tc) {
-		this.cliArgs = cliArgs;
+	public ParserState(String cliArgs, ArrayList<Argument<?, ?>> u_args, TupleCharacter tc) {
+		this.cliArgs = cliArgs.toCharArray();
+		this.tupleChars = tc.getCharPair();
 		this.specifiedArguments = u_args;
 		this.possiblePrefixes = u_args.stream().map(a -> a.prefix).distinct().toList();
-		this.TUPLE_CHARS = tc.getCharPair();
 		this.positionalArguments = u_args.stream().filter(Argument::isPositional).toArray(Argument[]::new);
 	}
 
 	public void parse() throws Exception {
 		this.tokens = this.tokenize();
+
+		short argumentAliasCount = 0;
 
 		// DEBUG
 		System.out.println("Tokenize list:");
@@ -65,13 +88,17 @@ class ParserState {
 
 			if (c_token.type() == TokenType.ArgumentAlias) {
 				runForArgument(c_token.contents(), this::executeArgParse);
+			} else if (c_token.type() == TokenType.ArgumentValueTupleStart) {
+				executeArgParse(getArgumentByPositionalIndex(argumentAliasCount));
+				argumentAliasCount++;
 			} else if (c_token.type() == TokenType.ArgumentNameList) {
 				parseSimpleArgs(c_token.contents().substring(1));
 			} else if (c_token.type() == TokenType.ArgumentValue) { // this is most likely a positional argument
-				var a = getArgumentByPositionalIndex(this.currentTokenIndex);
+				var a = getArgumentByPositionalIndex(argumentAliasCount);
 				if (a != null) {
 					this.currentTokenIndex--; // subtract one here because we need to start parsing from this index
 					executeArgParse(a);
+					argumentAliasCount++;
 				}
 			}
 		}
@@ -100,11 +127,9 @@ class ParserState {
 
 		var res_group = new ParseResult();
 
-		char[] chars_array = args.toCharArray();
-
 		// its multiple of them. We can only do this with arguments that accept 0 values.
-		for (short i = 0; i < chars_array.length; i++) {
-			char current_simple_arg = chars_array[i];
+		for (short i = 0; i < args.length(); i++) {
+			char current_simple_arg = args.charAt(i);
 			short const_index = i; // this is because the lambda requires the variable to be final
 
 			var res = this.runForArgument(current_simple_arg, a -> {
@@ -115,7 +140,7 @@ class ParserState {
 				return new ParseResult(ParseErrorType.ArgNameListTakeValues);
 			});
 
-			if (!(res.reason == ParseErrorType.ArgNameListTakeValues)) {
+			if (res.reason != ParseErrorType.ArgNameListTakeValues) {
 				res_group.addSubResult(res);
 			} else {
 				break;
@@ -185,13 +210,15 @@ class ParserState {
 		return false;
 	}
 
-	private boolean isArgumentSpecifier(String str) {
-		return isArgAlias(str) || isArgNames(str);
-	}
-
 	private ParseResult executeArgParse(Argument<?, ?> arg) {
 		ArgValueCount argumentValuesRange = arg.getNumberOfValues();
 
+		boolean isInTuple = false;
+
+		if (currentTokenIndex < this.tokens.length - 1) {
+			isInTuple = this.tokens[currentTokenIndex + 1].type() == TokenType.ArgumentValueTupleStart;
+		}
+		
 		// just skip the whole thing if it doesn't need any values
 		if (argumentValuesRange.isZero()) {
 			arg.parseValues(new String[]{});
@@ -202,22 +229,25 @@ class ParserState {
 
 		// first capture the minimum required values...
 		ArrayList<Token> temp_args = new ArrayList<>(Arrays.stream(
-			Arrays.copyOfRange(this.tokens, currentTokenIndex + 1, currentTokenIndex + argumentValuesRange.min + 1)
+			Arrays.copyOfRange(this.tokens, currentTokenIndex + (isInTuple ? 2 : 1), currentTokenIndex + argumentValuesRange.min + 1)
 		).toList());
 
 		// next add more values until we get to the max of the type, or we encounter another argument specifier
 		for (
 			int i = argumentValuesRange.min + 1;
-			i <= argumentValuesRange.max && currentTokenIndex + i < this.tokens.length;
+			i <= argumentValuesRange.max + (isInTuple ? 1 : 0) && currentTokenIndex <= this.tokens.length;
 			i++, skipCount++
 		) {
 			var actual_token = this.tokens[currentTokenIndex + i];
-			if (actual_token.isArgumentSpecifier()) break;
+			if ((!isInTuple && actual_token.isArgumentSpecifier()) || actual_token.type() == TokenType.ArgumentValueTupleEnd)
+				break;
 			temp_args.add(actual_token);
 		}
 
 		// pass the arg values to the argument subparser
 		arg.parseValues(temp_args.stream().map(Token::contents).toArray(String[]::new));
+
+		if (isInTuple) skipCount++;
 
 		this.currentTokenIndex += skipCount;
 		return ParseResult.CORRECT;
@@ -225,6 +255,10 @@ class ParserState {
 
 	private ParseResult executeArgParse(Argument<?, ?> arg, String value) {
 		ArgValueCount argumentValuesRange = arg.getNumberOfValues();
+
+		if (value.length() == 0) {
+			return this.executeArgParse(arg); // value is not present in the suffix. Continue parsing values.
+		}
 
 		// just skip the whole thing if it doesn't need any values
 		if (argumentValuesRange.isZero()) {
@@ -246,24 +280,29 @@ class ParserState {
 		var result = new ArrayList<Token>();
 		final var currentValue = new StringBuilder();
 		BiConsumer<TokenType, String> addToken = (t, c) -> result.add(new Token(t, c));
-		Runnable tokenizeSection = () -> result.add(this.tokenizeSection(currentValue.toString()));
+		Runnable tokenizeSection = () -> {
+			result.add(this.tokenizeSection(currentValue.toString()));
+			currentValue.setLength(0);
+		};
 
 		boolean stringOpen = false;
 		boolean tupleOpen = false;
 
-		var chars = String.join(" ", this.cliArgs).toCharArray();
+		char[] chars = this.cliArgs;
 
 		for (int i = 0; i < chars.length; i++) {
 			if (chars[i] == '"') {
 				if (stringOpen) {
 					addToken.accept(TokenType.ArgumentValue, currentValue.toString());
 					currentValue.setLength(0);
+				} else if (!currentValue.isEmpty()) { // maybe a possible argNameList? tokenize it
+					tokenizeSection.run();
 				}
 				stringOpen = !stringOpen;
-			} else if (chars[i] == TUPLE_CHARS.first() && !stringOpen) {
+			} else if (chars[i] == tupleChars.first() && !stringOpen) {
 				addToken.accept(TokenType.ArgumentValueTupleStart, null);
 				tupleOpen = true;
-			} else if (chars[i] == TUPLE_CHARS.second() && !stringOpen) {
+			} else if (chars[i] == tupleChars.second() && !stringOpen) {
 				if (!tupleOpen) {
 					throw new Exception("Unexpected tuple end");
 				}
@@ -277,7 +316,6 @@ class ParserState {
 				currentValue.append(chars[i]);
 			} else if (chars[i] == ' ' && !currentValue.isEmpty()) {
 				tokenizeSection.run();
-				currentValue.setLength(0);
 			} else if (i == chars.length - 1) {
 				if (tupleOpen) {
 					throw new Exception("Unexpected EOL. Tuple isn't closed");
@@ -305,6 +343,5 @@ class ParserState {
 		}
 
 		return new Token(type, str);
-
 	}
 }

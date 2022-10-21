@@ -32,6 +32,6 @@ public class Testing {
 					}
 				).obligatory());
 
-		ap.parseArgs("67 -g -tvalue".split(" "));
+		ap.parseArgs("67 -g -gt34".split(" "));
 	}
 }

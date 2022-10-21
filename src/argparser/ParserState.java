@@ -1,7 +1,7 @@
 package argparser;
 
 import argparser.exceptions.ArgParserException;
-import argparser.exceptions.ParseResult;
+import argparser.exceptions.Result;
 import argparser.utils.Pair;
 
 import java.util.ArrayList;
@@ -11,8 +11,8 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 class ParserState {
-	private final String[] cli_args;
-	private final ArrayList<Argument<?, ?>> specified_arguments;
+	private final String[] cliArgs;
+	private final ArrayList<Argument<?, ?>> specifiedArguments;
 	private final Argument<?, ?>[] positionalArguments;
 	private final Pair<Character, Character> TUPLE_CHARS;
 	/**
@@ -22,9 +22,31 @@ class ParserState {
 	private Token[] tokens;
 	private short currentTokenIndex = 0;
 
-	public ParserState(String[] cli_args, ArrayList<Argument<?, ?>> u_args, TupleCharacter tc) {
-		this.cli_args = cli_args;
-		this.specified_arguments = u_args;
+	enum ParseErrorType {
+		ArgumentNotFound,
+		ArgNameListTakeValues,
+		ArgIncorrectValueNumber
+	}
+
+	static class ParseResult extends Result<ParseErrorType> {
+		public ParseResult(boolean isCorrect, int pos, ParseErrorType reason) {super(isCorrect, pos, reason);}
+
+		public ParseResult(int pos, ParseErrorType reason) {
+			super(false, pos, reason);
+		}
+
+		public ParseResult(ParseErrorType reason) {
+			super(false, 0, reason);
+		}
+
+		public ParseResult() {super(false, 0, null);}
+
+		public static final ParseResult CORRECT = new ParseResult(true, 0, null);
+	}
+
+	public ParserState(String[] cliArgs, ArrayList<Argument<?, ?>> u_args, TupleCharacter tc) {
+		this.cliArgs = cliArgs;
+		this.specifiedArguments = u_args;
 		this.possiblePrefixes = u_args.stream().map(a -> a.prefix).distinct().toList();
 		this.TUPLE_CHARS = tc.getCharPair();
 		this.positionalArguments = u_args.stream().filter(Argument::isPositional).toArray(Argument[]::new);
@@ -54,7 +76,7 @@ class ParserState {
 			}
 		}
 
-		this.specified_arguments.forEach(Argument::invokeCallback);
+		this.specifiedArguments.forEach(Argument::invokeCallback);
 	}
 
 	private Argument<?, ?> getArgumentByPositionalIndex(short index) {
@@ -76,20 +98,32 @@ class ParserState {
 			return runForArgument(args.charAt(0), this::executeArgParse);
 		}
 
-		var res = new ParseResult();
+		var res_group = new ParseResult();
+
+		char[] chars_array = args.toCharArray();
 
 		// its multiple of them. We can only do this with arguments that accept 0 values.
-		for (char simple_arg : args.toCharArray()) {
-			res.addSubResult(this.runForArgument(simple_arg, a -> {
+		for (short i = 0; i < chars_array.length; i++) {
+			char current_simple_arg = chars_array[i];
+			short const_index = i; // this is because the lambda requires the variable to be final
+
+			var res = this.runForArgument(current_simple_arg, a -> {
 				if (a.getNumberOfValues().isZero()) {
 					return this.executeArgParse(a);
 				}
-				return new ParseResult("Multiple arguments in name list cannot accept values");
-			}));
+				this.executeArgParse(a, args.substring(const_index + 1)); // if this arg accepts more values, treat the rest of chars as value
+				return new ParseResult(ParseErrorType.ArgNameListTakeValues);
+			});
+
+			if (!(res.reason == ParseErrorType.ArgNameListTakeValues)) {
+				res_group.addSubResult(res);
+			} else {
+				break;
+			}
 		}
 
 		// only return a correct result if all subresults are ok
-		return res.correctByAll();
+		return (ParseResult)res_group.correctByAll();
 	}
 
 	/**
@@ -100,12 +134,12 @@ class ParserState {
 	 * @return <code>true</code> if an argument was found
 	 */
 	private ParseResult runForArgument(String argAlias, Function<Argument<?, ?>, ParseResult> f) throws ArgParserException {
-		for (var argument : this.specified_arguments) {
+		for (var argument : this.specifiedArguments) {
 			if (argument.checkMatch(argAlias)) {
 				return f.apply(argument);
 			}
 		}
-		return new ParseResult(String.format("Could not find an argument with the alias '%s'", argAlias));
+		return new ParseResult(ParseErrorType.ArgumentNotFound);
 	}
 
 	/**
@@ -116,12 +150,12 @@ class ParserState {
 	 * @return <code>true</code> if an argument was found
 	 */
 	private ParseResult runForArgument(char argName, Function<Argument<?, ?>, ParseResult> f) {
-		for (var argument : this.specified_arguments) {
+		for (var argument : this.specifiedArguments) {
 			if (argument.checkMatch(argName)) {
 				return f.apply(argument);
 			}
 		}
-		return new ParseResult(String.format("Could not find an argument with the name '%s'", argName));
+		return new ParseResult(ParseErrorType.ArgumentNotFound);
 	}
 
 
@@ -133,7 +167,7 @@ class ParserState {
 				&& this.isPossiblePrefix(str) // okay lets check if the prefix is valid
 		) {
 			// now check if the alias actually exist
-			return this.specified_arguments.stream().anyMatch(a -> a.checkMatch(str));
+			return this.specifiedArguments.stream().anyMatch(a -> a.checkMatch(str));
 		}
 
 		return false;
@@ -145,7 +179,7 @@ class ParserState {
 		}
 
 		for (var character : str.substring(1).toCharArray()) {
-			return this.specified_arguments.stream().anyMatch(a -> a.checkMatch(character));
+			return this.specifiedArguments.stream().anyMatch(a -> a.checkMatch(character));
 		}
 
 		return false;
@@ -189,6 +223,25 @@ class ParserState {
 		return ParseResult.CORRECT;
 	}
 
+	private ParseResult executeArgParse(Argument<?, ?> arg, String value) {
+		ArgValueCount argumentValuesRange = arg.getNumberOfValues();
+
+		// just skip the whole thing if it doesn't need any values
+		if (argumentValuesRange.isZero()) {
+			arg.parseValues(new String[]{});
+			return ParseResult.CORRECT;
+		}
+
+		if (argumentValuesRange.max > 1) {
+			return new ParseResult(ParseErrorType.ArgIncorrectValueNumber);
+		}
+
+		// pass the arg values to the argument subparser
+		arg.parseValues(new String[]{value});
+
+		return ParseResult.CORRECT;
+	}
+
 	private Token[] tokenize() throws Exception {
 		var result = new ArrayList<Token>();
 		final var currentValue = new StringBuilder();
@@ -198,7 +251,7 @@ class ParserState {
 		boolean stringOpen = false;
 		boolean tupleOpen = false;
 
-		var chars = String.join(" ", this.cli_args).toCharArray();
+		var chars = String.join(" ", this.cliArgs).toCharArray();
 
 		for (int i = 0; i < chars.length; i++) {
 			if (chars[i] == '"') {

@@ -1,4 +1,4 @@
 package argparser.exceptions;
 
-public class ArgParserException extends Exception {
+public class ArgParserException extends Throwable {
 }

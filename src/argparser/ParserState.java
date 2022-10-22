@@ -1,6 +1,5 @@
 package argparser;
 
-import argparser.exceptions.ArgParserException;
 import argparser.exceptions.Result;
 import argparser.utils.Pair;
 
@@ -46,23 +45,42 @@ class ParserState {
 	enum ParseErrorType {
 		ArgumentNotFound,
 		ArgNameListTakeValues,
+		ObligatoryArgumentNotUsed,
 		ArgIncorrectValueNumber
 	}
 
-	static class ParseResult extends Result<ParseErrorType> {
+	static class ParseResult<TReturn> extends Result<ParseErrorType, TReturn> {
 		public ParseResult(boolean isCorrect, int pos, ParseErrorType reason) {super(isCorrect, pos, reason);}
 
-		public ParseResult(int pos, ParseErrorType reason) {
-			super(false, pos, reason);
+		public ParseResult() {}
+
+		public ParseResult<TReturn> correctByAny() {
+			return (ParseResult<TReturn>)super.correctByAny();
 		}
 
-		public ParseResult(ParseErrorType reason) {
-			super(false, 0, reason);
+		public ParseResult<TReturn> correctByAll() {
+			return (ParseResult<TReturn>)super.correctByAll();
 		}
 
-		public ParseResult() {super(false, 0, null);}
+		public void addSubResult(ParseResult<TReturn> r) {
+			super.addSubResult(r);
+		}
 
-		public static final ParseResult CORRECT = new ParseResult(true, 0, null);
+		public static <TReturn> ParseResult<TReturn> CORRECT() {return new ParseResult<>(true, 0, null);}
+
+		public static <TReturn> ParseResult<TReturn> CORRECT(TReturn ret) {
+			var x = new ParseResult<TReturn>(true, 0, null);
+			x.returnValue = ret;
+			return x;
+		}
+
+		public static <TReturn> ParseResult<TReturn> ERROR(ParseErrorType reason) {
+			return new ParseResult<>(false, 0, reason);
+		}
+
+		public static <TReturn> ParseResult<TReturn> ERROR(ParseErrorType reason, int position) {
+			return new ParseResult<>(false, position, reason);
+		}
 	}
 
 	public ParserState(String cliArgs, ArrayList<Argument<?, ?>> u_args, TupleCharacter tc) {
@@ -74,31 +92,37 @@ class ParserState {
 	}
 
 	public void parse() throws Exception {
-		this.tokens = this.tokenize();
+		this.tokens = this.tokenize().unpack();
 
 		short argumentAliasCount = 0;
+		boolean foundNonPositionalArg = false;
 
 		for (this.currentTokenIndex = 0; this.currentTokenIndex < tokens.length; this.currentTokenIndex++) {
 			Token c_token = this.tokens[currentTokenIndex];
 
 			if (c_token.type() == TokenType.ArgumentAlias) {
 				runForArgument(c_token.contents(), this::executeArgParse);
-			} else if (c_token.type() == TokenType.ArgumentValueTupleStart) {
-				executeArgParse(getArgumentByPositionalIndex(argumentAliasCount));
-				argumentAliasCount++;
+				foundNonPositionalArg = true;
 			} else if (c_token.type() == TokenType.ArgumentNameList) {
 				parseSimpleArgs(c_token.contents().substring(1));
-			} else if (c_token.type() == TokenType.ArgumentValue) { // this is most likely a positional argument
+				foundNonPositionalArg = true;
+			} else if (
+				(c_token.type() == TokenType.ArgumentValue || c_token.type() == TokenType.ArgumentValueTupleStart)
+					&& !foundNonPositionalArg
+			) { // this is most likely a positional argument
 				var a = getArgumentByPositionalIndex(argumentAliasCount);
 				if (a != null) {
-					this.currentTokenIndex--; // subtract one here because we need to start parsing from this index
+					if (c_token.type() == TokenType.ArgumentValue)
+						this.currentTokenIndex--; // subtract one here because we need to start parsing from this index
 					executeArgParse(a);
 					argumentAliasCount++;
 				}
+			} else {
+				System.out.println("PARSE: Unmatched token " + c_token.type());
 			}
 		}
 
-		this.specifiedArguments.forEach(Argument::invokeCallback);
+		this.specifiedArguments.forEach(Argument::finishParsing);
 	}
 
 	private Argument<?, ?> getArgumentByPositionalIndex(short index) {
@@ -114,13 +138,13 @@ class ParserState {
 		return this.possiblePrefixes.contains(str.charAt(0));
 	}
 
-	private ParseResult parseSimpleArgs(String args) {
+	private ParseResult<Void> parseSimpleArgs(String args) {
 		// if its only one, we can parse the arg without problem
 		if (args.length() == 1) {
 			return runForArgument(args.charAt(0), this::executeArgParse);
 		}
 
-		var res_group = new ParseResult();
+		var res_group = new ParseResult<Void>();
 
 		// its multiple of them. We can only do this with arguments that accept 0 values.
 		for (short i = 0; i < args.length(); i++) {
@@ -132,10 +156,10 @@ class ParserState {
 					return this.executeArgParse(a);
 				}
 				this.executeArgParse(a, args.substring(const_index + 1)); // if this arg accepts more values, treat the rest of chars as value
-				return new ParseResult(ParseErrorType.ArgNameListTakeValues);
+				return ParseResult.ERROR(ParseErrorType.ArgNameListTakeValues);
 			});
 
-			if (res.reason != ParseErrorType.ArgNameListTakeValues) {
+			if (res.getReason() != ParseErrorType.ArgNameListTakeValues) {
 				res_group.addSubResult(res);
 			} else {
 				break;
@@ -143,7 +167,7 @@ class ParserState {
 		}
 
 		// only return a correct result if all subresults are ok
-		return (ParseResult)res_group.correctByAll();
+		return res_group.correctByAll();
 	}
 
 	/**
@@ -153,13 +177,13 @@ class ParserState {
 	 * @param f
 	 * @return <code>true</code> if an argument was found
 	 */
-	private ParseResult runForArgument(String argAlias, Function<Argument<?, ?>, ParseResult> f) throws ArgParserException {
+	private ParseResult<Void> runForArgument(String argAlias, Function<Argument<?, ?>, ParseResult<Void>> f) {
 		for (var argument : this.specifiedArguments) {
 			if (argument.checkMatch(argAlias)) {
 				return f.apply(argument);
 			}
 		}
-		return new ParseResult(ParseErrorType.ArgumentNotFound);
+		return ParseResult.ERROR(ParseErrorType.ArgumentNotFound);
 	}
 
 	/**
@@ -169,13 +193,13 @@ class ParserState {
 	 * @param f
 	 * @return <code>true</code> if an argument was found
 	 */
-	private ParseResult runForArgument(char argName, Function<Argument<?, ?>, ParseResult> f) {
+	private ParseResult<Void> runForArgument(char argName, Function<Argument<?, ?>, ParseResult<Void>> f) {
 		for (var argument : this.specifiedArguments) {
 			if (argument.checkMatch(argName)) {
 				return f.apply(argument);
 			}
 		}
-		return new ParseResult(ParseErrorType.ArgumentNotFound);
+		return ParseResult.ERROR(ParseErrorType.ArgumentNotFound);
 	}
 
 
@@ -205,7 +229,7 @@ class ParserState {
 		return false;
 	}
 
-	private ParseResult executeArgParse(Argument<?, ?> arg) {
+	private ParseResult<Void> executeArgParse(Argument<?, ?> arg) {
 		ArgValueCount argumentValuesRange = arg.getNumberOfValues();
 
 		boolean isInTuple = false;
@@ -217,7 +241,7 @@ class ParserState {
 		// just skip the whole thing if it doesn't need any values
 		if (argumentValuesRange.isZero()) {
 			arg.parseValues(new String[]{});
-			return ParseResult.CORRECT;
+			return ParseResult.CORRECT();
 		}
 
 		short skipCount = argumentValuesRange.min;
@@ -245,10 +269,10 @@ class ParserState {
 		if (isInTuple) skipCount++;
 
 		this.currentTokenIndex += skipCount;
-		return ParseResult.CORRECT;
+		return ParseResult.CORRECT();
 	}
 
-	private ParseResult executeArgParse(Argument<?, ?> arg, String value) {
+	private ParseResult<Void> executeArgParse(Argument<?, ?> arg, String value) {
 		ArgValueCount argumentValuesRange = arg.getNumberOfValues();
 
 		if (value.length() == 0) {
@@ -258,20 +282,20 @@ class ParserState {
 		// just skip the whole thing if it doesn't need any values
 		if (argumentValuesRange.isZero()) {
 			arg.parseValues(new String[]{});
-			return ParseResult.CORRECT;
+			return ParseResult.CORRECT();
 		}
 
 		if (argumentValuesRange.max > 1) {
-			return new ParseResult(ParseErrorType.ArgIncorrectValueNumber);
+			return ParseResult.ERROR(ParseErrorType.ArgIncorrectValueNumber);
 		}
 
 		// pass the arg values to the argument subparser
 		arg.parseValues(new String[]{value});
 
-		return ParseResult.CORRECT;
+		return ParseResult.CORRECT();
 	}
 
-	private Token[] tokenize() throws Exception {
+	private ParseResult<Token[]> tokenize() throws Exception {
 		var result = new ArrayList<Token>();
 		final var currentValue = new StringBuilder();
 		BiConsumer<TokenType, String> addToken = (t, c) -> result.add(new Token(t, c));
@@ -322,7 +346,7 @@ class ParserState {
 			}
 		}
 
-		return result.toArray(Token[]::new);
+		return ParseResult.CORRECT(result.toArray(Token[]::new));
 	}
 
 

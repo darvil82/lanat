@@ -1,5 +1,8 @@
 package argparser;
 
+import argparser.ParserState.ParseErrorType;
+import argparser.ParserState.ParseResult;
+
 import java.util.function.Consumer;
 
 public class Argument<Type extends ArgumentType<TInner>, TInner> {
@@ -68,9 +71,15 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 		return this;
 	}
 
-	public void invokeCallback() {
-		if (this.usageCount == 0 || this.callback == null) return;
-		this.callback.accept(this.argType.getFinalValue());
+	public ParseResult<TInner> finishParsing() {
+		if (this.usageCount == 0 && this.isObligatory())
+			return ParseResult.ERROR(ParseErrorType.ObligatoryArgumentNotUsed);
+
+		var final_value = this.argType.getFinalValue();
+
+		if (this.callback != null) this.callback.accept(final_value);
+
+		return ParseResult.CORRECT(final_value);
 	}
 
 	public void parseValues(String[] value) {

@@ -33,6 +33,6 @@ public class Testing {
 				).obligatory().positional());
 
 
-		ap.parseArgs("--my-arg [6 1 7 8]");
+		ap.parseArgs("[67 5]  --testing hoal");
 	}
 }

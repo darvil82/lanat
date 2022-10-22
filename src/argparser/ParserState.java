@@ -79,8 +79,8 @@ class ParserState {
 			return new ParseResult<>(false, 0, reason);
 		}
 
-		public static <TReturn> ParseResult<TReturn> ERROR(ParseErrorType reason, int position) {
-			return new ParseResult<>(false, position, reason);
+		public static <TReturn> ParseResult<TReturn> ERROR(ParseErrorType reason, int value) {
+			return new ParseResult<>(false, value, reason);
 		}
 	}
 
@@ -104,7 +104,9 @@ class ParserState {
 			Token c_token = this.tokens[currentTokenIndex];
 
 			if (c_token.type() == TokenType.ArgumentAlias) {
-				runForArgument(c_token.contents(), this::executeArgParse);
+				if (!runForArgument(c_token.contents(), this::executeArgParse).isCorrect()) {
+					System.out.println("FUCK");
+				}
 				foundNonPositionalArg = true;
 			} else if (c_token.type() == TokenType.ArgumentNameList) {
 				parseSimpleArgs(c_token.contents().substring(1));
@@ -121,7 +123,7 @@ class ParserState {
 					argumentAliasCount++;
 				}
 			} else {
-				System.out.println("PARSE: Unmatched token " + c_token.type());
+				System.out.println("PARSE: Unmatched token " + c_token.type() + ": " + c_token.contents());
 			}
 		}
 
@@ -261,28 +263,33 @@ class ParserState {
 		short skipCount = argumentValuesRange.min;
 
 		// first capture the minimum required values...
-		ArrayList<Token> temp_args = new ArrayList<>(Arrays.stream(
-			Arrays.copyOfRange(this.tokens, currentTokenIndex + (isInTuple ? 2 : 1), currentTokenIndex + argumentValuesRange.min + (isInTuple ? 2 : 1))
-		).toList());
+		ArrayList<Token> temp_args = new ArrayList<>();
 
 		// next add more values until we get to the max of the type, or we encounter another argument specifier
 		for (
-			int i = argumentValuesRange.min + 1;
-			i <= argumentValuesRange.max && currentTokenIndex + i < this.tokens.length;
+			int i = currentTokenIndex + 1 + (isInTuple ? 1 : 0);
+			i < this.tokens.length;
 			i++, skipCount++
 		) {
-			var actual_token = this.tokens[currentTokenIndex + i];
+			var actual_token = this.tokens[i];
 			if ((!isInTuple && actual_token.isArgumentSpecifier()) || actual_token.type() == TokenType.ArgumentValueTupleEnd)
 				break;
 			temp_args.add(actual_token);
 		}
 
-		// pass the arg values to the argument subparser
-		arg.parseValues(temp_args.stream().map(Token::contents).toArray(String[]::new));
+		int temp_args_size = temp_args.size();
 
 		if (isInTuple) skipCount++;
 
 		this.currentTokenIndex += skipCount;
+
+		if (temp_args_size > argumentValuesRange.max || temp_args_size < argumentValuesRange.min)
+			return ParseResult.ERROR(ParseErrorType.ArgIncorrectValueNumber, temp_args_size);
+
+		// pass the arg values to the argument subparser
+		arg.parseValues(temp_args.stream().map(Token::contents).toArray(String[]::new));
+
+
 		return ParseResult.CORRECT();
 	}
 

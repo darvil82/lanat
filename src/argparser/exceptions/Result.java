@@ -5,14 +5,14 @@ import java.util.function.Function;
 
 public class Result<TErrorEnum extends Enum<TErrorEnum>, TReturn> {
 	protected boolean correct = false;
-	protected short position;
+	protected short simpleValue;
 	protected TErrorEnum reason;
 	protected ArrayList<Result<TErrorEnum, TReturn>> subResults = new ArrayList<>();
 	protected TReturn returnValue;
 
 	public Result(boolean isCorrect, int pos, TErrorEnum reason) {
 		this.correct = isCorrect;
-		this.position = (short)pos;
+		this.simpleValue = (short)pos;
 		this.reason = reason;
 	}
 

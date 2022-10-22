@@ -345,16 +345,19 @@ class ParserState {
 				addToken.accept(TokenType.ArgumentValueTupleEnd, null);
 				currentValue.setLength(0);
 				tupleOpen = false;
-			} else if (stringOpen) {
-				if (chars[i] == '\\') i++; // user is trying to escape a character
-				currentValue.append(chars[i]);
-			} else if (chars[i] == ' ' && !currentValue.isEmpty()) {
-				tokenizeSection.run();
 			} else if (i == chars.length - 1) {
 				if (tupleOpen) {
 					throw new Exception("Unexpected EOL. Tuple isn't closed");
 				}
+				if (stringOpen) {
+					throw new Exception("Unexpected EOL. String isn't closed");
+				}
 				currentValue.append(chars[i]);
+				tokenizeSection.run();
+			} else if (stringOpen) {
+				if (chars[i] == '\\') i++; // user is trying to escape a character
+				currentValue.append(chars[i]);
+			} else if (chars[i] == ' ' && !currentValue.isEmpty()) {
 				tokenizeSection.run();
 			} else if (chars[i] != ' ') {
 				currentValue.append(chars[i]);

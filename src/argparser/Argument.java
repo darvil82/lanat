@@ -9,7 +9,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 	public static final char[] INVALID_CHARACTERS = {'=', ' '};
 	public char prefix = '-';
 	private final Type argType;
-	private final Character name;
+	public final Character name;
 	private String alias;
 	private Consumer<TInner> callback;
 	private short usageCount = 0;
@@ -51,6 +51,10 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 		this.alias = alias.replaceAll('^' + Character.toString(this.prefix) + "+", "");
 	}
 
+	public String getAlias() {
+		return alias;
+	}
+
 	public Argument<Type, TInner> obligatory() {
 		this.obligatory = true;
 		return this;
@@ -72,8 +76,11 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 	}
 
 	public ParseResult<TInner> finishParsing() {
-		if (this.usageCount == 0 && this.isObligatory())
-			return ParseResult.ERROR(ParseErrorType.ObligatoryArgumentNotUsed);
+		if (this.usageCount == 0) {
+			return this.isObligatory()
+				? ParseResult.ERROR(ParseErrorType.ObligatoryArgumentNotUsed)
+				: ParseResult.CORRECT();
+		}
 
 		var final_value = this.argType.getFinalValue();
 

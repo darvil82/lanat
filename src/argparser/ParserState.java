@@ -5,6 +5,7 @@ import argparser.utils.Pair;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -91,8 +92,10 @@ class ParserState {
 		this.positionalArguments = u_args.stream().filter(Argument::isPositional).toArray(Argument[]::new);
 	}
 
-	public void parse() throws Exception {
+	public HashMap<String, Object> parse() throws Exception {
 		this.tokens = this.tokenize().unpack();
+
+		Arrays.stream(this.tokens).toList().forEach(System.out::println);
 
 		short argumentAliasCount = 0;
 		boolean foundNonPositionalArg = false;
@@ -122,7 +125,18 @@ class ParserState {
 			}
 		}
 
-		this.specifiedArguments.forEach(Argument::finishParsing);
+		HashMap<String, Object> parsed_args = new HashMap<>();
+
+		this.specifiedArguments.forEach(argument -> {
+			var result = argument.finishParsing();
+			if (!result.isCorrect()) {
+				System.out.println("error with argument " + argument.getAlias());
+				return;
+			}
+			parsed_args.put(argument.getAlias(), result.unpack());
+		});
+
+		return parsed_args;
 	}
 
 	private Argument<?, ?> getArgumentByPositionalIndex(short index) {
@@ -248,13 +262,13 @@ class ParserState {
 
 		// first capture the minimum required values...
 		ArrayList<Token> temp_args = new ArrayList<>(Arrays.stream(
-			Arrays.copyOfRange(this.tokens, currentTokenIndex + (isInTuple ? 2 : 1), currentTokenIndex + argumentValuesRange.min + 1)
+			Arrays.copyOfRange(this.tokens, currentTokenIndex + (isInTuple ? 2 : 1), currentTokenIndex + argumentValuesRange.min + (isInTuple ? 2 : 1))
 		).toList());
 
 		// next add more values until we get to the max of the type, or we encounter another argument specifier
 		for (
 			int i = argumentValuesRange.min + 1;
-			i <= argumentValuesRange.max + (isInTuple ? 1 : 0) && currentTokenIndex <= this.tokens.length;
+			i <= argumentValuesRange.max && currentTokenIndex + i < this.tokens.length;
 			i++, skipCount++
 		) {
 			var actual_token = this.tokens[currentTokenIndex + i];
@@ -310,7 +324,7 @@ class ParserState {
 		char[] chars = this.cliArgs;
 
 		for (int i = 0; i < chars.length; i++) {
-			if (chars[i] == '"') {
+			if (chars[i] == '"' || chars[i] == '\'') {
 				if (stringOpen) {
 					addToken.accept(TokenType.ArgumentValue, currentValue.toString());
 					currentValue.setLength(0);
@@ -332,6 +346,7 @@ class ParserState {
 				currentValue.setLength(0);
 				tupleOpen = false;
 			} else if (stringOpen) {
+				if (chars[i] == '\\') i++; // user is trying to escape a character
 				currentValue.append(chars[i]);
 			} else if (chars[i] == ' ' && !currentValue.isEmpty()) {
 				tokenizeSection.run();

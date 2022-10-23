@@ -11,8 +11,7 @@ public class ArgumentParser {
 	public ArgumentParser(String programName, String description) {
 		this.programName = programName;
 		this.description = description;
-//		this.addArgument('h', "help", ArgumentType.BOOLEAN(), t -> System.out.println(this.getHelp()));
-		this.addArgument(new Argument<>('h', "help", ArgumentType.BOOLEAN())
+		this.addArgument(new Argument<>("help", ArgumentType.BOOLEAN())
 			.callback(t -> System.out.println(this.getHelp()))
 		);
 	}
@@ -30,8 +29,8 @@ public class ArgumentParser {
 		arguments.add(argument);
 	}
 
-	public void parseArgs(String[] args) throws Exception {
-		this.parseArgs(String.join("", args));
+	public ParsedArguments parseArgs(String[] args) throws Exception {
+		return this.parseArgs(String.join("", args));
 	}
 
 	public ParsedArguments parseArgs(String args) throws Exception {

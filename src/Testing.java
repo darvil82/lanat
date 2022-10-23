@@ -22,17 +22,23 @@ public class Testing {
 		var ap = new ArgumentParser("Testing");
 		ap.addArgument(new Argument<>('g', ArgumentType.COUNTER())
 			.callback((b) -> System.out.println("I was used " + b + " times")));
-		ap.addArgument(new Argument<>('t', "testing", ArgumentType.STRING()).callback(System.out::println));
-		ap.addArgument(
-			new Argument<>('h', "my-arg", new Multiplier())
-				.callback(h -> {
-						for (var f : h) {
-							System.out.print(f + ", ");
-						}
-					}
-				).obligatory().positional());
 
+		ap.addArgument(new Argument<>('t', "testing", ArgumentType.STRING())
+			.callback(System.out::println)
+			.defaultValue("test default value!")
+			.prefix('+')
+		);
 
-		ap.parseArgs("[67 5]  --testing hoal");
+		ap.addArgument(new Argument<>('m', "my-arg", new Multiplier())
+			.callback(h -> {
+				for (var f : h) {
+					System.out.print(f + ", ");
+				}
+			})
+			.positional()
+			.obligatory()
+		);
+
+		ap.parseArgs("-m [1 2 4]");
 	}
 }

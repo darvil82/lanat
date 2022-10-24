@@ -6,18 +6,19 @@ import java.util.function.Function;
 public class Result<TErrorEnum extends Enum<TErrorEnum>, TReturn> {
 	protected boolean correct = false;
 	public final short simpleValue;
-	protected TErrorEnum reason;
-	protected ArrayList<Result<TErrorEnum, TReturn>> subResults = new ArrayList<>();
-	protected TReturn returnValue;
+	protected final TErrorEnum reason;
+	protected final ArrayList<Result<TErrorEnum, TReturn>> subResults = new ArrayList<>();
+	protected final TReturn returnValue;
 
-	public Result(boolean isCorrect, int pos, TErrorEnum reason) {
+	public Result(boolean isCorrect, int pos, TErrorEnum reason, TReturn retVal) {
 		this.correct = isCorrect;
 		this.simpleValue = (short)pos;
 		this.reason = reason;
+		this.returnValue = retVal;
 	}
 
 	public Result() {
-		this.simpleValue = 0;
+		this(false, 0, null, null);
 	}
 
 	public Result<TErrorEnum, TReturn> correctByAny() {
@@ -42,9 +43,6 @@ public class Result<TErrorEnum extends Enum<TErrorEnum>, TReturn> {
 	 * Get the underlying value of this result.
 	 * The callback supplied will be called if the value is null. The callback will take the current Result
 	 * instance, and it should return a new value for the caller.
-	 *
-	 * @param fn
-	 * @return
 	 */
 	public TReturn unpack(Function<Result<TErrorEnum, TReturn>, TReturn> fn) {
 		if (this.returnValue == null)

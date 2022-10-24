@@ -51,7 +51,7 @@ class ParserState {
 	}
 
 	static class ParseResult<TReturn> extends Result<ParseErrorType, TReturn> {
-		public ParseResult(boolean isCorrect, int pos, ParseErrorType reason) {super(isCorrect, pos, reason);}
+		public ParseResult(boolean isCorrect, int pos, ParseErrorType reason, TReturn ret) {super(isCorrect, pos, reason, ret);}
 
 		public ParseResult() {}
 
@@ -67,20 +67,18 @@ class ParserState {
 			super.addSubResult(r);
 		}
 
-		public static <TReturn> ParseResult<TReturn> CORRECT() {return new ParseResult<>(true, 0, null);}
+		public static <TReturn> ParseResult<TReturn> CORRECT() {return new ParseResult<>(true, 0, null, null);}
 
 		public static <TReturn> ParseResult<TReturn> CORRECT(TReturn ret) {
-			var x = new ParseResult<TReturn>(true, 0, null);
-			x.returnValue = ret;
-			return x;
+			return new ParseResult<>(true, 0, null, ret);
 		}
 
 		public static <TReturn> ParseResult<TReturn> ERROR(ParseErrorType reason) {
-			return new ParseResult<>(false, 0, reason);
+			return new ParseResult<>(false, 0, reason, null);
 		}
 
 		public static <TReturn> ParseResult<TReturn> ERROR(ParseErrorType reason, int value) {
-			return new ParseResult<>(false, value, reason);
+			return new ParseResult<>(false, value, reason, null);
 		}
 	}
 
@@ -188,7 +186,7 @@ class ParserState {
 			}
 		}
 
-		// only return a correct result if all subresults are ok
+		// only return a correct result if all sub results are ok
 		return res_group.correctByAll();
 	}
 

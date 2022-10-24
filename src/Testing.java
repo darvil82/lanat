@@ -26,7 +26,7 @@ public class Testing {
 				.positional()
 		);
 		ap.addArgument(new Argument<>("arg", ArgumentType.BOOLEAN()).callback(System.out::println));
-		ap.addArgument(new Argument<>("c", ArgumentType.COUNTER()).callback(t -> System.out.println(t)));
+		ap.addArgument(new Argument<>("c", ArgumentType.COUNTER()).callback(System.out::println));
 		ap.parseArgs("['test test' 'another one'] --arg");
 	}
 }

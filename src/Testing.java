@@ -1,7 +1,4 @@
-import argparser.ArgValueCount;
-import argparser.Argument;
-import argparser.ArgumentParser;
-import argparser.ArgumentType;
+import argparser.*;
 
 class StringJoiner extends ArgumentType<String> {
 	@Override
@@ -17,14 +14,16 @@ class StringJoiner extends ArgumentType<String> {
 
 public class Testing {
 	public static void main(String[] args) throws Exception {
-		var ap = new ArgumentParser("Testing");
-		ap.addArgument(
-			new Argument<>("string", new StringJoiner())
-				.callback(t -> System.out.println("wow look a string: '" + t + "'"))
-				.positional()
-		);
-		ap.addArgument(new Argument<>("arg", ArgumentType.BOOLEAN()).callback(System.out::println));
-		ap.addArgument(new Argument<>("c", ArgumentType.COUNTER()).callback(System.out::println));
-		ap.parseArgs("['test test' 'another one'] --arg".split(" "));
+		new ArgumentParser("Testing") {{
+			addArgument(
+				new Argument<>("string", new StringJoiner())
+					.callback(t -> System.out.println("wow look a string: '" + t + "'"))
+					.positional()
+			);
+			addArgument(new Argument<>("arg", ArgumentType.BOOLEAN()).callback(System.out::println));
+			addSubCommand(new Command("stuff", "") {{
+				addArgument(new Argument<>("c", ArgumentType.COUNTER()).callback(System.out::println));
+			}});
+		}}.parseArgs("['test test' 'another one'] --arg".split(" "));
 	}
 }

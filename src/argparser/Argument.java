@@ -92,7 +92,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 	 * <li>Note that an argument marked as positional can still be used by specifying its name/alias.
 	 */
 	public Argument<Type, TInner> positional() {
-		if (this.getNumberOfValues().min == 0) {
+		if (this.getNumberOfValues().max == 0) {
 			throw new IllegalArgumentException("An argument that does not accept values cannot be positional");
 		}
 		this.positional = true;
@@ -154,7 +154,11 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 	public boolean checkMatch(char name) {
 		// getAlias because it has a fallback to return the name if there's no alias.
 		// we want to match single-char aliases too
-		return this.getAlias().charAt(0) == name;
+		if (this.name == null) {
+			var alias = this.getAlias();
+			return alias.length() == 1 && alias.charAt(0) == name;
+		}
+		return this.name == name;
 	}
 
 	public boolean isObligatory() {

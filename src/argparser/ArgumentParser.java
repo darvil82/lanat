@@ -33,11 +33,12 @@ public class ArgumentParser {
 	}
 
 	public ParsedArguments parseArgs(String[] args) throws Exception {
-		return this.parseArgs(String.join("", args));
+		// if we receive the classic args array, just join it back
+		return this.parseArgs(String.join(" ", args));
 	}
 
 	public ParsedArguments parseArgs(String args) throws Exception {
-		ParserState ps = new ParserState(String.join("", args), this.arguments, tupleCharacter);
+		ParserState ps = new ParserState(args, this.arguments, tupleCharacter);
 		return new ParsedArguments(ps.parse());
 	}
 

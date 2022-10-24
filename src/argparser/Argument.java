@@ -92,6 +92,9 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 	 * <li>Note that an argument marked as positional can still be used by specifying its name/alias.
 	 */
 	public Argument<Type, TInner> positional() {
+		if (this.getNumberOfValues().min == 0) {
+			throw new IllegalArgumentException("An argument that does not accept values cannot be positional");
+		}
 		this.positional = true;
 		return this;
 	}
@@ -149,8 +152,9 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 	}
 
 	public boolean checkMatch(char name) {
-		if (this.name == null) return false;
-		return name == this.name;
+		// getAlias because it has a fallback to return the name if there's no alias.
+		// we want to match single-char aliases too
+		return this.getAlias().charAt(0) == name;
 	}
 
 	public boolean isObligatory() {
@@ -159,5 +163,10 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 
 	public boolean isPositional() {
 		return positional;
+	}
+
+	public boolean equals(Argument<?, ?> obj) {
+		// we just want to check if there's a difference between identifiers
+		return this.getAlias().equals(obj.getAlias()) && this.prefix == obj.prefix;
 	}
 }

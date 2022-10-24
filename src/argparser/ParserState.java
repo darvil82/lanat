@@ -111,7 +111,7 @@ class ParserState {
 				}
 				foundNonPositionalArg = true;
 			} else if (c_token.type() == TokenType.ArgumentNameList) {
-				parseSimpleArgs(c_token.contents().substring(1));
+				parseArgNameList(c_token.contents().substring(1));
 				foundNonPositionalArg = true;
 				currentTokenIndex++;
 			} else if (
@@ -119,7 +119,10 @@ class ParserState {
 					&& !foundNonPositionalArg
 					&& (last_pos_argument = getArgumentByPositionalIndex(argumentAliasCount)) != null
 			) { // this is most likely a positional argument
-				executeArgParse(last_pos_argument);
+				var ball = executeArgParse(last_pos_argument);
+				if (!ball.isCorrect()) {
+					System.out.println("FUCK 2: " + ball.getReason() + " " + ball.simpleValue);
+				}
 				argumentAliasCount++;
 			} else {
 				System.out.println("PARSE: Unmatched token " + c_token.type() + ": " + c_token.contents());
@@ -155,7 +158,7 @@ class ParserState {
 		return this.possiblePrefixes.contains(str.charAt(0));
 	}
 
-	private ParseResult<Void> parseSimpleArgs(String args) {
+	private ParseResult<Void> parseArgNameList(String args) {
 		// if its only one, we can parse the arg without problem
 		if (args.length() == 1) {
 			currentTokenIndex++;

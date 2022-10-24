@@ -20,25 +20,13 @@ class Multiplier extends ArgumentType<Float[]> {
 public class Testing {
 	public static void main(String[] args) throws Exception {
 		var ap = new ArgumentParser("Testing");
-		ap.addArgument(new Argument<>('g', ArgumentType.COUNTER())
-			.callback((b) -> System.out.println("I was used " + b + " times")));
-
-		ap.addArgument(new Argument<>('t', "testing", ArgumentType.STRING())
-			.callback(System.out::println)
-			.defaultValue("test default value!")
-			.prefix('+')
+		ap.addArgument(
+			new Argument<>("string", ArgumentType.STRING())
+				.callback(t -> System.out.println("wow look a string: " + t))
+				.positional()
 		);
-
-		ap.addArgument(new Argument<>('m', "my-arg", new Multiplier())
-			.callback(h -> {
-				for (var f : h) {
-					System.out.print(f + ", ");
-				}
-			})
-			.positional()
-			.obligatory()
-		);
-
-		ap.parseArgs("-m [1 2 4]");
+		ap.addArgument(new Argument<>("arg", ArgumentType.BOOLEAN()).callback(System.out::println));
+		ap.addArgument(new Argument<>("c", ArgumentType.COUNTER()).callback(t -> System.out.println(t)));
+		ap.parseArgs("['test test' 'another one'] --arg");
 	}
 }

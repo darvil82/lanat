@@ -5,7 +5,7 @@ import java.util.function.Function;
 
 public class Result<TErrorEnum extends Enum<TErrorEnum>, TReturn> {
 	protected boolean correct = false;
-	protected short simpleValue;
+	public final short simpleValue;
 	protected TErrorEnum reason;
 	protected ArrayList<Result<TErrorEnum, TReturn>> subResults = new ArrayList<>();
 	protected TReturn returnValue;
@@ -16,7 +16,9 @@ public class Result<TErrorEnum extends Enum<TErrorEnum>, TReturn> {
 		this.reason = reason;
 	}
 
-	public Result() {}
+	public Result() {
+		this.simpleValue = 0;
+	}
 
 	public Result<TErrorEnum, TReturn> correctByAny() {
 		if (!this.subResults.isEmpty()) {

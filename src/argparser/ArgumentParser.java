@@ -26,6 +26,9 @@ public class ArgumentParser {
 
 	public <T extends ArgumentType<TInner>, TInner>
 	void addArgument(Argument<T, TInner> argument) {
+		if (this.arguments.stream().anyMatch(a -> a.equals(argument))) {
+			throw new IllegalArgumentException("duplicate argument identifiers");
+		}
 		arguments.add(argument);
 	}
 

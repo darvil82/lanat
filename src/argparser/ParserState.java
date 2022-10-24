@@ -119,9 +119,8 @@ class ParserState {
 					&& !foundNonPositionalArg
 					&& (last_pos_argument = getArgumentByPositionalIndex(argumentAliasCount)) != null
 			) { // this is most likely a positional argument
-				var ball = executeArgParse(last_pos_argument);
-				if (!ball.isCorrect()) {
-					System.out.println("FUCK 2: " + ball.getReason() + " " + ball.simpleValue);
+				if (!executeArgParse(last_pos_argument).isCorrect()) {
+					System.out.println("FUCK 2: ");
 				}
 				argumentAliasCount++;
 			} else {

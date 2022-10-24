@@ -1,4 +1,4 @@
-package argparser.exceptions;
+package argparser.utils;
 
 import java.util.ArrayList;
 import java.util.function.Function;

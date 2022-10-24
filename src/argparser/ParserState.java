@@ -1,7 +1,7 @@
 package argparser;
 
-import argparser.exceptions.Result;
 import argparser.utils.Pair;
+import argparser.utils.Result;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -22,8 +22,9 @@ public class ArgumentParser extends Command {
 	}
 
 	public ParsedArguments parseArgs(String args) throws Exception {
-		ParserState ps = new ParserState(args, this.arguments, tupleCharacter);
-		return new ParsedArguments(ps.parse());
+		this.tokenize(args);
+		this.funny();
+		return new ParsedArguments(null);
 	}
 
 	public ArgumentParser tupleCharacter(TupleCharacter tupleCharacter) {

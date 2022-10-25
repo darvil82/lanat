@@ -6,7 +6,7 @@ enum TokenType {
 	ArgumentValue,
 	ArgumentValueTupleStart,
 	ArgumentValueTupleEnd,
-	String,
+	String, SubCommand,
 }
 
 public record Token(TokenType type, String contents) {

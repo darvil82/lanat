@@ -23,7 +23,11 @@ public class Testing {
 			addArgument(new Argument<>("arg", ArgumentType.BOOLEAN()).callback(System.out::println));
 			addSubCommand(new Command("stuff", "") {{
 				addArgument(new Argument<>("c", ArgumentType.COUNTER()).callback(System.out::println));
+				addArgument(new Argument<>("string", new StringJoiner()));
+				addSubCommand(new Command("shit", "") {{
+					addArgument(new Argument<>("ball", new StringJoiner()));
+				}});
 			}});
-		}}.parseArgs("['test test' 'another one'] --arg".split(" "));
+		}}.parseArgs("--string hola stuff -ccc shit --ball ");
 	}
 }

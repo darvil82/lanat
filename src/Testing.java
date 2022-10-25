@@ -3,7 +3,7 @@ import argparser.*;
 class StringJoiner extends ArgumentType<String> {
 	@Override
 	public ArgValueCount getNumberOfArgValues() {
-		return new ArgValueCount(0, 3);
+		return new ArgValueCount(1, 3);
 	}
 
 	@Override
@@ -22,12 +22,15 @@ public class Testing {
 			);
 			addArgument(new Argument<>("arg", ArgumentType.BOOLEAN()).callback(System.out::println));
 			addSubCommand(new Command("stuff", "") {{
-				addArgument(new Argument<>("c", ArgumentType.COUNTER()).callback(System.out::println));
-				addArgument(new Argument<>("string", new StringJoiner()));
+				addArgument(new Argument<>("c", ArgumentType.COUNTER()));
+				addArgument(new Argument<>("string", new StringJoiner()).positional().callback(System.out::println));
 				addSubCommand(new Command("shit", "") {{
-					addArgument(new Argument<>("ball", new StringJoiner()));
+					addArgument(new Argument<>("ball", ArgumentType.BOOLEAN()).callback(System.out::println));
 				}});
 			}});
-		}}.parseArgs("--string hola stuff -ccc shit --ball ");
+			addSubCommand(new Command("foo", "") {{
+				addArgument(new Argument<>("qux", ArgumentType.INTEGER()).callback(System.out::println));
+			}});
+		}}.parseArgs("[hey whats up] foo --qux 123");
 	}
 }

@@ -63,19 +63,21 @@ public class Command {
 	private boolean finishedTokenizing = false;
 
 
-	public void funny() {
+	public void debugShit() {
 		System.out.println(this.name);
-		for (var t : this.tokens) {
-			System.out.println("\t" + t);
-		}
+		if (this.finishedTokenizing)
+			for (var t : this.tokens) {
+				System.out.println("\t" + t);
+			}
+		else
+			System.out.println("\tim null");
 		if (!this.subCommands.isEmpty()) {
-			this.subCommands.get(0).funny();
+			this.subCommands.forEach(Command::debugShit);
 		}
 	}
 
 
-	protected ParserState.ParseResult<Token[]>
-	tokenize(String content) {
+	protected ParseResult<Token[]> tokenize(String content) {
 		var result = new ArrayList<Token>();
 		var currentValue = new StringBuilder();
 
@@ -86,8 +88,9 @@ public class Command {
 			Command subCmd;
 			// if this is a subcommand, continue tokenizing next elements
 			if (token.type() == TokenType.SubCommand && (subCmd = getSubCommandByName(token.contents())) != null) {
+				// forward the rest of stuff to the subCommand
 				subCmd.tokenize(content.substring(i + 1));
-				finishedTokenizing = true;
+				finishedTokenizing = true; // dumb java lambdas require me to do this in order to stop tokenizing
 			} else {
 				result.add(token);
 				currentValue.setLength(0);
@@ -150,7 +153,8 @@ public class Command {
 		}
 
 		this.tokens = result.toArray(Token[]::new);
-		return ParserState.ParseResult.CORRECT();
+		finishedTokenizing = true;
+		return ParseResult.CORRECT();
 	}
 
 
@@ -182,14 +186,14 @@ public class Command {
 	}
 
 
-	private ParserState.ParseResult<Void> parseArgNameList(String args) {
+	private ParseResult<Void> parseArgNameList(String args) {
 		// if its only one, we can parse the arg without problem
 		if (args.length() == 1) {
 			currentTokenIndex++;
 			return runForArgument(args.charAt(0), this::executeArgParse);
 		}
 
-		var res_group = new ParserState.ParseResult<Void>();
+		var res_group = new ParseResult<Void>();
 
 		// its multiple of them. We can only do this with arguments that accept 0 values.
 		for (short i = 0; i < args.length(); i++) {
@@ -206,7 +210,7 @@ public class Command {
 				return this.executeArgParse(a, args.substring(const_index + 1)); // if this arg accepts more values, treat the rest of chars as value
 			});
 
-			if (res.getReason() != ParserState.ParseErrorType.ArgNameListTakeValues) {
+			if (res.getReason() != ParseErrorType.ArgNameListTakeValues) {
 				res_group.addSubResult(res);
 			} else {
 				break;
@@ -222,13 +226,13 @@ public class Command {
 	 *
 	 * @return <code>true</code> if an argument was found
 	 */
-	private ParserState.ParseResult<Void> runForArgument(String argAlias, Function<Argument<?, ?>, ParserState.ParseResult<Void>> f) {
+	private ParseResult<Void> runForArgument(String argAlias, Function<Argument<?, ?>, ParseResult<Void>> f) {
 		for (var argument : this.getArguments()) {
 			if (argument.checkMatch(argAlias)) {
 				return f.apply(argument);
 			}
 		}
-		return ParserState.ParseResult.ERROR(ParserState.ParseErrorType.ArgumentNotFound);
+		return ParseResult.ERROR(ParseErrorType.ArgumentNotFound);
 	}
 
 	/**
@@ -236,13 +240,13 @@ public class Command {
 	 *
 	 * @return <code>true</code> if an argument was found
 	 */
-	private ParserState.ParseResult<Void> runForArgument(char argName, Function<Argument<?, ?>, ParserState.ParseResult<Void>> f) {
+	private ParseResult<Void> runForArgument(char argName, Function<Argument<?, ?>, ParseResult<Void>> f) {
 		for (var argument : this.getArguments()) {
 			if (argument.checkMatch(argName)) {
 				return f.apply(argument);
 			}
 		}
-		return ParserState.ParseResult.ERROR(ParserState.ParseErrorType.ArgumentNotFound);
+		return ParseResult.ERROR(ParseErrorType.ArgumentNotFound);
 	}
 
 
@@ -277,16 +281,19 @@ public class Command {
 		return Arrays.stream(this.getSubCommands()).anyMatch(c -> c.name.equals(str));
 	}
 
-	private ParserState.ParseResult<Void> executeArgParse(Argument<?, ?> arg) {
+	private ParseResult<Void> executeArgParse(Argument<?, ?> arg) {
 		ArgValueCount argumentValuesRange = arg.getNumberOfValues();
 
 		// just skip the whole thing if it doesn't need any values
 		if (argumentValuesRange.isZero()) {
 			arg.parseValues(new String[]{});
-			return ParserState.ParseResult.CORRECT();
+			return ParseResult.CORRECT();
 		}
 
-		boolean isInTuple = this.tokens[currentTokenIndex].type() == TokenType.ArgumentValueTupleStart;
+		boolean isInTuple = (
+			currentTokenIndex < this.tokens.length
+				&& this.tokens[currentTokenIndex].type() == TokenType.ArgumentValueTupleStart
+		);
 		Function<Integer, Integer> ifInTuple = v -> isInTuple ? v : 0;
 
 		int skipCount = ifInTuple.apply(1);
@@ -317,16 +324,16 @@ public class Command {
 		this.currentTokenIndex += skipCount + ifInTuple.apply(1);
 
 		if (temp_args_size > argumentValuesRange.max || temp_args_size < argumentValuesRange.min)
-			return ParserState.ParseResult.ERROR(ParserState.ParseErrorType.ArgIncorrectValueNumber, temp_args_size);
+			return ParseResult.ERROR(ParseErrorType.ArgIncorrectValueNumber, temp_args_size);
 
 		// pass the arg values to the argument subparser
 		arg.parseValues(temp_args.stream().map(Token::contents).toArray(String[]::new));
 
 
-		return ParserState.ParseResult.CORRECT();
+		return ParseResult.CORRECT();
 	}
 
-	private ParserState.ParseResult<Void> executeArgParse(Argument<?, ?> arg, String value) {
+	private ParseResult<Void> executeArgParse(Argument<?, ?> arg, String value) {
 		ArgValueCount argumentValuesRange = arg.getNumberOfValues();
 
 		if (value.length() == 0) {
@@ -336,20 +343,20 @@ public class Command {
 		// just skip the whole thing if it doesn't need any values
 		if (argumentValuesRange.isZero()) {
 			arg.parseValues(new String[]{});
-			return ParserState.ParseResult.CORRECT();
+			return ParseResult.CORRECT();
 		}
 
 		if (argumentValuesRange.max > 1) {
-			return ParserState.ParseResult.ERROR(ParserState.ParseErrorType.ArgIncorrectValueNumber);
+			return ParseResult.ERROR(ParseErrorType.ArgIncorrectValueNumber);
 		}
 
 		// pass the arg values to the argument subparser
 		arg.parseValues(new String[]{value});
 
-		return ParserState.ParseResult.CORRECT();
+		return ParseResult.CORRECT();
 	}
 
-	protected HashMap<String, Object> parse(String contents) throws Exception {
+	protected HashMap<String, Object> parse() {
 		short argumentAliasCount = 0;
 		boolean foundNonPositionalArg = false;
 		HashMap<String, Object> parsed_args = new HashMap<>();
@@ -381,9 +388,7 @@ public class Command {
 				System.out.println("PARSE: Unmatched token " + c_token.type() + ": " + c_token.contents());
 				currentTokenIndex++;
 			}
-
 		}
-
 
 		this.getArguments().forEach(argument -> {
 			var result = argument.finishParsing();
@@ -393,6 +398,9 @@ public class Command {
 			}
 			parsed_args.put(argument.getAlias(), result.unpack());
 		});
+
+		this.subCommands.forEach(sb -> {if (sb.tokens != null) sb.parse();});
+
 
 		return parsed_args;
 	}

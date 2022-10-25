@@ -21,7 +21,7 @@ public class ArgumentParser extends Command {
 		return this.parseArgs(String.join(" ", args));
 	}
 
-	public ParsedArguments parseArgs(String args) throws Exception {
+	public ParsedArguments parseArgs(String args) {
 		this.tokenize(args); // first. This will tokenize all subCommands recursively too
 		this.debugShit();
 		this.parse(); // same thing, this parses all the stuff recursively

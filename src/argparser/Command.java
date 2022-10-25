@@ -31,6 +31,9 @@ public class Command {
 	}
 
 	public void addSubCommand(Command cmd) {
+		if (this.subCommands.stream().anyMatch(a -> a.name.equals(cmd.name))) {
+			throw new IllegalArgumentException("cannot create two sub commands with the same name");
+		}
 		this.subCommands.add(cmd);
 	}
 
@@ -49,7 +52,6 @@ public class Command {
 	public Command[] getSubCommands() {
 		return subCommands.toArray(Command[]::new);
 	}
-
 
 	/**
 	 * Array of all the tokens that we have parsed from the CLI arguments.

@@ -1,7 +1,5 @@
 package argparser;
 
-import argparser.ParserState.ParseErrorType;
-import argparser.ParserState.ParseResult;
 import argparser.utils.Pair;
 
 import java.util.ArrayList;

@@ -1,8 +1,5 @@
 package argparser;
 
-import argparser.ParserState.ParseErrorType;
-import argparser.ParserState.ParseResult;
-
 import java.util.function.Consumer;
 
 public class Argument<Type extends ArgumentType<TInner>, TInner> {

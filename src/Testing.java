@@ -31,6 +31,6 @@ public class Testing {
 			addSubCommand(new Command("foo", "") {{
 				addArgument(new Argument<>("qux", ArgumentType.INTEGER()).callback(System.out::println));
 			}});
-		}}.parseArgs("[hey whats up] stuff --qux [123] shit --ball");
+		}}.parseArgs("[hey whats up] stuff --string another test shit --ball");
 	}
 }

@@ -23,20 +23,21 @@ public class Result<TErrorEnum extends Enum<TErrorEnum>, TReturn> {
 
 	public Result<TErrorEnum, TReturn> correctByAny() {
 		if (!this.subResults.isEmpty()) {
-			this.correct = this.subResults.stream().anyMatch(r -> r.correctByAny().correct);
+			this.correct &= this.subResults.stream().anyMatch(r -> r.correctByAny().correct);
 		}
 		return this;
 	}
 
 	public Result<TErrorEnum, TReturn> correctByAll() {
 		if (!this.subResults.isEmpty()) {
-			this.correct = this.subResults.stream().allMatch(r -> r.correctByAll().correct);
+			this.correct &= this.subResults.stream().allMatch(r -> r.correctByAll().correct);
 		}
 		return this;
 	}
 
-	public void addSubResult(Result<TErrorEnum, TReturn> r) {
+	public Result<TErrorEnum, TReturn> addSubResult(Result<TErrorEnum, TReturn> r) {
 		this.subResults.add(r);
+		return this;
 	}
 
 	/**

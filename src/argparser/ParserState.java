@@ -47,8 +47,8 @@ class ParserState {
 			return (ParseResult<TReturn>)super.correctByAll();
 		}
 
-		public void addSubResult(ParseResult<TReturn> r) {
-			super.addSubResult(r);
+		public ParseResult<TReturn> addSubResult(ParseResult<TReturn> r) {
+			return (ParseResult<TReturn>)super.addSubResult(r);
 		}
 
 		public static <TReturn> ParseResult<TReturn> CORRECT() {return new ParseResult<>(true, 0, null, null);}

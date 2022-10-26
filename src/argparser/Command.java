@@ -15,7 +15,7 @@ public class Command {
 	protected final String name, description;
 	protected ArrayList<Argument<?, ?>> arguments = new ArrayList<>();
 	protected ArrayList<Command> subCommands = new ArrayList<>();
-	protected final Pair<Character, Character> tupleChars = TupleCharacter.SquareBrackets.getCharPair();
+	protected Pair<Character, Character> tupleChars = TupleCharacter.SquareBrackets.getCharPair();
 
 	public Command(String name, String description) {
 		this.name = name;
@@ -34,6 +34,9 @@ public class Command {
 		if (this.subCommands.stream().anyMatch(a -> a.name.equals(cmd.name))) {
 			throw new IllegalArgumentException("cannot create two sub commands with the same name");
 		}
+
+		// pass the current tuple chars to the subcommand (most of the time this is what the user will want)
+		cmd.tupleChars = this.tupleChars;
 		this.subCommands.add(cmd);
 	}
 
@@ -80,21 +83,25 @@ public class Command {
 
 
 	protected ParseResult<Token[]> tokenize(String content) {
-		var result = new ArrayList<Token>();
+		var finalTokens = new ArrayList<Token>();
 		var currentValue = new StringBuilder();
+		var finalResult = ParseResult.<Token[]>CORRECT();
 
+		var tokenizeState = new Object() {
+			public ParseResult<Token[]> subCommandResult = ParseResult.CORRECT();
+		};
 
-		BiConsumer<TokenType, String> addToken = (t, c) -> result.add(new Token(t, c));
+		BiConsumer<TokenType, String> addToken = (t, c) -> finalTokens.add(new Token(t, c));
 		Consumer<Integer> tokenizeSection = (i) -> {
 			var token = this.tokenizeSection(currentValue.toString());
 			Command subCmd;
 			// if this is a subcommand, continue tokenizing next elements
 			if (token.type() == TokenType.SubCommand && (subCmd = getSubCommandByName(token.contents())) != null) {
 				// forward the rest of stuff to the subCommand
-				subCmd.tokenize(content.substring(i + 1));
+				tokenizeState.subCommandResult = subCmd.tokenize(content.substring(i + 1));
 				finishedTokenizing = true; // dumb java lambdas require me to do this in order to stop tokenizing
 			} else {
-				result.add(token);
+				finalTokens.add(token);
 				currentValue.setLength(0);
 			}
 		};
@@ -116,7 +123,8 @@ public class Command {
 			} else if (chars[i] == tupleChars.first() && !stringOpen) {
 				if (tupleOpen) {
 					// TODO: add proper errors
-					return ParseResult.ERROR(ParseErrorType.ArgNameListTakeValues);
+					finalResult = ParseResult.ERROR(ParseErrorType.ArgNameListTakeValues);
+					break;
 				} else if (!currentValue.isEmpty()) {
 					tokenizeSection.accept(i);
 				}
@@ -125,7 +133,8 @@ public class Command {
 			} else if (chars[i] == tupleChars.second() && !stringOpen) {
 				if (!tupleOpen) {
 					// TODO: add proper errors
-					return ParseResult.ERROR(ParseErrorType.ArgNameListTakeValues);
+					finalResult = ParseResult.ERROR(ParseErrorType.ArgNameListTakeValues);
+					break;
 				}
 				if (!currentValue.isEmpty()) {
 					addToken.accept(TokenType.ArgumentValue, currentValue.toString());
@@ -136,11 +145,13 @@ public class Command {
 			} else if (chars[i] != ' ' && i == chars.length - 1) {
 				if (tupleOpen) {
 					// TODO: add proper errors
-					return ParseResult.ERROR(ParseErrorType.ArgNameListTakeValues);
+					finalResult = ParseResult.ERROR(ParseErrorType.ArgNameListTakeValues);
+					break;
 				}
 				if (stringOpen) {
 					// TODO: add proper errors
-					return ParseResult.ERROR(ParseErrorType.ArgNameListTakeValues);
+					finalResult = ParseResult.ERROR(ParseErrorType.ArgNameListTakeValues);
+					break;
 				}
 				currentValue.append(chars[i]);
 				tokenizeSection.accept(i);
@@ -154,9 +165,12 @@ public class Command {
 			}
 		}
 
-		this.tokens = result.toArray(Token[]::new);
-		finishedTokenizing = true;
-		return ParseResult.CORRECT();
+		if (finalResult.isCorrect()) {
+			this.tokens = finalTokens.toArray(Token[]::new);
+			finishedTokenizing = true;
+		}
+
+		return finalResult.addSubResult(tokenizeState.subCommandResult).correctByAll(); // only return a correct if all the other tokenizations went well
 	}
 
 
@@ -358,7 +372,7 @@ public class Command {
 		return ParseResult.CORRECT();
 	}
 
-	protected HashMap<String, Object> parse() {
+	protected ParseResult<HashMap<String, Object>> parse() {
 		short argumentAliasCount = 0;
 		boolean foundNonPositionalArg = false;
 		HashMap<String, Object> parsed_args = new HashMap<>();
@@ -401,9 +415,8 @@ public class Command {
 			parsed_args.put(argument.getAlias(), result.unpack());
 		});
 
-		this.subCommands.forEach(sb -> {if (sb.tokens != null) sb.parse();});
+		this.subCommands.forEach(sb -> {if (sb.finishedTokenizing) sb.parse();});
 
-
-		return parsed_args;
+		return ParseResult.CORRECT(parsed_args);
 	}
 }

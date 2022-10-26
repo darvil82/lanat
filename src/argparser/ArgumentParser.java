@@ -1,9 +1,6 @@
 package argparser;
 
 public class ArgumentParser extends Command {
-	private TupleCharacter tupleCharacter = TupleCharacter.SquareBrackets;
-
-
 	public ArgumentParser(String programName, String description) {
 		super(programName, description);
 		this.addArgument(new Argument<>("help", ArgumentType.BOOLEAN())
@@ -22,14 +19,14 @@ public class ArgumentParser extends Command {
 	}
 
 	public ParsedArguments parseArgs(String args) {
-		this.tokenize(args); // first. This will tokenize all subCommands recursively too
+		var res = this.tokenize(args); // first. This will tokenize all subCommands recursively too
 		this.debugShit();
 		this.parse(); // same thing, this parses all the stuff recursively
 		return new ParsedArguments(null);
 	}
 
 	public ArgumentParser tupleCharacter(TupleCharacter tupleCharacter) {
-		this.tupleCharacter = tupleCharacter;
+		this.tupleChars = tupleCharacter.getCharPair();
 		return this;
 	}
 }

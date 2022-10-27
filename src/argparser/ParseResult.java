@@ -6,7 +6,7 @@ enum ParseErrorType {
 	ArgumentNotFound,
 	ArgNameListTakeValues,
 	ObligatoryArgumentNotUsed,
-	UnmatchedToken, ArgIncorrectValueNumber
+	UnmatchedToken, TupleAlreadyOpen, UnexpectedTupleClose, TupleNotClosed, StringNotClosed, ArgIncorrectValueNumber
 }
 
 

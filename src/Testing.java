@@ -13,7 +13,7 @@ class StringJoiner extends ArgumentType<String> {
 }
 
 public class Testing {
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) {
 		new ArgumentParser("Testing") {{
 			addArgument(new Argument<>("string", new StringJoiner())
 				.callback(t -> System.out.println("wow look a string: '" + t + "'"))
@@ -21,12 +21,13 @@ public class Testing {
 			);
 			addArgument(new Argument<>("arg", ArgumentType.BOOLEAN()).callback(System.out::println));
 			addSubCommand(new Command("stuff") {{
-				addArgument(new Argument<>("c", ArgumentType.COUNTER()));
+				addArgument(new Argument<>("c", ArgumentType.COUNTER()).callback(System.out::println));
 				addArgument(new Argument<>("string", new StringJoiner()).positional().callback(System.out::println));
 				addSubCommand(new Command("another") {{
 					addArgument(new Argument<>("ball", ArgumentType.BOOLEAN()).callback(System.out::println));
+					addArgument(new Argument<>("number", ArgumentType.INTEGER()).callback(System.out::println).positional());
 				}});
 			}});
-		}}.parseArgs("hey whats up stuff --string 'gone' --string [cool string joined] another --ball --seht djawd - aw- -d- aw");
+		}}.parseArgs("stuff -ccccc --string 'this is a test' -ccc another 567 --ball");
 	}
 }

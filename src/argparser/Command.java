@@ -12,8 +12,8 @@ import java.util.function.Function;
 
 public class Command {
 	protected final String name, description;
-	protected ArrayList<Argument<?, ?>> arguments = new ArrayList<>();
-	protected ArrayList<Command> subCommands = new ArrayList<>();
+	protected final ArrayList<Argument<?, ?>> arguments = new ArrayList<>();
+	protected final ArrayList<Command> subCommands = new ArrayList<>();
 	protected Pair<Character, Character> tupleChars = TupleCharacter.SquareBrackets.getCharPair();
 
 	public Command(String name, String description) {
@@ -88,15 +88,15 @@ public class Command {
 	}
 
 
-	ParseResult<Void> tokenize(String content) {
+	ParseResult<ArrayList<Token>> tokenize(String content) {
 		this.finishedTokenizing = false; // just in case we are tokenizing again for any reason
 
 		var finalTokens = new ArrayList<Token>();
 		var currentValue = new StringBuilder();
-		var finalResult = ParseResult.<Void>CORRECT();
+		var finalResult = ParseResult.<ArrayList<Token>>CORRECT();
 
 		var tokenizeState = new Object() {
-			public ParseResult<Void> subCommandResult = ParseResult.CORRECT();
+			public ParseResult<ArrayList<Token>> subCommandResult = ParseResult.CORRECT();
 		};
 
 		BiConsumer<TokenType, String> addToken = (t, c) -> finalTokens.add(new Token(t, c));
@@ -130,24 +130,22 @@ public class Command {
 				stringOpen = !stringOpen;
 			} else if (chars[i] == tupleChars.first() && !stringOpen) {
 				if (tupleOpen) {
-					// TODO: add proper errors
-					finalResult = ParseResult.ERROR(ParseErrorType.ArgNameListTakeValues);
+					finalResult = ParseResult.ERROR(ParseErrorType.TupleAlreadyOpen);
 					break;
 				} else if (!currentValue.isEmpty()) {
 					tokenizeSection.accept(i);
 				}
-				addToken.accept(TokenType.ArgumentValueTupleStart, null);
+				addToken.accept(TokenType.ArgumentValueTupleStart, tupleChars.first().toString());
 				tupleOpen = true;
 			} else if (chars[i] == tupleChars.second() && !stringOpen) {
 				if (!tupleOpen) {
-					// TODO: add proper errors
-					finalResult = ParseResult.ERROR(ParseErrorType.ArgNameListTakeValues);
+					finalResult = ParseResult.ERROR(ParseErrorType.UnexpectedTupleClose);
 					break;
 				}
 				if (!currentValue.isEmpty()) {
 					addToken.accept(TokenType.ArgumentValue, currentValue.toString());
 				}
-				addToken.accept(TokenType.ArgumentValueTupleEnd, null);
+				addToken.accept(TokenType.ArgumentValueTupleEnd, tupleChars.second().toString());
 				currentValue.setLength(0);
 				tupleOpen = false;
 			} else if (chars[i] != ' ' && i == chars.length - 1) {
@@ -164,11 +162,9 @@ public class Command {
 		}
 
 		if (tupleOpen) {
-			// TODO: add proper errors
-			finalResult = ParseResult.ERROR(ParseErrorType.ArgNameListTakeValues);
+			finalResult = ParseResult.ERROR(ParseErrorType.TupleNotClosed);
 		} else if (stringOpen) {
-			// TODO: add proper errors
-			finalResult = ParseResult.ERROR(ParseErrorType.ArgNameListTakeValues);
+			finalResult = ParseResult.ERROR(ParseErrorType.StringNotClosed);
 		}
 
 		if (finalResult.isCorrect()) {
@@ -176,7 +172,10 @@ public class Command {
 			finishedTokenizing = true;
 		}
 
-		return finalResult.addSubResult(tokenizeState.subCommandResult).correctByAll(); // only return a correct if all the other tokenizations went well
+		finalResult.returnValue = finalTokens;
+
+		// only return a correct if all the other tokenizations went well
+		return finalResult.addSubResult(tokenizeState.subCommandResult).correctByAll();
 	}
 
 
@@ -209,12 +208,6 @@ public class Command {
 
 
 	private ParseResult<Void> parseArgNameList(String args) {
-		// if its only one, we can parse the arg without problem
-		if (args.length() == 1) {
-			currentTokenIndex++;
-			return runForArgument(args.charAt(0), this::executeArgParse);
-		}
-
 		var res_group = new ParseResult<Void>();
 
 		// its multiple of them. We can only do this with arguments that accept 0 values.

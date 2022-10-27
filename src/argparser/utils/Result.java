@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.function.Function;
 
 public class Result<TErrorEnum extends Enum<TErrorEnum>, TReturn> {
-	protected boolean correct = false;
+	protected boolean correct;
 	public final short simpleValue;
 	protected final TErrorEnum reason;
 	protected final ArrayList<Result<TErrorEnum, TReturn>> subResults = new ArrayList<>();
@@ -35,6 +35,7 @@ public class Result<TErrorEnum extends Enum<TErrorEnum>, TReturn> {
 		return this;
 	}
 
+	@SuppressWarnings("unchecked cast")
 	public <T> Result<TErrorEnum, TReturn> addSubResult(Result<TErrorEnum, T> r) {
 		this.subResults.add((Result<TErrorEnum, TReturn>)r);
 		return this;
@@ -61,6 +62,17 @@ public class Result<TErrorEnum extends Enum<TErrorEnum>, TReturn> {
 
 	public boolean isCorrect() {
 		return correct;
+	}
+
+	public ArrayList<TReturn> getPackedReturnValues() {
+		var result = new ArrayList<TReturn>();
+		if (this.returnValue != null) {
+			result.add(this.returnValue);
+		}
+		for (var subResult : this.subResults) {
+			result.addAll(subResult.getPackedReturnValues());
+		}
+		return result;
 	}
 
 	@Override

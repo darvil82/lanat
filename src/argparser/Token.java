@@ -9,7 +9,7 @@ enum TokenType implements Colorable {
 	ArgumentValue(Color.BrightYellow),
 	ArgumentValueTupleStart(Color.BrightMagenta),
 	ArgumentValueTupleEnd(Color.BrightMagenta),
-	SubCommand(Color.BrightWhite);
+	SubCommand(Color.Blue);
 
 	private final Color color;
 
@@ -26,5 +26,9 @@ enum TokenType implements Colorable {
 public record Token(TokenType type, String contents) {
 	public boolean isArgumentSpecifier() {
 		return this.type == TokenType.ArgumentAlias || this.type == TokenType.ArgumentNameList;
+	}
+
+	public String getColorSequence() {
+		return this.type.getColor().toSequence();
 	}
 }

@@ -9,4 +9,8 @@ public class UtlString {
 		}
 		return true;
 	}
+
+	public static String wrap(String str, String wrapper) {
+		return wrapper + str + wrapper;
+	}
 }

@@ -1,6 +1,26 @@
 package argparser.displayFormatter;
 
+import argparser.Token;
+import argparser.utils.UtlString;
+
+import java.util.ArrayList;
+
 public class TerminalDisplayer {
+	public static void displayTokens(ArrayList<Token> tokens) {
+		String result = String.join(" ",
+			tokens.stream()
+				.map(t -> {
+					var contents = t.contents();
+					if (contents.contains(" ")) {
+						contents = UtlString.wrap(contents, "'");
+					}
+					return t.getColorSequence() + contents + TerminalDisplayer.CLEAR_FORMAT;
+				})
+				.toList()
+		);
+		System.out.println(result);
+	}
+
 	public enum Color {
 		Black(30),
 		Red(31),
@@ -18,20 +38,28 @@ public class TerminalDisplayer {
 		BrightMagenta(95),
 		BrightCyan(96),
 		BrightWhite(97),
-		None(255);
+		None(128);
 
-		public final byte value;
+		private Byte value;
 
 		Color(int value) {
 			this.value = (byte)value;
 		}
 
-		public byte asBackground() {
-			return (byte)(this.value + 10);
+		public Color asBackground() {
+			// prevent overflow of the max value
+			this.value = (byte)(value == (byte)128 ? 128 : (this.value + 10));
+			return this;
+		}
+
+		public String toSequence() {
+			return String.format("\033[%dm", this.value);
 		}
 	}
 
 	public interface Colorable {
 		Color getColor();
 	}
+
+	private static final String CLEAR_FORMAT = "\033[0m";
 }

@@ -23,10 +23,10 @@ public class Testing {
 			addSubCommand(new Command("stuff") {{
 				addArgument(new Argument<>("c", ArgumentType.COUNTER()));
 				addArgument(new Argument<>("string", new StringJoiner()).positional().callback(System.out::println));
-				addSubCommand(new Command("another", "") {{
+				addSubCommand(new Command("another") {{
 					addArgument(new Argument<>("ball", ArgumentType.BOOLEAN()).callback(System.out::println));
 				}});
 			}});
-		}}.parseArgs("hey whats up stuff --string [cool string joined] another --ball");
+		}}.parseArgs("hey whats up stuff --string 'gone' --string [cool string joined] another --ball --seht djawd - aw- -d- aw");
 	}
 }

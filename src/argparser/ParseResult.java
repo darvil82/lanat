@@ -6,7 +6,7 @@ enum ParseErrorType {
 	ArgumentNotFound,
 	ArgNameListTakeValues,
 	ObligatoryArgumentNotUsed,
-	ArgIncorrectValueNumber
+	UnmatchedToken, ArgIncorrectValueNumber
 }
 
 
@@ -23,7 +23,8 @@ class ParseResult<TReturn> extends Result<ParseErrorType, TReturn> {
 		return (ParseResult<TReturn>)super.correctByAll();
 	}
 
-	public ParseResult<TReturn> addSubResult(ParseResult<TReturn> r) {
+
+	public <T> ParseResult<TReturn> addSubResult(ParseResult<T> r) {
 		return (ParseResult<TReturn>)super.addSubResult(r);
 	}
 

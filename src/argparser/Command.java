@@ -246,7 +246,7 @@ public class Command {
 	/**
 	 * Executes a callback for the argument found by the alias specified.
 	 *
-	 * @return <code>true</code> if an argument was found
+	 * @return <a>ParseErrorType.ArgumentNotFound</a> if an argument was found
 	 */
 	private ParseResult<Void> runForArgument(String argAlias, Function<Argument<?, ?>, ParseResult<Void>> f) {
 		for (var argument : this.getArguments()) {
@@ -378,20 +378,18 @@ public class Command {
 		return ParseResult.CORRECT();
 	}
 
-	ParseResult<HashMap<String, Object>> parseTokens() {
+	ParseResult<ParsedArguments> parseTokens() {
 		short argumentAliasCount = 0;
 		boolean foundNonPositionalArg = false;
-		HashMap<String, Object> parsed_args = new HashMap<>();
-		Argument<?, ?> last_pos_argument; // this will never be null when being used
+		Argument<?, ?> lastPosArgument; // this will never be null when being used
+		ParseResult<ParsedArguments> errors = ParseResult.CORRECT();
 
 		for (this.currentTokenIndex = 0; this.currentTokenIndex < tokens.length; ) {
 			Token c_token = this.tokens[currentTokenIndex];
 
 			if (c_token.type() == TokenType.ArgumentAlias) {
 				currentTokenIndex++;
-				if (!runForArgument(c_token.contents(), this::executeArgParse).isCorrect()) {
-					System.out.println("FUCK");
-				}
+				errors.addSubResult(runForArgument(c_token.contents(), this::executeArgParse));
 				foundNonPositionalArg = true;
 			} else if (c_token.type() == TokenType.ArgumentNameList) {
 				parseArgNameList(c_token.contents().substring(1));
@@ -400,29 +398,36 @@ public class Command {
 			} else if (
 				(c_token.type() == TokenType.ArgumentValue || c_token.type() == TokenType.ArgumentValueTupleStart)
 					&& !foundNonPositionalArg
-					&& (last_pos_argument = getArgumentByPositionalIndex(argumentAliasCount)) != null
+					&& (lastPosArgument = getArgumentByPositionalIndex(argumentAliasCount)) != null
 			) { // this is most likely a positional argument
-				if (!executeArgParse(last_pos_argument).isCorrect()) {
-					System.out.println("FUCK 2: ");
-				}
+				errors.addSubResult(executeArgParse(lastPosArgument));
 				argumentAliasCount++;
 			} else {
-				System.out.println("PARSE: Unmatched token " + c_token.type() + ": " + c_token.contents());
+				errors.addSubResult(ParseResult.ERROR(ParseErrorType.UnmatchedToken, currentTokenIndex));
 				currentTokenIndex++;
 			}
 		}
 
+		HashMap<String, Object> parsed_args = new HashMap<>();
+
 		this.getArguments().forEach(argument -> {
-			var result = argument.finishParsing();
-			if (!result.isCorrect()) {
-				System.out.println("error with argument " + argument.getAlias());
-				return;
+			var r = argument.finishParsing();
+			if (!r.isCorrect()) {
+				errors.addSubResult(r);
 			}
-			parsed_args.put(argument.getAlias(), result.unpack());
+			parsed_args.put(argument.getAlias(), r.unpack());
 		});
 
-		this.subCommands.forEach(sb -> {if (sb.finishedTokenizing) sb.parseTokens();});
+		// now parse the subcommands
+		this.subCommands.stream()
+			.filter(sb -> sb.finishedTokenizing) // only get the commands that were actually tokenized
+			.map(Command::parseTokens) // now parse them
+			.findFirst() // we should only have one because you can't use more than one subcommand
+			.ifPresentOrElse(subCmdResult -> {
+				errors.returnValue = new ParsedArguments(parsed_args, subCmdResult.unpack(), this.name);
+				errors.addSubResult(subCmdResult);
+			}, () -> errors.returnValue = new ParsedArguments(parsed_args, null, this.name));
 
-		return ParseResult.CORRECT(parsed_args);
+		return errors.correctByAll();
 	}
 }

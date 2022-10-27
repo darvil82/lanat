@@ -1,12 +1,26 @@
 package argparser;
 
-enum TokenType {
-	ArgumentAlias,
-	ArgumentNameList,
-	ArgumentValue,
-	ArgumentValueTupleStart,
-	ArgumentValueTupleEnd,
-	String, SubCommand,
+import argparser.displayFormatter.TerminalDisplayer.Color;
+import argparser.displayFormatter.TerminalDisplayer.Colorable;
+
+enum TokenType implements Colorable {
+	ArgumentAlias(Color.BrightGreen),
+	ArgumentNameList(Color.BrightCyan),
+	ArgumentValue(Color.BrightYellow),
+	ArgumentValueTupleStart(Color.BrightMagenta),
+	ArgumentValueTupleEnd(Color.BrightMagenta),
+	SubCommand(Color.BrightWhite);
+
+	private final Color color;
+
+	TokenType(Color color) {
+		this.color = color;
+	}
+
+	@Override
+	public Color getColor() {
+		return this.color;
+	}
 }
 
 public record Token(TokenType type, String contents) {

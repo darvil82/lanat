@@ -21,8 +21,9 @@ public class ArgumentParser extends Command {
 	public ParsedArguments parseArgs(String args) {
 		var res = this.tokenize(args); // first. This will tokenize all subCommands recursively
 		this.debugShit();
-		this.parseTokens(); // same thing, this parses all the stuff recursively
-		return new ParsedArguments(null);
+		var res2 = this.parseTokens(); // same thing, this parses all the stuff recursively
+
+		return new ParsedArguments(null, null, null);
 	}
 
 	public ArgumentParser tupleCharacter(TupleCharacter tupleCharacter) {

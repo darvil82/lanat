@@ -8,7 +8,7 @@ public class Result<TErrorEnum extends Enum<TErrorEnum>, TReturn> {
 	public final short simpleValue;
 	protected final TErrorEnum reason;
 	protected final ArrayList<Result<TErrorEnum, TReturn>> subResults = new ArrayList<>();
-	protected final TReturn returnValue;
+	public TReturn returnValue;
 
 	public Result(boolean isCorrect, int pos, TErrorEnum reason, TReturn retVal) {
 		this.correct = isCorrect;
@@ -35,8 +35,8 @@ public class Result<TErrorEnum extends Enum<TErrorEnum>, TReturn> {
 		return this;
 	}
 
-	public Result<TErrorEnum, TReturn> addSubResult(Result<TErrorEnum, TReturn> r) {
-		this.subResults.add(r);
+	public <T> Result<TErrorEnum, TReturn> addSubResult(Result<TErrorEnum, T> r) {
+		this.subResults.add((Result<TErrorEnum, TReturn>)r);
 		return this;
 	}
 
@@ -61,5 +61,15 @@ public class Result<TErrorEnum extends Enum<TErrorEnum>, TReturn> {
 
 	public boolean isCorrect() {
 		return correct;
+	}
+
+	@Override
+	public String toString() {
+		return "Result{" +
+			"correct=" + correct +
+			", simpleValue=" + simpleValue +
+			", reason=" + reason +
+			", returnValue=" + returnValue +
+			'}';
 	}
 }

@@ -22,6 +22,9 @@ public class Command {
 		}
 		this.name = name;
 		this.description = description;
+		this.addArgument(new Argument<>("help", ArgumentType.BOOLEAN())
+			.callback(t -> System.out.println(this.getHelp()))
+		);
 	}
 
 	public Command(String name) {

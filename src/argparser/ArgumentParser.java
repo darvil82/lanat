@@ -5,9 +5,6 @@ import argparser.displayFormatter.TerminalDisplayer;
 public class ArgumentParser extends Command {
 	public ArgumentParser(String programName, String description) {
 		super(programName, description);
-		this.addArgument(new Argument<>("help", ArgumentType.BOOLEAN())
-			.callback(t -> System.out.println(this.getHelp()))
-		);
 	}
 
 	public ArgumentParser(String programName) {

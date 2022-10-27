@@ -61,10 +61,6 @@ public class Command {
 		return this.arguments.stream().filter(Argument::isPositional).toArray(Argument[]::new);
 	}
 
-	public Command[] getSubCommands() {
-		return subCommands.toArray(Command[]::new);
-	}
-
 	/**
 	 * Array of all the tokens that we have parsed from the CLI arguments.
 	 */
@@ -91,15 +87,15 @@ public class Command {
 	}
 
 
-	ParseResult<ArrayList<Token>> tokenize(String content) {
+	ParseResult<Void> tokenize(String content) {
 		this.finishedTokenizing = false; // just in case we are tokenizing again for any reason
 
 		var finalTokens = new ArrayList<Token>();
 		var currentValue = new StringBuilder();
-		var finalResult = ParseResult.<ArrayList<Token>>CORRECT();
+		var finalResult = ParseResult.<Void>CORRECT();
 
 		var tokenizeState = new Object() {
-			public ParseResult<ArrayList<Token>> subCommandResult = ParseResult.CORRECT();
+			public ParseResult<Void> subCommandResult = ParseResult.CORRECT();
 		};
 
 		BiConsumer<TokenType, String> addToken = (t, c) -> finalTokens.add(new Token(t, c));
@@ -170,12 +166,11 @@ public class Command {
 			finalResult = ParseResult.ERROR(ParseErrorType.StringNotClosed);
 		}
 
+		this.tokens = finalTokens.toArray(Token[]::new);
+
 		if (finalResult.isCorrect()) {
-			this.tokens = finalTokens.toArray(Token[]::new);
 			finishedTokenizing = true;
 		}
-
-		finalResult.returnValue = finalTokens;
 
 		// only return a correct if all the other tokenizations went well
 		return finalResult.addSubResult(tokenizeState.subCommandResult).correctByAll();
@@ -282,8 +277,12 @@ public class Command {
 	}
 
 	private Command getSubCommandByName(String name) {
-		var x = Arrays.stream(this.getSubCommands()).filter(sc -> sc.name.equals(name)).toList();
+		var x = this.subCommands.stream().filter(sc -> sc.name.equals(name)).toList();
 		return x.isEmpty() ? null : x.get(0);
+	}
+
+	private Command getTokenizedSubCommand() {
+		return this.subCommands.stream().filter(sb -> sb.finishedTokenizing).findFirst().orElse(null);
 	}
 
 	private boolean isArgNames(String str) {
@@ -296,7 +295,7 @@ public class Command {
 	}
 
 	private boolean isSubCommand(String str) {
-		return Arrays.stream(this.getSubCommands()).anyMatch(c -> c.name.equals(str));
+		return this.subCommands.stream().anyMatch(c -> c.name.equals(str));
 	}
 
 	private ParseResult<Void> executeArgParse(Argument<?, ?> arg) {
@@ -425,5 +424,25 @@ public class Command {
 			}, () -> errors.returnValue = new ParsedArguments(parsed_args, null, this.name));
 
 		return errors.correctByAll();
+	}
+
+	/**
+	 * Get all the tokens of all subcommands into one single list. This includes the SubCommand tokens.
+	 */
+	protected ArrayList<Token> getFullTokenList() {
+		ArrayList<Token> list = new ArrayList<>(Arrays.stream(this.tokens).toList());
+
+		var subCmd = this.getTokenizedSubCommand();
+
+		return subCmd == null ? list : subCmd.getFullTokenList(list);
+	}
+
+	private ArrayList<Token> getFullTokenList(ArrayList<Token> list) {
+		list.add(new Token(TokenType.SubCommand, this.name));
+		list.addAll(Arrays.stream(this.tokens).toList());
+
+		var subCmd = this.getTokenizedSubCommand();
+
+		return subCmd == null ? list : subCmd.getFullTokenList(list);
 	}
 }

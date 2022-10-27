@@ -1,6 +1,7 @@
 package argparser;
 
 import argparser.utils.Pair;
+import argparser.utils.UtlString;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,8 +17,15 @@ public class Command {
 	protected Pair<Character, Character> tupleChars = TupleCharacter.SquareBrackets.getCharPair();
 
 	public Command(String name, String description) {
+		if (!UtlString.matchCharacters(name, Character::isAlphabetic)) {
+			throw new IllegalArgumentException("name must be alphabetic");
+		}
 		this.name = name;
 		this.description = description;
+	}
+
+	public Command(String name) {
+		this(name, null);
 	}
 
 	public <T extends ArgumentType<TInner>, TInner>
@@ -66,7 +74,7 @@ public class Command {
 	private boolean finishedTokenizing = false;
 
 
-	public void debugShit() {
+	void debugShit() {
 		System.out.println(this.name);
 		if (this.finishedTokenizing)
 			for (var t : this.tokens) {
@@ -80,13 +88,15 @@ public class Command {
 	}
 
 
-	protected ParseResult<Token[]> tokenize(String content) {
+	ParseResult<Void> tokenize(String content) {
+		this.finishedTokenizing = false; // just in case we are tokenizing again for any reason
+
 		var finalTokens = new ArrayList<Token>();
 		var currentValue = new StringBuilder();
-		var finalResult = ParseResult.<Token[]>CORRECT();
+		var finalResult = ParseResult.<Void>CORRECT();
 
 		var tokenizeState = new Object() {
-			public ParseResult<Token[]> subCommandResult = ParseResult.CORRECT();
+			public ParseResult<Void> subCommandResult = ParseResult.CORRECT();
 		};
 
 		BiConsumer<TokenType, String> addToken = (t, c) -> finalTokens.add(new Token(t, c));
@@ -141,16 +151,6 @@ public class Command {
 				currentValue.setLength(0);
 				tupleOpen = false;
 			} else if (chars[i] != ' ' && i == chars.length - 1) {
-				if (tupleOpen) {
-					// TODO: add proper errors
-					finalResult = ParseResult.ERROR(ParseErrorType.ArgNameListTakeValues);
-					break;
-				}
-				if (stringOpen) {
-					// TODO: add proper errors
-					finalResult = ParseResult.ERROR(ParseErrorType.ArgNameListTakeValues);
-					break;
-				}
 				currentValue.append(chars[i]);
 				tokenizeSection.accept(i);
 			} else if (stringOpen) {
@@ -161,6 +161,14 @@ public class Command {
 			} else if (chars[i] != ' ') {
 				currentValue.append(chars[i]);
 			}
+		}
+
+		if (tupleOpen) {
+			// TODO: add proper errors
+			finalResult = ParseResult.ERROR(ParseErrorType.ArgNameListTakeValues);
+		} else if (stringOpen) {
+			// TODO: add proper errors
+			finalResult = ParseResult.ERROR(ParseErrorType.ArgNameListTakeValues);
 		}
 
 		if (finalResult.isCorrect()) {
@@ -370,7 +378,7 @@ public class Command {
 		return ParseResult.CORRECT();
 	}
 
-	protected ParseResult<HashMap<String, Object>> parse() {
+	ParseResult<HashMap<String, Object>> parseTokens() {
 		short argumentAliasCount = 0;
 		boolean foundNonPositionalArg = false;
 		HashMap<String, Object> parsed_args = new HashMap<>();
@@ -413,7 +421,7 @@ public class Command {
 			parsed_args.put(argument.getAlias(), result.unpack());
 		});
 
-		this.subCommands.forEach(sb -> {if (sb.finishedTokenizing) sb.parse();});
+		this.subCommands.forEach(sb -> {if (sb.finishedTokenizing) sb.parseTokens();});
 
 		return ParseResult.CORRECT(parsed_args);
 	}

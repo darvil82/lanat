@@ -2,14 +2,14 @@ package argparser.displayFormatter;
 
 public class TerminalDisplayer {
 	public static void display(FormattingProvider value) {
-		System.out.println(value.getFormattingSequence());
+		System.out.println(value.getFormattingSequence() + CLEAR_FORMAT);
 	}
 
 	public static void display(Iterable<? extends FormattingProvider> values, String separator) {
 		FormattingProvider fp = () -> {
 			StringBuilder sb = new StringBuilder();
 			for (var v : values) {
-				sb.append(v.getFormattingSequence()).append(separator);
+				sb.append(v.getFormattingSequence()).append(CLEAR_FORMAT).append(separator);
 			}
 			return sb.toString();
 		};

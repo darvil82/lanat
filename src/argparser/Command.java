@@ -426,9 +426,9 @@ public class Command {
 			.map(Command::parseTokens) // now parse them
 			.findFirst() // we should only have one because you can't use more than one subcommand
 			.ifPresentOrElse(subCmdResult -> {
-				errors.returnValue = new ParsedArguments(parsed_args, subCmdResult.unpack(), this.name);
+				errors.setReturnValue(new ParsedArguments(parsed_args, subCmdResult.unpack(), this.name));
 				errors.addSubResult(subCmdResult);
-			}, () -> errors.returnValue = new ParsedArguments(parsed_args, null, this.name));
+			}, () -> errors.setReturnValue(new ParsedArguments(parsed_args, null, this.name)));
 
 		return errors.correctByAll();
 	}

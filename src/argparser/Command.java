@@ -102,7 +102,7 @@ public class Command {
 		var currentValue = new StringBuilder();
 		var finalResult = ParseResult.<Void>CORRECT();
 
-		var tokenizeState = new Object() {
+		var subCmdInfo = new Object() {
 			public ParseResult<Void> subCommandResult = ParseResult.CORRECT();
 		};
 
@@ -113,7 +113,7 @@ public class Command {
 			// if this is a subcommand, continue tokenizing next elements
 			if (token.type() == TokenType.SubCommand && (subCmd = getSubCommandByName(token.contents())) != null) {
 				// forward the rest of stuff to the subCommand
-				tokenizeState.subCommandResult = subCmd.tokenize(content.substring(i + 1));
+				subCmdInfo.subCommandResult = subCmd.tokenize(content.substring(i + 1));
 				finishedTokenizing = true; // dumb java lambdas require me to do this in order to stop tokenizing
 			} else {
 				finalTokens.add(token);
@@ -178,7 +178,7 @@ public class Command {
 //		}
 
 		// only return a correct if all the other tokenizations went well
-		return finalResult.addSubResult(tokenizeState.subCommandResult).correctByAll();
+		return finalResult.addSubResult(subCmdInfo.subCommandResult).correctByAll();
 	}
 
 

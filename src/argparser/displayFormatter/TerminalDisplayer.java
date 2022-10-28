@@ -1,27 +1,22 @@
 package argparser.displayFormatter;
 
-import argparser.Token;
-import argparser.utils.UtlString;
-
-import java.util.ArrayList;
-
 public class TerminalDisplayer {
-	public static void displayTokens(ArrayList<Token> tokens) {
-		String result = String.join(" ",
-			tokens.stream()
-				.map(t -> {
-					var contents = t.contents();
-					if (contents.contains(" ")) {
-						contents = UtlString.wrap(contents, "'");
-					}
-					return t.getColorSequence() + contents + TerminalDisplayer.CLEAR_FORMAT;
-				})
-				.toList()
-		);
-		System.out.println(result);
+	public static void display(FormattingProvider value) {
+		System.out.println(value.getFormattingSequence());
 	}
 
-	public enum Color {
+	public static void display(Iterable<? extends FormattingProvider> values, String separator) {
+		FormattingProvider fp = () -> {
+			StringBuilder sb = new StringBuilder();
+			for (var v : values) {
+				sb.append(v.getFormattingSequence()).append(separator);
+			}
+			return sb.toString();
+		};
+		TerminalDisplayer.display(fp);
+	}
+
+	public enum Color implements FormattingProvider {
 		Black(30),
 		Red(31),
 		Green(32),
@@ -52,7 +47,7 @@ public class TerminalDisplayer {
 			return this;
 		}
 
-		public String toSequence() {
+		public String getFormattingSequence() {
 			return String.format("\033[%dm", this.value);
 		}
 	}
@@ -61,5 +56,9 @@ public class TerminalDisplayer {
 		Color getColor();
 	}
 
-	private static final String CLEAR_FORMAT = "\033[0m";
+	public interface FormattingProvider {
+		String getFormattingSequence();
+	}
+
+	public static final String CLEAR_FORMAT = "\033[0m";
 }

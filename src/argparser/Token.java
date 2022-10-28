@@ -1,7 +1,10 @@
 package argparser;
 
+import argparser.displayFormatter.TerminalDisplayer;
 import argparser.displayFormatter.TerminalDisplayer.Color;
 import argparser.displayFormatter.TerminalDisplayer.Colorable;
+import argparser.displayFormatter.TerminalDisplayer.FormattingProvider;
+import argparser.utils.UtlString;
 
 enum TokenType implements Colorable {
 	ArgumentAlias(Color.BrightGreen),
@@ -23,12 +26,17 @@ enum TokenType implements Colorable {
 	}
 }
 
-public record Token(TokenType type, String contents) {
+public record Token(TokenType type, String contents) implements FormattingProvider {
 	public boolean isArgumentSpecifier() {
 		return this.type == TokenType.ArgumentAlias || this.type == TokenType.ArgumentNameList;
 	}
 
-	public String getColorSequence() {
-		return this.type.getColor().toSequence();
+	@Override
+	public String getFormattingSequence() {
+		var contents = this.contents();
+		if (contents.contains(" ")) {
+			contents = UtlString.wrap(contents, "'");
+		}
+		return this.type.getColor().getFormattingSequence() + contents + TerminalDisplayer.CLEAR_FORMAT;
 	}
 }

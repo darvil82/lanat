@@ -10,7 +10,7 @@ enum ParseErrorType {
 }
 
 
-class ParseResult<TReturn> extends Result<ParseErrorType, TReturn> {
+public class ParseResult<TReturn> extends Result<ParseErrorType, TReturn> {
 	public ParseResult(boolean isCorrect, int pos, ParseErrorType reason, TReturn ret) {super(isCorrect, pos, reason, ret);}
 
 	public ParseResult() {}

@@ -61,6 +61,13 @@ public class Command {
 		return this.arguments.stream().filter(Argument::isPositional).toArray(Argument[]::new);
 	}
 
+	static class TokenizeState {
+		public boolean tupleOpen = false;
+		public boolean stringOpen = false;
+	}
+
+	private TokenizeState tokenizeState;
+
 	/**
 	 * Array of all the tokens that we have parsed from the CLI arguments.
 	 */
@@ -88,6 +95,7 @@ public class Command {
 
 
 	ParseResult<Void> tokenize(String content) {
+		this.tokenizeState = new TokenizeState();
 		this.finishedTokenizing = false; // just in case we are tokenizing again for any reason
 
 		var finalTokens = new ArrayList<Token>();
@@ -113,31 +121,28 @@ public class Command {
 			}
 		};
 
-		boolean stringOpen = false;
-		boolean tupleOpen = false;
-
 		char[] chars = content.toCharArray();
 
 		for (int i = 0; i < chars.length && !finishedTokenizing; i++) {
 			if (chars[i] == '"' || chars[i] == '\'') {
-				if (stringOpen) {
+				if (this.tokenizeState.stringOpen) {
 					addToken.accept(TokenType.ArgumentValue, currentValue.toString());
 					currentValue.setLength(0);
 				} else if (!currentValue.isEmpty()) { // maybe a possible argNameList? tokenize it
 					tokenizeSection.accept(i);
 				}
-				stringOpen = !stringOpen;
-			} else if (chars[i] == tupleChars.first() && !stringOpen) {
-				if (tupleOpen) {
+				this.tokenizeState.stringOpen = !this.tokenizeState.stringOpen;
+			} else if (chars[i] == tupleChars.first() && !this.tokenizeState.stringOpen) {
+				if (this.tokenizeState.tupleOpen) {
 					finalResult = ParseResult.ERROR(ParseErrorType.TupleAlreadyOpen);
 					break;
 				} else if (!currentValue.isEmpty()) {
 					tokenizeSection.accept(i);
 				}
 				addToken.accept(TokenType.ArgumentValueTupleStart, tupleChars.first().toString());
-				tupleOpen = true;
-			} else if (chars[i] == tupleChars.second() && !stringOpen) {
-				if (!tupleOpen) {
+				this.tokenizeState.tupleOpen = true;
+			} else if (chars[i] == tupleChars.second() && !this.tokenizeState.stringOpen) {
+				if (!this.tokenizeState.tupleOpen) {
 					finalResult = ParseResult.ERROR(ParseErrorType.UnexpectedTupleClose);
 					break;
 				}
@@ -146,11 +151,11 @@ public class Command {
 				}
 				addToken.accept(TokenType.ArgumentValueTupleEnd, tupleChars.second().toString());
 				currentValue.setLength(0);
-				tupleOpen = false;
+				this.tokenizeState.tupleOpen = false;
 			} else if (chars[i] != ' ' && i == chars.length - 1) {
 				currentValue.append(chars[i]);
 				tokenizeSection.accept(i);
-			} else if (stringOpen) {
+			} else if (this.tokenizeState.stringOpen) {
 				if (chars[i] == '\\') i++; // user is trying to escape a character
 				currentValue.append(chars[i]);
 			} else if ((chars[i] == ' ' || chars[i] == '=') && !currentValue.isEmpty()) {
@@ -160,17 +165,17 @@ public class Command {
 			}
 		}
 
-		if (tupleOpen) {
+		if (this.tokenizeState.tupleOpen) {
 			finalResult = ParseResult.ERROR(ParseErrorType.TupleNotClosed);
-		} else if (stringOpen) {
+		} else if (this.tokenizeState.stringOpen) {
 			finalResult = ParseResult.ERROR(ParseErrorType.StringNotClosed);
 		}
 
 		this.tokens = finalTokens.toArray(Token[]::new);
+		finishedTokenizing = true;
 
-		if (finalResult.isCorrect()) {
-			finishedTokenizing = true;
-		}
+//		if (finalResult.isCorrect()) {
+//		}
 
 		// only return a correct if all the other tokenizations went well
 		return finalResult.addSubResult(tokenizeState.subCommandResult).correctByAll();
@@ -180,7 +185,9 @@ public class Command {
 	private Token tokenizeSection(String str) {
 		TokenType type;
 
-		if (this.isArgAlias(str)) {
+		if (this.tokenizeState.tupleOpen || this.tokenizeState.stringOpen) {
+			type = TokenType.ArgumentValue;
+		} else if (this.isArgAlias(str)) {
 			type = TokenType.ArgumentAlias;
 		} else if (this.isArgNames(str)) {
 			type = TokenType.ArgumentNameList;

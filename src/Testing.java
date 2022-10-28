@@ -28,6 +28,6 @@ public class Testing {
 					addArgument(new Argument<>("number", ArgumentType.INTEGER()).callback(System.out::println).positional());
 				}});
 			}});
-		}}.parseArgs("stuff -ccccc --string [works? 'this is a test -ccc' another");
+		}}.parseArgs("stuff -ccccc --string [works? 'this is a test'] -ccc another");
 	}
 }

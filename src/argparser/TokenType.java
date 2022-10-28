@@ -1,23 +1,23 @@
 package argparser;
 
-import argparser.displayFormatter.TerminalDisplayer;
+import argparser.displayFormatter.TextFormatter;
 
-public enum TokenType implements TerminalDisplayer.Colorable {
-	ArgumentAlias(TerminalDisplayer.Color.BrightGreen),
-	ArgumentNameList(TerminalDisplayer.Color.BrightCyan),
-	ArgumentValue(TerminalDisplayer.Color.BrightYellow),
-	ArgumentValueTupleStart(TerminalDisplayer.Color.BrightMagenta),
-	ArgumentValueTupleEnd(TerminalDisplayer.Color.BrightMagenta),
-	SubCommand(TerminalDisplayer.Color.Blue);
+public enum TokenType implements TextFormatter {
+	ArgumentAlias(Color.BrightGreen),
+	ArgumentNameList(Color.BrightCyan),
+	ArgumentValue(Color.BrightYellow),
+	ArgumentValueTupleStart(Color.BrightMagenta),
+	ArgumentValueTupleEnd(Color.BrightMagenta),
+	SubCommand(Color.Blue);
 
-	private final TerminalDisplayer.Color color;
+	private final Color color;
 
-	TokenType(TerminalDisplayer.Color color) {
+	TokenType(Color color) {
 		this.color = color;
 	}
 
 	@Override
-	public TerminalDisplayer.Color getColor() {
+	public FormattingProvider getFormatting() {
 		return this.color;
 	}
 }

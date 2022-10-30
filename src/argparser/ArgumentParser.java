@@ -1,7 +1,5 @@
 package argparser;
 
-import argparser.displayFormatter.ErrorHandler;
-
 public class ArgumentParser extends Command {
 	public ArgumentParser(String programName, String description) {
 		super(programName, description);
@@ -18,11 +16,12 @@ public class ArgumentParser extends Command {
 	}
 
 	public ParsedArguments parseArgs(String args) {
-		var res = this.tokenize(args); // first. This will tokenize all subCommands recursively
+		this.initParsingState();
+		this.tokenize(args); // first. This will tokenize all subCommands recursively
 		var errorHandler = new ErrorHandler(this.getFullTokenList());
 
-		errorHandler.handleTokensResult(res);
-		errorHandler.displayTokens();
+//		errorHandler.handleTokensResult(res);
+		errorHandler.displayErrors();
 
 		var res2 = this.parseTokens(); // same thing, this parses all the stuff recursively
 

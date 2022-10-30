@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.function.Function;
 
 enum ParseErrorType {
+	None,
 	ArgumentNotFound,
 	ArgNameListTakeValues,
 	ObligatoryArgumentNotUsed,

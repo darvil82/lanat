@@ -61,29 +61,51 @@ public class Command {
 		return this.arguments.stream().filter(Argument::isPositional).toArray(Argument[]::new);
 	}
 
-	static class TokenizeState {
+	private abstract static class State<T extends ErrorHandler.TokenizeError> {
+		public final ArrayList<T> errors = new ArrayList<>();
+
+		void addError(T err) {
+			if (err.type == ParseErrorType.None) return;
+			this.errors.add(err);
+		}
+	}
+
+	static class TokenizeState extends State<ErrorHandler.TokenizeError> {
 		public boolean tupleOpen = false;
 		public boolean stringOpen = false;
+
+		void addError(ParseErrorType type, int index) {
+			super.addError(new ErrorHandler.TokenizeError(type, index));
+		}
 	}
 
 	private TokenizeState tokenizeState;
 
-	/**
-	 * Array of all the tokens that we have parsed from the CLI arguments.
-	 */
-	private Token[] tokens;
+	static class ParseState extends State<ErrorHandler.ParseError> {
+		/**
+		 * Array of all the tokens that we have parsed from the CLI arguments.
+		 */
+		private Token[] tokens;
 
-	/**
-	 * The index of the current token that we are parsing.
-	 */
-	private short currentTokenIndex = 0;
+		/**
+		 * The index of the current token that we are parsing.
+		 */
+		private short currentTokenIndex = 0;
+
+		void addError(ParseErrorType type, int index, Argument<?, ?> arg, int argValueCount) {
+			super.addError(new ErrorHandler.ParseError(type, index, arg, argValueCount));
+		}
+	}
+
+	private ParseState parseState;
+
 	private boolean finishedTokenizing = false;
 
 
 	void debugShit() {
 		System.out.println(this.name);
 		if (this.finishedTokenizing)
-			for (var t : this.tokens) {
+			for (var t : parseState.tokens) {
 				System.out.println("\t" + t);
 			}
 		else
@@ -94,17 +116,12 @@ public class Command {
 	}
 
 
-	ParseResult<Void> tokenize(String content) {
-		this.tokenizeState = new TokenizeState();
+	void tokenize(String content) {
 		this.finishedTokenizing = false; // just in case we are tokenizing again for any reason
 
 		var finalTokens = new ArrayList<Token>();
 		var currentValue = new StringBuilder();
-		var finalResult = ParseResult.<Void>CORRECT();
-
-		var subCmdInfo = new Object() {
-			public ParseResult<Void> subCommandResult = ParseResult.CORRECT();
-		};
+		ParseErrorType errorType = ParseErrorType.None;
 
 		BiConsumer<TokenType, String> addToken = (t, c) -> finalTokens.add(new Token(t, c));
 		Consumer<Integer> tokenizeSection = (i) -> {
@@ -113,7 +130,7 @@ public class Command {
 			// if this is a subcommand, continue tokenizing next elements
 			if (token.type() == TokenType.SubCommand && (subCmd = getSubCommandByName(token.contents())) != null) {
 				// forward the rest of stuff to the subCommand
-				subCmdInfo.subCommandResult = subCmd.tokenize(content.substring(i + 1));
+				subCmd.tokenize(content.substring(i + 1));
 				finishedTokenizing = true; // dumb java lambdas require me to do this in order to stop tokenizing
 			} else {
 				finalTokens.add(token);
@@ -134,7 +151,7 @@ public class Command {
 				this.tokenizeState.stringOpen = !this.tokenizeState.stringOpen;
 			} else if (chars[i] == tupleChars.first() && !this.tokenizeState.stringOpen) {
 				if (this.tokenizeState.tupleOpen) {
-					finalResult = ParseResult.ERROR(ParseErrorType.TupleAlreadyOpen);
+					errorType = ParseErrorType.TupleAlreadyOpen;
 					break;
 				} else if (!currentValue.isEmpty()) {
 					tokenizeSection.accept(i);
@@ -143,7 +160,7 @@ public class Command {
 				this.tokenizeState.tupleOpen = true;
 			} else if (chars[i] == tupleChars.second() && !this.tokenizeState.stringOpen) {
 				if (!this.tokenizeState.tupleOpen) {
-					finalResult = ParseResult.ERROR(ParseErrorType.UnexpectedTupleClose);
+					errorType = ParseErrorType.UnexpectedTupleClose;
 					break;
 				}
 				if (!currentValue.isEmpty()) {
@@ -166,19 +183,15 @@ public class Command {
 		}
 
 		if (this.tokenizeState.tupleOpen) {
-			finalResult = ParseResult.ERROR(ParseErrorType.TupleNotClosed);
+			errorType = ParseErrorType.TupleNotClosed;
 		} else if (this.tokenizeState.stringOpen) {
-			finalResult = ParseResult.ERROR(ParseErrorType.StringNotClosed);
+			errorType = ParseErrorType.StringNotClosed;
 		}
 
-		this.tokens = finalTokens.toArray(Token[]::new);
+		tokenizeState.addError(errorType, finalTokens.size());
+
+		parseState.tokens = finalTokens.toArray(Token[]::new);
 		finishedTokenizing = true;
-
-//		if (finalResult.isCorrect()) {
-//		}
-
-		// only return a correct if all the other tokenizations went well
-		return finalResult.addSubResult(subCmdInfo.subCommandResult).correctByAll();
 	}
 
 
@@ -212,7 +225,7 @@ public class Command {
 	}
 
 
-	private ParseResult<Void> parseArgNameList(String args) {
+	private void parseArgNameList(String args) {
 		var res_group = new ParseResult<Void>();
 
 		// its multiple of them. We can only do this with arguments that accept 0 values.
@@ -224,7 +237,7 @@ public class Command {
 				if (a.getNumberOfValues().isZero()) {
 					return this.executeArgParse(a);
 				} else if (const_index == args.length() - 1) {
-					currentTokenIndex++;
+					parseState.currentTokenIndex++;
 					return this.executeArgParse(a);
 				}
 				return this.executeArgParse(a, args.substring(const_index + 1)); // if this arg accepts more values, treat the rest of chars as value
@@ -236,9 +249,6 @@ public class Command {
 				break;
 			}
 		}
-
-		// only return a correct result if all sub results are ok
-		return res_group.correctByAll();
 	}
 
 	/**
@@ -315,8 +325,8 @@ public class Command {
 		}
 
 		boolean isInTuple = (
-			currentTokenIndex < this.tokens.length
-				&& this.tokens[currentTokenIndex].type() == TokenType.ArgumentValueTupleStart
+			parseState.currentTokenIndex < parseState.tokens.length
+				&& parseState.tokens[parseState.currentTokenIndex].type() == TokenType.ArgumentValueTupleStart
 		);
 		Function<Integer, Integer> ifInTuple = v -> isInTuple ? v : 0;
 
@@ -327,14 +337,14 @@ public class Command {
 
 		// next add more values until we get to the max of the type, or we encounter another argument specifier
 		for (
-			int i = currentTokenIndex + ifInTuple.apply(1);
-			i < this.tokens.length;
+			int i = parseState.currentTokenIndex + ifInTuple.apply(1);
+			i < parseState.tokens.length;
 			i++, skipCount++
 		) {
-			var actual_token = this.tokens[i];
+			var actual_token = parseState.tokens[i];
 			if (
 				(!isInTuple && (
-					actual_token.isArgumentSpecifier() || i - currentTokenIndex >= argumentValuesRange.max
+					actual_token.isArgumentSpecifier() || i - parseState.currentTokenIndex >= argumentValuesRange.max
 				))
 					|| actual_token.type() == TokenType.ArgumentValueTupleEnd
 			) {
@@ -345,7 +355,7 @@ public class Command {
 
 		int temp_args_size = temp_args.size();
 
-		this.currentTokenIndex += skipCount + ifInTuple.apply(1);
+		parseState.currentTokenIndex += skipCount + ifInTuple.apply(1);
 
 		if (temp_args_size > argumentValuesRange.max || temp_args_size < argumentValuesRange.min)
 			return ParseResult.ERROR(ParseErrorType.ArgIncorrectValueNumber, temp_args_size);
@@ -386,17 +396,17 @@ public class Command {
 		Argument<?, ?> lastPosArgument; // this will never be null when being used
 		ParseResult<ParsedArguments> errors = ParseResult.CORRECT();
 
-		for (this.currentTokenIndex = 0; this.currentTokenIndex < tokens.length; ) {
-			Token c_token = this.tokens[currentTokenIndex];
+		for (parseState.currentTokenIndex = 0; parseState.currentTokenIndex < parseState.tokens.length; ) {
+			Token c_token = parseState.tokens[parseState.currentTokenIndex];
 
 			if (c_token.type() == TokenType.ArgumentAlias) {
-				currentTokenIndex++;
+				parseState.currentTokenIndex++;
 				errors.addSubResult(runForArgument(c_token.contents(), this::executeArgParse));
 				foundNonPositionalArg = true;
 			} else if (c_token.type() == TokenType.ArgumentNameList) {
 				parseArgNameList(c_token.contents().substring(1));
 				foundNonPositionalArg = true;
-				currentTokenIndex++;
+				parseState.currentTokenIndex++;
 			} else if (
 				(c_token.type() == TokenType.ArgumentValue || c_token.type() == TokenType.ArgumentValueTupleStart)
 					&& !foundNonPositionalArg
@@ -405,8 +415,8 @@ public class Command {
 				errors.addSubResult(executeArgParse(lastPosArgument));
 				argumentAliasCount++;
 			} else {
-				errors.addSubResult(ParseResult.ERROR(ParseErrorType.UnmatchedToken, currentTokenIndex));
-				currentTokenIndex++;
+				errors.addSubResult(ParseResult.ERROR(ParseErrorType.UnmatchedToken, parseState.currentTokenIndex));
+				parseState.currentTokenIndex++;
 			}
 		}
 
@@ -434,22 +444,27 @@ public class Command {
 	}
 
 	/**
-	 * Get all the tokens of all subcommands into one single list. This includes the SubCommand tokens.
+	 * Get all the tokens of all subcommands (the ones that we can get without errors)
+	 * into one single list. This includes the SubCommand tokens.
 	 */
 	protected ArrayList<Token> getFullTokenList() {
-		ArrayList<Token> list = new ArrayList<>(Arrays.stream(this.tokens).toList());
+		ArrayList<Token> list = new ArrayList<>(Arrays.stream(parseState.tokens).toList());
 
 		var subCmd = this.getTokenizedSubCommand();
-
 		return subCmd == null ? list : subCmd.getFullTokenList(list);
 	}
 
 	private ArrayList<Token> getFullTokenList(ArrayList<Token> list) {
 		list.add(new Token(TokenType.SubCommand, this.name));
-		list.addAll(Arrays.stream(this.tokens).toList());
+		list.addAll(Arrays.stream(parseState.tokens).toList());
 
 		var subCmd = this.getTokenizedSubCommand();
-
 		return subCmd == null ? list : subCmd.getFullTokenList(list);
+	}
+
+	void initParsingState() {
+		tokenizeState = new TokenizeState();
+		parseState = new ParseState();
+		this.subCommands.forEach(Command::initParsingState);
 	}
 }

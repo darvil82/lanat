@@ -18,12 +18,12 @@ public class ArgumentParser extends Command {
 	public ParsedArguments parseArgs(String args) {
 		this.initParsingState();
 		this.tokenize(args); // first. This will tokenize all subCommands recursively
-		var errorHandler = new ErrorHandler(this.getFullTokenList());
+		var errorHandler = new ErrorHandler(this);
+		var parsedArguments = this.parseTokens(); // same thing, this parses all the stuff recursively
 
-//		errorHandler.handleTokensResult(res);
+		errorHandler.collectErrors();
 		errorHandler.displayErrors();
 
-		var res2 = this.parseTokens(); // same thing, this parses all the stuff recursively
 
 		return new ParsedArguments(null, null, null);
 	}

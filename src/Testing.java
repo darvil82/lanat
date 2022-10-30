@@ -15,19 +15,20 @@ class StringJoiner extends ArgumentType<String> {
 public class Testing {
 	public static void main(String[] args) {
 		new ArgumentParser("Testing") {{
-			addArgument(new Argument<>("string", new StringJoiner())
+			addArgument(new Argument<>("b", new StringJoiner())
 				.callback(t -> System.out.println("wow look a string: '" + t + "'"))
 				.positional()
+				.obligatory()
 			);
-			addArgument(new Argument<>("arg", ArgumentType.BOOLEAN()).callback(System.out::println));
+			addArgument(new Argument<>("a", ArgumentType.BOOLEAN()));
 			addSubCommand(new Command("stuff") {{
-				addArgument(new Argument<>("c", ArgumentType.COUNTER()).callback(System.out::println));
-				addArgument(new Argument<>("string", new StringJoiner()).positional().callback(System.out::println));
+				addArgument(new Argument<>("c", ArgumentType.COUNTER()));
+				addArgument(new Argument<>("string", new StringJoiner()).positional());
 				addSubCommand(new Command("another") {{
-					addArgument(new Argument<>("ball", ArgumentType.BOOLEAN()).callback(System.out::println));
-					addArgument(new Argument<>("number", ArgumentType.INTEGER()).callback(System.out::println).positional());
+					addArgument(new Argument<>("ball", ArgumentType.BOOLEAN()));
+					addArgument(new Argument<>("number", ArgumentType.INTEGER()).positional());
 				}});
 			}});
-		}}.parseArgs("--string string1 string2 stuff -ccccc --string [works? 'this is a test'] ]-ccc another --ball");
+		}}.parseArgs("--string string1 string2 stuff -ccccc --string [works? 'this is a test']] -ccc another --ball");
 	}
 }

@@ -6,32 +6,19 @@ import argparser.utils.Pair;
 import java.util.ArrayList;
 
 public class ErrorHandler {
+	private final Command rootCmd;
 	private final ArrayList<Token> tokens;
+	private final ArrayList<Pair<String, ArrayList<TokenizeError>>> tokenizeErrors = new ArrayList<>();
+	private final ArrayList<Pair<String, ArrayList<ParseError>>> parserErrors = new ArrayList<>();
 
-	static class TokenizeError {
-		public final ParseErrorType type;
-		public final int index;
+	record TokenizeError(TokenizeErrorType type, int index) {}
 
-		TokenizeError(ParseErrorType type, int index) {
-			this.type = type;
-			this.index = index;
-		}
-	}
-
-	static class ParseError extends TokenizeError {
-		public final Argument<?, ?> arg;
-		public final int valueCount;
-
-		ParseError(ParseErrorType type, int index, Argument<?, ?> arg, int valueCount) {
-			super(type, index);
-			this.arg = arg;
-			this.valueCount = valueCount;
-		}
-	}
+	record ParseError(ParseErrorType type, int index, Argument<?, ?> arg, int valueCount) {}
 
 
-	public ErrorHandler(ArrayList<Token> tokens) {
-		this.tokens = tokens;
+	public ErrorHandler(Command cmd) {
+		this.rootCmd = cmd;
+		this.tokens = cmd.getFullTokenList();
 	}
 
 	public void displayErrors() {
@@ -39,25 +26,21 @@ public class ErrorHandler {
 	}
 
 
-	private int getSubCommandTokenIndexByNestingLevel(int level) {
-		for (int i = 0, appearances = 0; i < this.tokens.size(); i++) {
-			if (this.tokens.get(i).type() == TokenType.SubCommand) {
-				appearances++;
-			}
-			if (appearances >= level) {
-				return i;
-			}
+	private void collectErrors(Command cmd) {
+		if (!cmd.tokenizeState.errors.isEmpty())
+			this.tokenizeErrors.add(new Pair<>(cmd.name, cmd.tokenizeState.errors));
+		if (!cmd.parseState.errors.isEmpty())
+			this.parserErrors.add(new Pair<>(cmd.name, cmd.parseState.errors));
+
+		for (var subCmd : cmd.subCommands) {
+			this.collectErrors(subCmd);
 		}
-		return -1;
 	}
 
-	public void handleTokensResult(ParseResult<Void> result) {
-		Pair<Integer, ParseResult<Void>> failedResult = result.getFirstMatchingSubResult(r -> !r.isCorrect());
-		if (failedResult == null) {
-			return;
-		}
-
-		var x = this.getSubCommandTokenIndexByNestingLevel(failedResult.first());
-//		this.addDisplayIndicator(x + failedResult.first(), "an error occurred");
+	/**
+	 * Collects the errors of all subcommands.
+	 */
+	public void collectErrors() {
+		this.collectErrors(this.rootCmd);
 	}
 }

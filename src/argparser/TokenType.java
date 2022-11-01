@@ -1,8 +1,8 @@
 package argparser;
 
-import argparser.displayFormatter.TextFormatter;
+import argparser.displayFormatter.Color;
 
-public enum TokenType implements TextFormatter {
+public enum TokenType {
 	ArgumentAlias(Color.BrightGreen),
 	ArgumentNameList(Color.BrightCyan),
 	ArgumentValue(Color.BrightYellow),
@@ -10,14 +10,9 @@ public enum TokenType implements TextFormatter {
 	ArgumentValueTupleEnd(Color.BrightMagenta),
 	SubCommand(Color.Blue);
 
-	private final Color color;
+	public final Color color;
 
 	TokenType(Color color) {
 		this.color = color;
-	}
-
-	@Override
-	public FormattingProvider getFormatting() {
-		return this.color;
 	}
 }

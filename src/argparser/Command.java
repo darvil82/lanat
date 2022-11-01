@@ -6,6 +6,7 @@ import argparser.utils.UtlString;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -58,6 +59,15 @@ public class Command {
 		return this.arguments.stream().filter(Argument::isPositional).toArray(Argument[]::new);
 	}
 
+	public List<Command> getTokenizedSubCommands() {
+		List<Command> x = new ArrayList<>();
+		Command subCmd;
+		x.add(this);
+		if ((subCmd = this.getTokenizedSubCommand()) != null) {
+			x.addAll(subCmd.getTokenizedSubCommands());
+		}
+		return x;
+	}
 
 	// ---------------------------------------------------- Parsing ----------------------------------------------------
 
@@ -88,9 +98,13 @@ public class Command {
 		private short currentTokenIndex = 0;
 
 
-		void addError(ParseErrorType type, Argument<?, ?> arg, int argValueCount) {
+		void addError(ParseErrorType type, Argument<?, ?> arg, int argValueCount, int currentIndex) {
 			if (type == ParseErrorType.None) return;
-			this.errors.add(new ErrorHandler.ParseError(type, currentTokenIndex, arg, argValueCount));
+			this.errors.add(new ErrorHandler.ParseError(type, currentIndex, arg, argValueCount));
+		}
+
+		void addError(ParseErrorType type, Argument<?, ?> arg, int argValueCount) {
+			this.addError(type, arg, argValueCount, this.currentTokenIndex);
 		}
 	}
 
@@ -353,13 +367,15 @@ public class Command {
 		}
 
 		int temp_args_size = temp_args.size();
-
-		parseState.currentTokenIndex += skipCount + ifInTuple.apply(1);
+		int newCurrentTokenIndex = skipCount + ifInTuple.apply(1);
 
 		if (temp_args_size > argumentValuesRange.max || temp_args_size < argumentValuesRange.min) {
-			parseState.addError(ParseErrorType.ArgIncorrectValueNumber, arg, temp_args_size);
+			parseState.addError(ParseErrorType.ArgIncorrectValueNumber, arg, temp_args_size + ifInTuple.apply(1), parseState.currentTokenIndex + 1);
+			parseState.currentTokenIndex += newCurrentTokenIndex;
 			return;
 		}
+
+		parseState.currentTokenIndex += newCurrentTokenIndex;
 
 		// pass the arg values to the argument subparser
 		arg.parseValues(temp_args.stream().map(Token::contents).toArray(String[]::new));

@@ -15,7 +15,7 @@ class StringJoiner extends ArgumentType<String> {
 public class Testing {
 	public static void main(String[] args) {
 		new ArgumentParser("Testing") {{
-			addArgument(new Argument<>("b", new StringJoiner())
+			addArgument(new Argument<>("what", new StringJoiner())
 				.callback(t -> System.out.println("wow look a string: '" + t + "'"))
 				.positional()
 				.obligatory()
@@ -29,6 +29,6 @@ public class Testing {
 					addArgument(new Argument<>("number", ArgumentType.INTEGER()).positional());
 				}});
 			}});
-		}}.parseArgs("--string string1 string2 stuff -ccccc --string [works? 'this is a test']] -ccc another --ball");
+		}}.parseArgs("--what [string1 string2 ball] stuff -ccccc --string [hello how are you ] -ccc another --ball");
 	}
 }

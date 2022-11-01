@@ -5,23 +5,6 @@ import argparser.utils.Pair;
 import java.util.ArrayList;
 import java.util.function.Function;
 
-enum ParseErrorType {
-	None,
-	ArgumentNotFound,
-	ArgNameListTakeValues,
-	ObligatoryArgumentNotUsed,
-	UnmatchedToken,
-	ArgIncorrectValueNumber
-}
-
-enum TokenizeErrorType {
-	None,
-	TupleAlreadyOpen,
-	UnexpectedTupleClose,
-	TupleNotClosed,
-	StringNotClosed,
-}
-
 
 public class ParseResult<TReturn> {
 	protected boolean correct;

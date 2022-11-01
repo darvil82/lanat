@@ -1,116 +1,51 @@
 package argparser.displayFormatter;
 
-public interface TextFormatter {
-	/**
-	 * For getting the parsed formatting stuff from normally a TextFormatter
-	 */
-	interface FormattingProvider {
-		/**
-		 * Return the parsed terminal sequences
-		 */
-		String getFormattingSequence();
+import java.util.ArrayList;
+import java.util.Arrays;
+
+public class TextFormatter {
+	private ArrayList<FormatOption> formatOptions = new ArrayList<>();
+	private Color foregroundColor;
+	private Color backgroundColor;
+	private String contents;
+
+	public TextFormatter(String contents) {
+		this.contents = contents;
 	}
 
-	FormattingProvider getFormatting();
-
-	static FormattingProvider format(FormattingProvider... formattingProviders) {
-		return format("", formattingProviders);
+	public TextFormatter addFormat(FormatOption... options) {
+		this.formatOptions.addAll(Arrays.asList(options));
+		return this;
 	}
 
-	static FormattingProvider format(String separator, FormattingProvider... formattingProviders) {
-		return () -> {
-			StringBuilder sb = new StringBuilder();
-			for (var fp : formattingProviders) {
-				sb.append(fp.getFormattingSequence()).append(separator);
-			}
-			return sb.toString();
-		};
+	public TextFormatter setColor(Color foreground) {
+		this.foregroundColor = foreground;
+		this.backgroundColor = null;
+		return this;
 	}
 
-	static FormattingProvider format(Iterable<? extends TextFormatter> formattingProviders) {
-		return format("", formattingProviders);
+	public TextFormatter setColor(Color foreground, Color background) {
+		this.foregroundColor = foreground;
+		this.backgroundColor = background;
+		return this;
 	}
 
-	static FormattingProvider format(String separator, Iterable<? extends TextFormatter> formattingProviders) {
-		return () -> {
-			StringBuilder sb = new StringBuilder();
-			for (var fp : formattingProviders) {
-				sb.append(fp.getFormatting().getFormattingSequence()).append(separator);
-			}
-			return sb.toString();
-		};
-	}
+	@Override
+	public String toString() {
+		StringBuilder str = new StringBuilder();
 
-	static FormattingProvider format(String s) {
-		return () -> s;
-	}
+		if (foregroundColor != null) str.append(foregroundColor);
+		if (backgroundColor != null) str.append(backgroundColor.toStringBackground());
 
-	static void print(FormattingProvider formattingProvider) {
-		System.out.println(format(formattingProvider, FormatOption.ResetAll).getFormattingSequence());
-	}
+		for (var fmt : formatOptions) str.append(fmt);
 
-	enum Color implements FormattingProvider {
-		Black(30),
-		Red(31),
-		Green(32),
-		Yellow(33),
-		Blue(34),
-		Magenta(35),
-		Cyan(36),
-		White(37),
-		Gray(90),
-		BrightRed(91),
-		BrightGreen(92),
-		BrightYellow(93),
-		BrightBlue(94),
-		BrightMagenta(95),
-		BrightCyan(96),
-		BrightWhite(97),
-		None(128);
+		str.append(contents);
 
-		private Byte value;
+		// reset
+		for (var fmt : formatOptions) str.append(fmt.toStringReset());
 
-		Color(int value) {
-			this.value = (byte)value;
-		}
+		str.append(Color.BrightWhite);
 
-		public Color asBackground() {
-			// prevent overflow of the max value
-			this.value = (byte)(value == (byte)128 ? 128 : (this.value + 10));
-			return this;
-		}
-
-		@Override
-		public String getFormattingSequence() {
-			return String.format("\033[%dm", this.value);
-		}
-	}
-
-
-	enum FormatOption implements FormattingProvider {
-		ResetAll(0),
-		Bold(1),
-		Dim(2),
-		Underline(4),
-		Blink(5),
-		Reverse(7),
-		Hidden(8),
-		StrikeThrough(9);
-
-		private Byte value;
-
-		FormatOption(int value) {
-			this.value = (byte)value;
-		}
-
-		public FormatOption reset() {
-			this.value = (byte)(this.value + 20);
-			return this;
-		}
-
-		@Override
-		public String getFormattingSequence() {
-			return String.format("\033[%dm", this.value);
-		}
+		return str.toString();
 	}
 }

@@ -370,7 +370,7 @@ public class Command {
 		int newCurrentTokenIndex = skipCount + ifInTuple.apply(1);
 
 		if (temp_args_size > argumentValuesRange.max || temp_args_size < argumentValuesRange.min) {
-			parseState.addError(ParseErrorType.ArgIncorrectValueNumber, arg, temp_args_size + ifInTuple.apply(1), parseState.currentTokenIndex + 1);
+			parseState.addError(ParseErrorType.ArgIncorrectValueNumber, arg, temp_args_size + ifInTuple.apply(1));
 			parseState.currentTokenIndex += newCurrentTokenIndex;
 			return;
 		}

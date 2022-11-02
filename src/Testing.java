@@ -25,10 +25,10 @@ public class Testing {
 				addArgument(new Argument<>("c", ArgumentType.COUNTER()));
 				addArgument(new Argument<>("string", new StringJoiner()).positional());
 				addSubCommand(new Command("another") {{
-					addArgument(new Argument<>("ball", ArgumentType.BOOLEAN()));
+					addArgument(new Argument<>("ball", new StringJoiner()));
 					addArgument(new Argument<>("number", ArgumentType.INTEGER()).positional());
 				}});
 			}});
-		}}.parseArgs("--what [string1 string2 ball] stuff -ccccc --string [hello how are you ] -ccc another --ball");
+		}}.parseArgs("[test bla bla bal] --what [string1 string2 ball test] stuff -ccccc --string [hello how are you]] -ccc another --ball [a b c d]");
 	}
 }

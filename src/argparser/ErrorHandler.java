@@ -76,7 +76,7 @@ public class ErrorHandler {
 				appearances++;
 			}
 			if (appearances >= level) {
-				return i;
+				return i + (level == 0 ? 0 : 1); // this is done to skip the subcommand token itself
 			}
 		}
 		return -1;

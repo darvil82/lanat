@@ -6,12 +6,18 @@ import argparser.displayFormatter.FormatOption;
 import java.util.List;
 
 enum ParseErrorType {
-	None,
-	ArgumentNotFound,
-	ArgNameListTakeValues,
-	ObligatoryArgumentNotUsed,
-	UnmatchedToken,
-	ArgIncorrectValueNumber
+	None(null),
+	ArgumentNotFound("Argument '%s' not found"),
+	ArgNameListTakeValues("Argument '%s' takes values"),
+	ObligatoryArgumentNotUsed("Obligatory argument '%s' not used"),
+	UnmatchedToken("Unmatched token '%s'"),
+	ArgIncorrectValueNumber("Argument '%s' expects to receive from %d to %d values, but received %d.");
+
+	public final String msg;
+
+	ParseErrorType(String msg) {
+		this.msg = msg;
+	}
 }
 
 enum TokenizeErrorType {
@@ -65,7 +71,7 @@ public class ErrorHandler {
 
 			for (var parseError : cmd.parseState.errors) {
 				displayTokensWithError(cmdTokenIndex + parseError.index, parseError.valueCount);
-				System.out.println(parseError.type);
+				System.out.printf((parseError.type.msg) + "%n", parseError.arg.getAlias(), parseError.arg.getNumberOfValues().min, parseError.arg.getNumberOfValues().max, parseError.valueCount);
 			}
 		}
 	}

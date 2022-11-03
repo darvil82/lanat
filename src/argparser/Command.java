@@ -136,7 +136,7 @@ public class Command {
 
 		BiConsumer<TokenType, String> addToken = (t, c) -> finalTokens.add(new Token(t, c));
 		Consumer<Integer> tokenizeSection = (i) -> {
-			var token = this.tokenizeSection(currentValue.toString());
+			Token token = this.tokenizeSection(currentValue.toString());
 			Command subCmd;
 			// if this is a subcommand, continue tokenizing next elements
 			if (token.type() == TokenType.SubCommand && (subCmd = getSubCommandByName(token.contents())) != null) {
@@ -242,7 +242,7 @@ public class Command {
 			char currentSimpleArg = args.charAt(i);
 			short constIndex = i; // this is because the lambda requires the variable to be final
 
-			var res = this.runForArgument(currentSimpleArg, a -> {
+			if (!this.runForArgument(currentSimpleArg, a -> {
 				if (a.getNumberOfValues().isZero()) {
 					this.executeArgParse(a);
 				} else if (constIndex == args.length() - 1) {
@@ -251,9 +251,8 @@ public class Command {
 				} else {
 					this.executeArgParse(a, args.substring(constIndex + 1)); // if this arg accepts more values, treat the rest of chars as value
 				}
-			});
-
-			if (!res) break;
+			}))
+				break;
 		}
 	}
 
@@ -354,7 +353,7 @@ public class Command {
 			i < parseState.tokens.length;
 			i++, skipCount++
 		) {
-			var currentToken = parseState.tokens[i];
+			Token currentToken = parseState.tokens[i];
 			if (
 				(!isInTuple && (
 					currentToken.type().isArgumentSpecifier() || i - parseState.currentTokenIndex >= argumentValuesRange.max
@@ -436,9 +435,9 @@ public class Command {
 		HashMap<String, Object> parsedArgs = new HashMap<>();
 
 		this.arguments.forEach(argument -> {
-			var r = argument.finishParsing();
+			ParseResult<?> r = argument.finishParsing();
 			if (!r.isCorrect()) {
-				parseState.addError(r.reason, argument, 0, -1);
+				parseState.addError(r.reason, argument, 0);
 				return;
 			}
 			if (r.returnValue == null) return;

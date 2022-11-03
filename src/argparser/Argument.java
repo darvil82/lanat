@@ -147,7 +147,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 				: ParseResult.CORRECT(this.defaultValue);
 		}
 
-		var finalValue = this.argType.getFinalValue();
+		TInner finalValue = this.argType.getFinalValue();
 
 		if (this.callback != null) this.callback.accept(finalValue);
 
@@ -172,7 +172,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 		// getAlias because it has a fallback to return the name if there's no alias.
 		// we want to match single-char aliases too
 		if (this.name == null) {
-			var alias = this.getAlias();
+			String alias = this.getAlias();
 			return alias.length() == 1 && alias.charAt(0) == name;
 		}
 		return this.name == name;

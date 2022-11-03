@@ -36,8 +36,36 @@ public class ErrorHandler {
 
 	record ParseError(ParseErrorType type, int index, Argument<?, ?> arg, int valueCount) {}
 
+	ParseErrorHandlers parseErrorHandlers;
+
+
+	private class ParseErrorHandlers {
+		public void handleParseError(ParseError err) {
+			switch (err.type) {
+				case ArgIncorrectValueNumber -> this.handleIncorrectValueNumber(err.arg, err.valueCount);
+				case ObligatoryArgumentNotUsed -> this.handleObligatoryArgumentNotUsed(err.arg);
+				case ArgumentNotFound -> this.handleArgumentNotFound(err.index);
+
+				default -> {
+					displayTokensWithError(err.index);
+					System.out.println(err.type);
+				}
+			}
+		}
+
+		private void handleIncorrectValueNumber(Argument<?, ?> arg, int valueCount) {
+		}
+
+		private void handleObligatoryArgumentNotUsed(Argument<?, ?> arg) {
+		}
+
+		private void handleArgumentNotFound(int index) {
+		}
+	}
+
 
 	public ErrorHandler(Command cmd) {
+		this.parseErrorHandlers = this.new ParseErrorHandlers();
 		this.rootCmd = cmd;
 		this.tokens = cmd.getFullTokenList();
 	}
@@ -69,10 +97,10 @@ public class ErrorHandler {
 
 
 	public void displayErrors() {
-		var commands = this.rootCmd.getTokenizedSubCommands();
+		List<Command> commands = this.rootCmd.getTokenizedSubCommands();
 		for (int i = 0; i < commands.size(); i++) {
-			var cmd = commands.get(i);
-			var cmdTokenIndex = getSubCommandTokenIndexByNestingLevel(i);
+			Command cmd = commands.get(i);
+			int cmdTokenIndex = getSubCommandTokenIndexByNestingLevel(i);
 
 			for (var tokenizeError : cmd.tokenizeState.errors) {
 				displayTokensWithError(cmdTokenIndex + tokenizeError.index);
@@ -80,6 +108,7 @@ public class ErrorHandler {
 			}
 
 			for (var parseError : cmd.parseState.errors) {
+				parseErrorHandlers.handleParseError(parseError);
 				displayTokensWithError(cmdTokenIndex + parseError.index, parseError.valueCount);
 				System.out.printf((parseError.type.msg) + "%n", parseError.arg.getAlias(), parseError.arg.getNumberOfValues().min, parseError.arg.getNumberOfValues().max, Math.max(parseError.valueCount - 1, 0));
 			}

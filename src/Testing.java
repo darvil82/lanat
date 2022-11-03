@@ -26,9 +26,9 @@ public class Testing {
 				addArgument(new Argument<>('s', "string", new StringJoiner()).positional());
 				addSubCommand(new Command("another") {{
 					addArgument(new Argument<>("ball", new StringJoiner()));
-					addArgument(new Argument<>("number", ArgumentType.INTEGER()).positional());
+					addArgument(new Argument<>("number", ArgumentType.INTEGER()).positional().obligatory());
 				}});
 			}});
-		}}.parseArgs("foo bar [qux] stuff -s hola another --number 1");
+		}}.parseArgs("stuff -s hola another");
 	}
 }

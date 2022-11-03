@@ -4,10 +4,6 @@ import argparser.displayFormatter.TextFormatter;
 import argparser.utils.UtlString;
 
 public record Token(TokenType type, String contents) {
-	public boolean isArgumentSpecifier() {
-		return this.type == TokenType.ArgumentAlias || this.type == TokenType.ArgumentNameList;
-	}
-
 	public TextFormatter getFormatter() {
 		var contents = this.contents();
 		if (contents.contains(" ")) {

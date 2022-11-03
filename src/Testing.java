@@ -29,6 +29,6 @@ public class Testing {
 					addArgument(new Argument<>("number", ArgumentType.INTEGER()).positional());
 				}});
 			}});
-		}}.parseArgs("[] --what [string1 string2 ball test] stuff another --number");
+		}}.parseArgs("foo bar [qux] stuff -s hola another --number 1");
 	}
 }

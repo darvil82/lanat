@@ -147,11 +147,11 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 				: ParseResult.CORRECT(this.defaultValue);
 		}
 
-		var final_value = this.argType.getFinalValue();
+		var finalValue = this.argType.getFinalValue();
 
-		if (this.callback != null) this.callback.accept(final_value);
+		if (this.callback != null) this.callback.accept(finalValue);
 
-		return ParseResult.CORRECT(final_value);
+		return ParseResult.CORRECT(finalValue);
 	}
 
 	public void parseValues(String[] value) {

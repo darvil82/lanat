@@ -32,6 +32,13 @@ public class TextFormatter {
 
 	@Override
 	public String toString() {
+		// we'll just skip the whole thing if there's nothing to format or the contents are empty
+		if (
+			this.contents.length() == 0
+				|| (this.formatOptions.size() == 0 && this.foregroundColor == null && this.backgroundColor == null)
+		)
+			return this.contents;
+
 		StringBuilder str = new StringBuilder();
 
 		if (foregroundColor != null) str.append(foregroundColor);

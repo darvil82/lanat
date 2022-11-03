@@ -213,7 +213,7 @@ public class Command {
 			type = TokenType.ArgumentValue;
 		} else if (this.isArgAlias(str)) {
 			type = TokenType.ArgumentAlias;
-		} else if (this.isArgNames(str)) {
+		} else if (this.isArgNameList(str)) {
 			type = TokenType.ArgumentNameList;
 		} else if (this.isSubCommand(str)) {
 			type = TokenType.SubCommand;
@@ -239,17 +239,17 @@ public class Command {
 	private void parseArgNameList(String args) {
 		// its multiple of them. We can only do this with arguments that accept 0 values.
 		for (short i = 0; i < args.length(); i++) {
-			char current_simple_arg = args.charAt(i);
-			short const_index = i; // this is because the lambda requires the variable to be final
+			char currentSimpleArg = args.charAt(i);
+			short constIndex = i; // this is because the lambda requires the variable to be final
 
-			var res = this.runForArgument(current_simple_arg, a -> {
+			var res = this.runForArgument(currentSimpleArg, a -> {
 				if (a.getNumberOfValues().isZero()) {
 					this.executeArgParse(a);
-				} else if (const_index == args.length() - 1) {
+				} else if (constIndex == args.length() - 1) {
 					parseState.currentTokenIndex++;
 					this.executeArgParse(a);
 				} else {
-					this.executeArgParse(a, args.substring(const_index + 1)); // if this arg accepts more values, treat the rest of chars as value
+					this.executeArgParse(a, args.substring(constIndex + 1)); // if this arg accepts more values, treat the rest of chars as value
 				}
 			});
 
@@ -310,7 +310,7 @@ public class Command {
 		return this.subCommands.stream().filter(sb -> sb.finishedTokenizing).findFirst().orElse(null);
 	}
 
-	private boolean isArgNames(String str) {
+	private boolean isArgNameList(String str) {
 		if (str.length() < 2) return false;
 
 		var possiblePrefixes = new ArrayList<Character>();
@@ -321,7 +321,7 @@ public class Command {
 				return false;
 		}
 
-		return this.arguments.stream().allMatch(a -> possiblePrefixes.contains(a.getPrefix()));
+		return possiblePrefixes.contains(str.charAt(0));
 	}
 
 	private boolean isSubCommand(String str) {
@@ -345,8 +345,8 @@ public class Command {
 
 		int skipCount = ifInTuple.apply(1);
 
-		// first capture the minimum required values...
-		ArrayList<Token> temp_args = new ArrayList<>();
+		// first_capture_the_minimum_required_values...
+		ArrayList<Token> tempArgs = new ArrayList<>();
 
 		// next add more values until we get to the max of the type, or we encounter another argument specifier
 		for (
@@ -354,23 +354,23 @@ public class Command {
 			i < parseState.tokens.length;
 			i++, skipCount++
 		) {
-			var actual_token = parseState.tokens[i];
+			var currentToken = parseState.tokens[i];
 			if (
 				(!isInTuple && (
-					actual_token.isArgumentSpecifier() || i - parseState.currentTokenIndex >= argumentValuesRange.max
+					currentToken.type().isArgumentSpecifier() || i - parseState.currentTokenIndex >= argumentValuesRange.max
 				))
-					|| actual_token.type() == TokenType.ArgumentValueTupleEnd
+					|| currentToken.type().isTuple()
 			) {
 				break;
 			}
-			temp_args.add(actual_token);
+			tempArgs.add(currentToken);
 		}
 
-		int temp_args_size = temp_args.size();
+		int tempArgsSize = tempArgs.size();
 		int newCurrentTokenIndex = skipCount + ifInTuple.apply(1);
 
-		if (temp_args_size > argumentValuesRange.max || temp_args_size < argumentValuesRange.min) {
-			parseState.addError(ParseErrorType.ArgIncorrectValueNumber, arg, temp_args_size + ifInTuple.apply(1));
+		if (tempArgsSize > argumentValuesRange.max || tempArgsSize < argumentValuesRange.min) {
+			parseState.addError(ParseErrorType.ArgIncorrectValueNumber, arg, tempArgsSize + ifInTuple.apply(1));
 			parseState.currentTokenIndex += newCurrentTokenIndex;
 			return;
 		}
@@ -378,13 +378,13 @@ public class Command {
 		parseState.currentTokenIndex += newCurrentTokenIndex;
 
 		// pass the arg values to the argument subparser
-		arg.parseValues(temp_args.stream().map(Token::contents).toArray(String[]::new));
+		arg.parseValues(tempArgs.stream().map(Token::contents).toArray(String[]::new));
 	}
 
 	private void executeArgParse(Argument<?, ?> arg, String value) {
 		ArgValueCount argumentValuesRange = arg.getNumberOfValues();
 
-		if (value.length() == 0) {
+		if (value.isEmpty()) {
 			this.executeArgParse(arg); // value is not present in the suffix. Continue parsing values.
 			return;
 		}
@@ -433,16 +433,16 @@ public class Command {
 			}
 		}
 
-		HashMap<String, Object> parsed_args = new HashMap<>();
+		HashMap<String, Object> parsedArgs = new HashMap<>();
 
 		this.arguments.forEach(argument -> {
 			var r = argument.finishParsing();
 			if (!r.isCorrect()) {
-				parseState.addError(r.reason, argument, 0);
+				parseState.addError(r.reason, argument, 0, -1);
 				return;
 			}
 			if (r.returnValue == null) return;
-			parsed_args.put(argument.getAlias(), r.unpack());
+			parsedArgs.put(argument.getAlias(), r.unpack());
 		});
 
 		// now parse the subcommands
@@ -450,8 +450,8 @@ public class Command {
 			.filter(sb -> sb.finishedTokenizing) // only get the commands that were actually tokenized
 			.map(Command::parseTokens) // now parse them
 			.findFirst() // we should only have one because you can't use more than one subcommand
-			.map(parsedArguments -> new ParsedArguments(parsed_args, parsedArguments, this.name))
-			.orElseGet(() -> new ParsedArguments(parsed_args, null, this.name));
+			.map(parsedArguments -> new ParsedArguments(parsedArgs, parsedArguments, this.name))
+			.orElseGet(() -> new ParsedArguments(parsedArgs, null, this.name));
 	}
 
 	/**

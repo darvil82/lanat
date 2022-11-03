@@ -15,4 +15,12 @@ public enum TokenType {
 	TokenType(Color color) {
 		this.color = color;
 	}
+
+	public boolean isArgumentSpecifier() {
+		return this == ArgumentAlias || this == ArgumentNameList;
+	}
+
+	public boolean isTuple() {
+		return this == ArgumentValueTupleStart || this == ArgumentValueTupleEnd;
+	}
 }

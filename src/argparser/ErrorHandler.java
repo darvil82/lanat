@@ -45,10 +45,12 @@ public class ErrorHandler {
 	private void displayTokensWithError(int start, int end) {
 		StringBuilder buff = new StringBuilder();
 
-		if (start >= this.tokens.size()) {
-			buff.append(String.join(" ", this.tokens.stream().map(t -> t.getFormatter().toString()).toList()))
-				.append(" ")
-				.append(TextFormatter.ERROR("<-"));
+		if (start >= this.tokens.size() || start < 0) {
+			if (start < 0) buff.append(TextFormatter.ERROR("->")).append(" ");
+
+			buff.append(String.join(" ", this.tokens.stream().map(t -> t.getFormatter().toString()).toList()));
+
+			if (start >= this.tokens.size()) buff.append(" ").append(TextFormatter.ERROR("<-"));
 		} else {
 			for (int i = 0; i < this.tokens.size(); i++) {
 				var content = this.tokens.get(i).getFormatter();
@@ -67,10 +69,11 @@ public class ErrorHandler {
 
 
 	public void displayErrors() {
-		var x = this.rootCmd.getTokenizedSubCommands();
-		for (int i = 0; i < x.size(); i++) {
-			var cmd = x.get(i);
+		var commands = this.rootCmd.getTokenizedSubCommands();
+		for (int i = 0; i < commands.size(); i++) {
+			var cmd = commands.get(i);
 			var cmdTokenIndex = getSubCommandTokenIndexByNestingLevel(i);
+
 			for (var tokenizeError : cmd.tokenizeState.errors) {
 				displayTokensWithError(cmdTokenIndex + tokenizeError.index);
 				System.out.println(tokenizeError.type);

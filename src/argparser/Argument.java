@@ -12,6 +12,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 	private short usageCount = 0;
 	private boolean obligatory = false, positional = false;
 	private TInner defaultValue;
+	private int errorCode = 1;
 
 	public Argument(Character name, String alias, Type argType) {
 		if (name == null && alias == null) {
@@ -115,12 +116,31 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 		return this;
 	}
 
+	/**
+	 * The value that should be used if the user does not specify a value for this argument. If the argument
+	 * does not accept values, this value will be ignored.
+	 */
 	public Argument<Type, TInner> defaultValue(TInner value) {
 		this.defaultValue = value;
 		return this;
 	}
 
-	public ParseResult<TInner> finishParsing() {
+	/**
+	 * Specifies the error code that the program should return when this argument fails.
+	 * When multiple arguments fail, the program will return the result of the OR bit operation that will be
+	 * applied to all other argument results. For example:
+	 * <ul>
+	 *     <li>Argument 'foo' has a return value of 2. <code>(0b010)</code></li>
+	 *     <li>Argument 'bar' has a return value of 5. <code>(0b101)</code></li>
+	 * </ul>
+	 * Both arguments failed, so in this case the resultant return value would be 7 <code>(0b111)</code>.
+	 */
+	public Argument<Type, TInner> errorCode(int errorCode) {
+		this.errorCode = errorCode;
+		return this;
+	}
+
+	ParseResult<TInner> finishParsing() {
 		if (this.usageCount == 0) {
 			return this.isObligatory()
 				? ParseResult.ERROR(ParseErrorType.ObligatoryArgumentNotUsed)

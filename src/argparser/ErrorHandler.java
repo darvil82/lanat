@@ -2,13 +2,13 @@ package argparser;
 
 import argparser.displayFormatter.Color;
 import argparser.displayFormatter.FormatOption;
+import argparser.displayFormatter.TextFormatter;
 
 import java.util.List;
 
 enum ParseErrorType {
 	None(null),
 	ArgumentNotFound("Argument '%s' not found"),
-	ArgNameListTakeValues("Argument '%s' takes values"),
 	ObligatoryArgumentNotUsed("Obligatory argument '%s' not used"),
 	UnmatchedToken("Unmatched token '%s'"),
 	ArgIncorrectValueNumber("Argument '%s' expects to receive from %d to %d values, but received %d.");
@@ -44,12 +44,19 @@ public class ErrorHandler {
 
 	private void displayTokensWithError(int start, int end) {
 		StringBuilder buff = new StringBuilder();
-		for (int i = 0; i < this.tokens.size(); i++) {
-			var content = this.tokens.get(i).getFormatter();
-			if (i >= start && i <= end + start) {
-				content.setColor(Color.BrightRed).addFormat(FormatOption.Bold, FormatOption.Reverse);
+
+		if (start >= this.tokens.size()) {
+			buff.append(String.join(" ", this.tokens.stream().map(t -> t.getFormatter().toString()).toList()))
+				.append(" ")
+				.append(TextFormatter.ERROR("<-"));
+		} else {
+			for (int i = 0; i < this.tokens.size(); i++) {
+				var content = this.tokens.get(i).getFormatter();
+				if (i >= start && i <= end + start) {
+					content.setColor(Color.BrightRed).addFormat(FormatOption.Bold, FormatOption.Reverse);
+				}
+				buff.append(content).append(" ");
 			}
-			buff.append(content).append(" ");
 		}
 		System.out.println(buff);
 	}
@@ -71,7 +78,7 @@ public class ErrorHandler {
 
 			for (var parseError : cmd.parseState.errors) {
 				displayTokensWithError(cmdTokenIndex + parseError.index, parseError.valueCount);
-				System.out.printf((parseError.type.msg) + "%n", parseError.arg.getAlias(), parseError.arg.getNumberOfValues().min, parseError.arg.getNumberOfValues().max, parseError.valueCount);
+				System.out.printf((parseError.type.msg) + "%n", parseError.arg.getAlias(), parseError.arg.getNumberOfValues().min, parseError.arg.getNumberOfValues().max, Math.max(parseError.valueCount - 1, 0));
 			}
 		}
 	}

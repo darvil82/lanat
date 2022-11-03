@@ -48,4 +48,8 @@ public class TextFormatter {
 
 		return str.toString();
 	}
+
+	public static TextFormatter ERROR(String msg) {
+		return new TextFormatter(msg).setColor(Color.BrightRed).addFormat(FormatOption.Reverse, FormatOption.Bold);
+	}
 }

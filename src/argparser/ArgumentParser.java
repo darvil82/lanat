@@ -21,7 +21,6 @@ public class ArgumentParser extends Command {
 		var errorHandler = new ErrorHandler(this);
 		ParsedArguments parsedArguments = this.parseTokens(); // same thing, this parses all the stuff recursively
 
-		errorHandler.collectErrors();
 		errorHandler.displayErrors();
 
 

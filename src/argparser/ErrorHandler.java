@@ -126,13 +126,4 @@ public class ErrorHandler {
 		}
 		return -1;
 	}
-
-
-	/**
-	 * Collects the errors of all subcommands.
-	 */
-	public void collectErrors() {
-//		this.collectErrors(this.rootCmd);
-		System.out.println();
-	}
 }

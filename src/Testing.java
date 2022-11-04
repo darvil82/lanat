@@ -29,6 +29,6 @@ public class Testing {
 					addArgument(new Argument<>("number", ArgumentType.INTEGER()).positional().obligatory());
 				}});
 			}});
-		}}.parseArgs("stuff -s hola another");
+		}}.parseArgs("--what stuff -s [foo bar qux fuzz] another --number [1 2]");
 	}
 }

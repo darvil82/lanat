@@ -13,6 +13,10 @@ public class TextFormatter {
 		this.contents = contents;
 	}
 
+	public TextFormatter() {
+		this.contents = "";
+	}
+
 	public TextFormatter addFormat(FormatOption... options) {
 		this.formatOptions.addAll(Arrays.asList(options));
 		return this;
@@ -27,6 +31,11 @@ public class TextFormatter {
 	public TextFormatter setColor(Color foreground, Color background) {
 		this.foregroundColor = foreground;
 		this.backgroundColor = background;
+		return this;
+	}
+
+	public TextFormatter setContents(String contents) {
+		this.contents = contents;
 		return this;
 	}
 

@@ -3,21 +3,16 @@ package argparser;
 import argparser.displayFormatter.Color;
 import argparser.displayFormatter.FormatOption;
 import argparser.displayFormatter.TextFormatter;
+import argparser.utils.UtlString;
 
 import java.util.List;
 
 enum ParseErrorType {
-	None(null),
-	ArgumentNotFound("Argument '%s' not found"),
-	ObligatoryArgumentNotUsed("Obligatory argument '%s' not used"),
-	UnmatchedToken("Unmatched token '%s'"),
-	ArgIncorrectValueNumber("Argument '%s' expects to receive from %d to %d values, but received %d.");
-
-	public final String msg;
-
-	ParseErrorType(String msg) {
-		this.msg = msg;
-	}
+	None,
+	ArgumentNotFound,
+	ObligatoryArgumentNotUsed,
+	UnmatchedToken,
+	ArgIncorrectValueNumber;
 }
 
 enum TokenizeErrorType {
@@ -37,29 +32,47 @@ public class ErrorHandler {
 	record ParseError(ParseErrorType type, int index, Argument<?, ?> arg, int valueCount) {}
 
 	ParseErrorHandlers parseErrorHandlers;
+	private int cmdAbsoluteTokenIndex = 0;
 
 
 	private class ParseErrorHandlers {
+		private int index;
+
 		public void handleParseError(ParseError err) {
-			switch (err.type) {
+			this.index = err.index;
+
+			formatErrorInfo(switch (err.type) {
 				case ArgIncorrectValueNumber -> this.handleIncorrectValueNumber(err.arg, err.valueCount);
 				case ObligatoryArgumentNotUsed -> this.handleObligatoryArgumentNotUsed(err.arg);
-				case ArgumentNotFound -> this.handleArgumentNotFound(err.index);
+				case ArgumentNotFound -> this.handleArgumentNotFound(tokens.get(this.index).contents());
 
 				default -> {
 					displayTokensWithError(err.index);
-					System.out.println(err.type);
+					yield err.type.toString();
 				}
+			});
+		}
+
+		private String handleIncorrectValueNumber(Argument<?, ?> arg, int valueCount) {
+			displayTokensWithError(this.index + 1, valueCount);
+			var errorMsg = new StringBuilder();
+			errorMsg.append(String.format("Incorrect number of values for argument '%s'.%n", arg.getAlias()));
+
+			ArgValueCount argValueCount;
+			if ((argValueCount = arg.getNumberOfValues()).isRange()) {
+				errorMsg.append(String.format("Expected %d to %d values", argValueCount.min, argValueCount.max));
+			} else {
+				errorMsg.append(String.format("Expected %d value%s", argValueCount.min, argValueCount.min == 1 ? "" : "s"));
 			}
+			return errorMsg.append(String.format(", but got %d.", Math.max(valueCount - 1, 0))).toString();
 		}
 
-		private void handleIncorrectValueNumber(Argument<?, ?> arg, int valueCount) {
+		private String handleObligatoryArgumentNotUsed(Argument<?, ?> arg) {
+			return "Obligatory argument '" + arg.getAlias() + "' not used.";
 		}
 
-		private void handleObligatoryArgumentNotUsed(Argument<?, ?> arg) {
-		}
-
-		private void handleArgumentNotFound(int index) {
+		private String handleArgumentNotFound(String argName) {
+			return "Argument '" + argName + "' not found.";
 		}
 	}
 
@@ -70,7 +83,26 @@ public class ErrorHandler {
 		this.tokens = cmd.getFullTokenList();
 	}
 
-	private void displayTokensWithError(int start, int end) {
+	private void formatErrorInfo(String contents) {
+		// first figure out the length of the longest line
+		var maxLength = UtlString.getLongestLine(contents).length();
+
+		var formatter = new TextFormatter()
+			.setColor(Color.BrightRed)
+			.addFormat(FormatOption.Bold);
+
+		System.out.println(
+			contents.replaceAll(
+				"^|\\n",
+				formatter.setContents("\n │ ").toString() // first insert a vertical bar at the start of each line
+			)
+				// then insert a horizontal bar at the end, with the length of the longest line approximately
+				+ formatter.setContents("\n └" + "─".repeat(Math.max(maxLength - 5, 0)) + " ───── ── ─").toString() + "\n"
+		);
+	}
+
+	private void displayTokensWithError(int start, int offset) {
+		start += this.cmdAbsoluteTokenIndex;
 		StringBuilder buff = new StringBuilder();
 
 		if (start >= this.tokens.size() || start < 0) {
@@ -82,13 +114,13 @@ public class ErrorHandler {
 		} else {
 			for (int i = 0; i < this.tokens.size(); i++) {
 				var content = this.tokens.get(i).getFormatter();
-				if (i >= start && i <= end + start) {
+				if (i >= start && i <= offset + start) {
 					content.setColor(Color.BrightRed).addFormat(FormatOption.Bold, FormatOption.Reverse);
 				}
 				buff.append(content).append(" ");
 			}
 		}
-		System.out.println(buff);
+		System.out.print(buff);
 	}
 
 	private void displayTokensWithError(int index) {
@@ -96,21 +128,19 @@ public class ErrorHandler {
 	}
 
 
-	public void displayErrors() {
+	public void handleErrors() {
 		List<Command> commands = this.rootCmd.getTokenizedSubCommands();
 		for (int i = 0; i < commands.size(); i++) {
 			Command cmd = commands.get(i);
-			int cmdTokenIndex = getSubCommandTokenIndexByNestingLevel(i);
+			this.cmdAbsoluteTokenIndex = getSubCommandTokenIndexByNestingLevel(i);
 
 			for (var tokenizeError : cmd.tokenizeState.errors) {
-				displayTokensWithError(cmdTokenIndex + tokenizeError.index);
+				displayTokensWithError(tokenizeError.index);
 				System.out.println(tokenizeError.type);
 			}
 
 			for (var parseError : cmd.parseState.errors) {
 				parseErrorHandlers.handleParseError(parseError);
-				displayTokensWithError(cmdTokenIndex + parseError.index, parseError.valueCount);
-				System.out.printf((parseError.type.msg) + "%n", parseError.arg.getAlias(), parseError.arg.getNumberOfValues().min, parseError.arg.getNumberOfValues().max, Math.max(parseError.valueCount - 1, 0));
 			}
 		}
 	}
@@ -121,7 +151,7 @@ public class ErrorHandler {
 				appearances++;
 			}
 			if (appearances >= level) {
-				return i + (level == 0 ? 0 : 1); // this is done to skip the subcommand token itself
+				return i - (level == 0 ? 1 : 0); // this is done to skip the subcommand token itself
 			}
 		}
 		return -1;

@@ -23,12 +23,12 @@ public class Testing {
 			addArgument(new Argument<>("a", ArgumentType.BOOLEAN()));
 			addSubCommand(new Command("stuff") {{
 				addArgument(new Argument<>("c", ArgumentType.COUNTER()));
-				addArgument(new Argument<>('s', "string", new StringJoiner()).positional());
+				addArgument(new Argument<>('s', "string", new StringJoiner()).positional().obligatory());
 				addSubCommand(new Command("another") {{
 					addArgument(new Argument<>("ball", new StringJoiner()));
 					addArgument(new Argument<>("number", ArgumentType.INTEGER()).positional().obligatory());
 				}});
 			}});
-		}}.parseArgs("--what stuff -s [foo bar qux fuzz] another --number [1 2]");
+		}}.parseArgs("[hola que tal estás] stuff -s test another --number 4 --ball []");
 	}
 }

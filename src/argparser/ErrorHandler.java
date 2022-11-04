@@ -47,14 +47,14 @@ public class ErrorHandler {
 				case ArgumentNotFound -> this.handleArgumentNotFound(tokens.get(this.index).contents());
 
 				default -> {
-					displayTokensWithError(err.index);
+					displayTokensWithError(err.index, true);
 					yield err.type.toString();
 				}
 			});
 		}
 
 		private String handleIncorrectValueNumber(Argument<?, ?> arg, int valueCount) {
-			displayTokensWithError(this.index + 1, valueCount);
+			displayTokensWithError(this.index + (valueCount == 0 ? 0 : 1), valueCount, valueCount == 0);
 			var errorMsg = new StringBuilder();
 			errorMsg.append(String.format("Incorrect number of values for argument '%s'.%n", arg.getAlias()));
 
@@ -68,6 +68,7 @@ public class ErrorHandler {
 		}
 
 		private String handleObligatoryArgumentNotUsed(Argument<?, ?> arg) {
+			displayTokensWithError(this.index, true);
 			return "Obligatory argument '" + arg.getAlias() + "' not used.";
 		}
 
@@ -101,30 +102,52 @@ public class ErrorHandler {
 		);
 	}
 
-	private void displayTokensWithError(int start, int offset) {
+	private void displayTokensWithError(int start, int offset, boolean placeArrow) {
+		// TODO ill rewrite this ok i know its cringe at the moment
 		start += this.cmdAbsoluteTokenIndex;
 		StringBuilder buff = new StringBuilder();
+		var arrow = TextFormatter.ERROR("<-");
+		int tokensLength = this.tokens.size();
 
-		if (start >= this.tokens.size() || start < 0) {
-			if (start < 0) buff.append(TextFormatter.ERROR("->")).append(" ");
+		if (start < 0 || start >= tokensLength) {
+			if (start < 0) {
+				buff.append(arrow).append(" ");
+			}
 
-			buff.append(String.join(" ", this.tokens.stream().map(t -> t.getFormatter().toString()).toList()));
+			// just show all of them
+			buff.append(String.join(" ", this.tokens.stream().map(t -> t.getFormatter().addFormat(FormatOption.Dim).toString()).toList()));
 
-			if (start >= this.tokens.size()) buff.append(" ").append(TextFormatter.ERROR("<-"));
+			if (start >= tokensLength) {
+				buff.append(" ").append(arrow);
+			}
 		} else {
-			for (int i = 0; i < this.tokens.size(); i++) {
+			for (int i = 0; i < tokensLength; i++) {
 				var content = this.tokens.get(i).getFormatter();
-				if (i >= start && i <= offset + start) {
-					content.setColor(Color.BrightRed).addFormat(FormatOption.Bold, FormatOption.Reverse);
+
+				if (i < this.cmdAbsoluteTokenIndex)
+					content.addFormat(FormatOption.Dim);
+
+				if (i >= start && i <= start + offset) {
+					if (!placeArrow)
+						content.setColor(Color.BrightRed).addFormat(FormatOption.Bold, FormatOption.Reverse);
 				}
+
 				buff.append(content).append(" ");
+
+				if (
+					(i >= start && i <= start + offset)
+						&& placeArrow
+				) {
+					buff.append(arrow).append(" ");
+				}
 			}
 		}
+
 		System.out.print(buff);
 	}
 
-	private void displayTokensWithError(int index) {
-		this.displayTokensWithError(index, index);
+	private void displayTokensWithError(int index, boolean placeArrow) {
+		this.displayTokensWithError(index, 0, placeArrow);
 	}
 
 
@@ -132,10 +155,9 @@ public class ErrorHandler {
 		List<Command> commands = this.rootCmd.getTokenizedSubCommands();
 		for (int i = 0; i < commands.size(); i++) {
 			Command cmd = commands.get(i);
-			this.cmdAbsoluteTokenIndex = getSubCommandTokenIndexByNestingLevel(i);
+			this.cmdAbsoluteTokenIndex = getCommandTokenIndexByNestingLevel(i);
 
 			for (var tokenizeError : cmd.tokenizeState.errors) {
-				displayTokensWithError(tokenizeError.index);
 				System.out.println(tokenizeError.type);
 			}
 
@@ -145,7 +167,7 @@ public class ErrorHandler {
 		}
 	}
 
-	private int getSubCommandTokenIndexByNestingLevel(int level) {
+	private int getCommandTokenIndexByNestingLevel(int level) {
 		for (int i = 0, appearances = 0; i < this.tokens.size(); i++) {
 			if (this.tokens.get(i).type() == TokenType.SubCommand) {
 				appearances++;

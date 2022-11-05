@@ -19,16 +19,17 @@ public class Testing {
 				.callback(t -> System.out.println("wow look a string: '" + t + "'"))
 				.positional()
 				.obligatory()
+				.errorCode(0x01)
 			);
 			addArgument(new Argument<>("a", ArgumentType.BOOLEAN()));
-			addSubCommand(new Command("stuff") {{
+			addSubCommand(new Command("subcommand") {{
 				addArgument(new Argument<>("c", ArgumentType.COUNTER()));
-				addArgument(new Argument<>('s', "string", new StringJoiner()).positional().obligatory());
+				addArgument(new Argument<>('s', "more-strings", new StringJoiner()));
 				addSubCommand(new Command("another") {{
 					addArgument(new Argument<>("ball", new StringJoiner()));
-					addArgument(new Argument<>("number", ArgumentType.INTEGER()).positional().obligatory());
+					addArgument(new Argument<>("number", ArgumentType.INTEGER()).positional());
 				}});
 			}});
-		}}.parseArgs("[hola que tal estás] stuff -s test another --number 4 --ball []");
+		}}.parseArgs("pretty neat -aaaa subcommand -s [this is a test] another --number [1 2 3]");
 	}
 }

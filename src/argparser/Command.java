@@ -111,21 +111,7 @@ public class Command {
 	ParseState parseState;
 
 	private boolean finishedTokenizing = false;
-
-
-	void debugShit() {
-		System.out.println(this.name);
-		if (this.finishedTokenizing)
-			for (var t : parseState.tokens) {
-				System.out.println("\t" + t);
-			}
-		else
-			System.out.println("\tim null");
-		if (!this.subCommands.isEmpty()) {
-			this.subCommands.forEach(Command::debugShit);
-		}
-	}
-
+	
 
 	void tokenize(String content) {
 		this.finishedTokenizing = false; // just in case we are tokenizing again for any reason

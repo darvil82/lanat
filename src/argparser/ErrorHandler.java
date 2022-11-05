@@ -5,6 +5,7 @@ import argparser.displayFormatter.FormatOption;
 import argparser.displayFormatter.TextFormatter;
 import argparser.utils.UtlString;
 
+import java.util.ArrayList;
 import java.util.List;
 
 enum ParseErrorType {
@@ -27,13 +28,13 @@ public class ErrorHandler {
 	private final Command rootCmd;
 	private final List<Token> tokens;
 
-	record TokenizeError(TokenizeErrorType type, int index) {}
+	record TokenizeError(TokenizeErrorType type, int index) {
+	}
 
-	record ParseError(ParseErrorType type, int index, Argument<?, ?> arg, int valueCount) {}
+	record ParseError(ParseErrorType type, int index, Argument<?, ?> arg, int valueCount) {
+	}
 
-	ParseErrorHandlers parseErrorHandlers;
 	private int cmdAbsoluteTokenIndex = 0;
-
 
 	private class ParseErrorHandlers {
 		private int index;
@@ -55,16 +56,10 @@ public class ErrorHandler {
 
 		private String handleIncorrectValueNumber(Argument<?, ?> arg, int valueCount) {
 			displayTokensWithError(this.index + (valueCount == 0 ? 0 : 1), valueCount, valueCount == 0);
-			var errorMsg = new StringBuilder();
-			errorMsg.append(String.format("Incorrect number of values for argument '%s'.%n", arg.getAlias()));
-
-			ArgValueCount argValueCount;
-			if ((argValueCount = arg.getNumberOfValues()).isRange()) {
-				errorMsg.append(String.format("Expected %d to %d values", argValueCount.min, argValueCount.max));
-			} else {
-				errorMsg.append(String.format("Expected %d value%s", argValueCount.min, argValueCount.min == 1 ? "" : "s"));
-			}
-			return errorMsg.append(String.format(", but got %d.", Math.max(valueCount - 1, 0))).toString();
+			return String.format(
+				"Incorrect number of values for argument '%s'.%nExpected %s, but got %d.",
+				arg.getAlias(), arg.getNumberOfValues().getMessage(), Math.max(valueCount - 1, 0)
+			);
 		}
 
 		private String handleObligatoryArgumentNotUsed(Argument<?, ?> arg) {
@@ -77,9 +72,7 @@ public class ErrorHandler {
 		}
 	}
 
-
 	public ErrorHandler(Command cmd) {
-		this.parseErrorHandlers = this.new ParseErrorHandlers();
 		this.rootCmd = cmd;
 		this.tokens = cmd.getFullTokenList();
 	}
@@ -95,64 +88,54 @@ public class ErrorHandler {
 		System.out.println(
 			contents.replaceAll(
 				"^|\\n",
-				formatter.setContents("\n │ ").toString() // first insert a vertical bar at the start of each line
+				formatter.setContents("\n │ ").toString() // first insert a vertical bar at the start of each
+				// line
 			)
-				// then insert a horizontal bar at the end, with the length of the longest line approximately
-				+ formatter.setContents("\n └" + "─".repeat(Math.max(maxLength - 5, 0)) + " ───── ── ─").toString() + "\n"
-		);
+				// then insert a horizontal bar at the end, with the length of the longest line
+				// approximately
+				+ formatter.setContents("\n └" + "─".repeat(Math.max(maxLength - 5, 0)) + " ───── ── ─")
+				.toString()
+				+ "\n");
 	}
 
 	private void displayTokensWithError(int start, int offset, boolean placeArrow) {
-		// TODO ill rewrite this ok i know its cringe at the moment
 		start += this.cmdAbsoluteTokenIndex;
-		StringBuilder buff = new StringBuilder();
-		var arrow = TextFormatter.ERROR("<-");
+		final var arrow = TextFormatter.ERROR("<-");
+		var tokensFormatters = new ArrayList<>(this.tokens.stream().map(Token::getFormatter).toList());
 		int tokensLength = this.tokens.size();
 
-		if (start < 0 || start >= tokensLength) {
-			if (start < 0) {
-				buff.append(arrow).append(" ");
+		if (start < 0) {
+			tokensFormatters.add(0, arrow);
+		} else if (start >= tokensLength) {
+			tokensFormatters.add(arrow);
+		}
+
+		for (int i = 0; i < tokensLength; i++) {
+			if (i < this.cmdAbsoluteTokenIndex) {
+				tokensFormatters.get(i).addFormat(FormatOption.Dim);
 			}
 
-			// just show all of them
-			buff.append(String.join(" ", this.tokens.stream().map(t -> t.getFormatter().addFormat(FormatOption.Dim).toString()).toList()));
-
-			if (start >= tokensLength) {
-				buff.append(" ").append(arrow);
-			}
-		} else {
-			for (int i = 0; i < tokensLength; i++) {
-				var content = this.tokens.get(i).getFormatter();
-
-				if (i < this.cmdAbsoluteTokenIndex)
-					content.addFormat(FormatOption.Dim);
-
-				if (i >= start && i <= start + offset) {
-					if (!placeArrow)
-						content.setColor(Color.BrightRed).addFormat(FormatOption.Bold, FormatOption.Reverse);
-				}
-
-				buff.append(content).append(" ");
-
-				if (
-					(i >= start && i <= start + offset)
-						&& placeArrow
-				) {
-					buff.append(arrow).append(" ");
+			if (i >= start && i < start + offset + 1) {
+				if (placeArrow) {
+					tokensFormatters.add(i + 1, arrow);
+				} else {
+					tokensFormatters.get(i).setColor(Color.BrightRed).addFormat(FormatOption.Reverse,
+						FormatOption.Bold);
 				}
 			}
 		}
 
-		System.out.print(buff);
+		System.out.print(String.join(" ", tokensFormatters.stream().map(TextFormatter::toString).toList()));
 	}
 
 	private void displayTokensWithError(int index, boolean placeArrow) {
 		this.displayTokensWithError(index, 0, placeArrow);
 	}
 
-
 	public void handleErrors() {
+		var parseErrorHandler = this.new ParseErrorHandlers();
 		List<Command> commands = this.rootCmd.getTokenizedSubCommands();
+
 		for (int i = 0; i < commands.size(); i++) {
 			Command cmd = commands.get(i);
 			this.cmdAbsoluteTokenIndex = getCommandTokenIndexByNestingLevel(i);
@@ -162,7 +145,7 @@ public class ErrorHandler {
 			}
 
 			for (var parseError : cmd.parseState.errors) {
-				parseErrorHandlers.handleParseError(parseError);
+				parseErrorHandler.handleParseError(parseError);
 			}
 		}
 	}

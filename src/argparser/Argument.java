@@ -1,5 +1,7 @@
 package argparser;
 
+import argparser.utils.UtlString;
+
 import java.util.function.Consumer;
 
 public class Argument<Type extends ArgumentType<TInner>, TInner> {
@@ -40,12 +42,14 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 	 * @return <code>true</code> if the alias is valid
 	 */
 	private static boolean isValidAlias(String alias) {
-		for (char invalidChar : Argument.INVALID_CHARACTERS) {
-			if (alias.contains(Character.toString(invalidChar))) {
-				return false;
+		return UtlString.matchCharacters(alias, c -> {
+			for (char chr : INVALID_CHARACTERS) {
+				if (c == chr) {
+					return false;
+				}
 			}
-		}
-		return true;
+			return true;
+		});
 	}
 
 	private static boolean isValidName(char name) {
@@ -56,7 +60,10 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 	}
 
 	public void setAlias(String alias) {
-		if (alias == null || !Argument.isValidAlias(alias)) return;
+		if (alias == null) return;
+		if (!Argument.isValidAlias(alias)) {
+			throw new IllegalArgumentException("invalid alias '" + alias + "'");
+		}
 		this.alias = alias.replaceAll(String.format("^%s+", this.prefix), "");
 	}
 
@@ -66,7 +73,10 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 	}
 
 	public void setName(Character name) {
-		if (name == null || !Argument.isValidName(name)) return;
+		if (name == null) return;
+		if (!Argument.isValidName(name)) {
+			throw new IllegalArgumentException("invalid name '" + name + "'");
+		}
 		this.name = name;
 	}
 

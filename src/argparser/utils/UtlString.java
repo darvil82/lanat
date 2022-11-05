@@ -1,7 +1,7 @@
 package argparser.utils;
 
 import java.util.Arrays;
-import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class UtlString {
 	/**
@@ -10,9 +10,9 @@ public class UtlString {
 	 * @param str The string to check.
 	 * @param fn The predicate to apply to each character.
 	 */
-	public static boolean matchCharacters(String str, Function<Character, Boolean> fn) {
+	public static boolean matchCharacters(String str, Predicate<Character> fn) {
 		for (char chr : str.toCharArray()) {
-			if (!fn.apply(chr)) return false;
+			if (!fn.test(chr)) return false;
 		}
 		return true;
 	}

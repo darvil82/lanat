@@ -13,10 +13,12 @@ public class ArgValueCount {
 	public final short min, max;
 
 	public ArgValueCount(int min, int max) {
-		if ((min >= 0 && max >= 0) && (min > max))
+		if (min < -1 || max < -1)
+			throw new IllegalArgumentException("min and max values can only be positive, or -1 for any");
+		if ((min != -1 && max != -1) && (min > max))
 			throw new IllegalArgumentException("min value cannot be higher than max");
-		this.min = (short)(min < 0 ? Short.MAX_VALUE : min);
-		this.max = (short)(max < 0 ? Short.MAX_VALUE : max);
+		this.min = (short)(min == -1 ? Short.MAX_VALUE : min);
+		this.max = (short)(max == -1 ? Short.MAX_VALUE : max);
 	}
 
 	public ArgValueCount(int value) {

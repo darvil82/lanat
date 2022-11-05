@@ -32,6 +32,13 @@ public class Command {
 		this(name, null);
 	}
 
+	/**
+	 * Inserts an argument for this command to be parsed.
+	 *
+	 * @param argument the argument to be inserted
+	 * @param <T> the ArgumentType subclass that will parse the value passed to the argument
+	 * @param <TInner> the actual type of the value passed to the argument
+	 */
 	public <T extends ArgumentType<TInner>, TInner>
 	void addArgument(Argument<T, TInner> argument) {
 		if (this.arguments.stream().anyMatch(a -> a.equals(argument))) {
@@ -111,7 +118,7 @@ public class Command {
 	ParseState parseState;
 
 	private boolean finishedTokenizing = false;
-	
+
 
 	void tokenize(String content) {
 		this.finishedTokenizing = false; // just in case we are tokenizing again for any reason
@@ -303,10 +310,10 @@ public class Command {
 
 		for (char argName : charArray) {
 			if (!runForArgument(argName, a -> possiblePrefixes.add(a.getPrefix())))
-				return false;
+				break;
 		}
 
-		return possiblePrefixes.contains(str.charAt(0));
+		return possiblePrefixes.size() >= 1 && possiblePrefixes.contains(str.charAt(0));
 	}
 
 	private boolean isSubCommand(String str) {
@@ -380,7 +387,7 @@ public class Command {
 			return;
 		}
 
-		if (argumentValuesRange.max > 1) {
+		if (argumentValuesRange.min > 1) {
 			parseState.addError(ParseErrorType.ArgIncorrectValueNumber, arg, 0);
 			return;
 		}

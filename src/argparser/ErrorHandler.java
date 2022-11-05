@@ -55,7 +55,7 @@ public class ErrorHandler {
 		}
 
 		private String handleIncorrectValueNumber(Argument<?, ?> arg, int valueCount) {
-			displayTokensWithError(this.index + (valueCount == 0 ? 0 : 1), valueCount, valueCount == 0);
+			displayTokensWithError(this.index + 1, valueCount, valueCount == 0);
 			return String.format(
 				"Incorrect number of values for argument '%s'.%nExpected %s, but got %d.",
 				arg.getAlias(), arg.getNumberOfValues().getMessage(), Math.max(valueCount - 1, 0)
@@ -85,7 +85,7 @@ public class ErrorHandler {
 			.setColor(Color.BrightRed)
 			.addFormat(FormatOption.Bold);
 
-		System.out.println(
+		System.err.println(
 			contents.replaceAll(
 				"^|\\n",
 				formatter.setContents("\n │ ").toString() // first insert a vertical bar at the start of each
@@ -125,7 +125,7 @@ public class ErrorHandler {
 			}
 		}
 
-		System.out.print(String.join(" ", tokensFormatters.stream().map(TextFormatter::toString).toList()));
+		System.err.print(String.join(" ", tokensFormatters.stream().map(TextFormatter::toString).toList()));
 	}
 
 	private void displayTokensWithError(int index, boolean placeArrow) {

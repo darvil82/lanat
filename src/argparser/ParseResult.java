@@ -4,6 +4,7 @@ import argparser.utils.Pair;
 
 import java.util.ArrayList;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 
 public class ParseResult<TReturn> {
@@ -103,7 +104,7 @@ public class ParseResult<TReturn> {
 		return result;
 	}
 
-	private Pair<Integer, ParseResult<TReturn>> getFirstMatchingSubResult(int level, Function<ParseResult<TReturn>, Boolean> fn) {
+	private Pair<Integer, ParseResult<TReturn>> getFirstMatchingSubResult(int level, Predicate<ParseResult<TReturn>> fn) {
 		if (this.isCorrect()) {
 			return null;
 		}
@@ -111,7 +112,7 @@ public class ParseResult<TReturn> {
 		ArrayList<ParseResult<TReturn>> subresults = this.getSubResults();
 		ParseResult<TReturn> sub;
 
-		if (!subresults.isEmpty() && fn.apply(sub = subresults.get(0))) {
+		if (!subresults.isEmpty() && fn.test(sub = subresults.get(0))) {
 			return sub.getFirstMatchingSubResult(level + 1, fn);
 		}
 		return new Pair<>(level, this);
@@ -124,7 +125,7 @@ public class ParseResult<TReturn> {
 	 * @return A pair with the nesting level of first result that matches the predicate, and the result itself.
 	 * Returns null if no result matches the predicate.
 	 */
-	public Pair<Integer, ParseResult<TReturn>> getFirstMatchingSubResult(Function<ParseResult<TReturn>, Boolean> fn) {
+	public Pair<Integer, ParseResult<TReturn>> getFirstMatchingSubResult(Predicate<ParseResult<TReturn>> fn) {
 		return this.getFirstMatchingSubResult(0, fn);
 	}
 

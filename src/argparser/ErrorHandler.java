@@ -39,7 +39,20 @@ public class ErrorHandler {
 	private class ParseErrorHandlers {
 		private int index;
 
-		public void handleParseError(ParseError err) {
+		public void handleParseErrors(ArrayList<ParseError> errList) {
+			var newList = new ArrayList<>(errList);
+			for (var err : newList) {
+				/* if we are going to show an error about an argument being incorrectly used, and that argument is defined
+				 * as obligatory, we don't need to show the obligatory error since its obvious that the user knows that
+				 * the argument is obligatory */
+				if (err.type == ParseErrorType.ArgIncorrectValueNumber) {
+					newList.removeIf(e -> e.arg.equals(err.arg) && e.type == ParseErrorType.ObligatoryArgumentNotUsed);
+				}
+			}
+			newList.forEach(this::handleError);
+		}
+
+		private void handleError(ParseError err) {
 			this.index = err.index;
 
 			formatErrorInfo(switch (err.type) {
@@ -144,9 +157,7 @@ public class ErrorHandler {
 				System.out.println(tokenizeError.type);
 			}
 
-			for (var parseError : cmd.parseState.errors) {
-				parseErrorHandler.handleParseError(parseError);
-			}
+			parseErrorHandler.handleParseErrors(cmd.parseState.errors);
 		}
 	}
 

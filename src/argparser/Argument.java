@@ -14,6 +14,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 	private short usageCount = 0;
 	private boolean obligatory = false, positional = false;
 	private TInner defaultValue;
+	private Command parentCmd;
 	private int errorCode = 1;
 
 	public Argument(Character name, String alias, Type argType) {
@@ -196,8 +197,12 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 		return positional;
 	}
 
+	void setParentCmd(Command parentCmd) {
+		this.parentCmd = parentCmd;
+	}
+
 	public boolean equals(Argument<?, ?> obj) {
-		// we just want to check if there's a difference between identifiers
-		return this.getAlias().equals(obj.getAlias()) && this.prefix == obj.prefix;
+		// we just want to check if there's a difference between identifiers and both are part of the same command
+		return this.getAlias().equals(obj.getAlias()) && this.prefix == obj.prefix && this.parentCmd == obj.parentCmd;
 	}
 }

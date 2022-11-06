@@ -44,6 +44,7 @@ public class Command {
 		if (this.arguments.stream().anyMatch(a -> a.equals(argument))) {
 			throw new IllegalArgumentException("duplicate argument identifiers");
 		}
+		argument.setParentCmd(this);
 		this.arguments.add(argument);
 	}
 

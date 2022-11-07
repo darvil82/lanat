@@ -130,8 +130,9 @@ public class ErrorHandler {
 				if (placeArrow) {
 					tokensFormatters.add(i + 1, arrow);
 				} else {
-					tokensFormatters.get(i).setColor(Color.BrightRed).addFormat(FormatOption.Reverse,
-						FormatOption.Bold);
+					tokensFormatters.get(i)
+						.setColor(Color.BrightRed)
+						.addFormat(FormatOption.Reverse, FormatOption.Bold);
 				}
 			}
 		}

@@ -22,6 +22,17 @@ class StringJoiner extends ArgumentType<String> {
 	}
 }
 
+
+class TestingParser extends ArgumentParser {
+	public TestingParser(String programName) {
+		super(programName);
+	}
+
+	public ParsedArguments parseArgs(String args) {
+		return this.__parseArgsNoExit(args);
+	}
+}
+
 public class GlobalTests {
 	private ArgumentParser parser;
 
@@ -37,7 +48,7 @@ public class GlobalTests {
 	public void setUp() {
 		System.setErr(new PrintStream(errContent));
 
-		this.parser = new ArgumentParser("Testing") {{
+		this.parser = new TestingParser("Testing") {{
 			addArgument(new Argument<>("what", new StringJoiner())
 				.callback(t -> System.out.println("wow look a string: '" + t + "'"))
 				.positional()
@@ -69,7 +80,7 @@ public class GlobalTests {
 
 	@Test
 	public void testFirstObligatoryArgument() {
-		this.parser.__parseArgsNoExit("subcommand");
+		this.parser.parseArgs("subcommand");
 		assertErrorOutput("""
 			<- subcommand
 			Obligatory argument 'what' not used.""");
@@ -77,7 +88,7 @@ public class GlobalTests {
 
 	@Test
 	public void testLastObligatoryArgument() {
-		this.parser.__parseArgsNoExit("foo subcommand another");
+		this.parser.parseArgs("foo subcommand another");
 		assertErrorOutput("""
 			foo subcommand another <-
 			Obligatory argument 'number' not used.""");
@@ -85,7 +96,7 @@ public class GlobalTests {
 
 	@Test
 	public void testExceedValueCount() {
-		this.parser.__parseArgsNoExit("--what [1 2 3 4 5 6 7 8 9 10]");
+		this.parser.parseArgs("--what [1 2 3 4 5 6 7 8 9 10]");
 		assertErrorOutput("""
 			--what [ 1 2 3 4 5 6 7 8 9 10 ]
 			Incorrect number of values for argument 'what'.
@@ -94,7 +105,7 @@ public class GlobalTests {
 
 	@Test
 	public void testMissingValue() {
-		this.parser.__parseArgsNoExit("--what []");
+		this.parser.parseArgs("--what []");
 		assertErrorOutput("""
 			--what [ ]
 			Incorrect number of values for argument 'what'.

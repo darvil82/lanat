@@ -34,7 +34,7 @@ public class ArgumentParser extends Command {
 	/**
 	 * <b>DO NOT USE.</b> This is only used for testing purposes.
 	 */
-	public ParsedArguments __parseArgsNoExit(String args) {
+	protected ParsedArguments __parseArgsNoExit(String args) {
 		this.initParsingState();
 		this.tokenize(args); // first. This will tokenize all subCommands recursively
 		var errorHandler = new ErrorHandler(this);

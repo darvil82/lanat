@@ -69,7 +69,7 @@ public class GlobalTests {
 
 	@Test
 	public void testFirstObligatoryArgument() {
-		this.parser.parseArgs("subcommand");
+		this.parser.__parseArgsNoExit("subcommand");
 		assertErrorOutput("""
 			<- subcommand
 			Obligatory argument 'what' not used.""");
@@ -77,7 +77,7 @@ public class GlobalTests {
 
 	@Test
 	public void testLastObligatoryArgument() {
-		this.parser.parseArgs("foo subcommand another");
+		this.parser.__parseArgsNoExit("foo subcommand another");
 		assertErrorOutput("""
 			foo subcommand another <-
 			Obligatory argument 'number' not used.""");
@@ -85,7 +85,7 @@ public class GlobalTests {
 
 	@Test
 	public void testExceedValueCount() {
-		this.parser.parseArgs("--what [1 2 3 4 5 6 7 8 9 10]");
+		this.parser.__parseArgsNoExit("--what [1 2 3 4 5 6 7 8 9 10]");
 		assertErrorOutput("""
 			--what [ 1 2 3 4 5 6 7 8 9 10 ]
 			Incorrect number of values for argument 'what'.
@@ -94,7 +94,7 @@ public class GlobalTests {
 
 	@Test
 	public void testMissingValue() {
-		this.parser.parseArgs("--what []");
+		this.parser.__parseArgsNoExit("--what []");
 		assertErrorOutput("""
 			--what [ ]
 			Incorrect number of values for argument 'what'.

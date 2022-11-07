@@ -25,7 +25,25 @@ public class ArgumentParser extends Command {
 
 		if (errorHandler.hasErrors()) {
 			// TODO: implement error code handling
-//			System.exit(1);
+			System.exit(1);
+		}
+
+		return parsedArguments;
+	}
+
+	/**
+	 * <b>DO NOT USE.</b> This is only used for testing purposes.
+	 */
+	public ParsedArguments __parseArgsNoExit(String args) {
+		this.initParsingState();
+		this.tokenize(args); // first. This will tokenize all subCommands recursively
+		var errorHandler = new ErrorHandler(this);
+		ParsedArguments parsedArguments = this.parseTokens(); // same thing, this parses all the stuff recursively
+
+		errorHandler.handleErrors();
+
+		if (errorHandler.hasErrors()) {
+			return null;
 		}
 
 		return parsedArguments;

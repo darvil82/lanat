@@ -70,4 +70,11 @@ public class TextFormatter {
 	public static TextFormatter ERROR(String msg) {
 		return new TextFormatter(msg).setColor(Color.BrightRed).addFormat(FormatOption.Reverse, FormatOption.Bold);
 	}
+
+	/**
+	 * Remove all formatting colors or format from the string
+	 */
+	public static String removeSequences(String str) {
+		return str.replaceAll("\033\\[[0-9;]*m", "");
+	}
 }

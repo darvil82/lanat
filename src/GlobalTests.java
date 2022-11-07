@@ -37,7 +37,6 @@ public class GlobalTests {
 	public void setUp() {
 		System.setErr(new PrintStream(errContent));
 
-		TextFormatter.DEBUG_DISABLE = true;
 		this.parser = new ArgumentParser("Testing") {{
 			addArgument(new Argument<>("what", new StringJoiner())
 				.callback(t -> System.out.println("wow look a string: '" + t + "'"))
@@ -59,7 +58,12 @@ public class GlobalTests {
 
 	private void assertErrorOutput(String expected) {
 		// remove all the decorations to not make the tests a pain to write
-		assertEquals(expected, errContent.toString().replaceAll(" *[│─└] ?", "").trim());
+		assertEquals(
+			expected,
+			TextFormatter.removeSequences(errContent.toString())
+				.replaceAll(" *[│─└] ?", "")
+				.trim()
+		);
 		System.out.printf("Test error output:\n%s", errContent);
 	}
 

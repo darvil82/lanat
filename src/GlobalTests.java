@@ -60,7 +60,7 @@ public class GlobalTests {
 	private void assertErrorOutput(String expected) {
 		// remove all the decorations to not make the tests a pain to write
 		assertEquals(expected, errContent.toString().replaceAll(" *[│─└] ?", "").trim());
-		System.out.println("Error output:\n" + errContent);
+		System.out.printf("Test error output:\n%s", errContent);
 	}
 
 	@Test

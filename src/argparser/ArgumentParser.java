@@ -23,8 +23,12 @@ public class ArgumentParser extends Command {
 
 		errorHandler.handleErrors();
 
+		if (errorHandler.hasErrors()) {
+			// TODO: implement error code handling
+//			System.exit(1);
+		}
 
-		return new ParsedArguments(null, null, null);
+		return parsedArguments;
 	}
 
 	public ArgumentParser tupleCharacter(TupleCharacter tupleCharacter) {

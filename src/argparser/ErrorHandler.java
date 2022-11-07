@@ -28,11 +28,9 @@ public class ErrorHandler {
 	private final Command rootCmd;
 	private final List<Token> tokens;
 
-	record TokenizeError(TokenizeErrorType type, int index) {
-	}
+	record TokenizeError(TokenizeErrorType type, int index) {}
 
-	record ParseError(ParseErrorType type, int index, Argument<?, ?> arg, int valueCount) {
-	}
+	record ParseError(ParseErrorType type, int index, Argument<?, ?> arg, int valueCount) {}
 
 	private int cmdAbsoluteTokenIndex = 0;
 
@@ -171,5 +169,9 @@ public class ErrorHandler {
 			}
 		}
 		return -1;
+	}
+
+	public boolean hasErrors() {
+		return this.rootCmd.getTokenizedSubCommands().stream().anyMatch(cmd -> !cmd.parseState.errors.isEmpty());
 	}
 }

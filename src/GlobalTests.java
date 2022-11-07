@@ -58,7 +58,9 @@ public class GlobalTests {
 	}
 
 	private void assertErrorOutput(String expected) {
-		assertEquals(expected, errContent.toString().trim());
+		// remove all the decorations to not make the tests a pain to write
+		assertEquals(expected, errContent.toString().replaceAll(" *[│─└] ?", "").trim());
+		System.out.println("Error output:\n" + errContent);
 	}
 
 	@Test
@@ -66,8 +68,7 @@ public class GlobalTests {
 		this.parser.parseArgs("subcommand");
 		assertErrorOutput("""
 			<- subcommand
-			 │ Obligatory argument 'what' not used.
-			 └─────────────────────────────── ───── ── ─""");
+			Obligatory argument 'what' not used.""");
 	}
 
 	@Test
@@ -75,8 +76,7 @@ public class GlobalTests {
 		this.parser.parseArgs("foo subcommand another");
 		assertErrorOutput("""
 			foo subcommand another <-
-			 │ Obligatory argument 'number' not used.
-			 └───────────────────────────────── ───── ── ─""");
+			Obligatory argument 'number' not used.""");
 	}
 
 	@Test
@@ -84,9 +84,8 @@ public class GlobalTests {
 		this.parser.parseArgs("--what [1 2 3 4 5 6 7 8 9 10]");
 		assertErrorOutput("""
 			--what [ 1 2 3 4 5 6 7 8 9 10 ]
-			 │ Incorrect number of values for argument 'what'.
-			 │ Expected from 1 to 3 values, but got 10.
-			 └────────────────────────────────────────── ───── ── ─""");
+			Incorrect number of values for argument 'what'.
+			Expected from 1 to 3 values, but got 10.""");
 	}
 
 	@Test
@@ -94,8 +93,7 @@ public class GlobalTests {
 		this.parser.parseArgs("--what []");
 		assertErrorOutput("""
 			--what [ ]
-			 │ Incorrect number of values for argument 'what'.
-			 │ Expected from 1 to 3 values, but got 0.
-			 └────────────────────────────────────────── ───── ── ─""");
+			Incorrect number of values for argument 'what'.
+			Expected from 1 to 3 values, but got 0.""");
 	}
 }

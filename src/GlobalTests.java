@@ -108,4 +108,11 @@ public class GlobalTests {
 			Incorrect number of values for argument 'what'.
 			Expected from 1 to 3 values, but got 0.""");
 	}
+
+	@Test
+	public void testInvalidArgumentTypeValue() {
+		assertErrorOutput("foo subcommand another bar", """
+			foo subcommand another bar
+			Invalid integer value: 'bar'.""");
+	}
 }

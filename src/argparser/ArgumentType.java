@@ -1,9 +1,11 @@
 package argparser;
 
-import java.io.File;
+import java.io.FileReader;
+import java.util.ArrayList;
 
 public abstract class ArgumentType<T> {
 	protected T value;
+	private ArrayList<CustomParseError> errors = new ArrayList<>();
 
 	// Easy to access values. These are methods because we don't want to use the same instance everywhere.
 	public static IntArgument INTEGER() {return new IntArgument();}
@@ -29,13 +31,25 @@ public abstract class ArgumentType<T> {
 	public T getFinalValue() {
 		return this.value;
 	}
+
+	protected void addError(String message, int index) {
+		this.errors.add(new CustomParseError(message, index));
+	}
+
+	ArrayList<CustomParseError> getErrors() {
+		return this.errors;
+	}
 }
 
 
 class IntArgument extends ArgumentType<Integer> {
 	@Override
 	public void parseArgValues(String[] arg) {
-		this.value = Integer.parseInt(arg[0]);
+		try {
+			this.value = Integer.parseInt(arg[0]);
+		} catch (NumberFormatException e) {
+			this.addError("Invalid integer value: '" + arg[0] + "'.", 0);
+		}
 	}
 
 	@Override
@@ -88,9 +102,13 @@ class StringArgument extends ArgumentType<String> {
 	}
 }
 
-class FileArgument extends ArgumentType<File> {
+class FileArgument extends ArgumentType<FileReader> {
 	@Override
 	public void parseArgValues(String[] args) {
-		this.value = new File(args[0]);
+		try {
+			this.value = new FileReader(args[0]);
+		} catch (Exception e) {
+			this.addError("File not found: '" + args[0] + "'.", 0);
+		}
 	}
 }

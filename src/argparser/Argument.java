@@ -151,18 +151,18 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 		return this;
 	}
 
-	ParseResult<TInner> finishParsing() {
+	Result<TInner, ParseErrorType> finishParsing() {
 		if (this.usageCount == 0) {
 			return this.isObligatory()
-				? ParseResult.ERROR(ParseErrorType.ObligatoryArgumentNotUsed)
-				: ParseResult.CORRECT(this.defaultValue);
+				? Result.err(ParseErrorType.ObligatoryArgumentNotUsed)
+				: Result.ok(this.defaultValue);
 		}
 
 		TInner finalValue = this.argType.getFinalValue();
 
 		if (this.callback != null) this.callback.accept(finalValue);
 
-		return ParseResult.CORRECT(finalValue);
+		return Result.ok(finalValue);
 	}
 
 	public void parseValues(String[] value) {

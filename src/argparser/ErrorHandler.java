@@ -13,7 +13,8 @@ enum ParseErrorType {
 	ArgumentNotFound,
 	ObligatoryArgumentNotUsed,
 	UnmatchedToken,
-	ArgIncorrectValueNumber;
+	ArgIncorrectValueNumber,
+	CustomError;
 }
 
 enum TokenizeErrorType {
@@ -21,16 +22,56 @@ enum TokenizeErrorType {
 	TupleAlreadyOpen,
 	UnexpectedTupleClose,
 	TupleNotClosed,
-	StringNotClosed,
+	StringNotClosed
+}
+
+class ParseStateErrorBase<Type> {
+	public final Type type;
+	public final int index;
+
+	public ParseStateErrorBase(Type type, int index) {
+		this.type = type;
+		this.index = index;
+	}
+}
+
+class TokenizeError extends ParseStateErrorBase<TokenizeErrorType> {
+	public TokenizeError(TokenizeErrorType type, int index) {
+		super(type, index);
+	}
+}
+
+class ParseError extends ParseStateErrorBase<ParseErrorType> {
+	protected Argument<?, ?> argument;
+	protected final int valueCount;
+
+	public ParseError(ParseErrorType type, int index, Argument<?, ?> argument, int valueCount) {
+		super(type, index);
+		this.argument = argument;
+		this.valueCount = valueCount;
+	}
+
+	void setArgument(Argument<?, ?> argument) {
+		this.argument = argument;
+	}
+
+	public Argument<?, ?> arg() {
+		return this.argument;
+	}
+}
+
+class CustomParseError extends ParseError {
+	public final String message;
+
+	public CustomParseError(String message, int index) {
+		super(ParseErrorType.CustomError, index, null, 0);
+		this.message = message;
+	}
 }
 
 public class ErrorHandler {
 	private final Command rootCmd;
 	private final List<Token> tokens;
-
-	record TokenizeError(TokenizeErrorType type, int index) {}
-
-	record ParseError(ParseErrorType type, int index, Argument<?, ?> arg, int valueCount) {}
 
 	private int cmdAbsoluteTokenIndex = 0;
 
@@ -44,7 +85,7 @@ public class ErrorHandler {
 				 * as obligatory, we don't need to show the obligatory error since its obvious that the user knows that
 				 * the argument is obligatory */
 				if (err.type == ParseErrorType.ArgIncorrectValueNumber) {
-					newList.removeIf(e -> e.arg.equals(err.arg) && e.type == ParseErrorType.ObligatoryArgumentNotUsed);
+					newList.removeIf(e -> e.arg().equals(err.arg()) && e.type == ParseErrorType.ObligatoryArgumentNotUsed);
 				}
 			}
 			newList.forEach(this::handleError);
@@ -54,8 +95,8 @@ public class ErrorHandler {
 			this.index = err.index;
 
 			formatErrorInfo(switch (err.type) {
-				case ArgIncorrectValueNumber -> this.handleIncorrectValueNumber(err.arg, err.valueCount);
-				case ObligatoryArgumentNotUsed -> this.handleObligatoryArgumentNotUsed(err.arg);
+				case ArgIncorrectValueNumber -> this.handleIncorrectValueNumber(err.arg(), err.valueCount);
+				case ObligatoryArgumentNotUsed -> this.handleObligatoryArgumentNotUsed(err.arg());
 				case ArgumentNotFound -> this.handleArgumentNotFound(tokens.get(this.index).contents());
 
 				default -> {

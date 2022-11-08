@@ -21,7 +21,7 @@ public class ArgumentParser extends Command {
 		this.initParsingState();
 		this.tokenize(args); // first. This will tokenize all subCommands recursively
 		var errorHandler = new ErrorHandler(this);
-		ParsedArguments parsedArguments = this.parseTokens(); // same thing, this parses all the stuff recursively
+		this.parseTokens(); // same thing, this parses all the stuff recursively
 
 		errorHandler.handleErrors();
 
@@ -30,7 +30,7 @@ public class ArgumentParser extends Command {
 			System.exit(1);
 		}
 
-		return parsedArguments;
+		return new ParsedArguments(null, null, null);
 	}
 
 
@@ -41,15 +41,15 @@ public class ArgumentParser extends Command {
 		this.initParsingState();
 		this.tokenize(args); // first. This will tokenize all subCommands recursively
 		var errorHandler = new ErrorHandler(this);
-		ParsedArguments parsedArguments = this.parseTokens(); // same thing, this parses all the stuff recursively
+		this.parseTokens(); // same thing, this parses all the stuff recursively
 
 		errorHandler.handleErrors();
 
 		if (errorHandler.hasErrors()) {
-			return null;
+			return new Pair<>(null, errorHandler.getErrorCode());
 		}
 
-		return new Pair<>(parsedArguments, errorHandler.getErrorCode());
+		return new Pair<>(null, null);
 	}
 
 	public ArgumentParser tupleCharacter(TupleCharacter tupleCharacter) {

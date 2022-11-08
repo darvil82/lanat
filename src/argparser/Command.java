@@ -81,20 +81,20 @@ public class Command {
 
 
 	static class TokenizeState {
-		public final ArrayList<ErrorHandler.TokenizeError> errors = new ArrayList<>();
+		public final ArrayList<TokenizeError> errors = new ArrayList<>();
 		public boolean tupleOpen = false;
 		public boolean stringOpen = false;
 
 		void addError(TokenizeErrorType type, int index) {
 			if (type == TokenizeErrorType.None) return;
-			this.errors.add(new ErrorHandler.TokenizeError(type, index));
+			this.errors.add(new TokenizeError(type, index));
 		}
 	}
 
 	TokenizeState tokenizeState;
 
 	static class ParseState {
-		public final ArrayList<ErrorHandler.ParseError> errors = new ArrayList<>();
+		public final ArrayList<ParseError> errors = new ArrayList<>();
 		/**
 		 * Array of all the tokens that we have parsed from the CLI arguments.
 		 */
@@ -105,10 +105,12 @@ public class Command {
 		 */
 		private short currentTokenIndex = 0;
 
+		private HashMap<Argument<?, ?>, Object> parsedArguments = new HashMap<>();
+
 
 		void addError(ParseErrorType type, Argument<?, ?> arg, int argValueCount, int currentIndex) {
 			if (type == ParseErrorType.None) return;
-			this.errors.add(new ErrorHandler.ParseError(type, currentIndex, arg, argValueCount));
+			this.errors.add(new ParseError(type, currentIndex, arg, argValueCount));
 		}
 
 		void addError(ParseErrorType type, Argument<?, ?> arg, int argValueCount) {
@@ -397,7 +399,7 @@ public class Command {
 		arg.parseValues(new String[]{value});
 	}
 
-	ParsedArguments parseTokens() {
+	void parseTokens() {
 		short argumentAliasCount = 0;
 		boolean foundNonPositionalArg = false;
 		Argument<?, ?> lastPosArgument; // this will never be null when being used
@@ -426,25 +428,24 @@ public class Command {
 			}
 		}
 
-		HashMap<String, Object> parsedArgs = new HashMap<>();
+		HashMap<Argument<?, ?>, Object> parsedArgs = new HashMap<>();
 
 		this.arguments.forEach(argument -> {
-			ParseResult<?> r = argument.finishParsing();
+			Result<?, ParseErrorType> r = argument.finishParsing();
 			if (!r.isCorrect()) {
-				parseState.addError(r.reason, argument, 0);
+				parseState.addError(r.getErrValue(), argument, 0);
 				return;
 			}
-			if (r.returnValue == null) return;
-			parsedArgs.put(argument.getAlias(), r.unpack());
+			if (r.okValue == null) return;
+			parsedArgs.put(argument, r.unpack());
 		});
 
+		this.parseState.parsedArguments = parsedArgs;
+
 		// now parse the subcommands
-		return this.subCommands.stream()
+		this.subCommands.stream()
 			.filter(sb -> sb.finishedTokenizing) // only get the commands that were actually tokenized
-			.map(Command::parseTokens) // now parse them
-			.findFirst() // we should only have one because you can't use more than one subcommand
-			.map(parsedArguments -> new ParsedArguments(parsedArgs, parsedArguments, this.name))
-			.orElseGet(() -> new ParsedArguments(parsedArgs, null, this.name));
+			.forEach(Command::parseTokens); // now parse them
 	}
 
 	/**
@@ -467,8 +468,8 @@ public class Command {
 	}
 
 	void initParsingState() {
-		tokenizeState = new TokenizeState();
-		parseState = new ParseState();
+		tokenizeState = new Command.TokenizeState();
+		parseState = new Command.ParseState();
 		this.subCommands.forEach(Command::initParsingState);
 	}
 }

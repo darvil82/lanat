@@ -1,6 +1,7 @@
 package argparser;
 
 import argparser.utils.Pair;
+import argparser.utils.Result;
 import argparser.utils.UtlString;
 
 import java.util.ArrayList;
@@ -436,7 +437,7 @@ public class Command {
 				parseState.addError(r.getErrValue(), argument, 0);
 				return;
 			}
-			if (r.okValue == null) return;
+			if (r.unpack() == null) return;
 			parsedArgs.put(argument, r.unpack());
 		});
 

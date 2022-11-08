@@ -1,5 +1,6 @@
 package argparser;
 
+import argparser.utils.Result;
 import argparser.utils.UtlString;
 
 import java.util.function.Consumer;

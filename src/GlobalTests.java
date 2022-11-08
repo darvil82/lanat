@@ -90,7 +90,7 @@ public class GlobalTests {
 	public void testLastObligatoryArgument() {
 		assertErrorOutput("foo subcommand another", """
 			foo subcommand another <-
-			Obligatory argument 'number' not used.""");
+			Obligatory argument 'number' for command 'another' not used.""");
 	}
 
 	@Test

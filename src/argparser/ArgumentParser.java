@@ -4,7 +4,7 @@ import argparser.utils.Pair;
 
 public class ArgumentParser extends Command {
 	public ArgumentParser(String programName, String description) {
-		super(programName, description);
+		super(programName, description, true);
 	}
 
 	public ArgumentParser(String programName) {

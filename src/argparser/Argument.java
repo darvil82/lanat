@@ -202,6 +202,10 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 		this.parentCmd = parentCmd;
 	}
 
+	Command getParentCmd() {
+		return parentCmd;
+	}
+
 	public boolean equals(Argument<?, ?> obj) {
 		// we just want to check if there's a difference between identifiers and both are part of the same command
 		return this.getAlias().equals(obj.getAlias()) && this.prefix == obj.prefix && this.parentCmd == obj.parentCmd;

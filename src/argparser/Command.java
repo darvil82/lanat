@@ -17,6 +17,7 @@ public class Command {
 	protected final ArrayList<Argument<?, ?>> arguments = new ArrayList<>();
 	protected final ArrayList<Command> subCommands = new ArrayList<>();
 	protected Pair<Character, Character> tupleChars = TupleCharacter.SquareBrackets.getCharPair();
+	private boolean isRootCommand;
 
 	public Command(String name, String description) {
 		if (!UtlString.matchCharacters(name, Character::isAlphabetic)) {
@@ -27,10 +28,16 @@ public class Command {
 		this.addArgument(new Argument<>("help", ArgumentType.BOOLEAN())
 			.callback(t -> System.out.println(this.getHelp()))
 		);
+		this.isRootCommand = false;
 	}
 
 	public Command(String name) {
 		this(name, null);
+	}
+
+	Command(String name, String description, boolean isRootCommand) {
+		this(name, description);
+		this.isRootCommand = isRootCommand;
 	}
 
 	/**
@@ -76,6 +83,10 @@ public class Command {
 			x.addAll(subCmd.getTokenizedSubCommands());
 		}
 		return x;
+	}
+
+	boolean isRootCommand() {
+		return isRootCommand;
 	}
 
 	// ---------------------------------------------------- Parsing ----------------------------------------------------

@@ -116,7 +116,10 @@ public class ErrorHandler {
 
 		private String handleObligatoryArgumentNotUsed(Argument<?, ?> arg) {
 			displayTokensWithError(this.index);
-			return "Obligatory argument '" + arg.getAlias() + "' not used.";
+			var argCmd = arg.getParentCmd();
+			return argCmd.isRootCommand()
+				? String.format("Obligatory argument '%s' not used.", arg.getAlias())
+				: String.format("Obligatory argument '%s' for command '%s' not used.", arg.getAlias(), argCmd.name);
 		}
 
 		private String handleArgumentNotFound(String argName) {

@@ -172,6 +172,11 @@ public class ErrorHandler {
 		return -1;
 	}
 
+	public int getErrorCode() {
+		// TODO: implement error codes
+		return 1;
+	}
+
 	public boolean hasErrors() {
 		return this.rootCmd.getTokenizedSubCommands().stream().anyMatch(cmd -> !cmd.parseState.errors.isEmpty());
 	}

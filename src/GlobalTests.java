@@ -29,7 +29,7 @@ class TestingParser extends ArgumentParser {
 	}
 
 	public ParsedArguments parseArgs(String args) {
-		return this.__parseArgsNoExit(args);
+		return this.__parseArgsNoExit(args).first();
 	}
 }
 
@@ -67,7 +67,8 @@ public class GlobalTests {
 		}};
 	}
 
-	private void assertErrorOutput(String expected) {
+	private void assertErrorOutput(String args, String expected) {
+		this.parser.parseArgs(args);
 		// remove all the decorations to not make the tests a pain to write
 		assertEquals(
 			expected,
@@ -80,24 +81,21 @@ public class GlobalTests {
 
 	@Test
 	public void testFirstObligatoryArgument() {
-		this.parser.parseArgs("subcommand");
-		assertErrorOutput("""
+		assertErrorOutput("subcommand", """
 			<- subcommand
 			Obligatory argument 'what' not used.""");
 	}
 
 	@Test
 	public void testLastObligatoryArgument() {
-		this.parser.parseArgs("foo subcommand another");
-		assertErrorOutput("""
+		assertErrorOutput("foo subcommand another", """
 			foo subcommand another <-
 			Obligatory argument 'number' not used.""");
 	}
 
 	@Test
 	public void testExceedValueCount() {
-		this.parser.parseArgs("--what [1 2 3 4 5 6 7 8 9 10]");
-		assertErrorOutput("""
+		assertErrorOutput("--what [1 2 3 4 5 6 7 8 9 10]", """
 			--what [ 1 2 3 4 5 6 7 8 9 10 ]
 			Incorrect number of values for argument 'what'.
 			Expected from 1 to 3 values, but got 10.""");
@@ -105,8 +103,7 @@ public class GlobalTests {
 
 	@Test
 	public void testMissingValue() {
-		this.parser.parseArgs("--what []");
-		assertErrorOutput("""
+		assertErrorOutput("--what []", """
 			--what [ ]
 			Incorrect number of values for argument 'what'.
 			Expected from 1 to 3 values, but got 0.""");

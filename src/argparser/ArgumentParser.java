@@ -1,5 +1,7 @@
 package argparser;
 
+import argparser.utils.Pair;
+
 public class ArgumentParser extends Command {
 	public ArgumentParser(String programName, String description) {
 		super(programName, description);
@@ -31,10 +33,11 @@ public class ArgumentParser extends Command {
 		return parsedArguments;
 	}
 
+
 	/**
 	 * <b>DO NOT USE.</b> This is only used for testing purposes.
 	 */
-	protected ParsedArguments __parseArgsNoExit(String args) {
+	protected Pair<ParsedArguments, Integer> __parseArgsNoExit(String args) {
 		this.initParsingState();
 		this.tokenize(args); // first. This will tokenize all subCommands recursively
 		var errorHandler = new ErrorHandler(this);
@@ -46,7 +49,7 @@ public class ArgumentParser extends Command {
 			return null;
 		}
 
-		return parsedArguments;
+		return new Pair<>(parsedArguments, errorHandler.getErrorCode());
 	}
 
 	public ArgumentParser tupleCharacter(TupleCharacter tupleCharacter) {

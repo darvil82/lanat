@@ -59,7 +59,7 @@ public class ErrorHandler {
 				case ArgumentNotFound -> this.handleArgumentNotFound(tokens.get(this.index).contents());
 
 				default -> {
-					displayTokensWithError(err.index, true);
+					displayTokensWithError(err.index);
 					yield err.type.toString();
 				}
 			});
@@ -74,7 +74,7 @@ public class ErrorHandler {
 		}
 
 		private String handleObligatoryArgumentNotUsed(Argument<?, ?> arg) {
-			displayTokensWithError(this.index, true);
+			displayTokensWithError(this.index);
 			return "Obligatory argument '" + arg.getAlias() + "' not used.";
 		}
 
@@ -140,8 +140,8 @@ public class ErrorHandler {
 		System.err.print(String.join(" ", tokensFormatters.stream().map(TextFormatter::toString).toList()));
 	}
 
-	private void displayTokensWithError(int index, boolean placeArrow) {
-		this.displayTokensWithError(index, 0, placeArrow);
+	private void displayTokensWithError(int index) {
+		this.displayTokensWithError(index, 0, true);
 	}
 
 	public void handleErrors() {

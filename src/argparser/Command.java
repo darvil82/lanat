@@ -17,7 +17,7 @@ public class Command {
 	protected final ArrayList<Argument<?, ?>> arguments = new ArrayList<>();
 	protected final ArrayList<Command> subCommands = new ArrayList<>();
 	protected Pair<Character, Character> tupleChars = TupleCharacter.SquareBrackets.getCharPair();
-	private boolean isRootCommand;
+	private boolean isRootCommand = false;
 
 	public Command(String name, String description) {
 		if (!UtlString.matchCharacters(name, Character::isAlphabetic)) {
@@ -28,7 +28,6 @@ public class Command {
 		this.addArgument(new Argument<>("help", ArgumentType.BOOLEAN())
 			.callback(t -> System.out.println(this.getHelp()))
 		);
-		this.isRootCommand = false;
 	}
 
 	public Command(String name) {
@@ -384,7 +383,7 @@ public class Command {
 
 		parseState.currentTokenIndex += newCurrentTokenIndex;
 
-		// pass the arg values to the argument subparser
+		// pass the arg values to the argument sub parser
 		arg.parseValues(tempArgs.stream().map(Token::contents).toArray(String[]::new));
 	}
 

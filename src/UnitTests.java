@@ -33,7 +33,7 @@ class TestingParser extends ArgumentParser {
 	}
 }
 
-public class GlobalTests {
+public class UnitTests {
 	private ArgumentParser parser;
 
 	private final ByteArrayOutputStream errContent = new ByteArrayOutputStream();

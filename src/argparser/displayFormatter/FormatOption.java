@@ -1,14 +1,14 @@
 package argparser.displayFormatter;
 
 public enum FormatOption {
-	ResetAll(0),
-	Bold(1),
-	Dim(2),
-	Underline(4),
-	Blink(5),
-	Reverse(7),
-	Hidden(8),
-	StrikeThrough(9);
+	RESET_ALL(0),
+	BOLD(1),
+	DIM(2),
+	UNDERLINE(4),
+	BLINK(5),
+	REVERSE(7),
+	HIDDEN(8),
+	STRIKE_THROUGH(9);
 
 	private Byte value;
 
@@ -22,6 +22,6 @@ public enum FormatOption {
 	}
 
 	public String toStringReset() {
-		return String.format("\033[%dm", this.value + 20 + (this == Bold ? 1 : 0));
+		return String.format("\033[%dm", this.value + 20 + (this == BOLD ? 1 : 0));
 	}
 }

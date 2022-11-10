@@ -33,7 +33,11 @@ public abstract class ArgumentType<T> {
 	}
 
 	protected void addError(String message, int index) {
-		this.errors.add(new CustomParseError(message, index));
+		this.errors.add(new CustomParseError(message, index, ErrorLevel.ERROR));
+	}
+
+	protected void addError(String message, int index, ErrorLevel level) {
+		this.errors.add(new CustomParseError(message, index, level));
 	}
 
 	ArrayList<CustomParseError> getErrors() {

@@ -22,6 +22,6 @@ public class SimpleTests {
 				}});
 			}});
 		}};
-		argParser.parseArgs("12 subcommand another --foobar");
+		argParser.parseArgs("[12] --ball subcommand another --foobar");
 	}
 }

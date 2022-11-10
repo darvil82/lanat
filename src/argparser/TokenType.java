@@ -3,12 +3,12 @@ package argparser;
 import argparser.displayFormatter.Color;
 
 public enum TokenType {
-	ArgumentAlias(Color.BrightGreen),
-	ArgumentNameList(Color.BrightBlue),
-	ArgumentValue(Color.BrightYellow),
-	ArgumentValueTupleStart(Color.BrightMagenta),
-	ArgumentValueTupleEnd(Color.BrightMagenta),
-	SubCommand(Color.BrightCyan);
+	ARGUMENT_ALIAS(Color.BRIGHT_GREEN),
+	ARGUMENT_NAME_LIST(Color.BRIGHT_BLUE),
+	ARGUMENT_VALUE(Color.BRIGHT_YELLOW),
+	ARGUMENT_VALUE_TUPLE_START(Color.BRIGHT_MAGENTA),
+	ARGUMENT_VALUE_TUPLE_END(Color.BRIGHT_MAGENTA),
+	SUB_COMMAND(Color.BRIGHT_CYAN);
 
 	public final Color color;
 
@@ -17,10 +17,10 @@ public enum TokenType {
 	}
 
 	public boolean isArgumentSpecifier() {
-		return this == ArgumentAlias || this == ArgumentNameList;
+		return this == ARGUMENT_ALIAS || this == ARGUMENT_NAME_LIST;
 	}
 
 	public boolean isTuple() {
-		return this == ArgumentValueTupleStart || this == ArgumentValueTupleEnd;
+		return this == ARGUMENT_VALUE_TUPLE_START || this == ARGUMENT_VALUE_TUPLE_END;
 	}
 }

@@ -62,13 +62,13 @@ public class TextFormatter {
 		// reset
 		for (var fmt : formatOptions) str.append(fmt.toStringReset());
 
-		str.append(Color.BrightWhite);
+		str.append(Color.BRIGHT_WHITE);
 
 		return str.toString();
 	}
 
 	public static TextFormatter ERROR(String msg) {
-		return new TextFormatter(msg).setColor(Color.BrightRed).addFormat(FormatOption.Reverse, FormatOption.Bold);
+		return new TextFormatter(msg).setColor(Color.BRIGHT_RED).addFormat(FormatOption.REVERSE, FormatOption.BOLD);
 	}
 
 	/**

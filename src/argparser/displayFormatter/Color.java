@@ -1,22 +1,22 @@
 package argparser.displayFormatter;
 
 public enum Color {
-	Black(30),
-	Red(31),
-	Green(32),
-	Yellow(33),
-	Blue(34),
-	Magenta(35),
-	Cyan(36),
-	White(37),
-	Gray(90),
-	BrightRed(91),
-	BrightGreen(92),
-	BrightYellow(93),
-	BrightBlue(94),
-	BrightMagenta(95),
-	BrightCyan(96),
-	BrightWhite(97);
+	BLACK(30),
+	RED(31),
+	GREEN(32),
+	YELLOW(33),
+	BLUE(34),
+	MAGENTA(35),
+	CYAN(36),
+	WHITE(37),
+	GRAY(90),
+	BRIGHT_RED(91),
+	BRIGHT_GREEN(92),
+	BRIGHT_YELLOW(93),
+	BRIGHT_BLUE(94),
+	BRIGHT_MAGENTA(95),
+	BRIGHT_CYAN(96),
+	BRIGHT_WHITE(97);
 
 	private Byte value;
 

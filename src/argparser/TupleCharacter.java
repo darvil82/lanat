@@ -3,17 +3,17 @@ package argparser;
 import argparser.utils.Pair;
 
 public enum TupleCharacter {
-	SquareBrackets,
-	Parenthesis,
-	Braces,
-	AngleBrackets;
+	SQUARE_BRACKETS,
+	PARENTHESIS,
+	BRACES,
+	ANGLE_BRACKETS;
 
 	public Pair<Character, Character> getCharPair() {
 		return switch (this) {
-			case SquareBrackets -> new Pair<>('[', ']');
-			case Parenthesis -> new Pair<>('(', ')');
-			case Braces -> new Pair<>('{', '}');
-			case AngleBrackets -> new Pair<>('<', '>');
+			case SQUARE_BRACKETS -> new Pair<>('[', ']');
+			case PARENTHESIS -> new Pair<>('(', ')');
+			case BRACES -> new Pair<>('{', '}');
+			case ANGLE_BRACKETS -> new Pair<>('<', '>');
 		};
 	}
 }

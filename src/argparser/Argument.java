@@ -155,7 +155,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 	Result<TInner, ParseErrorType> finishParsing() {
 		if (this.usageCount == 0) {
 			return this.isObligatory()
-				? Result.err(ParseErrorType.ObligatoryArgumentNotUsed)
+				? Result.err(ParseErrorType.OBLIGATORY_ARGUMENT_NOT_USED)
 				: Result.ok(this.defaultValue);
 		}
 

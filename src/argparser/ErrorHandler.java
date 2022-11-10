@@ -8,21 +8,37 @@ import argparser.utils.UtlString;
 import java.util.ArrayList;
 import java.util.List;
 
+enum ErrorLevel {
+	ERROR,
+	WARNING,
+	INFO;
+}
+
 enum ParseErrorType {
-	None,
-	ArgumentNotFound,
-	ObligatoryArgumentNotUsed,
-	UnmatchedToken,
-	ArgIncorrectValueNumber,
-	CustomError;
+	NONE,
+	ARGUMENT_NOT_FOUND,
+	OBLIGATORY_ARGUMENT_NOT_USED,
+	UNMATCHED_TOKEN(ErrorLevel.WARNING),
+	ARG_INCORRECT_VALUE_NUMBER,
+	CUSTOM_ERROR;
+
+	public final ErrorLevel level;
+
+	ParseErrorType() {
+		this.level = ErrorLevel.ERROR;
+	}
+
+	ParseErrorType(ErrorLevel level) {
+		this.level = level;
+	}
 }
 
 enum TokenizeErrorType {
-	None,
-	TupleAlreadyOpen,
-	UnexpectedTupleClose,
-	TupleNotClosed,
-	StringNotClosed
+	NONE,
+	TUPLE_ALREADY_OPEN,
+	UNEXPECTED_TUPLE_CLOSE,
+	TUPLE_NOT_CLOSED,
+	STRING_NOT_CLOSED
 }
 
 class ParseStateErrorBase<Type> {
@@ -42,30 +58,24 @@ class TokenizeError extends ParseStateErrorBase<TokenizeErrorType> {
 }
 
 class ParseError extends ParseStateErrorBase<ParseErrorType> {
-	protected Argument<?, ?> argument;
-	protected final int valueCount;
+	public final Argument<?, ?> argument;
+	public final int valueCount;
 
 	public ParseError(ParseErrorType type, int index, Argument<?, ?> argument, int valueCount) {
 		super(type, index);
 		this.argument = argument;
 		this.valueCount = valueCount;
 	}
-
-	void setArgument(Argument<?, ?> argument) {
-		this.argument = argument;
-	}
-
-	public Argument<?, ?> arg() {
-		return this.argument;
-	}
 }
 
 class CustomParseError extends ParseError {
 	public final String message;
+	public final ErrorLevel level;
 
-	public CustomParseError(String message, int index) {
-		super(ParseErrorType.CustomError, index, null, 0);
+	public CustomParseError(String message, int index, ErrorLevel level) {
+		super(ParseErrorType.CUSTOM_ERROR, index, null, 0);
 		this.message = message;
+		this.level = level;
 	}
 }
 
@@ -76,7 +86,7 @@ public class ErrorHandler {
 	private int cmdAbsoluteTokenIndex = 0;
 
 	private class ParseErrorHandlers {
-		private int index;
+		protected int index;
 
 		public void handleParseErrors(ArrayList<ParseError> errList) {
 			var newList = new ArrayList<>(errList);
@@ -84,29 +94,31 @@ public class ErrorHandler {
 				/* if we are going to show an error about an argument being incorrectly used, and that argument is defined
 				 * as obligatory, we don't need to show the obligatory error since its obvious that the user knows that
 				 * the argument is obligatory */
-				if (err.type == ParseErrorType.ArgIncorrectValueNumber) {
-					newList.removeIf(e -> e.arg().equals(err.arg()) && e.type == ParseErrorType.ObligatoryArgumentNotUsed);
+				if (err.type == ParseErrorType.ARG_INCORRECT_VALUE_NUMBER) {
+					newList.removeIf(e -> e.argument.equals(err.argument) && e.type == ParseErrorType.OBLIGATORY_ARGUMENT_NOT_USED);
 				}
 			}
 			newList.forEach(this::handleError);
 		}
 
-		private void handleError(ParseError err) {
+		protected void handleError(ParseError err) {
 			this.index = err.index;
+			Token currentToken = tokens.get(this.index);
 
 			formatErrorInfo(switch (err.type) {
-				case ArgIncorrectValueNumber -> this.handleIncorrectValueNumber(err.arg(), err.valueCount);
-				case ObligatoryArgumentNotUsed -> this.handleObligatoryArgumentNotUsed(err.arg());
-				case ArgumentNotFound -> this.handleArgumentNotFound(tokens.get(this.index).contents());
+				case ARG_INCORRECT_VALUE_NUMBER -> this.handleIncorrectValueNumber(err.argument, err.valueCount);
+				case OBLIGATORY_ARGUMENT_NOT_USED -> this.handleObligatoryArgumentNotUsed(err.argument);
+				case ARGUMENT_NOT_FOUND -> this.handleArgumentNotFound(currentToken.contents());
+				case UNMATCHED_TOKEN -> this.handleUnmatchedToken(currentToken.contents());
 
 				default -> {
-					displayTokensWithError(err.index);
+					displayTokensWithError(err.index + 1);
 					yield err.type.toString();
 				}
 			});
 		}
 
-		private String handleIncorrectValueNumber(Argument<?, ?> arg, int valueCount) {
+		protected String handleIncorrectValueNumber(Argument<?, ?> arg, int valueCount) {
 			displayTokensWithError(this.index + 1, valueCount, valueCount == 0);
 			return String.format(
 				"Incorrect number of values for argument '%s'.%nExpected %s, but got %d.",
@@ -114,7 +126,7 @@ public class ErrorHandler {
 			);
 		}
 
-		private String handleObligatoryArgumentNotUsed(Argument<?, ?> arg) {
+		protected String handleObligatoryArgumentNotUsed(Argument<?, ?> arg) {
 			displayTokensWithError(this.index);
 			var argCmd = arg.getParentCmd();
 			return argCmd.isRootCommand()
@@ -122,8 +134,13 @@ public class ErrorHandler {
 				: String.format("Obligatory argument '%s' for command '%s' not used.", arg.getAlias(), argCmd.name);
 		}
 
-		private String handleArgumentNotFound(String argName) {
+		protected String handleArgumentNotFound(String argName) {
 			return "Argument '" + argName + "' not found.";
+		}
+
+		protected String handleUnmatchedToken(String token) {
+			displayTokensWithError(this.index + 1);
+			return "Unmatched token '" + token + "'.";
 		}
 	}
 
@@ -137,8 +154,8 @@ public class ErrorHandler {
 		var maxLength = UtlString.getLongestLine(contents).length();
 
 		var formatter = new TextFormatter()
-			.setColor(Color.BrightRed)
-			.addFormat(FormatOption.Bold);
+			.setColor(Color.BRIGHT_RED)
+			.addFormat(FormatOption.BOLD);
 
 		System.err.println(
 			contents.replaceAll(
@@ -167,7 +184,7 @@ public class ErrorHandler {
 
 		for (int i = 0; i < tokensLength; i++) {
 			if (i < this.cmdAbsoluteTokenIndex) {
-				tokensFormatters.get(i).addFormat(FormatOption.Dim);
+				tokensFormatters.get(i).addFormat(FormatOption.DIM);
 			}
 
 			if (i >= start && i < start + offset + 1) {
@@ -175,8 +192,8 @@ public class ErrorHandler {
 					tokensFormatters.add(i + 1, arrow);
 				} else {
 					tokensFormatters.get(i)
-						.setColor(Color.BrightRed)
-						.addFormat(FormatOption.Reverse, FormatOption.Bold);
+						.setColor(Color.BRIGHT_RED)
+						.addFormat(FormatOption.REVERSE, FormatOption.BOLD);
 				}
 			}
 		}
@@ -206,7 +223,7 @@ public class ErrorHandler {
 
 	private int getCommandTokenIndexByNestingLevel(int level) {
 		for (int i = 0, appearances = 0; i < this.tokens.size(); i++) {
-			if (this.tokens.get(i).type() == TokenType.SubCommand) {
+			if (this.tokens.get(i).type() == TokenType.SUB_COMMAND) {
 				appearances++;
 			}
 			if (appearances >= level) {

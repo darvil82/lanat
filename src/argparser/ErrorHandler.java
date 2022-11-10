@@ -95,7 +95,11 @@ public class ErrorHandler {
 				 * as obligatory, we don't need to show the obligatory error since its obvious that the user knows that
 				 * the argument is obligatory */
 				if (err.type == ParseErrorType.ARG_INCORRECT_VALUE_NUMBER) {
-					newList.removeIf(e -> e.argument.equals(err.argument) && e.type == ParseErrorType.OBLIGATORY_ARGUMENT_NOT_USED);
+					newList.removeIf(e ->
+						e.argument != null
+							&& e.argument.equals(err.argument)
+							&& e.type == ParseErrorType.OBLIGATORY_ARGUMENT_NOT_USED
+					);
 				}
 			}
 			newList.forEach(this::handleError);
@@ -103,7 +107,7 @@ public class ErrorHandler {
 
 		protected void handleError(ParseError err) {
 			this.index = err.index;
-			Token currentToken = tokens.get(this.index);
+			Token currentToken = tokens.get(Math.min(this.index + cmdAbsoluteTokenIndex + 1, tokens.size() - 1));
 
 			formatErrorInfo(switch (err.type) {
 				case ARG_INCORRECT_VALUE_NUMBER -> this.handleIncorrectValueNumber(err.argument, err.valueCount);

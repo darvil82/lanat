@@ -73,7 +73,7 @@ public class UnitTests {
 		assertEquals(
 			expected,
 			TextFormatter.removeSequences(errContent.toString())
-				.replaceAll(" *[│─└] ?", "")
+				.replaceAll(" *[│─└┌] ?", "")
 				.trim()
 		);
 		System.out.printf("Test error output:\n%s", errContent);

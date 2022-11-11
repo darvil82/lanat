@@ -184,7 +184,7 @@ public class ErrorHandler {
 				.addFormat(FormatOption.BOLD);
 
 			System.err.println(
-				formatter.setContents(String.format(" │ %s\n", this.errorLevel)).toString()
+				formatter.setContents(String.format(" ┌─%s\n", this.errorLevel)).toString()
 					+ this.tokensView
 					+ this.contents.replaceAll(
 					"^|\\n",

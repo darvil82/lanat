@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 enum ErrorLevel {
-	ERROR(Color.BRIGHT_CYAN),
+	ERROR(Color.BRIGHT_RED),
 	WARNING(Color.BRIGHT_YELLOW),
 	INFO(Color.BRIGHT_BLUE);
 

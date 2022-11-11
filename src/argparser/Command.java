@@ -96,8 +96,7 @@ public class Command {
 		public boolean tupleOpen = false;
 		public boolean stringOpen = false;
 
-		void addError(TokenizeErrorType type, int index) {
-			if (type == TokenizeErrorType.NONE) return;
+		void addError(TokenizeError.TokenizeErrorType type, int index) {
 			this.errors.add(new TokenizeError(type, index));
 		}
 	}
@@ -106,7 +105,7 @@ public class Command {
 
 	static class ParseState {
 		public final ArrayList<ParseError> errors = new ArrayList<>();
-		public final ArrayList<CustomParseError> subParserErrors = new ArrayList<>();
+//		public final ArrayList<CustomParseError> subParserErrors = new ArrayList<>();
 		/**
 		 * Array of all the tokens that we have parsed from the CLI arguments.
 		 */
@@ -120,17 +119,16 @@ public class Command {
 		private HashMap<Argument<?, ?>, Object> parsedArguments = new HashMap<>();
 
 
-		void addError(ParseErrorType type, Argument<?, ?> arg, int argValueCount, int currentIndex) {
-			if (type == ParseErrorType.NONE) return;
+		void addError(ParseError.ParseErrorType type, Argument<?, ?> arg, int argValueCount, int currentIndex) {
 			this.errors.add(new ParseError(type, currentIndex, arg, argValueCount));
 		}
 
-		void addError(ParseErrorType type, Argument<?, ?> arg, int argValueCount) {
+		void addError(ParseError.ParseErrorType type, Argument<?, ?> arg, int argValueCount) {
 			this.addError(type, arg, argValueCount, this.currentTokenIndex);
 		}
 
 		void addError(CustomParseError customParseError) {
-			this.subParserErrors.add(customParseError);
+			this.errors.add(customParseError);
 		}
 	}
 
@@ -144,7 +142,7 @@ public class Command {
 
 		var finalTokens = new ArrayList<Token>();
 		var currentValue = new StringBuilder();
-		TokenizeErrorType errorType = TokenizeErrorType.NONE;
+		TokenizeError.TokenizeErrorType errorType = null;
 
 		BiConsumer<TokenType, String> addToken = (t, c) -> finalTokens.add(new Token(t, c));
 		Consumer<Integer> tokenizeSection = (i) -> {
@@ -174,7 +172,7 @@ public class Command {
 				this.tokenizeState.stringOpen = !this.tokenizeState.stringOpen;
 			} else if (chars[i] == tupleChars.first() && !this.tokenizeState.stringOpen) {
 				if (this.tokenizeState.tupleOpen) {
-					errorType = TokenizeErrorType.TUPLE_ALREADY_OPEN;
+					errorType = TokenizeError.TokenizeErrorType.TUPLE_ALREADY_OPEN;
 					break;
 				} else if (!currentValue.isEmpty()) {
 					tokenizeSection.accept(i);
@@ -183,7 +181,7 @@ public class Command {
 				this.tokenizeState.tupleOpen = true;
 			} else if (chars[i] == tupleChars.second() && !this.tokenizeState.stringOpen) {
 				if (!this.tokenizeState.tupleOpen) {
-					errorType = TokenizeErrorType.UNEXPECTED_TUPLE_CLOSE;
+					errorType = TokenizeError.TokenizeErrorType.UNEXPECTED_TUPLE_CLOSE;
 					break;
 				}
 				if (!currentValue.isEmpty()) {
@@ -206,12 +204,14 @@ public class Command {
 		}
 
 		if (this.tokenizeState.tupleOpen) {
-			errorType = TokenizeErrorType.TUPLE_NOT_CLOSED;
+			errorType = TokenizeError.TokenizeErrorType.TUPLE_NOT_CLOSED;
 		} else if (this.tokenizeState.stringOpen) {
-			errorType = TokenizeErrorType.STRING_NOT_CLOSED;
+			errorType = TokenizeError.TokenizeErrorType.STRING_NOT_CLOSED;
 		}
 
-		tokenizeState.addError(errorType, finalTokens.size());
+		if (errorType != null) {
+			tokenizeState.addError(errorType, finalTokens.size());
+		}
 
 		parseState.tokens = finalTokens.toArray(Token[]::new);
 		finishedTokenizing = true;
@@ -381,7 +381,7 @@ public class Command {
 		int newCurrentTokenIndex = skipCount + ifInTuple.apply(1);
 
 		if (tempArgsSize > argumentValuesRange.max || tempArgsSize < argumentValuesRange.min) {
-			parseState.addError(ParseErrorType.ARG_INCORRECT_VALUE_NUMBER, arg, tempArgsSize + ifInTuple.apply(1));
+			parseState.addError(ParseError.ParseErrorType.ARG_INCORRECT_VALUE_NUMBER, arg, tempArgsSize + ifInTuple.apply(1));
 			parseState.currentTokenIndex += newCurrentTokenIndex;
 			return;
 		}
@@ -407,7 +407,7 @@ public class Command {
 		}
 
 		if (argumentValuesRange.min > 1) {
-			parseState.addError(ParseErrorType.ARG_INCORRECT_VALUE_NUMBER, arg, 0);
+			parseState.addError(ParseError.ParseErrorType.ARG_INCORRECT_VALUE_NUMBER, arg, 0);
 			return;
 		}
 
@@ -439,7 +439,7 @@ public class Command {
 				executeArgParse(lastPosArgument);
 				argumentAliasCount++;
 			} else {
-				parseState.addError(ParseErrorType.UNMATCHED_TOKEN, null, 0);
+				parseState.addError(ParseError.ParseErrorType.UNMATCHED_TOKEN, null, 0);
 				parseState.currentTokenIndex++;
 			}
 		}

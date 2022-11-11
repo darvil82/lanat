@@ -2,6 +2,7 @@ package argparser;
 
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.List;
 
 public abstract class ArgumentType<T> {
 	protected T value;
@@ -40,7 +41,7 @@ public abstract class ArgumentType<T> {
 		this.errors.add(new CustomParseError(message, index, level));
 	}
 
-	ArrayList<CustomParseError> getErrors() {
+	List<CustomParseError> getErrors() {
 		return this.errors;
 	}
 }

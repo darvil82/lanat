@@ -253,6 +253,11 @@ public class ErrorHandler {
 				System.out.println(tokenizeError.type);
 			}
 
+			for (var tokenizeError : cmd.parseState.subParserErrors) {
+				System.out.println(tokenizeError.message);
+			}
+
+
 			parseErrorHandler.handleParseErrors(cmd.parseState.errors);
 		}
 	}

@@ -3,6 +3,7 @@ package argparser;
 import argparser.utils.Result;
 import argparser.utils.UtlString;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 public class Argument<Type extends ArgumentType<TInner>, TInner> {
@@ -152,11 +153,15 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 		return this;
 	}
 
-	Result<TInner, ParseErrorType> finishParsing() {
+	Result<TInner, Result<ParseError, List<CustomParseError>>> finishParsing() {
 		if (this.usageCount == 0) {
 			return this.isObligatory()
-				? Result.err(ParseErrorType.OBLIGATORY_ARGUMENT_NOT_USED)
+				? Result.err(Result.ok(new ParseError(ParseErrorType.OBLIGATORY_ARGUMENT_NOT_USED, 0, this, 0)))
 				: Result.ok(this.defaultValue);
+		}
+
+		if (!this.argType.getErrors().isEmpty()) {
+			return Result.err(Result.err(this.argType.getErrors()));
 		}
 
 		TInner finalValue = this.argType.getFinalValue();

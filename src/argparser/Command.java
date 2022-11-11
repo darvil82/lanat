@@ -106,6 +106,7 @@ public class Command {
 
 	static class ParseState {
 		public final ArrayList<ParseError> errors = new ArrayList<>();
+		public final ArrayList<CustomParseError> subParserErrors = new ArrayList<>();
 		/**
 		 * Array of all the tokens that we have parsed from the CLI arguments.
 		 */
@@ -126,6 +127,10 @@ public class Command {
 
 		void addError(ParseErrorType type, Argument<?, ?> arg, int argValueCount) {
 			this.addError(type, arg, argValueCount, this.currentTokenIndex);
+		}
+
+		void addError(CustomParseError customParseError) {
+			this.subParserErrors.add(customParseError);
 		}
 	}
 
@@ -442,9 +447,13 @@ public class Command {
 		HashMap<Argument<?, ?>, Object> parsedArgs = new HashMap<>();
 
 		this.arguments.forEach(argument -> {
-			Result<?, ParseErrorType> r = argument.finishParsing();
+			Result<?, Result<ParseError, List<CustomParseError>>> r = argument.finishParsing();
 			if (!r.isCorrect()) {
-				parseState.addError(r.getErrValue(), argument, 0);
+				if (r.getErrValue().isCorrect()) {
+					parseState.addError(r.getErrValue().unpack().type, argument, 0);
+				} else {
+					r.getErrValue().getErrValue().forEach(e -> parseState.addError(e));
+				}
 				return;
 			}
 			if (r.unpack() == null) return;

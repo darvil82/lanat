@@ -9,9 +9,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 enum ErrorLevel {
-	ERROR,
-	WARNING,
-	INFO;
+	ERROR(Color.BRIGHT_RED),
+	WARNING(Color.BRIGHT_YELLOW),
+	INFO(Color.BRIGHT_BLUE);
+
+	public final Color color;
+
+	ErrorLevel(Color color) {
+		this.color = color;
+	}
 }
 
 enum ParseErrorType {
@@ -109,42 +115,79 @@ public class ErrorHandler {
 			this.index = err.index;
 			Token currentToken = tokens.get(Math.min(this.index + cmdAbsoluteTokenIndex + 1, tokens.size() - 1));
 
-			formatErrorInfo(switch (err.type) {
+			(switch (err.type) {
 				case ARG_INCORRECT_VALUE_NUMBER -> this.handleIncorrectValueNumber(err.argument, err.valueCount);
 				case OBLIGATORY_ARGUMENT_NOT_USED -> this.handleObligatoryArgumentNotUsed(err.argument);
 				case ARGUMENT_NOT_FOUND -> this.handleArgumentNotFound(currentToken.contents());
 				case UNMATCHED_TOKEN -> this.handleUnmatchedToken(currentToken.contents());
 
-				default -> {
-					displayTokensWithError(err.index + 1);
-					yield err.type.toString();
-				}
-			});
+				default -> new ErrorFormatter("", displayTokensWithError(err.index + 1));
+
+			}).print(err.type.level);
 		}
 
-		protected String handleIncorrectValueNumber(Argument<?, ?> arg, int valueCount) {
-			displayTokensWithError(this.index + 1, valueCount, valueCount == 0);
-			return String.format(
-				"Incorrect number of values for argument '%s'.%nExpected %s, but got %d.",
-				arg.getAlias(), arg.getNumberOfValues().getMessage(), Math.max(valueCount - 1, 0)
+		protected ErrorFormatter handleIncorrectValueNumber(Argument<?, ?> arg, int valueCount) {
+			return new ErrorFormatter(
+				displayTokensWithError(this.index + 1, valueCount, valueCount == 0),
+				String.format(
+					"Incorrect number of values for argument '%s'.%nExpected %s, but got %d.",
+					arg.getAlias(), arg.getNumberOfValues().getMessage(), Math.max(valueCount - 1, 0)
+				)
 			);
 		}
 
-		protected String handleObligatoryArgumentNotUsed(Argument<?, ?> arg) {
+		protected ErrorFormatter handleObligatoryArgumentNotUsed(Argument<?, ?> arg) {
 			displayTokensWithError(this.index);
 			var argCmd = arg.getParentCmd();
-			return argCmd.isRootCommand()
-				? String.format("Obligatory argument '%s' not used.", arg.getAlias())
-				: String.format("Obligatory argument '%s' for command '%s' not used.", arg.getAlias(), argCmd.name);
+			return new ErrorFormatter(
+				displayTokensWithError(this.index),
+				argCmd.isRootCommand()
+					? String.format("Obligatory argument '%s' not used.", arg.getAlias())
+					: String.format("Obligatory argument '%s' for command '%s' not used.", arg.getAlias(), argCmd.name)
+			);
 		}
 
-		protected String handleArgumentNotFound(String argName) {
-			return "Argument '" + argName + "' not found.";
+		protected ErrorFormatter handleArgumentNotFound(String argName) {
+			return new ErrorFormatter("", String.format("Argument '%s' not found.", argName));
 		}
 
-		protected String handleUnmatchedToken(String token) {
-			displayTokensWithError(this.index + 1);
-			return "Unmatched token '" + token + "'.";
+		protected ErrorFormatter handleUnmatchedToken(String token) {
+			return new ErrorFormatter(
+				displayTokensWithError(this.index + 1, 0, false),
+				String.format("Token '%s' does not correspond with a valid argument, value, or command.", token)
+			);
+		}
+	}
+
+	private class ErrorFormatter {
+		private final String contents, tokens;
+
+		public ErrorFormatter(String tokens, String contents) {
+			this.contents = contents;
+			this.tokens = tokens;
+		}
+
+		public void print(ErrorLevel level) {
+			// first figure out the length of the longest line
+			var maxLength = UtlString.getLongestLine(this.contents).length();
+
+			var formatter = new TextFormatter()
+				.setColor(level.color)
+				.addFormat(FormatOption.BOLD);
+
+			System.err.println(
+				formatter.setContents(String.format(" │ %s\n", level)).toString()
+					+ this.tokens
+					+ this.contents.replaceAll(
+					"^|\\n",
+					formatter.setContents("\n │ ").toString() // first insert a vertical bar at the start of each line
+				)
+					// then insert a horizontal bar at the end, with the length of the longest line
+					// approximately
+					+ formatter.setContents("\n └" + "─".repeat(Math.max(maxLength - 5, 0)) + " ───── ── ─")
+					.toString()
+					+ "\n"
+			);
 		}
 	}
 
@@ -153,28 +196,8 @@ public class ErrorHandler {
 		this.tokens = cmd.getFullTokenList();
 	}
 
-	private void formatErrorInfo(String contents) {
-		// first figure out the length of the longest line
-		var maxLength = UtlString.getLongestLine(contents).length();
 
-		var formatter = new TextFormatter()
-			.setColor(Color.BRIGHT_RED)
-			.addFormat(FormatOption.BOLD);
-
-		System.err.println(
-			contents.replaceAll(
-				"^|\\n",
-				formatter.setContents("\n │ ").toString() // first insert a vertical bar at the start of each
-				// line
-			)
-				// then insert a horizontal bar at the end, with the length of the longest line
-				// approximately
-				+ formatter.setContents("\n └" + "─".repeat(Math.max(maxLength - 5, 0)) + " ───── ── ─")
-				.toString()
-				+ "\n");
-	}
-
-	private void displayTokensWithError(int start, int offset, boolean placeArrow) {
+	private String displayTokensWithError(int start, int offset, boolean placeArrow) {
 		start += this.cmdAbsoluteTokenIndex;
 		final var arrow = TextFormatter.ERROR("<-");
 		var tokensFormatters = new ArrayList<>(this.tokens.stream().map(Token::getFormatter).toList());
@@ -202,11 +225,11 @@ public class ErrorHandler {
 			}
 		}
 
-		System.err.print(String.join(" ", tokensFormatters.stream().map(TextFormatter::toString).toList()));
+		return String.join(" ", tokensFormatters.stream().map(TextFormatter::toString).toList());
 	}
 
-	private void displayTokensWithError(int index) {
-		this.displayTokensWithError(index, 0, true);
+	private String displayTokensWithError(int index) {
+		return this.displayTokensWithError(index, 0, true);
 	}
 
 	public void handleErrors() {

@@ -2,6 +2,9 @@ package argparser;
 
 import argparser.displayFormatter.Color;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,16 +28,48 @@ enum ErrorLevel {
 abstract class ParseStateErrorBase<T extends ErrorLevelProvider> {
 	public final T type;
 	public final int index;
+	private ErrorHandler errorHandler;
+	private ErrorFormatter formatter;
+
+	@Retention(RetentionPolicy.RUNTIME)
+	public @interface Handler {
+		String value();
+	}
 
 	public ParseStateErrorBase(T type, int index) {
 		this.type = type;
 		this.index = index;
 	}
 
-	public abstract void handle(ErrorHandler handler);
+	public final void handle(ErrorHandler handler) {
+		this.errorHandler = handler;
+		this.formatter = new ErrorFormatter(handler, type.getErrorLevel());
+
+		for (var method : this.getClass().getDeclaredMethods()) {
+			Handler annotation = method.getAnnotation(Handler.class);
+
+			if (annotation != null && annotation.value().equals(this.type.toString())) {
+				try {
+					method.invoke(this);
+				} catch (IllegalAccessException | InvocationTargetException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
+
+		this.formatter.print();
+	}
 
 	public boolean isError() {
 		return this.type.getErrorLevel() == ErrorLevel.ERROR;
+	}
+
+	protected Token getCurrentToken() {
+		return this.errorHandler.getRelativeToken(this.index);
+	}
+
+	protected ErrorFormatter fmt() {
+		return this.formatter;
 	}
 }
 
@@ -55,9 +90,32 @@ class TokenizeError extends ParseStateErrorBase<TokenizeError.TokenizeErrorType>
 		super(type, index);
 	}
 
-	@Override
-	public void handle(ErrorHandler handler) {
-		handler.handleErrors();
+	@Handler("TUPLE_ALREADY_OPEN")
+	protected void handleTupleAlreadyOpen() {
+		this.fmt()
+			.setContents("Tuple already open")
+			.displayTokens(this.index);
+	}
+
+	@Handler("TUPLE_NOT_CLOSED")
+	protected void handleTupleNotClosed() {
+		this.fmt()
+			.setContents("Tuple not closed")
+			.displayTokens(this.index);
+	}
+
+	@Handler("UNEXPECTED_TUPLE_CLOSE")
+	protected void handleUnexpectedTupleClose() {
+		this.fmt()
+			.setContents("Unexpected tuple close")
+			.displayTokens(this.index);
+	}
+
+	@Handler("STRING_NOT_CLOSED")
+	protected void handleStringNotClosed() {
+		this.fmt()
+			.setContents("String not closed")
+			.displayTokens(this.index, 0, true);
 	}
 }
 
@@ -94,7 +152,7 @@ class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 		this.valueCount = valueCount;
 	}
 
-	public static void handleErrors(List<ParseError> errors, ErrorHandler handler) {
+	public static void handleAll(List<ParseError> errors, ErrorHandler handler) {
 		var newList = new ArrayList<>(errors);
 		for (var err : newList) {
 			/* if we are going to show an error about an argument being incorrectly used, and that argument is defined
@@ -111,25 +169,9 @@ class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 		newList.forEach(e -> e.handle(handler));
 	}
 
-	@Override
-	public void handle(ErrorHandler handler) {
-		Token currentToken = handler.tokens.get(Math.min(this.index + handler.cmdAbsoluteTokenIndex + 1, handler.tokens.size() - 1));
-		this.formatter = new ErrorHandler.ErrorFormatter(err.type.level);
-
-		switch (err.type) {
-			case ParseErrorType.ARG_INCORRECT_VALUE_NUMBER -> this.handleIncorrectValueNumber();
-			case ParseErrorType.OBLIGATORY_ARGUMENT_NOT_USED -> this.handleObligatoryArgumentNotUsed();
-			case ParseErrorType.ARGUMENT_NOT_FOUND -> this.handleArgumentNotFound();
-			case ParseErrorType.UNMATCHED_TOKEN -> this.handleUnmatchedToken();
-
-			default -> this.formatter.displayTokens(err.index + 1);
-		}
-
-		this.formatter.print();
-	}
-
+	@Handler("ARG_INCORRECT_VALUE_NUMBER")
 	protected void handleIncorrectValueNumber() {
-		this.formatter
+		this.fmt()
 			.setContents(String.format(
 				"Incorrect number of values for argument '%s'.%nExpected %s, but got %d.",
 				argument.getAlias(), argument.getNumberOfValues().getMessage(), Math.max(valueCount - 1, 0)
@@ -137,10 +179,11 @@ class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 			.displayTokens(this.index + 1, valueCount, valueCount == 0);
 	}
 
+	@Handler("OBLIGATORY_ARGUMENT_NOT_USED")
 	protected void handleObligatoryArgumentNotUsed() {
 		var argCmd = argument.getParentCmd();
 
-		this.formatter
+		this.fmt()
 			.setContents(
 				argCmd.isRootCommand()
 					? String.format("Obligatory argument '%s' not used.", argument.getAlias())
@@ -149,14 +192,26 @@ class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 			.displayTokens(this.index);
 	}
 
+	@Handler("ARGUMENT_NOT_FOUND")
 	protected void handleArgumentNotFound() {
-		this.formatter.setContents(String.format("Argument '%s' not found.", argument.getAlias()));
+		this.fmt().setContents(String.format("Argument '%s' not found.", argument.getAlias()));
 	}
 
+	@Handler("UNMATCHED_TOKEN")
 	protected void handleUnmatchedToken() {
-		this.formatter
-			.setContents(String.format("Token '%s' does not correspond with a valid argument, value, or command.", token))
+		this.fmt()
+			.setContents(String.format(
+				"Token '%s' does not correspond with a valid argument, value, or command.",
+				this.getCurrentToken().contents())
+			)
 			.displayTokens(this.index + 1, 0, false);
+	}
+
+	@Handler("CUSTOM_ERROR")
+	protected void handleCustomError() {
+		this.fmt()
+			.setContents("this")
+			.displayTokens(this.index + 1, valueCount, valueCount == 0);
 	}
 }
 
@@ -217,8 +272,12 @@ public class ErrorHandler {
 				tokenizeError.handle(this);
 			}
 
-			ParseError.handleErrors(cmd.parseState.errors, this);
+			ParseError.handleAll(cmd.parseState.errors, this);
 		}
 	}
 
+	public Token getRelativeToken(int index) {
+		return this.tokens.get(Math.min(this.cmdAbsoluteTokenIndex + index + 1, this.tokens.size() - 1));
+
+	}
 }

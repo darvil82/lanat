@@ -73,7 +73,8 @@ public class UnitTests {
 		assertEquals(
 			expected,
 			TextFormatter.removeSequences(errContent.toString())
-				.replaceAll(" *[│─└┌] ?", "")
+				// the reason we replace \r here is that windows uses CRLF (I hate windows)
+				.replaceAll(" *[│─└┌\r] ?", "")
 				.trim()
 		);
 		System.out.printf("Test error output:\n%s", errContent);

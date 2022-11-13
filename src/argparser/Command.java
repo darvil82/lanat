@@ -203,11 +203,12 @@ public class Command {
 			}
 		}
 
-		if (this.tokenizeState.tupleOpen) {
-			errorType = TokenizeError.TokenizeErrorType.TUPLE_NOT_CLOSED;
-		} else if (this.tokenizeState.stringOpen) {
-			errorType = TokenizeError.TokenizeErrorType.STRING_NOT_CLOSED;
-		}
+		if (errorType == null)
+			if (this.tokenizeState.tupleOpen) {
+				errorType = TokenizeError.TokenizeErrorType.TUPLE_NOT_CLOSED;
+			} else if (this.tokenizeState.stringOpen) {
+				errorType = TokenizeError.TokenizeErrorType.STRING_NOT_CLOSED;
+			}
 
 		if (errorType != null) {
 			tokenizeState.addError(errorType, finalTokens.size());
@@ -411,7 +412,7 @@ public class Command {
 			return;
 		}
 
-		// pass the arg values to the argument subparser
+		// pass the arg values to the argument subParser
 		arg.parseValues(new String[]{value});
 	}
 
@@ -447,17 +448,9 @@ public class Command {
 		HashMap<Argument<?, ?>, Object> parsedArgs = new HashMap<>();
 
 		this.arguments.forEach(argument -> {
-			Result<?, Result<ParseError, List<CustomParseError>>> r = argument.finishParsing();
-			if (!r.isCorrect()) {
-				if (r.getErrValue().isCorrect()) {
-					parseState.addError(r.getErrValue().unpack().type, argument, 0);
-				} else {
-					r.getErrValue().getErrValue().forEach(e -> parseState.addError(e));
-				}
-				return;
-			}
-			if (r.unpack() == null) return;
-			parsedArgs.put(argument, r.unpack());
+			Object r = argument.finishParsing(parseState);
+			if (r == null) return;
+			parsedArgs.put(argument, r);
 		});
 
 		this.parseState.parsedArguments = parsedArgs;

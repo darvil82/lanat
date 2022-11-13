@@ -22,6 +22,6 @@ public class SimpleTests {
 				}});
 			}});
 		}};
-		argParser.parseArgs("subcommand -cccs hello whats up another what --balling --ball");
+		argParser.parseArgs("subcommand -cccs [[ hello whats up another what --balling --ball");
 	}
 }

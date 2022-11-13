@@ -153,22 +153,25 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 		return this;
 	}
 
-	Result<TInner, Result<ParseError, List<CustomParseError>>> finishParsing() {
+	TInner finishParsing(Command.ParseState parseState) {
 		if (this.usageCount == 0) {
-			return this.isObligatory()
-				? Result.err(Result.ok(new ParseError(ParseErrorType.OBLIGATORY_ARGUMENT_NOT_USED, 0, this, 0)))
-				: Result.ok(this.defaultValue);
+			if (this.obligatory) {
+				parseState.addError(ParseError.ParseErrorType.OBLIGATORY_ARGUMENT_NOT_USED, this, 0);
+				return null;
+			}
+			return this.defaultValue;
 		}
 
 		if (!this.argType.getErrors().isEmpty()) {
-			return Result.err(Result.err(this.argType.getErrors()));
+			this.argType.getErrors().forEach(parseState::addError);
+			return null;
 		}
 
 		TInner finalValue = this.argType.getFinalValue();
 
 		if (this.callback != null) this.callback.accept(finalValue);
 
-		return Result.ok(finalValue);
+		return finalValue;
 	}
 
 	public void parseValues(String[] value) {

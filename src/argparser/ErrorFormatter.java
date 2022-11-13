@@ -7,8 +7,8 @@ import argparser.utils.UtlString;
 import java.util.ArrayList;
 
 class ErrorFormatter {
-	private String contents;
-	private String tokensView;
+	private String contents = "";
+	private String tokensView = "";
 	private final ErrorLevel errorLevel;
 	private final ErrorHandler mainHandler;
 
@@ -45,7 +45,7 @@ class ErrorFormatter {
 		);
 	}
 
-	private ErrorFormatter displayTokens(int start, int offset, boolean placeArrow) {
+	public ErrorFormatter displayTokens(int start, int offset, boolean placeArrow) {
 		start += this.mainHandler.cmdAbsoluteTokenIndex;
 		final var arrow = TextFormatter.ERROR("<-").setColor(this.errorLevel.color);
 		var tokensFormatters = new ArrayList<>(this.mainHandler.tokens.stream().map(Token::getFormatter).toList());
@@ -77,7 +77,7 @@ class ErrorFormatter {
 		return this;
 	}
 
-	private ErrorFormatter displayTokens(int index) {
+	public ErrorFormatter displayTokens(int index) {
 		return this.displayTokens(index, 0, true);
 	}
 }

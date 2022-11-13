@@ -9,7 +9,7 @@ import java.util.ArrayList;
 class ErrorFormatter {
 	private String contents = "";
 	private String tokensView = "";
-	private final ErrorLevel errorLevel;
+	private ErrorLevel errorLevel;
 	private final ErrorHandler mainHandler;
 
 	public ErrorFormatter(ErrorHandler mainHandler, ErrorLevel level) {
@@ -19,6 +19,11 @@ class ErrorFormatter {
 
 	public ErrorFormatter setContents(String contents) {
 		this.contents = contents;
+		return this;
+	}
+
+	public ErrorFormatter setErrorLevel(ErrorLevel errorLevel) {
+		this.errorLevel = errorLevel;
 		return this;
 	}
 

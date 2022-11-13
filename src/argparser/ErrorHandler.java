@@ -93,28 +93,28 @@ class TokenizeError extends ParseStateErrorBase<TokenizeError.TokenizeErrorType>
 	@Handler("TUPLE_ALREADY_OPEN")
 	protected void handleTupleAlreadyOpen() {
 		this.fmt()
-			.setContents("Tuple already open")
+			.setContents("Tuple already open.")
 			.displayTokens(this.index);
 	}
 
 	@Handler("TUPLE_NOT_CLOSED")
 	protected void handleTupleNotClosed() {
 		this.fmt()
-			.setContents("Tuple not closed")
+			.setContents("Tuple not closed.")
 			.displayTokens(this.index);
 	}
 
 	@Handler("UNEXPECTED_TUPLE_CLOSE")
 	protected void handleUnexpectedTupleClose() {
 		this.fmt()
-			.setContents("Unexpected tuple close")
+			.setContents("Unexpected tuple close.")
 			.displayTokens(this.index);
 	}
 
 	@Handler("STRING_NOT_CLOSED")
 	protected void handleStringNotClosed() {
 		this.fmt()
-			.setContents("String not closed")
+			.setContents("String not closed.")
 			.displayTokens(this.index, 0, true);
 	}
 }
@@ -127,8 +127,7 @@ class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 		ARGUMENT_NOT_FOUND,
 		OBLIGATORY_ARGUMENT_NOT_USED,
 		UNMATCHED_TOKEN(ErrorLevel.WARNING),
-		ARG_INCORRECT_VALUE_NUMBER,
-		CUSTOM_ERROR;
+		ARG_INCORRECT_VALUE_NUMBER;
 
 		public final ErrorLevel level;
 
@@ -206,23 +205,33 @@ class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 			)
 			.displayTokens(this.index + 1, 0, false);
 	}
-
-	@Handler("CUSTOM_ERROR")
-	protected void handleCustomError() {
-		this.fmt()
-			.setContents("this")
-			.displayTokens(this.index + 1, valueCount, valueCount == 0);
-	}
 }
 
-class CustomParseError extends ParseError {
-	public final String message;
-	public final ErrorLevel level;
+class CustomParseError extends ParseStateErrorBase<CustomParseError.CustomParseErrorType> {
+	private final String message;
+	private final ErrorLevel level;
+
+	enum CustomParseErrorType implements ErrorLevelProvider {
+		DEFAULT;
+
+		@Override
+		public ErrorLevel getErrorLevel() {
+			return ErrorLevel.ERROR;
+		}
+	}
 
 	public CustomParseError(String message, int index, ErrorLevel level) {
-		super(ParseErrorType.CUSTOM_ERROR, index, null, 0);
+		super(CustomParseErrorType.DEFAULT, index);
 		this.message = message;
 		this.level = level;
+	}
+
+	@Handler("DEFAULT")
+	protected void handleDefault() {
+		this.fmt()
+			.setErrorLevel(this.level)
+			.setContents(this.message)
+			.displayTokens(this.index + 1, 0, false);
 	}
 }
 
@@ -270,6 +279,10 @@ public class ErrorHandler {
 
 			for (var tokenizeError : cmd.tokenizeState.errors) {
 				tokenizeError.handle(this);
+			}
+
+			for (var customErrors : cmd.parseState.customErrors) {
+				customErrors.handle(this);
 			}
 
 			ParseError.handleAll(cmd.parseState.errors, this);

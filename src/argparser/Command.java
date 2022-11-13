@@ -105,7 +105,8 @@ public class Command {
 
 	static class ParseState {
 		public final ArrayList<ParseError> errors = new ArrayList<>();
-//		public final ArrayList<CustomParseError> subParserErrors = new ArrayList<>();
+		public final ArrayList<CustomParseError> customErrors = new ArrayList<>();
+
 		/**
 		 * Array of all the tokens that we have parsed from the CLI arguments.
 		 */
@@ -128,7 +129,7 @@ public class Command {
 		}
 
 		void addError(CustomParseError customParseError) {
-			this.errors.add(customParseError);
+			this.customErrors.add(customParseError);
 		}
 	}
 

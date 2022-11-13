@@ -194,8 +194,8 @@ public class Command {
 			} else if (chars[i] != ' ' && i == chars.length - 1) {
 				currentValue.append(chars[i]);
 				tokenizeSection.accept(i);
-			} else if (this.tokenizeState.stringOpen) {
-				if (chars[i] == '\\') i++; // user is trying to escape a character
+			} else if (chars[i] == '\\') {
+				i++; // user is trying to escape a character
 				currentValue.append(chars[i]);
 			} else if ((chars[i] == ' ' || chars[i] == '=') && !currentValue.isEmpty()) {
 				tokenizeSection.accept(i);

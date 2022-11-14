@@ -1,7 +1,5 @@
 package argparser;
 
-import argparser.displayFormatter.Color;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.InvocationTargetException;
@@ -10,18 +8,6 @@ import java.util.List;
 
 interface ErrorLevelProvider {
 	ErrorLevel getErrorLevel();
-}
-
-enum ErrorLevel {
-	ERROR(Color.BRIGHT_RED),
-	WARNING(Color.BRIGHT_YELLOW),
-	INFO(Color.BRIGHT_BLUE);
-
-	public final Color color;
-
-	ErrorLevel(Color color) {
-		this.color = color;
-	}
 }
 
 
@@ -231,7 +217,7 @@ class CustomParseError extends ParseStateErrorBase<CustomParseError.CustomParseE
 		this.fmt()
 			.setErrorLevel(this.level)
 			.setContents(this.message)
-			.displayTokens(this.index + 1, 0, false);
+			.displayTokens(this.index, 0, false);
 	}
 }
 
@@ -291,6 +277,5 @@ public class ErrorHandler {
 
 	public Token getRelativeToken(int index) {
 		return this.tokens.get(Math.min(this.cmdAbsoluteTokenIndex + index + 1, this.tokens.size() - 1));
-
 	}
 }

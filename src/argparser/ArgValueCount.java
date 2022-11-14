@@ -40,4 +40,12 @@ public class ArgValueCount {
 			return String.format("%s value%s", this.min, this.min == 1 ? "" : "s");
 		}
 	}
+
+	public boolean isInRange(int value, boolean checkIndex) {
+		if (checkIndex) {
+			return value >= 0 && value < this.max;
+		} else {
+			return value > this.min && value <= this.max;
+		}
+	}
 }

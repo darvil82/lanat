@@ -1,9 +1,7 @@
 package argparser;
 
-import argparser.utils.Result;
 import argparser.utils.UtlString;
 
-import java.util.List;
 import java.util.function.Consumer;
 
 public class Argument<Type extends ArgumentType<TInner>, TInner> {
@@ -174,9 +172,14 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 		return finalValue;
 	}
 
-	public void parseValues(String[] value) {
+	public void parseValues(String[] value, short tokenIndex) {
+		this.argType.setTokenIndex(tokenIndex);
 		this.argType.parseArgValues(value);
 		this.usageCount++;
+	}
+
+	public void parseValues() {
+		this.parseValues(new String[0], (short)0);
 	}
 
 	public ArgValueCount getNumberOfValues() {

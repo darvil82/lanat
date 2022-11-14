@@ -346,7 +346,7 @@ public class Command {
 
 		// just skip the whole thing if it doesn't need any values
 		if (argumentValuesRange.isZero()) {
-			arg.parseValues(new String[]{});
+			arg.parseValues();
 			return;
 		}
 
@@ -388,10 +388,10 @@ public class Command {
 			return;
 		}
 
-		parseState.currentTokenIndex += newCurrentTokenIndex;
-
 		// pass the arg values to the argument sub parser
-		arg.parseValues(tempArgs.stream().map(Token::contents).toArray(String[]::new));
+		arg.parseValues(tempArgs.stream().map(Token::contents).toArray(String[]::new), parseState.currentTokenIndex);
+
+		parseState.currentTokenIndex += newCurrentTokenIndex;
 	}
 
 	private void executeArgParse(Argument<?, ?> arg, String value) {
@@ -404,7 +404,7 @@ public class Command {
 
 		// just skip the whole thing if it doesn't need any values
 		if (argumentValuesRange.isZero()) {
-			arg.parseValues(new String[]{});
+			arg.parseValues();
 			return;
 		}
 
@@ -414,7 +414,7 @@ public class Command {
 		}
 
 		// pass the arg values to the argument subParser
-		arg.parseValues(new String[]{value});
+		arg.parseValues(new String[]{ value }, parseState.currentTokenIndex);
 	}
 
 	void parseTokens() {

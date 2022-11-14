@@ -34,11 +34,9 @@ public class ArgValueCount {
 	}
 
 	public String getMessage() {
-		if (this.isRange()) {
-			return String.format("from %d to %s values", this.min, this.max == Short.MAX_VALUE ? "any number of" : this.max);
-		} else {
-			return String.format("%s value%s", this.min, this.min == 1 ? "" : "s");
-		}
+		return this.isRange()
+			? String.format("from %d to %s values", this.min, this.max == Short.MAX_VALUE ? "any number of" : this.max)
+			: String.format("%s value%s", this.min, this.min == 1 ? "" : "s");
 	}
 
 	public boolean isInRange(int value, boolean checkIndex) {

@@ -42,10 +42,8 @@ public class ArgValueCount {
 	}
 
 	public boolean isInRange(int value, boolean checkIndex) {
-		if (checkIndex) {
-			return value >= 0 && value < this.max;
-		} else {
-			return value > this.min && value <= this.max;
-		}
+		return checkIndex
+			? value >= 0 && value < this.max
+			: value > this.min && value <= this.max;
 	}
 }

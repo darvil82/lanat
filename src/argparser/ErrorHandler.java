@@ -6,10 +6,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
-interface ErrorLevelProvider {
-	ErrorLevel getErrorLevel();
-}
-
 
 abstract class ParseStateErrorBase<T extends ErrorLevelProvider> {
 	public final T type;

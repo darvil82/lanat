@@ -174,7 +174,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 
 	public void parseValues(String[] value, short tokenIndex) {
 		this.argType.setTokenIndex(tokenIndex);
-		this.argType.parseArgValues(value);
+		this.argType.parseArgumentValues(value);
 		this.usageCount++;
 	}
 

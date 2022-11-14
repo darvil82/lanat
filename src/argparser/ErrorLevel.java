@@ -13,3 +13,8 @@ public enum ErrorLevel {
 		this.color = color;
 	}
 }
+
+
+interface ErrorLevelProvider {
+	ErrorLevel getErrorLevel();
+}

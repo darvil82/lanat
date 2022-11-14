@@ -10,6 +10,10 @@ public abstract class ArgumentType<T> {
 	 * This is used for storing errors that occur during parsing. We need to keep track of the index of the token that caused the error.
 	 */
 	private short tokenIndex = 0;
+	/**
+	 * This specifies the number of values that this argument received when being parsed.
+	 */
+	private int receivedValueCount = 0;
 	private ArrayList<CustomParseError> errors = new ArrayList<>();
 
 	// Easy to access values. These are methods because we don't want to use the same instance everywhere.
@@ -23,8 +27,12 @@ public abstract class ArgumentType<T> {
 
 	public static FileArgument FILE() {return new FileArgument();}
 
+	void parseArgumentValues(String[] args) {
+		this.receivedValueCount = args.length;
+		this.parseValues(args);
+	}
 
-	public abstract void parseArgValues(String[] args);
+	public abstract void parseValues(String[] args);
 
 	public ArgValueCount getNumberOfArgValues() {
 		return ArgValueCount.ONE;
@@ -50,7 +58,12 @@ public abstract class ArgumentType<T> {
 		if (!this.getNumberOfArgValues().isInRange(index, true) && index != -1) {
 			throw new IndexOutOfBoundsException("Index " + index + " is out of range for " + this.getRepresentation());
 		}
-		this.errors.add(new CustomParseError(message, this.tokenIndex + (index == -1 ? 0 : index + 1), level));
+
+		this.errors.add(new CustomParseError(
+			message,
+			this.tokenIndex + (index == -1 ? 0 : Math.min(index + 1, this.receivedValueCount)),
+			level
+		));
 	}
 
 	List<CustomParseError> getErrors() {
@@ -65,7 +78,7 @@ public abstract class ArgumentType<T> {
 
 class IntArgument extends ArgumentType<Integer> {
 	@Override
-	public void parseArgValues(String[] arg) {
+	public void parseValues(String[] arg) {
 		try {
 			this.value = Integer.parseInt(arg[0]);
 		} catch (NumberFormatException e) {
@@ -82,7 +95,7 @@ class IntArgument extends ArgumentType<Integer> {
 
 class BooleanArgument extends ArgumentType<Boolean> {
 	@Override
-	public void parseArgValues(String[] arg) {
+	public void parseValues(String[] arg) {
 		this.value = true;
 	}
 
@@ -111,21 +124,21 @@ class CounterArgument extends ArgumentType<Short> {
 	}
 
 	@Override
-	public void parseArgValues(String[] args) {
+	public void parseValues(String[] args) {
 		this.value++;
 	}
 }
 
 class StringArgument extends ArgumentType<String> {
 	@Override
-	public void parseArgValues(String[] args) {
+	public void parseValues(String[] args) {
 		this.value = args[0];
 	}
 }
 
 class FileArgument extends ArgumentType<FileReader> {
 	@Override
-	public void parseArgValues(String[] args) {
+	public void parseValues(String[] args) {
 		try {
 			this.value = new FileReader(args[0]);
 		} catch (Exception e) {

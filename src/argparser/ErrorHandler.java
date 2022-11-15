@@ -9,7 +9,7 @@ import java.util.List;
 
 abstract class ParseStateErrorBase<T extends ErrorLevelProvider> {
 	public final T type;
-	public final int index;
+	public int index;
 	private ErrorHandler errorHandler;
 	private ErrorFormatter formatter;
 

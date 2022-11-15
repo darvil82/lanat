@@ -1,5 +1,7 @@
 package argparser;
 
+import argparser.utils.Pair;
+
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,13 +28,18 @@ public abstract class ArgumentType<T> {
 	public static StringArgument STRING() {return new StringArgument();}
 
 	public static FileArgument FILE() {return new FileArgument();}
+	public static <T1 extends ArgumentType<T1s>, T2 extends ArgumentType<T2s>, T1s, T2s> PairArgument<T1, T2, T1s, T2s>
+	PAIR(T1 first, T2 second) {return new PairArgument<>(first, second);}
 
-	void parseArgumentValues(String[] args) {
+	final void parseArgumentValues(String[] args) {
 		this.receivedValueCount = args.length;
 		this.parseValues(args);
 	}
 
 	public abstract void parseValues(String[] args);
+	public void parseValues(String arg) {
+		this.parseValues(new String[]{ arg });
+	}
 
 	public ArgValueCount getNumberOfArgValues() {
 		return ArgValueCount.ONE;
@@ -52,6 +59,14 @@ public abstract class ArgumentType<T> {
 
 	protected void addError(String message) {
 		this.addError(message, -1);
+	}
+
+	/**
+	 * Adds the errors that occurred during parsing another argument type.
+	 */
+	protected void addErrorsFrom(ArgumentType<?> other) {
+		other.errors.forEach(e -> e.index += this.tokenIndex + 1);
+		this.errors.addAll(other.errors);
 	}
 
 	protected void addError(String message, int index, ErrorLevel level) {
@@ -144,5 +159,36 @@ class FileArgument extends ArgumentType<FileReader> {
 		} catch (Exception e) {
 			this.addError("File not found: '" + args[0] + "'.", 0);
 		}
+	}
+}
+
+class PairArgument<T1 extends ArgumentType<T1s>, T2 extends ArgumentType<T2s>, T1s, T2s>
+	extends ArgumentType<Pair<T1s, T2s>>
+{
+	private final T1 first;
+	private final T2 second;
+
+	public PairArgument(T1 first, T2 second) {
+		this.first = first;
+		this.second = second;
+	}
+
+	@Override
+	public ArgValueCount getNumberOfArgValues() {
+		return new ArgValueCount(2);
+	}
+
+	@Override
+	public void parseValues(String[] args) {
+		this.first.parseValues(args[0]);
+		this.second.parseValues(args[1]);
+
+		this.addErrorsFrom(this.first);
+		this.addErrorsFrom(this.second);
+	}
+
+	@Override
+	public Pair<T1s, T2s> getFinalValue() {
+		return new Pair<>(this.first.getFinalValue(), this.second.getFinalValue());
 	}
 }

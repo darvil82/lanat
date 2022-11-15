@@ -210,12 +210,10 @@ class CustomParseError extends ParseStateErrorBase<CustomParseError.CustomParseE
 
 	@Handler("DEFAULT")
 	protected void handleDefault() {
-		var index = this.index + (this.getCurrentToken().type().isTuple() ? 1 : 0);
-
 		this.fmt()
 			.setErrorLevel(this.level)
 			.setContents(this.message)
-			.displayTokens(index, 0, false);
+			.displayTokens(this.index, 0, false);
 	}
 }
 

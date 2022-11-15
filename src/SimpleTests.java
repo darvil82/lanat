@@ -21,14 +21,13 @@ class Ball extends ArgumentType<Integer> {
 
 public class SimpleTests {
 	public static void main(String[] args) {
-		var argParser = new ArgumentParser("SimpleTesting") {{
+		new ArgumentParser("SimpleTesting") {{
 			addArgument(new Argument<>("test", ArgumentType.STRING()));
 			addArgument(new Argument<>("what", ArgumentType.FILE()));
 			addSubCommand(new Command("subcommand") {{
 				addArgument(new Argument<>("what", ArgumentType.FILE()));
 				addArgument(new Argument<>("hey", new Ball()));
 			}});
-		}};
-		argParser.parseArgs("subcommand --hey [hello what] --what D:\\\\program files\\\\Steam\\\\steamapps\\\\common\\\\Portal\\ 2\\\\gameinfo.txt");
+		}}.parseArgs("subcommand --hey hey --what [D:\\\\program] files\\\\Steam\\\\steamapps\\\\common\\\\Portal\\ 2\\\\gameinfo.txt");
 	}
 }

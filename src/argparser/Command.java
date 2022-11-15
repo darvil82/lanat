@@ -354,16 +354,16 @@ public class Command {
 			parseState.currentTokenIndex < parseState.tokens.length
 				&& parseState.tokens[parseState.currentTokenIndex].type() == TokenType.ARGUMENT_VALUE_TUPLE_START
 		);
-		Function<Integer, Integer> ifInTuple = v -> isInTuple ? v : 0;
 
-		int skipCount = ifInTuple.apply(1);
+		int ifTupleOffset =  isInTuple ? 1 : 0;
+		int skipCount = ifTupleOffset;
 
 		// first_capture_the_minimum_required_values...
 		ArrayList<Token> tempArgs = new ArrayList<>();
 
 		// next add more values until we get to the max of the type, or we encounter another argument specifier
 		for (
-			int i = parseState.currentTokenIndex + ifInTuple.apply(1);
+			int i = parseState.currentTokenIndex + ifTupleOffset;
 			i < parseState.tokens.length;
 			i++, skipCount++
 		) {
@@ -380,16 +380,16 @@ public class Command {
 		}
 
 		int tempArgsSize = tempArgs.size();
-		int newCurrentTokenIndex = skipCount + ifInTuple.apply(1);
+		int newCurrentTokenIndex = skipCount + ifTupleOffset;
 
 		if (tempArgsSize > argumentValuesRange.max || tempArgsSize < argumentValuesRange.min) {
-			parseState.addError(ParseError.ParseErrorType.ARG_INCORRECT_VALUE_NUMBER, arg, tempArgsSize + ifInTuple.apply(1));
+			parseState.addError(ParseError.ParseErrorType.ARG_INCORRECT_VALUE_NUMBER, arg, tempArgsSize + ifTupleOffset);
 			parseState.currentTokenIndex += newCurrentTokenIndex;
 			return;
 		}
 
 		// pass the arg values to the argument sub parser
-		arg.parseValues(tempArgs.stream().map(Token::contents).toArray(String[]::new), parseState.currentTokenIndex);
+		arg.parseValues(tempArgs.stream().map(Token::contents).toArray(String[]::new), (short)(parseState.currentTokenIndex + ifTupleOffset));
 
 		parseState.currentTokenIndex += newCurrentTokenIndex;
 	}

@@ -55,18 +55,15 @@ public abstract class ArgumentType<T> {
 		this.addError(message, index, ErrorLevel.ERROR);
 	}
 
-	protected void addError(String message) {
-		this.addError(message, -1);
-	}
 
 	protected void addError(String message, int index, ErrorLevel level) {
-		if (!this.getNumberOfArgValues().isInRange(index, true) && index != -1) {
-			throw new IndexOutOfBoundsException("Index " + index + " is out of range for " + this.getRepresentation());
+		if (!this.getNumberOfArgValues().isInRange(index, true)) {
+			throw new IndexOutOfBoundsException("Index " + index + " is out of range for " + this.getClass().getName());
 		}
 
 		this.errors.add(new CustomParseError(
 			message,
-			this.tokenIndex + (index == -1 ? 0 : Math.min(index + 1, this.receivedValueCount)),
+			this.tokenIndex + Math.min(index + 1, this.receivedValueCount),
 			level
 		));
 	}

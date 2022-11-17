@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class Command {
 	protected final String name, description;
@@ -142,6 +143,12 @@ public class Command {
 		this.finishedTokenizing = false; // just in case we are tokenizing again for any reason
 
 		var finalTokens = new ArrayList<Token>();
+		Predicate<Predicate<TokenType>> previousTokenOfType = (t) -> {
+			if (finalTokens.size() < 1) return false;
+			Token lastToken = finalTokens.get(finalTokens.size() - 1);
+			return t.test(lastToken.type());
+		};
+
 		var currentValue = new StringBuilder();
 		TokenizeError.TokenizeErrorType errorType = null;
 
@@ -167,8 +174,8 @@ public class Command {
 				if (this.tokenizeState.stringOpen) {
 					addToken.accept(TokenType.ARGUMENT_VALUE, currentValue.toString());
 					currentValue.setLength(0);
-				} else if (!currentValue.isEmpty()) { // maybe a possible argNameList? tokenize it
-					tokenizeSection.accept(i);
+				} else if (!currentValue.isEmpty()) {
+					continue;
 				}
 				this.tokenizeState.stringOpen = !this.tokenizeState.stringOpen;
 			} else if (chars[i] == tupleChars.first() && !this.tokenizeState.stringOpen) {
@@ -197,7 +204,13 @@ public class Command {
 			} else if (chars[i] == '\\') {
 				i++; // user is trying to escape a character
 				currentValue.append(chars[i]);
-			} else if ((chars[i] == ' ' || chars[i] == '=') && !currentValue.isEmpty()) {
+			} else if (
+				((chars[i] == ' ') && !currentValue.isEmpty())
+					|| (chars[i] == '='
+							&& previousTokenOfType.test(TokenType::isArgumentSpecifier)
+							&& currentValue.isEmpty()
+				)
+			) {
 				tokenizeSection.accept(i);
 			} else if (chars[i] != ' ') {
 				currentValue.append(chars[i]);

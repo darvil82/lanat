@@ -178,6 +178,8 @@ public class Command {
 					continue;
 				}
 				this.tokenizeState.stringOpen = !this.tokenizeState.stringOpen;
+			} else if (this.tokenizeState.stringOpen) {
+				currentValue.append(chars[i]);
 			} else if (chars[i] == tupleChars.first() && !this.tokenizeState.stringOpen) {
 				if (this.tokenizeState.tupleOpen) {
 					errorType = TokenizeError.TokenizeErrorType.TUPLE_ALREADY_OPEN;
@@ -205,7 +207,7 @@ public class Command {
 				i++; // user is trying to escape a character
 				currentValue.append(chars[i]);
 			} else if (
-				((chars[i] == ' ') && !currentValue.isEmpty())
+				(chars[i] == ' ' && !currentValue.isEmpty())
 					|| (chars[i] == '='
 							&& previousTokenOfType.test(TokenType::isArgumentSpecifier)
 							&& currentValue.isEmpty()

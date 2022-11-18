@@ -75,7 +75,7 @@ public class UnitTests {
 			TextFormatter.removeSequences(errContent.toString())
 				// the reason we replace \r here is that windows uses CRLF (I hate windows)
 				.replaceAll(" *[│─└┌\r] ?", "")
-				.trim()
+				.strip()
 		);
 		System.out.printf("Test error output:\n%s", errContent);
 	}

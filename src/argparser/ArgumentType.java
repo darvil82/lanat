@@ -2,23 +2,27 @@ package argparser;
 
 import argparser.utils.EventHandler;
 import argparser.utils.Pair;
-import jdk.jfr.Event;
 
 import java.io.FileReader;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 public abstract class ArgumentType<T> {
 	protected T value;
 	/**
-	 * This is used for storing errors that occur during parsing. We need to keep track of the index of the token that caused the error.
+	 * This is used for storing errors that occur during parsing. We need to keep track of the index of
+	 * the token that caused the error. -1 means that this was still not parsed.
 	 */
-	private short tokenIndex = 0;
+	private short tokenIndex = -1;
 	/**
 	 * This specifies the number of values that this argument received when being parsed.
 	 */
 	private int receivedValueCount = 0;
+	/**
+	 * This is the current index of the value that is being parsed.
+	 */
+	protected int currentArgValueIndex = 0;
 	protected ArrayList<CustomParseError> errors = new ArrayList<>();
 	private EventHandler<CustomParseError> errorListeners = new EventHandler<>();
 
@@ -41,16 +45,19 @@ public abstract class ArgumentType<T> {
 	 * @see ArgumentType#onSubTypeError(CustomParseError)
 	 */
 	protected void registerSubType(ArgumentType<?> subType) {
+		subType.tokenIndex = 0; // This is so the subtype will not throw the error that it was not parsed.
 		subType.errorListeners.addListener(this::onSubTypeError);
 	}
 
 	/**
 	 * This is called when a subtype of this argument type has an error.
 	 * By default, this adds the error to the list of errors, while also adding
-	 * the token index of the current type.
+	 * the current value index.
 	 * @param error The error that occurred in the subtype.
+	 * @see ArgumentType#currentArgValueIndex
 	 */
 	protected void onSubTypeError(CustomParseError error) {
+		error.index += this.currentArgValueIndex;
 		this.addError(error);
 	}
 
@@ -69,13 +76,27 @@ public abstract class ArgumentType<T> {
 		return this.value;
 	}
 
-	protected void addError(String message, int index) {
-		this.addError(message, index, ErrorLevel.ERROR);
+	/**
+	 * Adds an error to the list of errors that occurred during parsing.
+	 * @param message The message to display related to the error.
+	 */
+	protected void addError(String message) {
+		this.addError(message, this.currentArgValueIndex, ErrorLevel.ERROR);
 	}
 
+	/**
+	 * Adds an error to the list of errors that occurred during parsing.
+	 * @param message The message to display related to the error.
+	 * @param index The index of the value that caused the error.
+	 * @param level The level of the error.
+	 */
 	protected void addError(String message, int index, ErrorLevel level) {
 		if (!this.getNumberOfArgValues().isInRange(index, true)) {
 			throw new IndexOutOfBoundsException("Index " + index + " is out of range for " + this.getClass().getName());
+		}
+
+		if (this.tokenIndex == -1) {
+			throw new IllegalStateException("Cannot add an error to an argument that has not been parsed yet.");
 		}
 
 		var error = new CustomParseError(
@@ -99,13 +120,6 @@ public abstract class ArgumentType<T> {
 		this.errorListeners.invoke(error);
 	}
 
-	protected void addErrors(ArgumentType<?> errors) {
-		errors.getErrors().forEach(e -> {
-			e.index += this.tokenIndex;
-			this.errors.add(e);
-		});
-	}
-
 	List<CustomParseError> getErrors() {
 		return this.errors;
 	}
@@ -120,6 +134,19 @@ public abstract class ArgumentType<T> {
 
 	protected short getTokenIndex() {
 		return tokenIndex;
+	}
+
+	/**
+	 * Iterates over the values that this argument received when being parsed. This also sets
+	 * <code>this.currentArgValueIndex</code> to the current index of the value.
+	 * @param args The values that this argument received when being parsed.
+	 * @param consumer The consumer that will be called for each value.
+	 */
+	protected void forEachArgValue(String[] args, Consumer<String> consumer) {
+		for (int i = 0; i < args.length; i++) {
+			this.currentArgValueIndex = i;
+			consumer.accept(args[i]);
+		}
 	}
 
 
@@ -144,7 +171,7 @@ class IntArgument extends ArgumentType<Integer> {
 		try {
 			this.value = Integer.parseInt(arg[0]);
 		} catch (NumberFormatException e) {
-			this.addError("Invalid integer value: '" + arg[0] + "'.", 0);
+			this.addError("Invalid integer value: '" + arg[0] + "'.");
 		}
 	}
 
@@ -204,24 +231,17 @@ class FileArgument extends ArgumentType<FileReader> {
 		try {
 			this.value = new FileReader(args[0]);
 		} catch (Exception e) {
-			this.addError("File not found: '" + args[0] + "'.", 0);
+			this.addError("File not found: '" + args[0] + "'.");
 		}
 	}
 }
 
 class KeyValuesArgument<T extends ArgumentType<Ts>, Ts> extends ArgumentType<List<Pair<String, Ts>>> {
 	private ArgumentType<Ts> valueType;
-	private int keyIndex = 0;
 
 	public KeyValuesArgument(T type) {
 		this.valueType = type;
 		this.registerSubType(type);
-	}
-
-	@Override
-	protected void onSubTypeError(CustomParseError error) {
-		error.index += this.keyIndex;
-		super.onSubTypeError(error);
 	}
 
 	@Override
@@ -233,18 +253,19 @@ class KeyValuesArgument<T extends ArgumentType<Ts>, Ts> extends ArgumentType<Lis
 	public void parseValues(String[] args) {
 		this.value = new ArrayList<>();
 
-		for (; this.keyIndex < args.length; this.keyIndex++) {
-			String arg = args[this.keyIndex];
-			String[] split = arg.split("=");
+		this.forEachArgValue(args, arg -> {
+			var split = arg.split("=", 2);
 
 			if (split.length != 2) {
-				this.addError("Invalid key-value pair: '" + arg + "'.", this.keyIndex);
-				continue;
+				this.addError("Invalid key-value pair: '" + arg + "'.");
+				return;
 			}
 
-			valueType.parseValues(split[1]);
+			var key = split[0].strip();
+			var value = split[1].strip();
 
-			this.value.add(new Pair<>(split[0], valueType.getFinalValue()));
-		}
+			this.valueType.parseValues(value);
+			this.value.add(new Pair<>(key, this.valueType.getFinalValue()));
+		});
 	}
 }

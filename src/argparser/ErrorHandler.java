@@ -248,7 +248,10 @@ public class ErrorHandler {
 	}
 
 	public boolean hasErrors() {
-		return this.rootCmd.getTokenizedSubCommands().stream().anyMatch(cmd -> !cmd.parseState.errors.isEmpty());
+		return this.rootCmd.getTokenizedSubCommands().stream().anyMatch(
+			cmd -> cmd.parseState.errors.stream()
+				.anyMatch(ParseStateErrorBase::isError)
+		);
 	}
 
 

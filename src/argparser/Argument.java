@@ -2,6 +2,7 @@ package argparser;
 
 import argparser.utils.UtlString;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 public class Argument<Type extends ArgumentType<TInner>, TInner> {
@@ -160,16 +161,14 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 			return this.defaultValue;
 		}
 
-		if (!this.argType.getErrors().isEmpty()) {
-			this.argType.getErrors().forEach(parseState::addError);
+		List<CustomParseError> errors = this.argType.getErrors();
+
+		if (!errors.isEmpty()) {
+			errors.forEach(parseState::addError);
 			return null;
 		}
 
-		TInner finalValue = this.argType.getFinalValue();
-
-		if (this.callback != null) this.callback.accept(finalValue);
-
-		return finalValue;
+		return this.argType.getFinalValue();
 	}
 
 	public void parseValues(String[] value, short tokenIndex) {
@@ -220,5 +219,13 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 	public boolean equals(Argument<?, ?> obj) {
 		// we just want to check if there's a difference between identifiers and both are part of the same command
 		return this.getAlias().equals(obj.getAlias()) && this.prefix == obj.prefix && this.parentCmd == obj.parentCmd;
+	}
+
+	// we know that this is safe because this argument will always receive its correct type
+	@SuppressWarnings("unchecked")
+	void invokeCallback(Object value) {
+		if (this.callback != null) {
+			this.callback.accept((TInner)value);
+		}
 	}
 }

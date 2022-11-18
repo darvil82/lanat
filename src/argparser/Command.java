@@ -1,5 +1,6 @@
 package argparser;
 
+import argparser.utils.MayHaveErrors;
 import argparser.utils.Pair;
 import argparser.utils.Result;
 import argparser.utils.UtlString;
@@ -13,7 +14,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-public class Command {
+public class Command implements MayHaveErrors {
 	protected final String name, description;
 	protected final ArrayList<Argument<?, ?>> arguments = new ArrayList<>();
 	protected final ArrayList<Command> subCommands = new ArrayList<>();
@@ -92,7 +93,7 @@ public class Command {
 	// ---------------------------------------------------- Parsing ----------------------------------------------------
 
 
-	static class TokenizeState {
+	static class TokenizeState implements MayHaveErrors {
 		public final ArrayList<TokenizeError> errors = new ArrayList<>();
 		public boolean tupleOpen = false;
 		public boolean stringOpen = false;
@@ -100,11 +101,16 @@ public class Command {
 		void addError(TokenizeError.TokenizeErrorType type, int index) {
 			this.errors.add(new TokenizeError(type, index));
 		}
+
+		@Override
+		public boolean hasErrors() {
+			return this.errors.stream().anyMatch(ParseStateErrorBase::isError);
+		}
 	}
 
 	TokenizeState tokenizeState;
 
-	static class ParseState {
+	static class ParseState implements MayHaveErrors {
 		public final ArrayList<ParseError> errors = new ArrayList<>();
 		public final ArrayList<CustomParseError> customErrors = new ArrayList<>();
 
@@ -131,6 +137,11 @@ public class Command {
 
 		void addError(CustomParseError customParseError) {
 			this.customErrors.add(customParseError);
+		}
+
+		@Override
+		public boolean hasErrors() {
+			return this.errors.stream().anyMatch(ParseStateErrorBase::isError);
 		}
 	}
 
@@ -180,7 +191,7 @@ public class Command {
 				this.tokenizeState.stringOpen = !this.tokenizeState.stringOpen;
 			} else if (this.tokenizeState.stringOpen) {
 				currentValue.append(chars[i]);
-			} else if (chars[i] == tupleChars.first() && !this.tokenizeState.stringOpen) {
+			} else if (chars[i] == tupleChars.first()) {
 				if (this.tokenizeState.tupleOpen) {
 					errorType = TokenizeError.TokenizeErrorType.TUPLE_ALREADY_OPEN;
 					break;
@@ -189,7 +200,7 @@ public class Command {
 				}
 				addToken.accept(TokenType.ARGUMENT_VALUE_TUPLE_START, tupleChars.first().toString());
 				this.tokenizeState.tupleOpen = true;
-			} else if (chars[i] == tupleChars.second() && !this.tokenizeState.stringOpen) {
+			} else if (chars[i] == tupleChars.second()) {
 				if (!this.tokenizeState.tupleOpen) {
 					errorType = TokenizeError.TokenizeErrorType.UNEXPECTED_TUPLE_CLOSE;
 					break;
@@ -500,5 +511,13 @@ public class Command {
 		tokenizeState = new Command.TokenizeState();
 		parseState = new Command.ParseState();
 		this.subCommands.forEach(Command::initParsingState);
+	}
+
+	void invokeArgumentCallbacks() {
+		this.parseState.parsedArguments.forEach(Argument::invokeCallback);
+	}
+
+	public boolean hasErrors() {
+		return this.parseState.hasErrors();
 	}
 }

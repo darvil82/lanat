@@ -89,6 +89,15 @@ public abstract class ArgumentType<T> {
 	 * Adds an error to the list of errors that occurred during parsing.
 	 * @param message The message to display related to the error.
 	 * @param index The index of the value that caused the error.
+	 */
+	protected void addError(String message, int index) {
+		this.addError(message, this.currentArgValueIndex, ErrorLevel.ERROR);
+	}
+
+	/**
+	 * Adds an error to the list of errors that occurred during parsing.
+	 * @param message The message to display related to the error.
+	 * @param index The index of the value that caused the error.
 	 * @param level The level of the error.
 	 */
 	protected void addError(String message, int index, ErrorLevel level) {
@@ -264,6 +273,11 @@ class KeyValuesArgument<T extends ArgumentType<Ts>, Ts> extends ArgumentType<Has
 
 			var key = split[0].strip();
 			var value = split[1].strip();
+
+			if (this.value.containsKey(key)) {
+				this.addError("Duplicate key: '" + key + "'.");
+				return;
+			}
 
 			this.valueType.parseValues(value);
 			this.value.put(key, this.valueType.getFinalValue());

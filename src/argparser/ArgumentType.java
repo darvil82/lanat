@@ -1,8 +1,5 @@
 package argparser;
 
-import argparser.utils.EventHandler;
-import argparser.utils.Pair;
-
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,8 +22,7 @@ public abstract class ArgumentType<T> {
 	 */
 	protected int currentArgValueIndex = 0;
 	protected ArrayList<CustomParseError> errors = new ArrayList<>();
-	private EventHandler<CustomParseError> errorListeners = new EventHandler<>();
-
+	private final ArrayList<ArgumentType<?>> subTypes = new ArrayList<>();
 
 
 	final void parseArgumentValues(String[] args) {
@@ -47,7 +43,7 @@ public abstract class ArgumentType<T> {
 	 */
 	protected void registerSubType(ArgumentType<?> subType) {
 		subType.tokenIndex = 0; // This is so the subtype will not throw the error that it was not parsed.
-		subType.errorListeners.addListener(this::onSubTypeError);
+		this.subTypes.add(subType);
 	}
 
 	/**
@@ -116,7 +112,7 @@ public abstract class ArgumentType<T> {
 		);
 
 		this.errors.add(error);
-		this.errorListeners.invoke(error);
+		this.subTypes.forEach(ArgumentType::cleanUp);
 	}
 
 	private void addError(CustomParseError error) {
@@ -127,7 +123,7 @@ public abstract class ArgumentType<T> {
 		error.index = this.tokenIndex + Math.min(error.index + 1, this.receivedValueCount);
 
 		this.errors.add(error);
-		this.errorListeners.invoke(error);
+		this.subTypes.forEach(ArgumentType::cleanUp);
 	}
 
 	List<CustomParseError> getErrors() {
@@ -157,6 +153,11 @@ public abstract class ArgumentType<T> {
 			this.currentArgValueIndex = i;
 			consumer.accept(args[i]);
 		}
+	}
+
+	void cleanUp() {
+		this.subTypes.forEach(ArgumentType::cleanUp);
+		this.subTypes.clear();
 	}
 
 

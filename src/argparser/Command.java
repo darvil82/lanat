@@ -1,8 +1,6 @@
 package argparser;
 
-import argparser.utils.MayHaveErrors;
 import argparser.utils.Pair;
-import argparser.utils.Result;
 import argparser.utils.UtlString;
 
 import java.util.ArrayList;
@@ -11,11 +9,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class Command implements MayHaveErrors {
 	protected final String name, description;
+	protected ErrorLevel minimumErrorLevel = ErrorLevel.ERROR;
 	protected final ArrayList<Argument<?, ?>> arguments = new ArrayList<>();
 	protected final ArrayList<Command> subCommands = new ArrayList<>();
 	protected Pair<Character, Character> tupleChars = TupleCharacter.SQUARE_BRACKETS.getCharPair();
@@ -62,8 +60,9 @@ public class Command implements MayHaveErrors {
 			throw new IllegalArgumentException("cannot create two sub commands with the same name");
 		}
 
-		// pass the current tuple chars to the subcommand (most of the time this is what the user will want)
+		// pass some properties to the subcommand (most of the time this is what the user will want)
 		cmd.tupleChars = this.tupleChars;
+		cmd.minimumErrorLevel = this.minimumErrorLevel;
 		this.subCommands.add(cmd);
 	}
 
@@ -76,7 +75,7 @@ public class Command implements MayHaveErrors {
 		return this.arguments.stream().filter(Argument::isPositional).toArray(Argument[]::new);
 	}
 
-	public List<Command> getTokenizedSubCommands() {
+	List<Command> getTokenizedSubCommands() {
 		List<Command> x = new ArrayList<>();
 		Command subCmd;
 		x.add(this);
@@ -89,6 +88,7 @@ public class Command implements MayHaveErrors {
 	boolean isRootCommand() {
 		return isRootCommand;
 	}
+
 
 	// ---------------------------------------------------- Parsing ----------------------------------------------------
 
@@ -517,6 +517,7 @@ public class Command implements MayHaveErrors {
 		this.parseState.parsedArguments.forEach(Argument::invokeCallback);
 	}
 
+	@Override
 	public boolean hasErrors() {
 		return this.parseState.hasErrors();
 	}

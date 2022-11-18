@@ -5,6 +5,7 @@ import argparser.utils.Pair;
 
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -236,7 +237,7 @@ class FileArgument extends ArgumentType<FileReader> {
 	}
 }
 
-class KeyValuesArgument<T extends ArgumentType<Ts>, Ts> extends ArgumentType<List<Pair<String, Ts>>> {
+class KeyValuesArgument<T extends ArgumentType<Ts>, Ts> extends ArgumentType<HashMap<String, Ts>> {
 	private ArgumentType<Ts> valueType;
 
 	public KeyValuesArgument(T type) {
@@ -251,7 +252,7 @@ class KeyValuesArgument<T extends ArgumentType<Ts>, Ts> extends ArgumentType<Lis
 
 	@Override
 	public void parseValues(String[] args) {
-		this.value = new ArrayList<>();
+		this.value = new HashMap<>();
 
 		this.forEachArgValue(args, arg -> {
 			var split = arg.split("=", 2);
@@ -265,7 +266,7 @@ class KeyValuesArgument<T extends ArgumentType<Ts>, Ts> extends ArgumentType<Lis
 			var value = split[1].strip();
 
 			this.valueType.parseValues(value);
-			this.value.add(new Pair<>(key, this.valueType.getFinalValue()));
+			this.value.put(key, this.valueType.getFinalValue());
 		});
 	}
 }

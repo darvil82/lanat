@@ -27,3 +27,19 @@ interface ErrorLevelProvider {
 interface MayHaveErrors {
 	boolean hasErrors();
 }
+
+class MinimunErrorLevel {
+	private ErrorLevel minimum = ErrorLevel.ERROR;
+
+	public void setMinimumErrorLevel(ErrorLevel minimum) {
+		this.minimum = minimum;
+	}
+
+	public ErrorLevel getMinimumErrorLevel() {
+		return this.minimum;
+	}
+
+	public boolean errorIsInMinimum(ErrorLevel error) {
+		return error.isInErrorMinimum(this.minimum);
+	}
+}

@@ -24,6 +24,6 @@ public class SimpleTests {
 				addArgument(new Argument<>("what", ArgumentType.FILE()));
 				addArgument(new Argument<>("hey", ArgumentType.KEY_VALUES(ArgumentType.INTEGER())).callback(System.out::println));
 			}});
-		}}.parseArgs("subcommand --hey [h=12 'test=   24' test=13] files\\\\Steam\\\\steamapps\\\\common\\\\Portal\\ 2\\\\gameinfo.txt");
+		}}.parseArgs("subcommand --hey [h=12 'test=   a'] files\\\\Steam\\\\steamapps\\\\common\\\\Portal\\ 2\\\\gameinfo.txt");
 	}
 }

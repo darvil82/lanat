@@ -8,7 +8,7 @@ import java.util.function.Consumer;
 public class Argument<Type extends ArgumentType<TInner>, TInner> {
 	public static final char[] INVALID_CHARACTERS = {'=', ' '};
 	private char prefix = '-';
-	private final Type argType;
+	final Type argType;
 	private Character name;
 	private String alias;
 	private Consumer<TInner> callback;

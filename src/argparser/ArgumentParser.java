@@ -30,7 +30,7 @@ public class ArgumentParser extends Command {
 			System.exit(1);
 		}
 
-		this.getTokenizedSubCommands().forEach(Command::invokeArgumentCallbacks);
+		this.getTokenizedSubCommands().forEach(Command::finishParsing);
 
 		return new ParsedArguments(null, null, null);
 	}

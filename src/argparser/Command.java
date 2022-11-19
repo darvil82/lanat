@@ -513,7 +513,7 @@ public class Command implements MayHaveErrors {
 		this.subCommands.forEach(Command::initParsingState);
 	}
 
-	void invokeArgumentCallbacks() {
+	void finishParsing() {
 		this.parseState.parsedArguments.forEach(Argument::invokeCallback);
 	}
 

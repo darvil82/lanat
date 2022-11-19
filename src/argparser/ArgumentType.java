@@ -22,7 +22,7 @@ public abstract class ArgumentType<T> {
 	 */
 	protected int currentArgValueIndex = 0;
 	protected ArrayList<CustomParseError> errors = new ArrayList<>();
-	private final ArrayList<ArgumentType<?>> subTypes = new ArrayList<>();
+	private ArgumentType<?> parentArgType;
 
 
 	final void parseArgumentValues(String[] args) {
@@ -43,7 +43,7 @@ public abstract class ArgumentType<T> {
 	 */
 	protected void registerSubType(ArgumentType<?> subType) {
 		subType.tokenIndex = 0; // This is so the subtype will not throw the error that it was not parsed.
-		this.subTypes.add(subType);
+		subType.parentArgType = this;
 	}
 
 	/**
@@ -56,6 +56,12 @@ public abstract class ArgumentType<T> {
 	protected void onSubTypeError(CustomParseError error) {
 		error.index += this.currentArgValueIndex;
 		this.addError(error);
+	}
+
+	private void dispatchErrorToParent(CustomParseError error) {
+		if (this.parentArgType != null) {
+			this.parentArgType.onSubTypeError(error);
+		}
 	}
 
 	/**
@@ -112,7 +118,7 @@ public abstract class ArgumentType<T> {
 		);
 
 		this.errors.add(error);
-		this.subTypes.forEach(ArgumentType::cleanUp);
+		this.dispatchErrorToParent(error);
 	}
 
 	private void addError(CustomParseError error) {
@@ -123,7 +129,7 @@ public abstract class ArgumentType<T> {
 		error.index = this.tokenIndex + Math.min(error.index + 1, this.receivedValueCount);
 
 		this.errors.add(error);
-		this.subTypes.forEach(ArgumentType::cleanUp);
+		this.dispatchErrorToParent(error);
 	}
 
 	List<CustomParseError> getErrors() {
@@ -153,11 +159,6 @@ public abstract class ArgumentType<T> {
 			this.currentArgValueIndex = i;
 			consumer.accept(args[i]);
 		}
-	}
-
-	void cleanUp() {
-		this.subTypes.forEach(ArgumentType::cleanUp);
-		this.subTypes.clear();
 	}
 
 

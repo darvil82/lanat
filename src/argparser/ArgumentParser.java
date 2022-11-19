@@ -25,7 +25,7 @@ public class ArgumentParser extends Command {
 
 		errorHandler.handleErrors();
 
-		if (errorHandler.hasErrors()) {
+		if (errorHandler.hasErrors(this.minimumErrorLevel)) {
 			// TODO: implement error code handling
 			System.exit(1);
 		}
@@ -47,7 +47,7 @@ public class ArgumentParser extends Command {
 
 		errorHandler.handleErrors();
 
-		if (errorHandler.hasErrors()) {
+		if (errorHandler.hasErrors(this.minimumErrorLevel)) {
 			return new Pair<>(null, errorHandler.getErrorCode());
 		}
 

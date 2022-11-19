@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-abstract class ParseStateErrorBase<T extends ErrorLevelProvider> {
+abstract class ParseStateErrorBase<T extends ErrorLevelProvider> implements ErrorLevelProvider {
 	public final T type;
 	public int index;
 	private ErrorHandler errorHandler;
@@ -42,8 +42,9 @@ abstract class ParseStateErrorBase<T extends ErrorLevelProvider> {
 		this.formatter.print();
 	}
 
-	public boolean isError() {
-		return this.type.getErrorLevel() == ErrorLevel.ERROR;
+	@Override
+	public ErrorLevel getErrorLevel() {
+		return this.type.getErrorLevel();
 	}
 
 	protected Token getCurrentToken() {
@@ -247,11 +248,9 @@ public class ErrorHandler {
 		return 1;
 	}
 
-	public boolean hasErrors() {
-		return this.rootCmd.getTokenizedSubCommands().stream().anyMatch(
-			cmd -> cmd.parseState.errors.stream()
-				.anyMatch(ParseStateErrorBase::isError)
-		);
+	public boolean hasErrors(ErrorLevel min) {
+		return this.rootCmd.getTokenizedSubCommands().stream()
+			.anyMatch(c -> c.minimumErrorLevel.isInErrorMinimum(min) && c.hasErrors());
 	}
 
 
@@ -260,7 +259,7 @@ public class ErrorHandler {
 
 		for (int i = 0; i < commands.size(); i++) {
 			Command cmd = commands.get(i);
-			this.cmdAbsoluteTokenIndex = getCommandTokenIndexByNestingLevel(i);
+			this.cmdAbsoluteTokenIndex = this.getCommandTokenIndexByNestingLevel(i);
 
 			for (var tokenizeError : cmd.tokenizeState.errors) {
 				tokenizeError.handle(this);

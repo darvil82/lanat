@@ -11,12 +11,12 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-public class Command implements MayHaveErrors {
-	protected final String name, description;
-	protected ErrorLevel minimumErrorLevel = ErrorLevel.ERROR;
-	protected final ArrayList<Argument<?, ?>> arguments = new ArrayList<>();
-	protected final ArrayList<Command> subCommands = new ArrayList<>();
-	protected Pair<Character, Character> tupleChars = TupleCharacter.SQUARE_BRACKETS.getCharPair();
+public class Command {
+	final String name, description;
+	ErrorLevel minimumErrorLevel = ErrorLevel.ERROR;
+	final ArrayList<Argument<?, ?>> arguments = new ArrayList<>();
+	final ArrayList<Command> subCommands = new ArrayList<>();
+	Pair<Character, Character> tupleChars = TupleCharacter.SQUARE_BRACKETS.getCharPair();
 	private boolean isRootCommand = false;
 
 	public Command(String name, String description) {
@@ -66,6 +66,14 @@ public class Command implements MayHaveErrors {
 		this.subCommands.add(cmd);
 	}
 
+	public void setTupleChars(TupleCharacter tupleChars) {
+		this.tupleChars = tupleChars.getCharPair();
+	}
+
+	public void setMinimumErrorLevel(ErrorLevel minimumErrorLevel) {
+		this.minimumErrorLevel = minimumErrorLevel;
+	}
+
 	public String getHelp() {
 		return "This is the help of the program.";
 	}
@@ -93,7 +101,7 @@ public class Command implements MayHaveErrors {
 	// ---------------------------------------------------- Parsing ----------------------------------------------------
 
 
-	static class TokenizeState implements MayHaveErrors {
+	class TokenizeState {
 		public final ArrayList<TokenizeError> errors = new ArrayList<>();
 		public boolean tupleOpen = false;
 		public boolean stringOpen = false;
@@ -102,15 +110,14 @@ public class Command implements MayHaveErrors {
 			this.errors.add(new TokenizeError(type, index));
 		}
 
-		@Override
-		public boolean hasErrors() {
-			return this.errors.stream().anyMatch(ParseStateErrorBase::isError);
+		boolean hasErrors() {
+			return this.errors.stream().anyMatch(e -> e.getErrorLevel().isInErrorMinimum(minimumErrorLevel));
 		}
 	}
 
 	TokenizeState tokenizeState;
 
-	static class ParseState implements MayHaveErrors {
+	class ParseState {
 		public final ArrayList<ParseError> errors = new ArrayList<>();
 		public final ArrayList<CustomParseError> customErrors = new ArrayList<>();
 
@@ -139,9 +146,9 @@ public class Command implements MayHaveErrors {
 			this.customErrors.add(customParseError);
 		}
 
-		@Override
-		public boolean hasErrors() {
-			return this.errors.stream().anyMatch(ParseStateErrorBase::isError);
+		boolean hasErrors() {
+			return this.errors.stream().anyMatch(e -> e.getErrorLevel().isInErrorMinimum(minimumErrorLevel))
+				|| this.customErrors.stream().anyMatch(e -> e.getErrorLevel().isInErrorMinimum(minimumErrorLevel));
 		}
 	}
 
@@ -517,8 +524,9 @@ public class Command implements MayHaveErrors {
 		this.parseState.parsedArguments.forEach(Argument::invokeCallback);
 	}
 
-	@Override
 	public boolean hasErrors() {
-		return this.parseState.hasErrors();
+		return this.parseState.hasErrors()
+			|| this.tokenizeState.hasErrors()
+			|| this.subCommands.stream().anyMatch(c -> c.minimumErrorLevel.isInErrorMinimum(this.minimumErrorLevel) && c.hasErrors());
 	}
 }

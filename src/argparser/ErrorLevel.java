@@ -5,8 +5,7 @@ import argparser.displayFormatter.Color;
 public enum ErrorLevel {
 	ERROR(Color.BRIGHT_RED),
 	WARNING(Color.BRIGHT_YELLOW),
-	INFO(Color.BRIGHT_BLUE),
-	NONE(null);
+	INFO(Color.BRIGHT_BLUE);
 
 	public final Color color;
 
@@ -22,24 +21,4 @@ public enum ErrorLevel {
 
 interface ErrorLevelProvider {
 	ErrorLevel getErrorLevel();
-}
-
-interface MayHaveErrors {
-	boolean hasErrors();
-}
-
-class MinimunErrorLevel {
-	private ErrorLevel minimum = ErrorLevel.ERROR;
-
-	public void setMinimumErrorLevel(ErrorLevel minimum) {
-		this.minimum = minimum;
-	}
-
-	public ErrorLevel getMinimumErrorLevel() {
-		return this.minimum;
-	}
-
-	public boolean errorIsInMinimum(ErrorLevel error) {
-		return error.isInErrorMinimum(this.minimum);
-	}
 }

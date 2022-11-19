@@ -1,8 +1,8 @@
 package argparser;
 
-import java.io.FileReader;
+import argparser.argumentTypes.*;
+
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -177,112 +177,3 @@ public abstract class ArgumentType<T> {
 }
 
 
-class IntArgument extends ArgumentType<Integer> {
-	@Override
-	public void parseValues(String[] arg) {
-		try {
-			this.value = Integer.parseInt(arg[0]);
-		} catch (NumberFormatException e) {
-			this.addError("Invalid integer value: '" + arg[0] + "'.");
-		}
-	}
-
-	@Override
-	public String getRepresentation() {
-		return "int";
-	}
-}
-
-
-class BooleanArgument extends ArgumentType<Boolean> {
-	@Override
-	public void parseValues(String[] arg) {
-		this.value = true;
-	}
-
-	@Override
-	public String getRepresentation() {
-		return "bool";
-	}
-
-	@Override
-	// this is a boolean type. if the arg is present, that's enough.
-	public ArgValueCount getNumberOfArgValues() {
-		return ArgValueCount.NONE;
-	}
-}
-
-
-class CounterArgument extends ArgumentType<Short> {
-	// prevent nullptr exceptions
-	public CounterArgument() {
-		this.value = (short)0;
-	}
-
-	@Override
-	public ArgValueCount getNumberOfArgValues() {
-		return ArgValueCount.NONE;
-	}
-
-	@Override
-	public void parseValues(String[] args) {
-		this.value++;
-	}
-}
-
-class StringArgument extends ArgumentType<String> {
-	@Override
-	public void parseValues(String[] args) {
-		this.value = args[0];
-	}
-}
-
-class FileArgument extends ArgumentType<FileReader> {
-	@Override
-	public void parseValues(String[] args) {
-		try {
-			this.value = new FileReader(args[0]);
-		} catch (Exception e) {
-			this.addError("File not found: '" + args[0] + "'.");
-		}
-	}
-}
-
-class KeyValuesArgument<T extends ArgumentType<Ts>, Ts> extends ArgumentType<HashMap<String, Ts>> {
-	private ArgumentType<Ts> valueType;
-
-	public KeyValuesArgument(T type) {
-		this.valueType = type;
-		this.registerSubType(type);
-	}
-
-	@Override
-	public ArgValueCount getNumberOfArgValues() {
-		return new ArgValueCount(1, -1);
-	}
-
-	@Override
-	public void parseValues(String[] args) {
-		this.value = new HashMap<>();
-
-		this.forEachArgValue(args, arg -> {
-			var split = arg.split("=", 2);
-
-			if (split.length != 2) {
-				this.addError("Invalid key-value pair: '" + arg + "'.");
-				return;
-			}
-
-			var key = split[0].strip();
-			var value = split[1].strip();
-
-			if (this.value.containsKey(key)) {
-				this.addError("Duplicate key: '" + key + "'.");
-				return;
-			}
-
-			this.valueType.parseValues(value);
-			this.value.put(key, this.valueType.getFinalValue());
-		});
-	}
-}

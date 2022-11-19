@@ -22,6 +22,11 @@ public abstract class ArgumentType<T> {
 	 */
 	protected int currentArgValueIndex = 0;
 	protected ArrayList<CustomParseError> errors = new ArrayList<>();
+	/**
+	 * The parent argument type is the one that wants to listen for errors that occur in this argument type.
+	 * This value is set by the parent argument type when it runs the register method.
+	 * @see ArgumentType#registerSubType(ArgumentType)
+	 */
 	private ArgumentType<?> parentArgType;
 
 

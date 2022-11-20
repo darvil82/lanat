@@ -25,9 +25,10 @@ public class ArgumentParser extends Command {
 
 		errorHandler.handleErrors();
 
-		if (errorHandler.hasErrors(this.minimumErrorLevel)) {
-			// TODO: implement error code handling
-			System.exit(1);
+		int errorCode = errorHandler.getErrorCode();
+
+		if (errorCode != 0) {
+			System.exit(errorCode);
 		}
 
 		this.getTokenizedSubCommands().forEach(Command::finishParsing);
@@ -47,11 +48,9 @@ public class ArgumentParser extends Command {
 
 		errorHandler.handleErrors();
 
-		if (errorHandler.hasErrors(this.minimumErrorLevel)) {
-			return new Pair<>(null, errorHandler.getErrorCode());
-		}
+		int errorCode = errorHandler.getErrorCode();
 
-		return new Pair<>(null, null);
+		return new Pair<>(null, errorCode);
 	}
 
 	public ArgumentParser tupleCharacter(TupleCharacter tupleCharacter) {

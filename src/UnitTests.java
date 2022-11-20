@@ -49,11 +49,11 @@ public class UnitTests {
 		System.setErr(new PrintStream(errContent));
 
 		this.parser = new TestingParser("Testing") {{
+			setErrorCode(128);
 			addArgument(new Argument<>("what", new StringJoiner())
 				.callback(t -> System.out.println("wow look a string: '" + t + "'"))
 				.positional()
 				.obligatory()
-				.errorCode(0x01)
 			);
 			addArgument(new Argument<>("a", ArgumentType.BOOLEAN()));
 			addSubCommand(new Command("subcommand") {{
@@ -105,8 +105,27 @@ public class UnitTests {
 			Expected from 1 to 3 values, but got 10.""");
 	}
 
+
 	@Test
 	public void testMissingValue() {
+		assertErrorOutput("--what", """
+			ERROR
+			--what <-
+			Incorrect number of values for argument 'what'.
+			Expected from 1 to 3 values, but got 0.""");
+	}
+
+	@Test
+	public void testMissingValueBeforeToken() {
+		assertErrorOutput("--what subcommand", """
+			ERROR
+			--what <- subcommand
+			Incorrect number of values for argument 'what'.
+			Expected from 1 to 3 values, but got 0.""");
+	}
+
+	@Test
+	public void testMissingValueWithTuple() {
 		assertErrorOutput("--what []", """
 			ERROR
 			--what [ ]

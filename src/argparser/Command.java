@@ -18,6 +18,7 @@ public class Command {
 	final ArrayList<Command> subCommands = new ArrayList<>();
 	Pair<Character, Character> tupleChars = TupleCharacter.SQUARE_BRACKETS.getCharPair();
 	private boolean isRootCommand = false;
+	private int errorCode = 1;
 
 	public Command(String name, String description) {
 		if (!UtlString.matchCharacters(name, Character::isAlphabetic)) {
@@ -74,6 +75,20 @@ public class Command {
 		this.minimumErrorLevel = minimumErrorLevel;
 	}
 
+	/**
+	 * Specifies the error code that the program should return when this command failed to parse.
+	 * When multiple commands fail, the program will return the result of the OR bit operation that will be
+	 * applied to all other command results. For example:
+	 * <ul>
+	 *     <li>Command 'foo' has a return value of 2. <code>(0b010)</code></li>
+	 *     <li>Command 'bar' has a return value of 5. <code>(0b101)</code></li>
+	 * </ul>
+	 * Both commands failed, so in this case the resultant return value would be 7 <code>(0b111)</code>.
+	 */
+	public void setErrorCode(int errorCode) {
+		this.errorCode = errorCode;
+	}
+
 	public String getHelp() {
 		return "This is the help of the program.";
 	}
@@ -94,9 +109,8 @@ public class Command {
 	}
 
 	boolean isRootCommand() {
-		return isRootCommand;
+		return this.isRootCommand;
 	}
-
 
 	// ---------------------------------------------------- Parsing ----------------------------------------------------
 
@@ -515,8 +529,8 @@ public class Command {
 	}
 
 	void initParsingState() {
-		tokenizeState = new Command.TokenizeState();
-		parseState = new Command.ParseState();
+		tokenizeState = this.new TokenizeState();
+		parseState = this.new ParseState();
 		this.subCommands.forEach(Command::initParsingState);
 	}
 
@@ -524,9 +538,15 @@ public class Command {
 		this.parseState.parsedArguments.forEach(Argument::invokeCallback);
 	}
 
-	public boolean hasErrors() {
-		return this.parseState.hasErrors()
-			|| this.tokenizeState.hasErrors()
-			|| this.subCommands.stream().anyMatch(c -> c.minimumErrorLevel.isInErrorMinimum(this.minimumErrorLevel) && c.hasErrors());
+	public int getErrorCode() {
+		int errCode = this.subCommands.stream()
+			.map(sc -> sc.minimumErrorLevel.isInErrorMinimum(this.minimumErrorLevel) ? sc.getErrorCode() : 0)
+			.reduce(0, (a, b) -> a | b);
+
+		if (this.parseState.hasErrors() || this.tokenizeState.hasErrors()) {
+			errCode |= this.errorCode;
+		}
+
+		return errCode;
 	}
 }

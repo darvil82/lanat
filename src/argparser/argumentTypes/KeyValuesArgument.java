@@ -2,6 +2,7 @@ package argparser.argumentTypes;
 
 import argparser.ArgValueCount;
 import argparser.ArgumentType;
+import argparser.ErrorLevel;
 
 import java.util.HashMap;
 
@@ -32,6 +33,11 @@ public class KeyValuesArgument<T extends ArgumentType<Ts>, Ts> extends ArgumentT
 
 			var key = split[0].strip();
 			var value = split[1].strip();
+
+			if (key.isEmpty()) {
+				this.addError("Key cannot be empty.");
+				return;
+			}
 
 			if (this.value.containsKey(key)) {
 				this.addError("Duplicate key: '" + key + "'.");

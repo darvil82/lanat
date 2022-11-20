@@ -16,7 +16,6 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 	private boolean obligatory = false, positional = false;
 	private TInner defaultValue;
 	private Command parentCmd;
-	private int errorCode = 1;
 
 	public Argument(Character name, String alias, Type argType) {
 		if (name == null && alias == null) {
@@ -137,21 +136,6 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 		return this;
 	}
 
-	/**
-	 * Specifies the error code that the program should return when this argument fails.
-	 * When multiple arguments fail, the program will return the result of the OR bit operation that will be
-	 * applied to all other argument results. For example:
-	 * <ul>
-	 *     <li>Argument 'foo' has a return value of 2. <code>(0b010)</code></li>
-	 *     <li>Argument 'bar' has a return value of 5. <code>(0b101)</code></li>
-	 * </ul>
-	 * Both arguments failed, so in this case the resultant return value would be 7 <code>(0b111)</code>.
-	 */
-	public Argument<Type, TInner> errorCode(int errorCode) {
-		this.errorCode = errorCode;
-		return this;
-	}
-
 	TInner finishParsing(Command.ParseState parseState) {
 		if (this.usageCount == 0) {
 			if (this.obligatory) {
@@ -161,13 +145,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 			return this.defaultValue;
 		}
 
-		List<CustomParseError> errors = this.argType.getErrors();
-
-		if (!errors.isEmpty()) {
-			errors.forEach(parseState::addError);
-			return null;
-		}
-
+		this.argType.getErrors().forEach(parseState::addError);
 		return this.argType.getFinalValue();
 	}
 
@@ -218,7 +196,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 
 	public boolean equals(Argument<?, ?> obj) {
 		// we just want to check if there's a difference between identifiers and both are part of the same command
-		return this.getAlias().equals(obj.getAlias()) && this.prefix == obj.prefix && this.parentCmd == obj.parentCmd;
+		return (this.getAlias().equals(obj.getAlias()) || this.prefix == obj.prefix) && this.parentCmd == obj.parentCmd;
 	}
 
 	// we know that this is safe because this argument will always receive its correct type

@@ -18,12 +18,14 @@ public class SimpleTests {
 	public static void main(String[] args) {
 
 		new ArgumentParser("SimpleTesting") {{
+			setErrorCode(64);
 			addArgument(new Argument<>("test", ArgumentType.STRING()));
 			addArgument(new Argument<>("what", ArgumentType.FILE()));
 			addSubCommand(new Command("subcommand") {{
+				setErrorCode(128);
 				addArgument(new Argument<>("what", ArgumentType.FILE()));
-				addArgument(new Argument<>("hey", ArgumentType.KEY_VALUES(ArgumentType.INTEGER())).callback(System.out::println));
+				addArgument(new Argument<>('h', "hey", ArgumentType.KEY_VALUES(ArgumentType.INTEGER())).callback(System.out::println));
 			}});
-		}}.parseArgs("subcommand --hey [h=12 test=24] files\\\\Steam\\\\steamapps\\\\common\\\\Portal\\ 2\\\\gameinfo.txt");
+		}}.parseArgs("--what subcommand --hey [=12 test=24]");
 	}
 }

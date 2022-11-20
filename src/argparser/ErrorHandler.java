@@ -171,7 +171,7 @@ class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 					? String.format("Obligatory argument '%s' not used.", argument.getAlias())
 					: String.format("Obligatory argument '%s' for command '%s' not used.", argument.getAlias(), argCmd.name)
 			)
-			.displayTokens(this.index);
+			.displayTokens(this.index + 1);
 	}
 
 	@Handler("ARGUMENT_NOT_FOUND")
@@ -209,6 +209,11 @@ class CustomParseError extends ParseStateErrorBase<CustomParseError.CustomParseE
 		this.level = level;
 	}
 
+	@Override
+	public ErrorLevel getErrorLevel() {
+		return this.level;
+	}
+
 	@Handler("DEFAULT")
 	protected void handleDefault() {
 		this.fmt()
@@ -244,13 +249,7 @@ public class ErrorHandler {
 	}
 
 	public int getErrorCode() {
-		// TODO: implement error codes
-		return 1;
-	}
-
-	public boolean hasErrors(ErrorLevel min) {
-		return this.rootCmd.getTokenizedSubCommands().stream()
-			.anyMatch(c -> c.minimumErrorLevel.isInErrorMinimum(min) && c.hasErrors());
+		return this.rootCmd.getErrorCode();
 	}
 
 

@@ -98,7 +98,16 @@ public abstract class ArgumentType<T> {
 	 * @param index The index of the value that caused the error.
 	 */
 	protected void addError(String message, int index) {
-		this.addError(message, this.currentArgValueIndex, ErrorLevel.ERROR);
+		this.addError(message, index, ErrorLevel.ERROR);
+	}
+
+	/**
+	 * Adds an error to the list of errors that occurred during parsing.
+	 * @param message The message to display related to the error.
+	 * @param level The level of the error.
+	 */
+	protected void addError(String message, ErrorLevel level) {
+		this.addError(message, this.currentArgValueIndex, level);
 	}
 
 	/**
@@ -139,10 +148,6 @@ public abstract class ArgumentType<T> {
 
 	List<CustomParseError> getErrors() {
 		return this.errors;
-	}
-
-	public boolean hasErrors() {
-		return !this.errors.isEmpty();
 	}
 
 	void setTokenIndex(short tokenIndex) {

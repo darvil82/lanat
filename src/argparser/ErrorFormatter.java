@@ -69,7 +69,7 @@ class ErrorFormatter {
 
 			if (i >= start && i < start + offset + 1) {
 				if (placeArrow) {
-					tokensFormatters.add(i + 1, arrow);
+					tokensFormatters.add(i, arrow);
 				} else {
 					tokensFormatters.get(i)
 						.setColor(this.errorLevel.color)

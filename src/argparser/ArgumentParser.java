@@ -52,9 +52,4 @@ public class ArgumentParser extends Command {
 
 		return new Pair<>(null, errorCode);
 	}
-
-	public ArgumentParser tupleCharacter(TupleCharacter tupleCharacter) {
-		this.tupleChars = tupleCharacter.getCharPair();
-		return this;
-	}
 }

@@ -1,5 +1,6 @@
 package argparser;
 
+import argparser.utils.ModifyRecord;
 import argparser.utils.Pair;
 import argparser.utils.UtlString;
 
@@ -13,12 +14,12 @@ import java.util.function.Predicate;
 
 public class Command {
 	final String name, description;
-	ErrorLevel minimumErrorLevel = ErrorLevel.ERROR;
+	final ModifyRecord<ErrorLevel> minimumErrorLevel = new ModifyRecord<>(ErrorLevel.ERROR);
 	final ArrayList<Argument<?, ?>> arguments = new ArrayList<>();
 	final ArrayList<Command> subCommands = new ArrayList<>();
-	Pair<Character, Character> tupleChars = TupleCharacter.SQUARE_BRACKETS.getCharPair();
+	final ModifyRecord<Pair<Character, Character>> tupleChars = new ModifyRecord<>(TupleCharacter.SQUARE_BRACKETS.getCharPair());
+	private final ModifyRecord<Integer> errorCode = new ModifyRecord<>(1);
 	private boolean isRootCommand = false;
-	private int errorCode = 1;
 
 	public Command(String name, String description) {
 		if (!UtlString.matchCharacters(name, Character::isAlphabetic)) {
@@ -62,17 +63,18 @@ public class Command {
 		}
 
 		// pass some properties to the subcommand (most of the time this is what the user will want)
-		cmd.tupleChars = this.tupleChars;
-		cmd.minimumErrorLevel = this.minimumErrorLevel;
+		cmd.tupleChars.setIfNotModified(this.tupleChars);
+		cmd.minimumErrorLevel.setIfNotModified(this.minimumErrorLevel);
+		cmd.errorCode.setIfNotModified(this.errorCode);
 		this.subCommands.add(cmd);
 	}
 
 	public void setTupleChars(TupleCharacter tupleChars) {
-		this.tupleChars = tupleChars.getCharPair();
+		this.tupleChars.set(tupleChars.getCharPair());
 	}
 
 	public void setMinimumErrorLevel(ErrorLevel minimumErrorLevel) {
-		this.minimumErrorLevel = minimumErrorLevel;
+		this.minimumErrorLevel.set(minimumErrorLevel);
 	}
 
 	/**
@@ -86,7 +88,7 @@ public class Command {
 	 * Both commands failed, so in this case the resultant return value would be 7 <code>(0b111)</code>.
 	 */
 	public void setErrorCode(int errorCode) {
-		this.errorCode = errorCode;
+		this.errorCode.set(errorCode);
 	}
 
 	public String getHelp() {
@@ -125,7 +127,7 @@ public class Command {
 		}
 
 		boolean hasErrors() {
-			return this.errors.stream().anyMatch(e -> e.getErrorLevel().isInErrorMinimum(minimumErrorLevel));
+			return this.errors.stream().anyMatch(e -> e.getErrorLevel().isInErrorMinimum(minimumErrorLevel.get()));
 		}
 	}
 
@@ -161,8 +163,8 @@ public class Command {
 		}
 
 		boolean hasErrors() {
-			return this.errors.stream().anyMatch(e -> e.getErrorLevel().isInErrorMinimum(minimumErrorLevel))
-				|| this.customErrors.stream().anyMatch(e -> e.getErrorLevel().isInErrorMinimum(minimumErrorLevel));
+			return this.errors.stream().anyMatch(e -> e.getErrorLevel().isInErrorMinimum(minimumErrorLevel.get()))
+				|| this.customErrors.stream().anyMatch(e -> e.getErrorLevel().isInErrorMinimum(minimumErrorLevel.get()));
 		}
 	}
 
@@ -212,16 +214,16 @@ public class Command {
 				this.tokenizeState.stringOpen = !this.tokenizeState.stringOpen;
 			} else if (this.tokenizeState.stringOpen) {
 				currentValue.append(chars[i]);
-			} else if (chars[i] == tupleChars.first()) {
+			} else if (chars[i] == tupleChars.get().first()) {
 				if (this.tokenizeState.tupleOpen) {
 					errorType = TokenizeError.TokenizeErrorType.TUPLE_ALREADY_OPEN;
 					break;
 				} else if (!currentValue.isEmpty()) {
 					tokenizeSection.accept(i);
 				}
-				addToken.accept(TokenType.ARGUMENT_VALUE_TUPLE_START, tupleChars.first().toString());
+				addToken.accept(TokenType.ARGUMENT_VALUE_TUPLE_START, tupleChars.get().first().toString());
 				this.tokenizeState.tupleOpen = true;
-			} else if (chars[i] == tupleChars.second()) {
+			} else if (chars[i] == tupleChars.get().second()) {
 				if (!this.tokenizeState.tupleOpen) {
 					errorType = TokenizeError.TokenizeErrorType.UNEXPECTED_TUPLE_CLOSE;
 					break;
@@ -229,7 +231,7 @@ public class Command {
 				if (!currentValue.isEmpty()) {
 					addToken.accept(TokenType.ARGUMENT_VALUE, currentValue.toString());
 				}
-				addToken.accept(TokenType.ARGUMENT_VALUE_TUPLE_END, tupleChars.second().toString());
+				addToken.accept(TokenType.ARGUMENT_VALUE_TUPLE_END, tupleChars.get().second().toString());
 				currentValue.setLength(0);
 				this.tokenizeState.tupleOpen = false;
 			} else if (chars[i] != ' ' && i == chars.length - 1) {
@@ -540,11 +542,11 @@ public class Command {
 
 	public int getErrorCode() {
 		int errCode = this.subCommands.stream()
-			.map(sc -> sc.minimumErrorLevel.isInErrorMinimum(this.minimumErrorLevel) ? sc.getErrorCode() : 0)
+			.map(sc -> sc.minimumErrorLevel.get().isInErrorMinimum(this.minimumErrorLevel.get()) ? sc.getErrorCode() : 0)
 			.reduce(0, (a, b) -> a | b);
 
 		if (this.parseState.hasErrors() || this.tokenizeState.hasErrors()) {
-			errCode |= this.errorCode;
+			errCode |= this.errorCode.get();
 		}
 
 		return errCode;

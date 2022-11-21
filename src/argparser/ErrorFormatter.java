@@ -36,7 +36,7 @@ class ErrorFormatter {
 			.addFormat(FormatOption.BOLD);
 
 		System.err.println(
-			formatter.setContents(String.format(" ┌─%s\n", this.errorLevel)).toString()
+			formatter.setContents(String.format(" ┌─%s%s", this.errorLevel, !this.tokensView.isEmpty() ? "\n" : "")).toString()
 				+ this.tokensView
 				+ this.contents.replaceAll(
 				"^|\\n",

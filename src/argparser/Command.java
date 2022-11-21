@@ -14,8 +14,8 @@ import java.util.function.Predicate;
 
 public class Command {
 	final String name, description;
-	final ModifyRecord<ErrorLevel> minimumErrorLevel = new ModifyRecord<>(ErrorLevel.ERROR);
-	final ModifyRecord<ErrorLevel> minimumErrorLevelDisplay = new ModifyRecord<>(ErrorLevel.INFO);
+	final ModifyRecord<ErrorLevel> minimumExitErrorLevel = new ModifyRecord<>(ErrorLevel.ERROR);
+	final ModifyRecord<ErrorLevel> minimumDisplayErrorLevel = new ModifyRecord<>(ErrorLevel.INFO);
 	final ArrayList<Argument<?, ?>> arguments = new ArrayList<>();
 	final ArrayList<Command> subCommands = new ArrayList<>();
 	final ModifyRecord<Pair<Character, Character>> tupleChars = new ModifyRecord<>(TupleCharacter.SQUARE_BRACKETS.getCharPair());
@@ -65,7 +65,8 @@ public class Command {
 
 		// pass some properties to the subcommand (most of the time this is what the user will want)
 		cmd.tupleChars.setIfNotModified(this.tupleChars);
-		cmd.minimumErrorLevel.setIfNotModified(this.minimumErrorLevel);
+		cmd.minimumExitErrorLevel.setIfNotModified(this.minimumExitErrorLevel);
+		cmd.minimumDisplayErrorLevel.setIfNotModified(this.minimumDisplayErrorLevel);
 		cmd.errorCode.setIfNotModified(this.errorCode);
 		this.subCommands.add(cmd);
 	}
@@ -74,8 +75,12 @@ public class Command {
 		this.tupleChars.set(tupleChars.getCharPair());
 	}
 
-	public void setMinimumErrorLevel(ErrorLevel minimumErrorLevel) {
-		this.minimumErrorLevel.set(minimumErrorLevel);
+	public void setMinimumExitErrorLevel(ErrorLevel minimumExitErrorLevel) {
+		this.minimumExitErrorLevel.set(minimumExitErrorLevel);
+	}
+
+	public void setMinimumDisplayErrorLevel(ErrorLevel minimumDisplayErrorLevel) {
+		this.minimumDisplayErrorLevel.set(minimumDisplayErrorLevel);
 	}
 
 	/**
@@ -124,13 +129,13 @@ public class Command {
 		public boolean stringOpen = false;
 
 		void addError(TokenizeError.TokenizeErrorType type, int index) {
-			if (type.getErrorLevel().isInErrorMinimum(Command.this.minimumErrorLevel.get())) {
+			if (type.getErrorLevel().isInErrorMinimum(Command.this.minimumExitErrorLevel.get())) {
 				errors.add(new TokenizeError(type, index));
 			}
 		}
 
 		boolean hasErrors() {
-			return this.errors.stream().anyMatch(e -> e.getErrorLevel().isInErrorMinimum(Command.this.minimumErrorLevel.get()));
+			return this.errors.stream().anyMatch(e -> e.getErrorLevel().isInErrorMinimum(Command.this.minimumExitErrorLevel.get()));
 		}
 	}
 
@@ -154,7 +159,7 @@ public class Command {
 
 
 		void addError(ParseError.ParseErrorType type, Argument<?, ?> arg, int argValueCount, int currentIndex) {
-			if (type.getErrorLevel().isInErrorMinimum(Command.this.minimumErrorLevel.get())) {
+			if (type.getErrorLevel().isInErrorMinimum(Command.this.minimumExitErrorLevel.get())) {
 				this.errors.add(new ParseError(type, currentIndex, arg, argValueCount));
 			}
 		}
@@ -168,8 +173,8 @@ public class Command {
 		}
 
 		boolean hasErrors() {
-			return this.errors.stream().anyMatch(e -> e.getErrorLevel().isInErrorMinimum(Command.this.minimumErrorLevel.get()))
-				|| this.customErrors.stream().anyMatch(e -> e.getErrorLevel().isInErrorMinimum(Command.this.minimumErrorLevel.get()));
+			return this.errors.stream().anyMatch(e -> e.getErrorLevel().isInErrorMinimum(Command.this.minimumExitErrorLevel.get()))
+				|| this.customErrors.stream().anyMatch(e -> e.getErrorLevel().isInErrorMinimum(Command.this.minimumExitErrorLevel.get()));
 		}
 	}
 
@@ -547,7 +552,7 @@ public class Command {
 
 	public int getErrorCode() {
 		int errCode = this.subCommands.stream()
-			.map(sc -> sc.minimumErrorLevel.get().isInErrorMinimum(this.minimumErrorLevel.get()) ? sc.getErrorCode() : 0)
+			.map(sc -> sc.minimumExitErrorLevel.get().isInErrorMinimum(this.minimumExitErrorLevel.get()) ? sc.getErrorCode() : 0)
 			.reduce(0, (a, b) -> a | b);
 
 		if (this.parseState.hasErrors() || this.tokenizeState.hasErrors()) {

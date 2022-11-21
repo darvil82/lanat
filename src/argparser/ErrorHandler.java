@@ -193,6 +193,7 @@ class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 class CustomParseError extends ParseStateErrorBase<CustomParseError.CustomParseErrorType> {
 	private final String message;
 	private final ErrorLevel level;
+	private boolean showTokens = true;
 
 	enum CustomParseErrorType implements ErrorLevelProvider {
 		DEFAULT;
@@ -209,6 +210,11 @@ class CustomParseError extends ParseStateErrorBase<CustomParseError.CustomParseE
 		this.level = level;
 	}
 
+	public CustomParseError(String message, ErrorLevel level) {
+		this(message, -1, level);
+		this.showTokens = false;
+	}
+
 	@Override
 	public ErrorLevel getErrorLevel() {
 		return this.level;
@@ -218,21 +224,24 @@ class CustomParseError extends ParseStateErrorBase<CustomParseError.CustomParseE
 	protected void handleDefault() {
 		this.fmt()
 			.setErrorLevel(this.level)
-			.setContents(this.message)
-			.displayTokens(this.index, 0, false);
+			.setContents(this.message);
+
+		if (this.showTokens)
+			this.fmt().displayTokens(this.index, 0, false);
 	}
 }
 
 public class ErrorHandler {
 	private final Command rootCmd;
 	final List<Token> tokens;
-
+	private final List<CustomParseError> customExtraErrors;
 	int cmdAbsoluteTokenIndex = 0;
 
 
-	public ErrorHandler(Command cmd) {
+	public ErrorHandler(Command cmd, List<CustomParseError> customExtraErrors) {
 		this.rootCmd = cmd;
 		this.tokens = cmd.getFullTokenList();
+		this.customExtraErrors = customExtraErrors;
 	}
 
 
@@ -256,6 +265,10 @@ public class ErrorHandler {
 	public void handleErrors() {
 		List<Command> commands = this.rootCmd.getTokenizedSubCommands();
 
+		for (var extraError : this.customExtraErrors) {
+			extraError.handle(this);
+		}
+
 		for (int i = 0; i < commands.size(); i++) {
 			Command cmd = commands.get(i);
 			this.cmdAbsoluteTokenIndex = this.getCommandTokenIndexByNestingLevel(i);
@@ -264,8 +277,8 @@ public class ErrorHandler {
 				tokenizeError.handle(this);
 			}
 
-			for (var customErrors : cmd.parseState.customErrors) {
-				customErrors.handle(this);
+			for (var customError : cmd.parseState.customErrors) {
+				customError.handle(this);
 			}
 
 			ParseError.handleAll(cmd.parseState.errors, this);

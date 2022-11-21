@@ -17,7 +17,7 @@ class Ball extends ArgumentType<Integer> {
 public class SimpleTests {
 	public static void main(String[] args) {
 
-		new ArgumentParser("SimpleTesting") {{
+		var a = new ArgumentParser("SimpleTesting") {{
 			setErrorCode(64);
 			addArgument(new Argument<>("test", ArgumentType.STRING()));
 			addArgument(new Argument<>("what", ArgumentType.FILE()));
@@ -26,6 +26,10 @@ public class SimpleTests {
 				addArgument(new Argument<>("what", ArgumentType.FILE()));
 				addArgument(new Argument<>('h', "hey", ArgumentType.KEY_VALUES(ArgumentType.INTEGER())).callback(System.out::println));
 			}});
-		}}.parseArgs("--what subcommand --hey [=12 test=24] jeoijdoiwad");
+		}};
+
+		a.addError("hello", ErrorLevel.ERROR);
+
+		a.parseArgs("subcommand --hey [=12 test=24] jeoijdoiwad");
 	}
 }

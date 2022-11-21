@@ -2,7 +2,11 @@ package argparser;
 
 import argparser.utils.Pair;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ArgumentParser extends Command {
+	private final List<CustomParseError> extraErrors = new ArrayList<>();
 	public ArgumentParser(String programName, String description) {
 		super(programName, description, true);
 	}
@@ -11,6 +15,9 @@ public class ArgumentParser extends Command {
 		this(programName, null);
 	}
 
+	public void addError(String message, ErrorLevel level) {
+		this.extraErrors.add(new CustomParseError(message, level));
+	}
 
 	public ParsedArguments parseArgs(String[] args) {
 		// if we receive the classic args array, just join it back
@@ -20,7 +27,7 @@ public class ArgumentParser extends Command {
 	public ParsedArguments parseArgs(String args) {
 		this.initParsingState();
 		this.tokenize(args); // first. This will tokenize all subCommands recursively
-		var errorHandler = new ErrorHandler(this);
+		var errorHandler = new ErrorHandler(this, this.extraErrors);
 		this.parseTokens(); // same thing, this parses all the stuff recursively
 
 		errorHandler.handleErrors();
@@ -43,7 +50,7 @@ public class ArgumentParser extends Command {
 	protected Pair<ParsedArguments, Integer> __parseArgsNoExit(String args) {
 		this.initParsingState();
 		this.tokenize(args); // first. This will tokenize all subCommands recursively
-		var errorHandler = new ErrorHandler(this);
+		var errorHandler = new ErrorHandler(this, this.extraErrors);
 		this.parseTokens(); // same thing, this parses all the stuff recursively
 
 		errorHandler.handleErrors();

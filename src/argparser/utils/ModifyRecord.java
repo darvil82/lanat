@@ -26,12 +26,20 @@ public class ModifyRecord<T> {
 		this.modified = true;
 	}
 
+	/**
+	 * Sets the value to the specified value if it has not been modified.
+	 * @param value The value to set.
+	 */
 	public void setIfNotModified(T value) {
 		if (!this.modified) {
 			this.value = value;
 		}
 	}
 
+	/**
+	 * Sets the value to the specified value if it has not been modified.
+	 * @param value The value to set.
+	 */
 	public void setIfNotModified(ModifyRecord<T> value) {
 		if (!this.modified) {
 			this.value = value.value;

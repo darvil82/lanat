@@ -49,7 +49,6 @@ public class UnitTests {
 		System.setErr(new PrintStream(errContent));
 
 		this.parser = new TestingParser("Testing") {{
-			setErrorCode(128);
 			addArgument(new Argument<>("what", new StringJoiner())
 				.callback(t -> System.out.println("wow look a string: '" + t + "'"))
 				.positional()

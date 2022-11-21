@@ -129,7 +129,7 @@ public class Command {
 		public boolean stringOpen = false;
 
 		void addError(TokenizeError.TokenizeErrorType type, int index) {
-			if (type.getErrorLevel().isInErrorMinimum(Command.this.minimumExitErrorLevel.get())) {
+			if (Command.this.minimumExitErrorLevel.get().isInErrorMinimum(type.getErrorLevel())) {
 				errors.add(new TokenizeError(type, index));
 			}
 		}
@@ -159,7 +159,7 @@ public class Command {
 
 
 		void addError(ParseError.ParseErrorType type, Argument<?, ?> arg, int argValueCount, int currentIndex) {
-			if (type.getErrorLevel().isInErrorMinimum(Command.this.minimumExitErrorLevel.get())) {
+			if (Command.this.minimumExitErrorLevel.get().isInErrorMinimum(type.getErrorLevel())) {
 				this.errors.add(new ParseError(type, currentIndex, arg, argValueCount));
 			}
 		}

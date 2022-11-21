@@ -26,6 +26,6 @@ public class SimpleTests {
 				addArgument(new Argument<>("what", ArgumentType.FILE()));
 				addArgument(new Argument<>('h', "hey", ArgumentType.KEY_VALUES(ArgumentType.INTEGER())).callback(System.out::println));
 			}});
-		}}.parseArgs("--what subcommand --hey [=12 test=24]");
+		}}.parseArgs("--what subcommand --hey [=12 test=24] jeoijdoiwad");
 	}
 }

@@ -15,6 +15,7 @@ import java.util.function.Predicate;
 public class Command {
 	final String name, description;
 	final ModifyRecord<ErrorLevel> minimumErrorLevel = new ModifyRecord<>(ErrorLevel.ERROR);
+	final ModifyRecord<ErrorLevel> minimumErrorLevelDisplay = new ModifyRecord<>(ErrorLevel.INFO);
 	final ArrayList<Argument<?, ?>> arguments = new ArrayList<>();
 	final ArrayList<Command> subCommands = new ArrayList<>();
 	final ModifyRecord<Pair<Character, Character>> tupleChars = new ModifyRecord<>(TupleCharacter.SQUARE_BRACKETS.getCharPair());
@@ -123,11 +124,13 @@ public class Command {
 		public boolean stringOpen = false;
 
 		void addError(TokenizeError.TokenizeErrorType type, int index) {
-			this.errors.add(new TokenizeError(type, index));
+			if (type.getErrorLevel().isInErrorMinimum(Command.this.minimumErrorLevel.get())) {
+				errors.add(new TokenizeError(type, index));
+			}
 		}
 
 		boolean hasErrors() {
-			return this.errors.stream().anyMatch(e -> e.getErrorLevel().isInErrorMinimum(minimumErrorLevel.get()));
+			return this.errors.stream().anyMatch(e -> e.getErrorLevel().isInErrorMinimum(Command.this.minimumErrorLevel.get()));
 		}
 	}
 
@@ -151,7 +154,9 @@ public class Command {
 
 
 		void addError(ParseError.ParseErrorType type, Argument<?, ?> arg, int argValueCount, int currentIndex) {
-			this.errors.add(new ParseError(type, currentIndex, arg, argValueCount));
+			if (type.getErrorLevel().isInErrorMinimum(Command.this.minimumErrorLevel.get())) {
+				this.errors.add(new ParseError(type, currentIndex, arg, argValueCount));
+			}
 		}
 
 		void addError(ParseError.ParseErrorType type, Argument<?, ?> arg, int argValueCount) {
@@ -163,8 +168,8 @@ public class Command {
 		}
 
 		boolean hasErrors() {
-			return this.errors.stream().anyMatch(e -> e.getErrorLevel().isInErrorMinimum(minimumErrorLevel.get()))
-				|| this.customErrors.stream().anyMatch(e -> e.getErrorLevel().isInErrorMinimum(minimumErrorLevel.get()));
+			return this.errors.stream().anyMatch(e -> e.getErrorLevel().isInErrorMinimum(Command.this.minimumErrorLevel.get()))
+				|| this.customErrors.stream().anyMatch(e -> e.getErrorLevel().isInErrorMinimum(Command.this.minimumErrorLevel.get()));
 		}
 	}
 

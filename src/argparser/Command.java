@@ -1,8 +1,6 @@
 package argparser;
 
-import argparser.utils.ModifyRecord;
-import argparser.utils.Pair;
-import argparser.utils.UtlString;
+import argparser.utils.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,15 +10,16 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-public class Command {
+public class Command extends ErrorsContainer<CustomError> {
 	final String name, description;
-	final ModifyRecord<ErrorLevel> minimumExitErrorLevel = new ModifyRecord<>(ErrorLevel.ERROR);
-	final ModifyRecord<ErrorLevel> minimumDisplayErrorLevel = new ModifyRecord<>(ErrorLevel.INFO);
 	final ArrayList<Argument<?, ?>> arguments = new ArrayList<>();
 	final ArrayList<Command> subCommands = new ArrayList<>();
 	final ModifyRecord<Pair<Character, Character>> tupleChars = new ModifyRecord<>(TupleCharacter.SQUARE_BRACKETS.getCharPair());
 	private final ModifyRecord<Integer> errorCode = new ModifyRecord<>(1);
+	TokenizeState tokenizeState;
+	ParsingState parseState;
 	private boolean isRootCommand = false;
+	private boolean finishedTokenizing = false;
 
 	public Command(String name, String description) {
 		if (!UtlString.matchCharacters(name, Character::isAlphabetic)) {
@@ -65,46 +64,28 @@ public class Command {
 
 		// pass some properties to the subcommand (most of the time this is what the user will want)
 		cmd.tupleChars.setIfNotModified(this.tupleChars);
-		cmd.minimumExitErrorLevel.setIfNotModified(this.minimumExitErrorLevel);
-		cmd.minimumDisplayErrorLevel.setIfNotModified(this.minimumDisplayErrorLevel);
+		cmd.getMinimumExitErrorLevelRecord().setIfNotModified(this.getMinimumExitErrorLevelRecord());
 		cmd.errorCode.setIfNotModified(this.errorCode);
 		this.subCommands.add(cmd);
+	}
+
+	public void addError(String message, ErrorLevel level) {
+		this.addError(new CustomError(message, level));
 	}
 
 	public void setTupleChars(TupleCharacter tupleChars) {
 		this.tupleChars.set(tupleChars.getCharPair());
 	}
 
-	public void setMinimumExitErrorLevel(ErrorLevel minimumExitErrorLevel) {
-		this.minimumExitErrorLevel.set(minimumExitErrorLevel);
-	}
-
-	public void setMinimumDisplayErrorLevel(ErrorLevel minimumDisplayErrorLevel) {
-		this.minimumDisplayErrorLevel.set(minimumDisplayErrorLevel);
-	}
-
-	/**
-	 * Specifies the error code that the program should return when this command failed to parse.
-	 * When multiple commands fail, the program will return the result of the OR bit operation that will be
-	 * applied to all other command results. For example:
-	 * <ul>
-	 *     <li>Command 'foo' has a return value of 2. <code>(0b010)</code></li>
-	 *     <li>Command 'bar' has a return value of 5. <code>(0b101)</code></li>
-	 * </ul>
-	 * Both commands failed, so in this case the resultant return value would be 7 <code>(0b111)</code>.
-	 */
-	public void setErrorCode(int errorCode) {
-		this.errorCode.set(errorCode);
-	}
-
 	public String getHelp() {
 		return "This is the help of the program.";
 	}
 
-
 	public Argument<?, ?>[] getPositionalArguments() {
 		return this.arguments.stream().filter(Argument::isPositional).toArray(Argument[]::new);
 	}
+
+	// ---------------------------------------------------- Parsing ----------------------------------------------------
 
 	List<Command> getTokenizedSubCommands() {
 		List<Command> x = new ArrayList<>();
@@ -119,69 +100,6 @@ public class Command {
 	boolean isRootCommand() {
 		return this.isRootCommand;
 	}
-
-	// ---------------------------------------------------- Parsing ----------------------------------------------------
-
-
-	class TokenizeState {
-		public final ArrayList<TokenizeError> errors = new ArrayList<>();
-		public boolean tupleOpen = false;
-		public boolean stringOpen = false;
-
-		void addError(TokenizeError.TokenizeErrorType type, int index) {
-			if (Command.this.minimumExitErrorLevel.get().isInErrorMinimum(type.getErrorLevel())) {
-				errors.add(new TokenizeError(type, index));
-			}
-		}
-
-		boolean hasErrors() {
-			return this.errors.stream().anyMatch(e -> e.getErrorLevel().isInErrorMinimum(Command.this.minimumExitErrorLevel.get()));
-		}
-	}
-
-	TokenizeState tokenizeState;
-
-	class ParseState {
-		public final ArrayList<ParseError> errors = new ArrayList<>();
-		public final ArrayList<CustomParseError> customErrors = new ArrayList<>();
-
-		/**
-		 * Array of all the tokens that we have parsed from the CLI arguments.
-		 */
-		private Token[] tokens;
-
-		/**
-		 * The index of the current token that we are parsing.
-		 */
-		private short currentTokenIndex = 0;
-
-		private HashMap<Argument<?, ?>, Object> parsedArguments = new HashMap<>();
-
-
-		void addError(ParseError.ParseErrorType type, Argument<?, ?> arg, int argValueCount, int currentIndex) {
-			if (Command.this.minimumExitErrorLevel.get().isInErrorMinimum(type.getErrorLevel())) {
-				this.errors.add(new ParseError(type, currentIndex, arg, argValueCount));
-			}
-		}
-
-		void addError(ParseError.ParseErrorType type, Argument<?, ?> arg, int argValueCount) {
-			this.addError(type, arg, argValueCount, this.currentTokenIndex);
-		}
-
-		void addError(CustomParseError customParseError) {
-			this.customErrors.add(customParseError);
-		}
-
-		boolean hasErrors() {
-			return this.errors.stream().anyMatch(e -> e.getErrorLevel().isInErrorMinimum(Command.this.minimumExitErrorLevel.get()))
-				|| this.customErrors.stream().anyMatch(e -> e.getErrorLevel().isInErrorMinimum(Command.this.minimumExitErrorLevel.get()));
-		}
-	}
-
-	ParseState parseState;
-
-	private boolean finishedTokenizing = false;
-
 
 	void tokenize(String content) {
 		this.finishedTokenizing = false; // just in case we are tokenizing again for any reason
@@ -253,8 +171,8 @@ public class Command {
 			} else if (
 				(chars[i] == ' ' && !currentValue.isEmpty())
 					|| (chars[i] == '='
-							&& previousTokenOfType.test(TokenType::isArgumentSpecifier)
-							&& currentValue.isEmpty()
+					&& previousTokenOfType.test(TokenType::isArgumentSpecifier)
+					&& currentValue.isEmpty()
 				)
 			) {
 				tokenizeSection.accept(i);
@@ -277,7 +195,6 @@ public class Command {
 		parseState.tokens = finalTokens.toArray(Token[]::new);
 		finishedTokenizing = true;
 	}
-
 
 	private Token tokenizeSection(String str) {
 		TokenType type;
@@ -307,7 +224,6 @@ public class Command {
 		}
 		return null;
 	}
-
 
 	private void parseArgNameList(String args) {
 		// its multiple of them. We can only do this with arguments that accept 0 values.
@@ -358,7 +274,6 @@ public class Command {
 		}
 		return false;
 	}
-
 
 	private boolean isArgAlias(String str) {
 		// first try to figure out if the prefix is used, to save time (does it start with '--'? (assuming the prefix is '-'))
@@ -414,7 +329,7 @@ public class Command {
 				&& parseState.tokens[parseState.currentTokenIndex].type() == TokenType.ARGUMENT_VALUE_TUPLE_START
 		);
 
-		int ifTupleOffset =  isInTuple ? 1 : 0;
+		int ifTupleOffset = isInTuple ? 1 : 0;
 		int skipCount = ifTupleOffset;
 
 		// first_capture_the_minimum_required_values...
@@ -473,7 +388,7 @@ public class Command {
 		}
 
 		// pass the arg values to the argument subParser
-		arg.parseValues(new String[]{ value }, parseState.currentTokenIndex);
+		arg.parseValues(new String[]{value}, parseState.currentTokenIndex);
 	}
 
 	void parseTokens() {
@@ -542,7 +457,7 @@ public class Command {
 
 	void initParsingState() {
 		tokenizeState = this.new TokenizeState();
-		parseState = this.new ParseState();
+		parseState = this.new ParsingState();
 		this.subCommands.forEach(Command::initParsingState);
 	}
 
@@ -552,13 +467,82 @@ public class Command {
 
 	public int getErrorCode() {
 		int errCode = this.subCommands.stream()
-			.map(sc -> sc.minimumExitErrorLevel.get().isInErrorMinimum(this.minimumExitErrorLevel.get()) ? sc.getErrorCode() : 0)
+			.map(sc -> sc.getMinimumExitErrorLevel().isInErrorMinimum(this.getMinimumExitErrorLevel()) ? sc.getErrorCode() : 0)
 			.reduce(0, (a, b) -> a | b);
 
-		if (this.parseState.hasErrors() || this.tokenizeState.hasErrors()) {
+		/* If we have errors, or the subcommands had errors, do OR with our own error level.
+		 * By doing this, the error code of a subcommand will be OR'd with the error codes of all its parents. */
+		if ((this.parseState.hasErrors() || this.tokenizeState.hasErrors()) || this.hasErrors() || errCode != 0) {
 			errCode |= this.errorCode.get();
 		}
 
 		return errCode;
+	}
+
+	/**
+	 * Specifies the error code that the program should return when this command failed to parse.
+	 * When multiple commands fail, the program will return the result of the OR bit operation that will be
+	 * applied to all other command results. For example:
+	 * <ul>
+	 *     <li>Command 'foo' has a return value of 2. <code>(0b010)</code></li>
+	 *     <li>Command 'bar' has a return value of 5. <code>(0b101)</code></li>
+	 * </ul>
+	 * Both commands failed, so in this case the resultant return value would be 7 <code>(0b111)</code>.
+	 */
+	public void setErrorCode(int errorCode) {
+		this.errorCode.set(errorCode);
+	}
+
+	private abstract class ParsingStateBase<T extends ErrorLevelProvider> extends ErrorsContainer<T> {
+		public ParsingStateBase() {
+			super(Command.this.getMinimumExitErrorLevelRecord());
+		}
+	}
+
+	class TokenizeState extends ParsingStateBase<TokenizeError> {
+		public boolean tupleOpen = false;
+		public boolean stringOpen = false;
+
+		void addError(TokenizeError.TokenizeErrorType type, int index) {
+			this.addError(new TokenizeError(type, index));
+		}
+	}
+
+	class ParsingState extends ParsingStateBase<ParseError> {
+		private final ArrayList<CustomError> customErrors = new ArrayList<>();
+
+		/**
+		 * Array of all the tokens that we have parsed from the CLI arguments.
+		 */
+		private Token[] tokens;
+
+		/**
+		 * The index of the current token that we are parsing.
+		 */
+		private short currentTokenIndex = 0;
+
+		private HashMap<Argument<?, ?>, Object> parsedArguments = new HashMap<>();
+
+
+		void addError(ParseError.ParseErrorType type, Argument<?, ?> arg, int argValueCount, int currentIndex) {
+			this.addError(new ParseError(type, currentIndex, arg, argValueCount));
+		}
+
+		void addError(ParseError.ParseErrorType type, Argument<?, ?> arg, int argValueCount) {
+			this.addError(type, arg, argValueCount, this.currentTokenIndex);
+		}
+
+		void addError(CustomError customError) {
+			this.customErrors.add(customError);
+		}
+
+		@Override
+		public boolean hasErrors() {
+			return super.hasErrors() || this.anyErrorInMinimum(this.customErrors);
+		}
+
+		List<CustomError> getCustomErrors() {
+			return this.getErrorsInMinimum(this.customErrors);
+		}
 	}
 }

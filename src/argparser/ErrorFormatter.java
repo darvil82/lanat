@@ -2,6 +2,7 @@ package argparser;
 
 import argparser.displayFormatter.FormatOption;
 import argparser.displayFormatter.TextFormatter;
+import argparser.utils.ErrorLevel;
 import argparser.utils.UtlString;
 
 import java.util.ArrayList;

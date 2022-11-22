@@ -2,7 +2,6 @@ package argparser;
 
 import argparser.utils.UtlString;
 
-import java.util.List;
 import java.util.function.Consumer;
 
 public class Argument<Type extends ArgumentType<TInner>, TInner> {
@@ -136,7 +135,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 		return this;
 	}
 
-	TInner finishParsing(Command.ParseState parseState) {
+	TInner finishParsing(Command.ParsingState parseState) {
 		if (this.usageCount == 0) {
 			if (this.obligatory) {
 				parseState.addError(ParseError.ParseErrorType.OBLIGATORY_ARGUMENT_NOT_USED, this, 0);

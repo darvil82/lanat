@@ -1,6 +1,7 @@
 package argparser;
 
 import argparser.argumentTypes.*;
+import argparser.utils.ErrorLevel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +22,7 @@ public abstract class ArgumentType<T> {
 	 * This is the current index of the value that is being parsed.
 	 */
 	protected int currentArgValueIndex = 0;
-	protected ArrayList<CustomParseError> errors = new ArrayList<>();
+	protected ArrayList<CustomError> errors = new ArrayList<>();
 	/**
 	 * The parent argument type is the one that wants to listen for errors that occur in this argument type.
 	 * This value is set by the parent argument type when it runs the register method.
@@ -44,7 +45,7 @@ public abstract class ArgumentType<T> {
 	/**
 	 * By registering a subtype, this allows you to listen for errors that occurred in this subtype during
 	 * parsing. The <code>onSubTypeError</code> method will be called when an error occurs.
-	 * @see ArgumentType#onSubTypeError(CustomParseError)
+	 * @see ArgumentType#onSubTypeError(CustomError)
 	 */
 	protected void registerSubType(ArgumentType<?> subType) {
 		subType.tokenIndex = 0; // This is so the subtype will not throw the error that it was not parsed.
@@ -58,12 +59,12 @@ public abstract class ArgumentType<T> {
 	 * @param error The error that occurred in the subtype.
 	 * @see ArgumentType#currentArgValueIndex
 	 */
-	protected void onSubTypeError(CustomParseError error) {
+	protected void onSubTypeError(CustomError error) {
 		error.index += this.currentArgValueIndex;
 		this.addError(error);
 	}
 
-	private void dispatchErrorToParent(CustomParseError error) {
+	private void dispatchErrorToParent(CustomError error) {
 		if (this.parentArgType != null) {
 			this.parentArgType.onSubTypeError(error);
 		}
@@ -125,7 +126,7 @@ public abstract class ArgumentType<T> {
 			throw new IllegalStateException("Cannot add an error to an argument that has not been parsed yet.");
 		}
 
-		var error = new CustomParseError(
+		var error = new CustomError(
 			message,
 			this.tokenIndex + Math.min(index + 1, this.receivedValueCount),
 			level
@@ -135,7 +136,7 @@ public abstract class ArgumentType<T> {
 		this.dispatchErrorToParent(error);
 	}
 
-	private void addError(CustomParseError error) {
+	private void addError(CustomError error) {
 		if (!this.getNumberOfArgValues().isInRange(error.index, true)) {
 			throw new IndexOutOfBoundsException("Index " + error.index + " is out of range for " + this.getClass().getName());
 		}
@@ -146,7 +147,7 @@ public abstract class ArgumentType<T> {
 		this.dispatchErrorToParent(error);
 	}
 
-	List<CustomParseError> getErrors() {
+	List<CustomError> getErrors() {
 		return this.errors;
 	}
 

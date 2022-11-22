@@ -1,4 +1,5 @@
 import argparser.*;
+import argparser.utils.ErrorLevel;
 
 class Ball extends ArgumentType<Integer> {
 	@Override
@@ -19,17 +20,20 @@ public class SimpleTests {
 
 		var a = new ArgumentParser("SimpleTesting") {{
 			setErrorCode(64);
+			setMinimumExitErrorLevel(ErrorLevel.DEBUG);
+
 			addArgument(new Argument<>("test", ArgumentType.STRING()));
 			addArgument(new Argument<>("what", ArgumentType.FILE()));
 			addSubCommand(new Command("subcommand") {{
 				setErrorCode(128);
+
 				addArgument(new Argument<>("what", ArgumentType.FILE()));
 				addArgument(new Argument<>('h', "hey", ArgumentType.KEY_VALUES(ArgumentType.INTEGER())).callback(System.out::println));
 			}});
 		}};
 
-		a.addError("hello", ErrorLevel.ERROR);
+		a.addError("hello", ErrorLevel.INFO);
 
-		a.parseArgs("subcommand --hey [=12 test=24] jeoijdoiwad");
+		a.parseArgs("subcommand --hey [w=12 test=24]");
 	}
 }

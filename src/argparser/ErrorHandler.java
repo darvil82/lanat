@@ -1,5 +1,8 @@
 package argparser;
 
+import argparser.utils.ErrorLevel;
+import argparser.utils.ErrorLevelProvider;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.InvocationTargetException;
@@ -190,7 +193,7 @@ class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 	}
 }
 
-class CustomParseError extends ParseStateErrorBase<CustomParseError.CustomParseErrorType> {
+class CustomError extends ParseStateErrorBase<CustomError.CustomParseErrorType> {
 	private final String message;
 	private final ErrorLevel level;
 	private boolean showTokens = true;
@@ -204,13 +207,13 @@ class CustomParseError extends ParseStateErrorBase<CustomParseError.CustomParseE
 		}
 	}
 
-	public CustomParseError(String message, int index, ErrorLevel level) {
+	public CustomError(String message, int index, ErrorLevel level) {
 		super(CustomParseErrorType.DEFAULT, index);
 		this.message = message;
 		this.level = level;
 	}
 
-	public CustomParseError(String message, ErrorLevel level) {
+	public CustomError(String message, ErrorLevel level) {
 		this(message, -1, level);
 		this.showTokens = false;
 	}
@@ -234,14 +237,12 @@ class CustomParseError extends ParseStateErrorBase<CustomParseError.CustomParseE
 public class ErrorHandler {
 	private final Command rootCmd;
 	final List<Token> tokens;
-	private final List<CustomParseError> customExtraErrors;
 	int cmdAbsoluteTokenIndex = 0;
 
 
-	public ErrorHandler(Command cmd, List<CustomParseError> customExtraErrors) {
+	public ErrorHandler(Command cmd) {
 		this.rootCmd = cmd;
 		this.tokens = cmd.getFullTokenList();
-		this.customExtraErrors = customExtraErrors;
 	}
 
 
@@ -265,23 +266,23 @@ public class ErrorHandler {
 	public void handleErrors() {
 		List<Command> commands = this.rootCmd.getTokenizedSubCommands();
 
-		for (var extraError : this.customExtraErrors) {
-			extraError.handle(this);
-		}
-
 		for (int i = 0; i < commands.size(); i++) {
 			Command cmd = commands.get(i);
 			this.cmdAbsoluteTokenIndex = this.getCommandTokenIndexByNestingLevel(i);
 
-			for (var tokenizeError : cmd.tokenizeState.errors) {
+			for (var cmdError : cmd.getErrors()) {
+				cmdError.handle(this);
+			}
+
+			for (var tokenizeError : cmd.tokenizeState.getErrors()) {
 				tokenizeError.handle(this);
 			}
 
-			for (var customError : cmd.parseState.customErrors) {
+			for (var customError : cmd.parseState.getCustomErrors()) {
 				customError.handle(this);
 			}
 
-			ParseError.handleAll(cmd.parseState.errors, this);
+			ParseError.handleAll(cmd.parseState.getErrors(), this);
 		}
 	}
 

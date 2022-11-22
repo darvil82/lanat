@@ -2,7 +2,6 @@ package argparser.argumentTypes;
 
 import argparser.ArgValueCount;
 import argparser.ArgumentType;
-import argparser.ErrorLevel;
 
 import java.util.HashMap;
 

@@ -1,4 +1,4 @@
-package argparser;
+package argparser.utils;
 
 import argparser.displayFormatter.Color;
 
@@ -20,6 +20,3 @@ public enum ErrorLevel {
 }
 
 
-interface ErrorLevelProvider {
-	ErrorLevel getErrorLevel();
-}

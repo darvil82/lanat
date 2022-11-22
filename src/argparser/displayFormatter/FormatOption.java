@@ -10,7 +10,7 @@ public enum FormatOption {
 	HIDDEN(8),
 	STRIKE_THROUGH(9);
 
-	private Byte value;
+	private final Byte value;
 
 	FormatOption(int value) {
 		this.value = (byte)value;

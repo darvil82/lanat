@@ -2,9 +2,6 @@ package argparser;
 
 import argparser.utils.Pair;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class ArgumentParser extends Command {
 	public ArgumentParser(String programName, String description) {
 		super(programName, description, true);

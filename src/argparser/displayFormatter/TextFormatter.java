@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class TextFormatter {
-	private ArrayList<FormatOption> formatOptions = new ArrayList<>();
+	private final ArrayList<FormatOption> formatOptions = new ArrayList<>();
 	private Color foregroundColor;
 	private Color backgroundColor;
 	private String contents;
@@ -75,6 +75,6 @@ public class TextFormatter {
 	 * Remove all formatting colors or format from the string
 	 */
 	public static String removeSequences(String str) {
-		return str.replaceAll("\033\\[[0-9;]*m", "");
+		return str.replaceAll("\033\\[[\\d;]*m", "");
 	}
 }

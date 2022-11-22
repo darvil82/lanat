@@ -22,7 +22,7 @@ public abstract class ArgumentType<T> {
 	 * This is the current index of the value that is being parsed.
 	 */
 	protected int currentArgValueIndex = 0;
-	protected ArrayList<CustomError> errors = new ArrayList<>();
+	protected final ArrayList<CustomError> errors = new ArrayList<>();
 	/**
 	 * The parent argument type is the one that wants to listen for errors that occur in this argument type.
 	 * This value is set by the parent argument type when it runs the register method.

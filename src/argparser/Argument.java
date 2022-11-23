@@ -219,7 +219,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 	@Override
 	public void invokeCallbacks() {
-		if (this.onErrorCallback == null || this.getErrorsUnderDisplayLevel().isEmpty()) return;
+		if (this.onErrorCallback == null || this.hasExitErrors()) return;
 
 		this.onErrorCallback.accept(this);
 	}

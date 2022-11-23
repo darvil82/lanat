@@ -2,13 +2,13 @@ package argparser;
 
 import argparser.argumentTypes.*;
 import argparser.utils.ErrorLevel;
+import argparser.utils.ErrorsContainer;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public abstract class ArgumentType<T> {
-	protected final ArrayList<CustomError> errors = new ArrayList<>();
+public abstract class ArgumentType<T> extends ErrorsContainer<CustomError, ArgumentType<T>, ArgumentType<T>> {
 	protected T value;
 	/**
 	 * This is the current index of the value that is being parsed.
@@ -138,23 +138,20 @@ public abstract class ArgumentType<T> {
 			level
 		);
 
-		this.errors.add(error);
+		super.addError(error);
 		this.dispatchErrorToParent(error);
 	}
 
-	private void addError(CustomError error) {
+	@Override
+	public void addError(CustomError error) {
 		if (!this.getNumberOfArgValues().isInRange(error.index, true)) {
 			throw new IndexOutOfBoundsException("Index " + error.index + " is out of range for " + this.getClass().getName());
 		}
 
 		error.index = this.tokenIndex + Math.min(error.index + 1, this.receivedValueCount);
 
-		this.errors.add(error);
+		super.addError(error);
 		this.dispatchErrorToParent(error);
-	}
-
-	List<CustomError> getErrors() {
-		return this.errors;
 	}
 
 	protected short getTokenIndex() {

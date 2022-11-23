@@ -1,20 +1,24 @@
 package argparser;
 
-import argparser.utils.UtlString;
+import argparser.utils.*;
 
+import java.util.List;
 import java.util.function.Consumer;
 
-public class Argument<Type extends ArgumentType<TInner>, TInner> {
+public class Argument<Type extends ArgumentType<TInner>, TInner>
+	implements IMinimumErrorLevelConfig<CustomError>, IErrorCallbacks<TInner, Argument<Type, TInner>>
+{
 	public static final char[] INVALID_CHARACTERS = {'=', ' '};
 	final Type argType;
 	private char prefix = '-';
 	private Character name;
 	private String alias;
-	private Consumer<TInner> callback;
 	private short usageCount = 0;
 	private boolean obligatory = false, positional = false;
 	private TInner defaultValue;
 	private Command parentCmd;
+	private Consumer<Argument<Type, TInner>> onErrorCallback;
+	private Consumer<TInner> onCorrectCallback;
 
 	public Argument(Character name, String alias, Type argType) {
 		if (name == null && alias == null) {
@@ -85,15 +89,6 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 	}
 
 	/**
-	 * Specify a function that will be called with the value introduced by the user. This function is only
-	 * called if the user used the argument, so it will never be called with a default value, for example.
-	 */
-	public Argument<Type, TInner> callback(Consumer<TInner> cb) {
-		this.callback = cb;
-		return this;
-	}
-
-	/**
 	 * Specify the prefix of this argument. By default, this is <code>'-'</code>. If this argument is used in an
 	 * argument name list (-abcd), the prefix that will be valid is any against all the arguments specified
 	 * in that name list.
@@ -112,6 +107,16 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 		return this;
 	}
 
+	public Argument<Type, TInner> onOk(Consumer<TInner> callback) {
+		this.setOnCorrectCallback(callback);
+		return this;
+	}
+
+	public Argument<Type, TInner> onErr(Consumer<Argument<Type, TInner>> callback) {
+		this.setOnErrorCallback(callback);
+		return this;
+	}
+
 	TInner finishParsing(Command.ParsingState parseState) {
 		if (this.usageCount == 0) {
 			if (this.obligatory) {
@@ -121,7 +126,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 			return this.defaultValue;
 		}
 
-		this.argType.getErrors().forEach(parseState::addError);
+		this.argType.getErrorsUnderDisplayLevel().forEach(parseState::addError);
 		return this.argType.getFinalValue();
 	}
 
@@ -175,12 +180,62 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 		return (this.getAlias().equals(obj.getAlias()) || this.prefix == obj.prefix) && this.parentCmd == obj.parentCmd;
 	}
 
-	// we know that this is safe because this argument will always receive its correct type
+	// --------------------------------- just act as a proxy to the type error handling ---------------------------------
+	@Override
+	public List<CustomError> getErrorsUnderExitLevel() {
+		return this.argType.getErrorsUnderExitLevel();
+	}
+
+	@Override
+	public List<CustomError> getErrorsUnderDisplayLevel() {
+		return this.argType.getErrorsUnderDisplayLevel();
+	}
+
+	@Override
+	public void setOnErrorCallback(Consumer<Argument<Type, TInner>> callback) {
+		this.onErrorCallback = callback;
+	}
+
+	/**
+	 * Specify a function that will be called with the value introduced by the user. This function is only
+	 * called if the user used the argument, so it will never be called with a default value, for example.
+	 */
+	@Override
+	public void setOnCorrectCallback(Consumer<TInner> callback) {
+		this.onCorrectCallback = callback;
+	}
+
+	@Override
+	public void invokeCallbacks() {
+		if (this.onErrorCallback == null || this.getErrorsUnderDisplayLevel().isEmpty()) return;
+
+		this.onErrorCallback.accept(this);
+	}
+
 	@SuppressWarnings("unchecked")
-	void invokeCallback(Object value) {
-		if (this.callback != null) {
-			this.callback.accept((TInner)value);
-		}
+	void invokeCallbacks(Object okValue) {
+		this.invokeCallbacks();
+		this.onCorrectCallback.accept((TInner)okValue);
+	}
+
+	@Override
+	public void setMinimumDisplayErrorLevel(ErrorLevel level) {
+		this.argType.setMinimumDisplayErrorLevel(level);
+	}
+
+	@Override
+	public ModifyRecord<ErrorLevel> getMinimumDisplayErrorLevel() {
+		return this.argType.getMinimumDisplayErrorLevel();
+	}
+
+	@Override
+	public void setMinimumExitErrorLevel(ErrorLevel level) {
+		this.argType.setMinimumExitErrorLevel(level);
+	}
+
+	@Override
+	public ModifyRecord<ErrorLevel> getMinimumExitErrorLevel() {
+		return this.argType.getMinimumExitErrorLevel();
 	}
 
 	/**

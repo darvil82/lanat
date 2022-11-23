@@ -19,21 +19,27 @@ public class SimpleTests {
 
 		var a = new ArgumentParser("SimpleTesting") {{
 			setErrorCode(64);
-			setMinimumExitErrorLevel(ErrorLevel.WARNING);
+			setMinimumExitErrorLevel(ErrorLevel.ERROR);
 			setMinimumDisplayErrorLevel(ErrorLevel.DEBUG);
+			setOnCorrectCallback((c) -> System.out.println("Correct!"));
+			setOnErrorCallback((c) -> System.out.println("Error!"));
 
 			addArgument(new Argument<>("test", ArgumentType.STRING()));
-			addArgument(new Argument<>("what", ArgumentType.FILE()));
+			addArgument(new Argument<>("what", ArgumentType.FILE()) {{
+				setMinimumDisplayErrorLevel(ErrorLevel.INFO);
+			}});
 			addSubCommand(new Command("subcommand") {{
 				setErrorCode(128);
+				setOnCorrectCallback((c) -> System.out.println("Correct sub!"));
+				setOnErrorCallback((c) -> System.out.println("Error sub!"));
 
 				addArgument(new Argument<>("what", ArgumentType.FILE()));
-				addArgument(new Argument<>('h', "hey", ArgumentType.KEY_VALUES(ArgumentType.INTEGER())).callback(System.out::println));
+				addArgument(new Argument<>('h', "hey", ArgumentType.KEY_VALUES(ArgumentType.INTEGER())).onOk(System.out::println).onErr(System.err::println));
 			}});
 		}};
 
 		a.addError("hello", ErrorLevel.DEBUG);
 
-		a.parseArgs("subcommand --hey [w=12 test=24] waddwa");
+		a.parseArgs("subcommand --hey [w= test=24] waddwa");
 	}
 }

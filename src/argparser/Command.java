@@ -10,7 +10,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-public class Command extends ErrorsContainer<CustomError> {
+public class Command extends ErrorsContainer<CustomError, Command, Command> implements IErrorCallbacks<Command, Command> {
 	final String name, description;
 	final ArrayList<Argument<?, ?>> arguments = new ArrayList<>();
 	final ArrayList<Command> subCommands = new ArrayList<>();
@@ -18,6 +18,8 @@ public class Command extends ErrorsContainer<CustomError> {
 	private final ModifyRecord<Integer> errorCode = new ModifyRecord<>(1);
 	TokenizeState tokenizeState;
 	ParsingState parseState;
+	private Consumer<Command> onErrorCallback;
+	private Consumer<Command> onCorrectCallback;
 	private boolean isRootCommand = false;
 	private boolean finishedTokenizing = false;
 
@@ -28,7 +30,7 @@ public class Command extends ErrorsContainer<CustomError> {
 		this.name = name;
 		this.description = description;
 		this.addArgument(new Argument<>("help", ArgumentType.BOOLEAN())
-			.callback(t -> System.out.println(this.getHelp()))
+			.onOk(t -> System.out.println(this.getHelp()))
 		);
 	}
 
@@ -462,10 +464,6 @@ public class Command extends ErrorsContainer<CustomError> {
 		this.subCommands.forEach(Command::initParsingState);
 	}
 
-	void finishParsing() {
-		this.parseState.parsedArguments.forEach(Argument::invokeCallback);
-	}
-
 	public int getErrorCode() {
 		int errCode = this.subCommands.stream()
 			.map(sc -> sc.getMinimumExitErrorLevel().get().isInErrorMinimum(this.getMinimumExitErrorLevel().get()) ? sc.getErrorCode() : 0)
@@ -498,7 +496,27 @@ public class Command extends ErrorsContainer<CustomError> {
 		this.errorCode.set(errorCode);
 	}
 
-	private abstract class ParsingStateBase<T extends ErrorLevelProvider> extends ErrorsContainer<T> {
+	@Override
+	public void setOnErrorCallback(Consumer<Command> callback) {
+		this.onErrorCallback = callback;
+	}
+
+	@Override
+	public void setOnCorrectCallback(Consumer<Command> callback) {
+		this.onCorrectCallback = callback;
+	}
+
+	@Override
+	public void invokeCallbacks() {
+		if (this.hasExitErrors()) {
+			if (this.onErrorCallback != null) this.onErrorCallback.accept(this);
+		} else {
+			if (this.onCorrectCallback != null) this.onCorrectCallback.accept(this);
+		}
+		this.parseState.parsedArguments.forEach(Argument::invokeCallbacks);
+	}
+
+	private abstract class ParsingStateBase<T extends ErrorLevelProvider> extends ErrorsContainer<T, Void, Void> {
 		public ParsingStateBase() {
 			super(Command.this.getMinimumExitErrorLevel(), Command.this.getMinimumDisplayErrorLevel());
 		}
@@ -511,6 +529,7 @@ public class Command extends ErrorsContainer<CustomError> {
 		void addError(TokenizeError.TokenizeErrorType type, int index) {
 			this.addError(new TokenizeError(type, index));
 		}
+
 	}
 
 	class ParsingState extends ParsingStateBase<ParseError> {

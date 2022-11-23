@@ -26,11 +26,11 @@ public class ArgumentParser extends Command {
 
 		int errorCode = errorHandler.getErrorCode();
 
+		this.subCommands.forEach(Command::invokeCallbacks);
+
 		if (errorCode != 0) {
 			System.exit(errorCode);
 		}
-
-		this.getTokenizedSubCommands().forEach(Command::finishParsing);
 
 		return new ParsedArguments(null, null, null);
 	}

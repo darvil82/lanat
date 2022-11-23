@@ -7,10 +7,16 @@ import java.util.HashMap;
 
 public class KeyValuesArgument<T extends ArgumentType<Ts>, Ts> extends ArgumentType<HashMap<String, Ts>> {
 	private final ArgumentType<Ts> valueType;
+	private final char separator;
+
+	public KeyValuesArgument(T type, char separator) {
+		this.valueType = type;
+		this.separator = separator;
+		this.registerSubType(type);
+	}
 
 	public KeyValuesArgument(T type) {
-		this.valueType = type;
-		this.registerSubType(type);
+		this(type, '=');
 	}
 
 	@Override
@@ -23,7 +29,7 @@ public class KeyValuesArgument<T extends ArgumentType<Ts>, Ts> extends ArgumentT
 		this.value = new HashMap<>();
 
 		this.forEachArgValue(args, arg -> {
-			var split = arg.split("=", 2);
+			var split = arg.split("=");
 
 			if (split.length != 2) {
 				this.addError("Invalid key-value pair: '" + arg + "'.");

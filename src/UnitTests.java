@@ -50,7 +50,7 @@ public class UnitTests {
 
 		this.parser = new TestingParser("Testing") {{
 			addArgument(new Argument<>("what", new StringJoiner())
-				.callback(t -> System.out.println("wow look a string: '" + t + "'"))
+				.onOk(t -> System.out.println("wow look a string: '" + t + "'"))
 				.positional()
 				.obligatory()
 			);

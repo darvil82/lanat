@@ -2,8 +2,9 @@ package argparser.utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
-public class ErrorsContainer<T extends ErrorLevelProvider> {
+public abstract class ErrorsContainer<T extends ErrorLevelProvider, TCbOk, TCbErr> implements IMinimumErrorLevelConfig<T> {
 	private ModifyRecord<ErrorLevel> minimumExitErrorLevel = new ModifyRecord<>(ErrorLevel.ERROR);
 	private ModifyRecord<ErrorLevel> minimumDisplayErrorLevel = new ModifyRecord<>(ErrorLevel.INFO);
 	private final List<T> errors = new ArrayList<>();
@@ -30,10 +31,12 @@ public class ErrorsContainer<T extends ErrorLevelProvider> {
 		return !this.getErrorsUnderDisplayLevel().isEmpty();
 	}
 
+	@Override
 	public List<T> getErrorsUnderExitLevel() {
 		return this.getErrorsInLevelMinimum(this.errors, false);
 	}
 
+	@Override
 	public List<T> getErrorsUnderDisplayLevel() {
 		return this.getErrorsInLevelMinimum(this.errors, true);
 	}
@@ -56,18 +59,22 @@ public class ErrorsContainer<T extends ErrorLevelProvider> {
 	}
 
 	// --------------------------------------------- Getters and Setters -----------------------------------------------
+	@Override
 	public void setMinimumExitErrorLevel(ErrorLevel level) {
 		this.minimumExitErrorLevel.set(level);
 	}
 
+	@Override
 	public ModifyRecord<ErrorLevel> getMinimumExitErrorLevel() {
 		return this.minimumExitErrorLevel;
 	}
 
+	@Override
 	public void setMinimumDisplayErrorLevel(ErrorLevel level) {
 		this.minimumDisplayErrorLevel.set(level);
 	}
 
+	@Override
 	public ModifyRecord<ErrorLevel> getMinimumDisplayErrorLevel() {
 		return this.minimumDisplayErrorLevel;
 	}

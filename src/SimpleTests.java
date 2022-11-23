@@ -14,13 +14,13 @@ class Ball extends ArgumentType<Integer> {
 }
 
 
-
 public class SimpleTests {
 	public static void main(String[] args) {
 
 		var a = new ArgumentParser("SimpleTesting") {{
 			setErrorCode(64);
-			setMinimumExitErrorLevel(ErrorLevel.DEBUG);
+			setMinimumExitErrorLevel(ErrorLevel.WARNING);
+			setMinimumDisplayErrorLevel(ErrorLevel.DEBUG);
 
 			addArgument(new Argument<>("test", ArgumentType.STRING()));
 			addArgument(new Argument<>("what", ArgumentType.FILE()));
@@ -32,8 +32,8 @@ public class SimpleTests {
 			}});
 		}};
 
-		a.addError("hello", ErrorLevel.INFO);
+		a.addError("hello", ErrorLevel.DEBUG);
 
-		a.parseArgs("subcommand --hey [w=12 test=24]");
+		a.parseArgs("subcommand --hey [w=12 test=24] waddwa");
 	}
 }

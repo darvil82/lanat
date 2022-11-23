@@ -16,11 +16,6 @@ abstract class ParseStateErrorBase<T extends ErrorLevelProvider> implements Erro
 	private ErrorHandler errorHandler;
 	private ErrorFormatter formatter;
 
-	@Retention(RetentionPolicy.RUNTIME)
-	public @interface Handler {
-		String value();
-	}
-
 	public ParseStateErrorBase(T type, int index) {
 		this.type = type;
 		this.index = index;
@@ -56,6 +51,11 @@ abstract class ParseStateErrorBase<T extends ErrorLevelProvider> implements Erro
 
 	protected ErrorFormatter fmt() {
 		return this.formatter;
+	}
+
+	@Retention(RetentionPolicy.RUNTIME)
+	public @interface Handler {
+		String value();
 	}
 }
 
@@ -235,8 +235,8 @@ class CustomError extends ParseStateErrorBase<CustomError.CustomParseErrorType> 
 }
 
 public class ErrorHandler {
-	private final Command rootCmd;
 	final List<Token> tokens;
+	private final Command rootCmd;
 	int cmdAbsoluteTokenIndex = 0;
 
 
@@ -270,11 +270,11 @@ public class ErrorHandler {
 			Command cmd = commands.get(i);
 			this.cmdAbsoluteTokenIndex = this.getCommandTokenIndexByNestingLevel(i);
 
-			for (var cmdError : cmd.getErrors()) {
+			for (var cmdError : cmd.getErrorsUnderDisplayLevel()) {
 				cmdError.handle(this);
 			}
 
-			for (var tokenizeError : cmd.tokenizeState.getErrors()) {
+			for (var tokenizeError : cmd.tokenizeState.getErrorsUnderDisplayLevel()) {
 				tokenizeError.handle(this);
 			}
 
@@ -282,7 +282,7 @@ public class ErrorHandler {
 				customError.handle(this);
 			}
 
-			ParseError.handleAll(cmd.parseState.getErrors(), this);
+			ParseError.handleAll(cmd.parseState.getErrorsUnderDisplayLevel(), this);
 		}
 	}
 

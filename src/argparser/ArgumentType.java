@@ -8,7 +8,12 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public abstract class ArgumentType<T> {
+	protected final ArrayList<CustomError> errors = new ArrayList<>();
 	protected T value;
+	/**
+	 * This is the current index of the value that is being parsed.
+	 */
+	protected int currentArgValueIndex = 0;
 	/**
 	 * This is used for storing errors that occur during parsing. We need to keep track of the index of
 	 * the token that caused the error. -1 means that this was still not parsed.
@@ -19,17 +24,12 @@ public abstract class ArgumentType<T> {
 	 */
 	private int receivedValueCount = 0;
 	/**
-	 * This is the current index of the value that is being parsed.
-	 */
-	protected int currentArgValueIndex = 0;
-	protected final ArrayList<CustomError> errors = new ArrayList<>();
-	/**
 	 * The parent argument type is the one that wants to listen for errors that occur in this argument type.
 	 * This value is set by the parent argument type when it runs the register method.
+	 *
 	 * @see ArgumentType#registerSubType(ArgumentType)
 	 */
 	private ArgumentType<?> parentArgType;
-
 
 	final void parseArgumentValues(String[] args) {
 		this.receivedValueCount = args.length;
@@ -39,12 +39,13 @@ public abstract class ArgumentType<T> {
 	public abstract void parseValues(String[] args);
 
 	public void parseValues(String arg) {
-		this.parseValues(new String[]{ arg });
+		this.parseValues(new String[]{arg});
 	}
 
 	/**
 	 * By registering a subtype, this allows you to listen for errors that occurred in this subtype during
 	 * parsing. The <code>onSubTypeError</code> method will be called when an error occurs.
+	 *
 	 * @see ArgumentType#onSubTypeError(CustomError)
 	 */
 	protected void registerSubType(ArgumentType<?> subType) {
@@ -56,6 +57,7 @@ public abstract class ArgumentType<T> {
 	 * This is called when a subtype of this argument type has an error.
 	 * By default, this adds the error to the list of errors, while also adding
 	 * the current value index.
+	 *
 	 * @param error The error that occurred in the subtype.
 	 * @see ArgumentType#currentArgValueIndex
 	 */
@@ -87,6 +89,7 @@ public abstract class ArgumentType<T> {
 
 	/**
 	 * Adds an error to the list of errors that occurred during parsing.
+	 *
 	 * @param message The message to display related to the error.
 	 */
 	protected void addError(String message) {
@@ -95,6 +98,7 @@ public abstract class ArgumentType<T> {
 
 	/**
 	 * Adds an error to the list of errors that occurred during parsing.
+	 *
 	 * @param message The message to display related to the error.
 	 * @param index The index of the value that caused the error.
 	 */
@@ -104,6 +108,7 @@ public abstract class ArgumentType<T> {
 
 	/**
 	 * Adds an error to the list of errors that occurred during parsing.
+	 *
 	 * @param message The message to display related to the error.
 	 * @param level The level of the error.
 	 */
@@ -113,6 +118,7 @@ public abstract class ArgumentType<T> {
 
 	/**
 	 * Adds an error to the list of errors that occurred during parsing.
+	 *
 	 * @param message The message to display related to the error.
 	 * @param index The index of the value that caused the error.
 	 * @param level The level of the error.
@@ -151,17 +157,18 @@ public abstract class ArgumentType<T> {
 		return this.errors;
 	}
 
-	void setTokenIndex(short tokenIndex) {
-		this.tokenIndex = tokenIndex;
-	}
-
 	protected short getTokenIndex() {
 		return tokenIndex;
+	}
+
+	void setTokenIndex(short tokenIndex) {
+		this.tokenIndex = tokenIndex;
 	}
 
 	/**
 	 * Iterates over the values that this argument received when being parsed. This also sets
 	 * <code>this.currentArgValueIndex</code> to the current index of the value.
+	 *
 	 * @param args The values that this argument received when being parsed.
 	 * @param consumer The consumer that will be called for each value.
 	 */
@@ -171,7 +178,6 @@ public abstract class ArgumentType<T> {
 			consumer.accept(args[i]);
 		}
 	}
-
 
 	// Easy to access values. These are methods because we don't want to use the same instance everywhere.
 	public static IntArgument INTEGER() {return new IntArgument();}
@@ -183,6 +189,7 @@ public abstract class ArgumentType<T> {
 	public static StringArgument STRING() {return new StringArgument();}
 
 	public static FileArgument FILE() {return new FileArgument();}
+
 	public static <T extends ArgumentType<Ts>, Ts> KeyValuesArgument<T, Ts>
 	KEY_VALUES(T valueType) {return new KeyValuesArgument<>(valueType);}
 }

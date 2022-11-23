@@ -6,8 +6,8 @@ import java.util.function.Consumer;
 
 public class Argument<Type extends ArgumentType<TInner>, TInner> {
 	public static final char[] INVALID_CHARACTERS = {'=', ' '};
-	private char prefix = '-';
 	final Type argType;
+	private char prefix = '-';
 	private Character name;
 	private String alias;
 	private Consumer<TInner> callback;
@@ -36,27 +36,9 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 	@SuppressWarnings("unchecked cast") // we know for sure type returned by BOOLEAN is compatible
 	public Argument(Character name) {this(name, null, (Type)ArgumentType.BOOLEAN());}
 
-	/**
-	 * Checks if the specified alias is invalid or not
-	 *
-	 * @return <code>true</code> if the alias is valid
-	 */
-	private static boolean isValidAlias(String alias) {
-		return UtlString.matchCharacters(alias, c -> {
-			for (char chr : INVALID_CHARACTERS) {
-				if (c == chr) {
-					return false;
-				}
-			}
-			return true;
-		});
-	}
-
-	private static boolean isValidName(char name) {
-		for (char invalidChar : Argument.INVALID_CHARACTERS) {
-			if (invalidChar == name) return false;
-		}
-		return true;
+	public String getAlias() {
+		if (this.alias == null) return this.name.toString();
+		return alias;
 	}
 
 	public void setAlias(String alias) {
@@ -65,11 +47,6 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 			throw new IllegalArgumentException("invalid alias '" + alias + "'");
 		}
 		this.alias = alias.replaceAll(String.format("^%s+", this.prefix), "");
-	}
-
-	public String getAlias() {
-		if (this.alias == null) return this.name.toString();
-		return alias;
 	}
 
 	public void setName(Character name) {
@@ -185,12 +162,12 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 		return positional;
 	}
 
-	void setParentCmd(Command parentCmd) {
-		this.parentCmd = parentCmd;
-	}
-
 	Command getParentCmd() {
 		return parentCmd;
+	}
+
+	void setParentCmd(Command parentCmd) {
+		this.parentCmd = parentCmd;
 	}
 
 	public boolean equals(Argument<?, ?> obj) {
@@ -204,5 +181,28 @@ public class Argument<Type extends ArgumentType<TInner>, TInner> {
 		if (this.callback != null) {
 			this.callback.accept((TInner)value);
 		}
+	}
+
+	/**
+	 * Checks if the specified alias is invalid or not
+	 *
+	 * @return <code>true</code> if the alias is valid
+	 */
+	private static boolean isValidAlias(String alias) {
+		return UtlString.matchCharacters(alias, c -> {
+			for (char chr : INVALID_CHARACTERS) {
+				if (c == chr) {
+					return false;
+				}
+			}
+			return true;
+		});
+	}
+
+	private static boolean isValidName(char name) {
+		for (char invalidChar : Argument.INVALID_CHARACTERS) {
+			if (invalidChar == name) return false;
+		}
+		return true;
 	}
 }

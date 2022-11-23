@@ -64,7 +64,8 @@ public class Command extends ErrorsContainer<CustomError> {
 
 		// pass some properties to the subcommand (most of the time this is what the user will want)
 		cmd.tupleChars.setIfNotModified(this.tupleChars);
-		cmd.getMinimumExitErrorLevelRecord().setIfNotModified(this.getMinimumExitErrorLevelRecord());
+		cmd.getMinimumExitErrorLevel().setIfNotModified(this.getMinimumExitErrorLevel());
+		cmd.getMinimumDisplayErrorLevel().setIfNotModified(this.getMinimumDisplayErrorLevel());
 		cmd.errorCode.setIfNotModified(this.errorCode);
 		this.subCommands.add(cmd);
 	}
@@ -467,12 +468,16 @@ public class Command extends ErrorsContainer<CustomError> {
 
 	public int getErrorCode() {
 		int errCode = this.subCommands.stream()
-			.map(sc -> sc.getMinimumExitErrorLevel().isInErrorMinimum(this.getMinimumExitErrorLevel()) ? sc.getErrorCode() : 0)
+			.map(sc -> sc.getMinimumExitErrorLevel().get().isInErrorMinimum(this.getMinimumExitErrorLevel().get()) ? sc.getErrorCode() : 0)
 			.reduce(0, (a, b) -> a | b);
 
 		/* If we have errors, or the subcommands had errors, do OR with our own error level.
 		 * By doing this, the error code of a subcommand will be OR'd with the error codes of all its parents. */
-		if ((this.parseState.hasErrors() || this.tokenizeState.hasErrors()) || this.hasErrors() || errCode != 0) {
+		if (
+			(this.parseState.hasExitErrors() || this.tokenizeState.hasExitErrors())
+				|| this.hasExitErrors()
+				|| errCode != 0
+		) {
 			errCode |= this.errorCode.get();
 		}
 
@@ -495,7 +500,7 @@ public class Command extends ErrorsContainer<CustomError> {
 
 	private abstract class ParsingStateBase<T extends ErrorLevelProvider> extends ErrorsContainer<T> {
 		public ParsingStateBase() {
-			super(Command.this.getMinimumExitErrorLevelRecord());
+			super(Command.this.getMinimumExitErrorLevel(), Command.this.getMinimumDisplayErrorLevel());
 		}
 	}
 
@@ -537,12 +542,17 @@ public class Command extends ErrorsContainer<CustomError> {
 		}
 
 		@Override
-		public boolean hasErrors() {
-			return super.hasErrors() || this.anyErrorInMinimum(this.customErrors);
+		public boolean hasExitErrors() {
+			return super.hasExitErrors() || this.anyErrorInMinimum(this.customErrors, false);
+		}
+
+		@Override
+		public boolean hasDisplayErrors() {
+			return super.hasDisplayErrors() || this.anyErrorInMinimum(this.customErrors, true);
 		}
 
 		List<CustomError> getCustomErrors() {
-			return this.getErrorsInMinimum(this.customErrors);
+			return this.getErrorsInLevelMinimum(this.customErrors, true);
 		}
 	}
 }

@@ -5,47 +5,70 @@ import java.util.List;
 
 public class ErrorsContainer<T extends ErrorLevelProvider> {
 	private ModifyRecord<ErrorLevel> minimumExitErrorLevel = new ModifyRecord<>(ErrorLevel.ERROR);
+	private ModifyRecord<ErrorLevel> minimumDisplayErrorLevel = new ModifyRecord<>(ErrorLevel.INFO);
 	private final List<T> errors = new ArrayList<>();
 
-	public ErrorsContainer(ModifyRecord<ErrorLevel> minimumExitErrorLevelRecord) {
-		this.minimumExitErrorLevel = minimumExitErrorLevelRecord;
-	}
-
 	public ErrorsContainer() {}
+
+	public ErrorsContainer(
+		ModifyRecord<ErrorLevel> minimumExitErrorLevelRecord,
+		ModifyRecord<ErrorLevel> minimumDisplayErrorLevelRecord
+	) {
+		this.minimumExitErrorLevel = minimumExitErrorLevelRecord;
+		this.minimumDisplayErrorLevel = minimumDisplayErrorLevelRecord;
+	}
 
 	public void addError(T error) {
 		this.errors.add(error);
 	}
 
-	public List<T> getErrors() {
-		return this.getErrorsInMinimum(this.errors);
+	public boolean hasExitErrors() {
+		return !this.getErrorsUnderExitLevel().isEmpty();
 	}
 
-	protected <TErr extends ErrorLevelProvider> List<TErr> getErrorsInMinimum(List<TErr> errors) {
-		return errors.stream().filter(this::errorIsInMinimum).toList();
+	public boolean hasDisplayErrors() {
+		return !this.getErrorsUnderDisplayLevel().isEmpty();
 	}
 
-	public boolean hasErrors() {
-		return !this.getErrors().isEmpty();
+	public List<T> getErrorsUnderExitLevel() {
+		return this.getErrorsInLevelMinimum(this.errors, false);
 	}
 
+	public List<T> getErrorsUnderDisplayLevel() {
+		return this.getErrorsInLevelMinimum(this.errors, true);
+	}
+
+	protected <TErr extends ErrorLevelProvider>
+	List<TErr> getErrorsInLevelMinimum(List<TErr> errors, boolean isDisplayError) {
+		return errors.stream().filter(e -> this.errorIsInMinimumLevel(e, isDisplayError)).toList();
+	}
+
+	private <TErr extends ErrorLevelProvider> boolean errorIsInMinimumLevel(TErr error, boolean isDisplayError) {
+		return error.getErrorLevel().isInErrorMinimum((
+			isDisplayError
+				? this.minimumDisplayErrorLevel
+				: this.minimumExitErrorLevel
+		).get());
+	}
+
+	protected <TErr extends ErrorLevelProvider> boolean anyErrorInMinimum(List<TErr> errors, boolean isDisplayError) {
+		return errors.stream().anyMatch(e -> this.errorIsInMinimumLevel(e, isDisplayError));
+	}
+
+	// --------------------------------------------- Getters and Setters -----------------------------------------------
 	public void setMinimumExitErrorLevel(ErrorLevel level) {
 		this.minimumExitErrorLevel.set(level);
 	}
 
-	public ErrorLevel getMinimumExitErrorLevel() {
-		return minimumExitErrorLevel.get();
-	}
-
-	public ModifyRecord<ErrorLevel> getMinimumExitErrorLevelRecord() {
+	public ModifyRecord<ErrorLevel> getMinimumExitErrorLevel() {
 		return this.minimumExitErrorLevel;
 	}
 
-	private <TErr extends ErrorLevelProvider> boolean errorIsInMinimum(TErr error) {
-		return error.getErrorLevel().isInErrorMinimum(this.minimumExitErrorLevel.get());
+	public void setMinimumDisplayErrorLevel(ErrorLevel level) {
+		this.minimumDisplayErrorLevel.set(level);
 	}
 
-	protected <TErr extends ErrorLevelProvider> boolean anyErrorInMinimum(List<TErr> errors) {
-		return errors.stream().anyMatch(this::errorIsInMinimum);
+	public ModifyRecord<ErrorLevel> getMinimumDisplayErrorLevel() {
+		return this.minimumDisplayErrorLevel;
 	}
 }

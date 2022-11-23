@@ -516,6 +516,16 @@ public class Command extends ErrorsContainer<CustomError, Command, Command> impl
 		this.parseState.parsedArguments.forEach(Argument::invokeCallbacks);
 	}
 
+	@Override
+	public boolean hasExitErrors() {
+		return super.hasExitErrors() || this.arguments.stream().anyMatch(Argument::hasExitErrors);
+	}
+
+	@Override
+	public boolean hasDisplayErrors() {
+		return super.hasDisplayErrors() || this.arguments.stream().anyMatch(Argument::hasDisplayErrors);
+	}
+
 	private abstract class ParsingStateBase<T extends ErrorLevelProvider> extends ErrorsContainer<T, Void, Void> {
 		public ParsingStateBase() {
 			super(Command.this.getMinimumExitErrorLevel(), Command.this.getMinimumDisplayErrorLevel());

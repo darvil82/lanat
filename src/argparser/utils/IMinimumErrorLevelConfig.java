@@ -6,6 +6,8 @@ import java.util.function.Consumer;
 public interface IMinimumErrorLevelConfig<T extends ErrorLevelProvider> {
 	List<T> getErrorsUnderExitLevel();
 	List<T> getErrorsUnderDisplayLevel();
+	boolean hasExitErrors();
+	boolean hasDisplayErrors();
 
 
 	void setMinimumExitErrorLevel(ErrorLevel level);

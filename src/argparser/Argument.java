@@ -192,9 +192,21 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	@Override
+	public boolean hasExitErrors() {
+		return this.argType.hasExitErrors() || !this.getErrorsUnderExitLevel().isEmpty();
+	}
+
+	@Override
+	public boolean hasDisplayErrors() {
+		return this.argType.hasDisplayErrors() || !this.getErrorsUnderDisplayLevel().isEmpty();
+	}
+
+	@Override
 	public void setOnErrorCallback(Consumer<Argument<Type, TInner>> callback) {
 		this.onErrorCallback = callback;
 	}
+
+
 
 	/**
 	 * Specify a function that will be called with the value introduced by the user. This function is only

@@ -10,7 +10,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-public class Command extends ErrorsContainer<CustomError, Command, Command> implements IErrorCallbacks<Command, Command> {
+public class Command extends ErrorsContainer<CustomError> implements IErrorCallbacks<Command, Command> {
 	final String name, description;
 	final ArrayList<Argument<?, ?>> arguments = new ArrayList<>();
 	final ArrayList<Command> subCommands = new ArrayList<>();
@@ -561,7 +561,7 @@ public class Command extends ErrorsContainer<CustomError, Command, Command> impl
 		return super.hasDisplayErrors() || this.arguments.stream().anyMatch(Argument::hasDisplayErrors);
 	}
 
-	private abstract class ParsingStateBase<T extends ErrorLevelProvider> extends ErrorsContainer<T, Void, Void> {
+	private abstract class ParsingStateBase<T extends ErrorLevelProvider> extends ErrorsContainer<T> {
 		public ParsingStateBase() {
 			super(Command.this.getMinimumExitErrorLevel(), Command.this.getMinimumDisplayErrorLevel());
 		}

@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public abstract class ArgumentType<T> extends ErrorsContainer<CustomError, ArgumentType<T>, ArgumentType<T>> {
+public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> {
 	protected T value;
 	/**
 	 * This is the current index of the value that is being parsed.

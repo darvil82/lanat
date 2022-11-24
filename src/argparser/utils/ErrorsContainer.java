@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public abstract class ErrorsContainer<T extends ErrorLevelProvider, TCbOk, TCbErr> implements IMinimumErrorLevelConfig<T> {
+public abstract class ErrorsContainer<T extends ErrorLevelProvider> implements IMinimumErrorLevelConfig<T> {
 	private ModifyRecord<ErrorLevel> minimumExitErrorLevel = new ModifyRecord<>(ErrorLevel.ERROR);
 	private ModifyRecord<ErrorLevel> minimumDisplayErrorLevel = new ModifyRecord<>(ErrorLevel.INFO);
 	private final List<T> errors = new ArrayList<>();

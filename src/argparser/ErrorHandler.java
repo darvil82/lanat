@@ -7,6 +7,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 
@@ -80,7 +81,7 @@ class TokenizeError extends ParseStateErrorBase<TokenizeError.TokenizeErrorType>
 	protected void handleTupleAlreadyOpen() {
 		this.fmt()
 			.setContents("Tuple already open.")
-			.displayTokens(this.index);
+			.displayTokens(this.index + 1);
 	}
 
 	@Handler("TUPLE_NOT_CLOSED")
@@ -137,7 +138,7 @@ class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 		this.valueCount = valueCount;
 	}
 
-	public static void handleAll(List<ParseError> errors, ErrorHandler handler) {
+	public static List<ParseError> filter(List<ParseError> errors) {
 		var newList = new ArrayList<>(errors);
 		for (var err : newList) {
 			/* if we are going to show an error about an argument being incorrectly used, and that argument is defined
@@ -151,7 +152,7 @@ class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 				);
 			}
 		}
-		newList.forEach(e -> e.handle(handler));
+		return newList;
 	}
 
 	@Handler("ARG_INCORRECT_VALUE_NUMBER")
@@ -270,19 +271,14 @@ public class ErrorHandler {
 			Command cmd = commands.get(i);
 			this.cmdAbsoluteTokenIndex = this.getCommandTokenIndexByNestingLevel(i);
 
-			for (var cmdError : cmd.getErrorsUnderDisplayLevel()) {
-				cmdError.handle(this);
-			}
-
-			for (var tokenizeError : cmd.tokenizeState.getErrorsUnderDisplayLevel()) {
-				tokenizeError.handle(this);
-			}
-
-			for (var customError : cmd.parseState.getCustomErrors()) {
-				customError.handle(this);
-			}
-
-			ParseError.handleAll(cmd.parseState.getErrorsUnderDisplayLevel(), this);
+			new ArrayList<ParseStateErrorBase<?>>() {{
+				addAll(cmd.getErrorsUnderDisplayLevel());
+				addAll(cmd.tokenizeState.getErrorsUnderDisplayLevel());
+				addAll(cmd.parseState.getCustomErrors());
+				addAll(ParseError.filter(cmd.parseState.getErrorsUnderExitLevel()));
+			}}.stream()
+				.sorted(Comparator.comparingInt(x -> x.index))
+				.forEach(e -> e.handle(this));
 		}
 	}
 

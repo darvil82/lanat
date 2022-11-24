@@ -142,49 +142,74 @@ public class Command extends ErrorsContainer<CustomError, Command, Command> impl
 		char[] chars = content.toCharArray();
 
 		for (int i = 0; i < chars.length && !finishedTokenizing; i++) {
+			// reached a possible value wrapped in quotes
 			if (chars[i] == '"' || chars[i] == '\'') {
+				// if we are already in an opened string, push the current value and close the string
 				if (this.tokenizeState.stringOpen) {
 					addToken.accept(TokenType.ARGUMENT_VALUE, currentValue.toString());
 					currentValue.setLength(0);
-					this.tokenizeState.stringOpen = !this.tokenizeState.stringOpen;
-				} else if (currentValue.isEmpty()) {
+				}
+
+				// if there's no value, start a new string
+				if (currentValue.isEmpty() || this.tokenizeState.stringOpen) {
 					this.tokenizeState.stringOpen = !this.tokenizeState.stringOpen;
 				}
+
+			// append characters to the current value as long as we are in a string
 			} else if (this.tokenizeState.stringOpen) {
 				currentValue.append(chars[i]);
+
+			// reached a possible tuple start character
 			} else if (chars[i] == tupleChars.get().first()) {
+				// if we are already in a tuple, set error and stop tokenizing
 				if (this.tokenizeState.tupleOpen) {
 					errorType = TokenizeError.TokenizeErrorType.TUPLE_ALREADY_OPEN;
 					break;
-				} else if (!currentValue.isEmpty()) {
+				} else if (!currentValue.isEmpty()) { // if there was something before the tuple, tokenize it
 					tokenizeSection.accept(i);
 				}
+
+				// push the tuple token and set the state to tuple open
 				addToken.accept(TokenType.ARGUMENT_VALUE_TUPLE_START, tupleChars.get().first().toString());
 				this.tokenizeState.tupleOpen = true;
+
+			// reached a possible tuple end character
 			} else if (chars[i] == tupleChars.get().second()) {
+				// if we are not in a tuple, set error and stop tokenizing
 				if (!this.tokenizeState.tupleOpen) {
 					errorType = TokenizeError.TokenizeErrorType.UNEXPECTED_TUPLE_CLOSE;
 					break;
 				}
+
+				// if there was something before the tuple, tokenize it
 				if (!currentValue.isEmpty()) {
 					addToken.accept(TokenType.ARGUMENT_VALUE, currentValue.toString());
 				}
+
+				// push the tuple token and set the state to tuple closed
 				addToken.accept(TokenType.ARGUMENT_VALUE_TUPLE_END, tupleChars.get().second().toString());
 				currentValue.setLength(0);
 				this.tokenizeState.tupleOpen = false;
+
+			// reached the end of the whole input
 			} else if (chars[i] != ' ' && i == chars.length - 1) {
 				currentValue.append(chars[i]);
 				tokenizeSection.accept(i);
+
+			// user is trying to escape a character
 			} else if (chars[i] == '\\') {
-				i++; // user is trying to escape a character
-				currentValue.append(chars[i]);
+				i++; // skip the \ character
+				currentValue.append(chars[i]); // append the next character
+
+			// reached a possible separator
 			} else if (
-				(chars[i] == ' ' && !currentValue.isEmpty())
-					|| (chars[i] == '='
-					&& !(previousTokenOfType.test(TokenType::isArgumentSpecifier) || tokenizeState.tupleOpen)
+				(chars[i] == ' ' && !currentValue.isEmpty()) // there's a space and some value to tokenize
+					|| (chars[i] == '=' && !tokenizeState.tupleOpen // there's an = and it's not in a tuple
 				)
 			) {
 				tokenizeSection.accept(i);
+
+			// push the current char to the current value
 			} else if (chars[i] != ' ') {
 				currentValue.append(chars[i]);
 			}

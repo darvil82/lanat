@@ -37,6 +37,6 @@ public class SimpleTests {
 
 		System.out.println(a);
 
-		a.parseArgs("subcommand --hey [w=23 test=24] --what='test' -w='hola'");
+		a.parseArgs("subcommand --hey [x=23 y56] --what='test' -w='hola'  awdowidjoa");
 	}
 }

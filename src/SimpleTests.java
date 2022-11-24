@@ -1,4 +1,5 @@
 import argparser.*;
+import argparser.argumentTypes.KeyValuesArgument;
 import argparser.utils.ErrorLevel;
 
 class Ball extends ArgumentType<Integer> {
@@ -27,7 +28,7 @@ public class SimpleTests {
 				setErrorCode(128);
 
 				addArgument(new Argument<>('w', "what", ArgumentType.FILE()));
-				addArgument(new Argument<>('h', "hey", ArgumentType.KEY_VALUES(ArgumentType.INTEGER()))
+				addArgument(new Argument<>('h', "hey", KeyValuesArgument.create(ArgumentType.STRING(), '.'))
 					.onOk(System.out::println)
 				);
 			}});
@@ -35,6 +36,6 @@ public class SimpleTests {
 
 		a.setOnErrorCallback(c -> c.addError("Looks like it failed!", ErrorLevel.DEBUG));
 
-		a.parseArgs("subcommand --hey [x=23 y=56] awdowidjoa");
+		a.parseArgs("subcommand --hey [x.23 y.56] awdowidjoa");
 	}
 }

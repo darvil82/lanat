@@ -29,7 +29,7 @@ public class KeyValuesArgument<T extends ArgumentType<Ts>, Ts> extends ArgumentT
 		this.value = new HashMap<>();
 
 		this.forEachArgValue(args, arg -> {
-			var split = arg.split("=");
+			var split = arg.split(String.format("\\%c", this.separator));
 
 			if (split.length != 2) {
 				this.addError("Invalid key-value pair: '" + arg + "'.");
@@ -52,5 +52,9 @@ public class KeyValuesArgument<T extends ArgumentType<Ts>, Ts> extends ArgumentT
 			this.valueType.parseValues(value);
 			this.value.put(key, this.valueType.getFinalValue());
 		});
+	}
+
+	public static <T extends ArgumentType<Ts>, Ts> KeyValuesArgument<T, Ts> create(T type, char separator) {
+		return new KeyValuesArgument<>(type, separator);
 	}
 }

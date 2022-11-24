@@ -548,16 +548,21 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 			if (this.onCorrectCallback != null) this.onCorrectCallback.accept(this);
 		}
 		this.parseState.parsedArguments.forEach(Argument::invokeCallbacks);
+		this.subCommands.forEach(Command::invokeCallbacks);
 	}
 
 	@Override
 	public boolean hasExitErrors() {
-		return super.hasExitErrors() || this.arguments.stream().anyMatch(Argument::hasExitErrors);
+		return super.hasExitErrors()
+			|| this.subCommands.stream().anyMatch(Command::hasExitErrors)
+			|| this.arguments.stream().anyMatch(Argument::hasExitErrors);
 	}
 
 	@Override
 	public boolean hasDisplayErrors() {
-		return super.hasDisplayErrors() || this.arguments.stream().anyMatch(Argument::hasDisplayErrors);
+		return super.hasDisplayErrors()
+			|| this.subCommands.stream().anyMatch(Command::hasDisplayErrors)
+			|| this.arguments.stream().anyMatch(Argument::hasDisplayErrors);
 	}
 
 	private abstract class ParsingStateBase<T extends ErrorLevelProvider> extends ErrorsContainer<T> {

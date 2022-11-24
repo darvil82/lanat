@@ -33,10 +33,8 @@ public class SimpleTests {
 			}});
 		}};
 
-		a.addError("hello", ErrorLevel.DEBUG);
+		a.setOnErrorCallback(c -> c.addError("Looks like it failed!", ErrorLevel.DEBUG));
 
-		System.out.println(a);
-
-		a.parseArgs("subcommand --hey [x=23 y56] --what='test' -w=['hola'] awdowidjoa");
+		a.parseArgs("subcommand --hey [x=23 y=56] awdowidjoa");
 	}
 }

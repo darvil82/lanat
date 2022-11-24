@@ -1,6 +1,5 @@
 package argparser;
 
-import argparser.utils.ErrorLevel;
 import argparser.utils.Pair;
 
 public class ArgumentParser extends Command {
@@ -23,11 +22,9 @@ public class ArgumentParser extends Command {
 		var errorHandler = new ErrorHandler(this);
 		this.parseTokens(); // same thing, this parses all the stuff recursively
 
-		errorHandler.handleErrors();
-
+		this.invokeCallbacks();
+		errorHandler.handleErrorsView();
 		int errorCode = errorHandler.getErrorCode();
-
-		this.subCommands.forEach(Command::invokeCallbacks);
 
 		if (errorCode != 0) {
 			System.exit(errorCode);
@@ -46,7 +43,7 @@ public class ArgumentParser extends Command {
 		var errorHandler = new ErrorHandler(this);
 		this.parseTokens(); // same thing, this parses all the stuff recursively
 
-		errorHandler.handleErrors();
+		errorHandler.handleErrorsView();
 
 		int errorCode = errorHandler.getErrorCode();
 

@@ -26,7 +26,7 @@ public class SimpleTests {
 			addSubCommand(new Command("subcommand") {{
 				setErrorCode(128);
 
-				addArgument(new Argument<>("what", ArgumentType.FILE()));
+				addArgument(new Argument<>('w', "what", ArgumentType.FILE()));
 				addArgument(new Argument<>('h', "hey", ArgumentType.KEY_VALUES(ArgumentType.INTEGER()))
 					.onOk(System.out::println)
 				);
@@ -37,6 +37,6 @@ public class SimpleTests {
 
 		System.out.println(a);
 
-		a.parseArgs("subcommand --hey [w=23 test=24] waddwa");
+		a.parseArgs("subcommand --hey [w=23 test=24] --what='test' -w='hola'");
 	}
 }

@@ -1,5 +1,6 @@
 package argparser;
 
+import argparser.utils.ErrorLevel;
 import argparser.utils.Pair;
 
 public class ArgumentParser extends Command {
@@ -21,6 +22,7 @@ public class ArgumentParser extends Command {
 		this.tokenize(args); // first. This will tokenize all subCommands recursively
 		var errorHandler = new ErrorHandler(this);
 		this.parseTokens(); // same thing, this parses all the stuff recursively
+		System.out.println(this.getFullTokenList());
 
 		errorHandler.handleErrors();
 

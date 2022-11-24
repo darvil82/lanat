@@ -135,8 +135,8 @@ public class Command extends ErrorsContainer<CustomError, Command, Command> impl
 				this.finishedTokenizing = true; // dumb java lambdas require me to do this in order to stop tokenizing
 			} else {
 				finalTokens.add(token);
-				currentValue.setLength(0);
 			}
+			currentValue.setLength(0);
 		};
 
 		char[] chars = content.toCharArray();
@@ -146,10 +146,10 @@ public class Command extends ErrorsContainer<CustomError, Command, Command> impl
 				if (this.tokenizeState.stringOpen) {
 					addToken.accept(TokenType.ARGUMENT_VALUE, currentValue.toString());
 					currentValue.setLength(0);
-				} else if (!currentValue.isEmpty()) {
-					continue;
+					this.tokenizeState.stringOpen = !this.tokenizeState.stringOpen;
+				} else if (currentValue.isEmpty()) {
+					this.tokenizeState.stringOpen = !this.tokenizeState.stringOpen;
 				}
-				this.tokenizeState.stringOpen = !this.tokenizeState.stringOpen;
 			} else if (this.tokenizeState.stringOpen) {
 				currentValue.append(chars[i]);
 			} else if (chars[i] == tupleChars.get().first()) {
@@ -181,14 +181,17 @@ public class Command extends ErrorsContainer<CustomError, Command, Command> impl
 			} else if (
 				(chars[i] == ' ' && !currentValue.isEmpty())
 					|| (chars[i] == '='
-					&& previousTokenOfType.test(TokenType::isArgumentSpecifier)
-					&& currentValue.isEmpty()
+					&& !(previousTokenOfType.test(TokenType::isArgumentSpecifier) || tokenizeState.tupleOpen)
 				)
 			) {
 				tokenizeSection.accept(i);
 			} else if (chars[i] != ' ') {
 				currentValue.append(chars[i]);
 			}
+		}
+
+		if (!currentValue.isEmpty()) {
+			tokenizeSection.accept(chars.length);
 		}
 
 		if (errorType == null)
@@ -573,10 +576,10 @@ public class Command extends ErrorsContainer<CustomError, Command, Command> impl
 			this.addError(type, arg, argValueCount, this.currentTokenIndex);
 		}
 
+
 		void addError(CustomError customError) {
 			this.customErrors.add(customError);
 		}
-
 		@Override
 		public boolean hasExitErrors() {
 			return super.hasExitErrors() || this.anyErrorInMinimum(this.customErrors, false);

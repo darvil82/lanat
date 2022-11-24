@@ -231,6 +231,15 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	@Override
+	public String toString() {
+		return String.format(
+			"Argument<%s>[alias='%s', prefix='%c', obligatory=%b, positional=%b]",
+			this.argType.getClass().getSimpleName(), this.getAlias(),
+			this.getPrefix(), this.isObligatory(), this.isPositional()
+		);
+	}
+
+	@Override
 	public void setMinimumDisplayErrorLevel(ErrorLevel level) {
 		this.argType.setMinimumDisplayErrorLevel(level);
 	}

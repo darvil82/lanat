@@ -88,6 +88,14 @@ public class Command extends ErrorsContainer<CustomError, Command, Command> impl
 		return this.arguments.stream().filter(Argument::isPositional).toArray(Argument[]::new);
 	}
 
+	@Override
+	public String toString() {
+		return String.format(
+			"Command[name='%s', description='%s', arguments=%s, subCommands=%s]",
+			this.name, this.description, this.arguments, this.subCommands
+		);
+	}
+
 	// ---------------------------------------------------- Parsing ----------------------------------------------------
 
 	List<Command> getTokenizedSubCommands() {
@@ -110,8 +118,7 @@ public class Command extends ErrorsContainer<CustomError, Command, Command> impl
 		var finalTokens = new ArrayList<Token>();
 		Predicate<Predicate<TokenType>> previousTokenOfType = (t) -> {
 			if (finalTokens.size() < 1) return false;
-			Token lastToken = finalTokens.get(finalTokens.size() - 1);
-			return t.test(lastToken.type());
+			return t.test(finalTokens.get(finalTokens.size() - 1).type());
 		};
 
 		var currentValue = new StringBuilder();
@@ -125,7 +132,7 @@ public class Command extends ErrorsContainer<CustomError, Command, Command> impl
 			if (token.type() == TokenType.SUB_COMMAND && (subCmd = getSubCommandByName(token.contents())) != null) {
 				// forward the rest of stuff to the subCommand
 				subCmd.tokenize(content.substring(i + 1));
-				finishedTokenizing = true; // dumb java lambdas require me to do this in order to stop tokenizing
+				this.finishedTokenizing = true; // dumb java lambdas require me to do this in order to stop tokenizing
 			} else {
 				finalTokens.add(token);
 				currentValue.setLength(0);

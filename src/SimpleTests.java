@@ -19,6 +19,7 @@ public class SimpleTests {
 
 		var a = new ArgumentParser("SimpleTesting") {{
 			setErrorCode(64);
+			setMinimumDisplayErrorLevel(ErrorLevel.DEBUG);
 
 			addArgument(new Argument<>("test", ArgumentType.STRING()));
 			addArgument(new Argument<>("what", ArgumentType.FILE()));
@@ -33,6 +34,8 @@ public class SimpleTests {
 		}};
 
 		a.addError("hello", ErrorLevel.DEBUG);
+
+		System.out.println(a);
 
 		a.parseArgs("subcommand --hey [w=23 test=24] waddwa");
 	}

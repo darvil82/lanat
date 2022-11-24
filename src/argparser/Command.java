@@ -444,7 +444,6 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 			} else if (c_token.type() == TokenType.ARGUMENT_NAME_LIST) {
 				parseArgNameList(c_token.contents().substring(1));
 				foundNonPositionalArg = true;
-				parseState.currentTokenIndex++;
 			} else if (
 				(c_token.type() == TokenType.ARGUMENT_VALUE || c_token.type() == TokenType.ARGUMENT_VALUE_TUPLE_START)
 					&& !foundNonPositionalArg

@@ -204,8 +204,8 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 			// reached a possible separator
 			} else if (
 				(chars[i] == ' ' && !currentValue.isEmpty()) // there's a space and some value to tokenize
-					|| (chars[i] == '=' && !tokenizeState.tupleOpen // there's an = and it's not in a tuple
-				)
+					// also check if this is defining the value of an argument, or we are in a tuple. If so, don't tokenize
+					|| (chars[i] == '=' && !(tokenizeState.tupleOpen || this.isArgumentSpecifier(currentValue.substring(0, currentValue.length() - 1))))
 			) {
 				tokenizeSection.accept(i);
 
@@ -215,6 +215,7 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 			}
 		}
 
+		// we left something in the current value, tokenize it
 		if (!currentValue.isEmpty()) {
 			tokenizeSection.accept(chars.length);
 		}
@@ -326,15 +327,6 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 		return false;
 	}
 
-	private Command getSubCommandByName(String name) {
-		var x = this.subCommands.stream().filter(sc -> sc.name.equals(name)).toList();
-		return x.isEmpty() ? null : x.get(0);
-	}
-
-	private Command getTokenizedSubCommand() {
-		return this.subCommands.stream().filter(sb -> sb.finishedTokenizing).findFirst().orElse(null);
-	}
-
 	private boolean isArgNameList(String str) {
 		if (str.length() < 2) return false;
 
@@ -347,6 +339,19 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 		}
 
 		return possiblePrefixes.size() >= 1 && possiblePrefixes.contains(str.charAt(0));
+	}
+
+	private boolean isArgumentSpecifier(String str) {
+		return this.isArgAlias(str) || this.isArgNameList(str);
+	}
+
+	private Command getSubCommandByName(String name) {
+		var x = this.subCommands.stream().filter(sc -> sc.name.equals(name)).toList();
+		return x.isEmpty() ? null : x.get(0);
+	}
+
+	private Command getTokenizedSubCommand() {
+		return this.subCommands.stream().filter(sb -> sb.finishedTokenizing).findFirst().orElse(null);
 	}
 
 	private boolean isSubCommand(String str) {

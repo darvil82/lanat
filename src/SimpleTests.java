@@ -36,6 +36,6 @@ public class SimpleTests {
 
 		a.setOnErrorCallback(c -> c.addError("Looks like it failed!", ErrorLevel.DEBUG));
 
-		a.parseArgs("subcommand --hey [x.23 y.56] awdowidjoa");
+		a.parseArgs("subcommand --hey=[x.23 y.56] --what=test");
 	}
 }

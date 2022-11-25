@@ -220,13 +220,14 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	@Override
 	public void invokeCallbacks() {
 		if (this.onErrorCallback == null || this.hasExitErrors()) return;
-
 		this.onErrorCallback.accept(this);
 	}
 
+	// no worries about casting here, it will always receive the correct type
 	@SuppressWarnings("unchecked")
 	void invokeCallbacks(Object okValue) {
 		this.invokeCallbacks();
+		if (this.onCorrectCallback == null || this.usageCount == 0) return;
 		this.onCorrectCallback.accept((TInner)okValue);
 	}
 

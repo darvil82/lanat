@@ -22,7 +22,7 @@ public class SimpleTests {
 			setErrorCode(64);
 			setMinimumDisplayErrorLevel(ErrorLevel.DEBUG);
 
-			addArgument(new Argument<>("test", ArgumentType.STRING()));
+			addArgument(new Argument<>("test", ArgumentType.STRING()).onOk(System.out::println).defaultValue("testing"));
 			addArgument(new Argument<>("what", ArgumentType.FILE()));
 			addSubCommand(new Command("subcommand") {{
 				setErrorCode(128);
@@ -36,6 +36,6 @@ public class SimpleTests {
 
 		a.setOnErrorCallback(c -> c.addError("Looks like it failed!", ErrorLevel.DEBUG));
 
-		a.parseArgs("subcommand --hey=[x.23 y.56] --what=test");
+		a.parseArgs("subcommand -h[x.23 y.56]");
 	}
 }

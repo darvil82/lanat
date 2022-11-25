@@ -273,7 +273,7 @@ public class ErrorHandler {
 
 			new ArrayList<ParseStateErrorBase<?>>() {{
 				addAll(cmd.getErrorsUnderDisplayLevel());
-				addAll(cmd.tokenizeState.getErrorsUnderDisplayLevel());
+				addAll(cmd.tokenizingState.getErrorsUnderDisplayLevel());
 				addAll(cmd.parseState.getCustomErrors());
 				addAll(ParseError.filter(cmd.parseState.getErrorsUnderDisplayLevel()));
 			}}.stream()

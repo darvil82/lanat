@@ -16,7 +16,7 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 	final ArrayList<Command> subCommands = new ArrayList<>();
 	final ModifyRecord<Pair<Character, Character>> tupleChars = new ModifyRecord<>(TupleCharacter.SQUARE_BRACKETS.getCharPair());
 	private final ModifyRecord<Integer> errorCode = new ModifyRecord<>(1);
-	TokenizeState tokenizeState;
+	TokenizingState tokenizingState;
 	ParsingState parseState;
 	private Consumer<Command> onErrorCallback;
 	private Consumer<Command> onCorrectCallback;
@@ -145,24 +145,24 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 			// reached a possible value wrapped in quotes
 			if (chars[i] == '"' || chars[i] == '\'') {
 				// if we are already in an opened string, push the current value and close the string
-				if (this.tokenizeState.stringOpen) {
+				if (this.tokenizingState.stringOpen) {
 					addToken.accept(TokenType.ARGUMENT_VALUE, currentValue.toString());
 					currentValue.setLength(0);
 				}
 
 				// if there's no value, start a new string
-				if (currentValue.isEmpty() || this.tokenizeState.stringOpen) {
-					this.tokenizeState.stringOpen = !this.tokenizeState.stringOpen;
+				if (currentValue.isEmpty() || this.tokenizingState.stringOpen) {
+					this.tokenizingState.stringOpen = !this.tokenizingState.stringOpen;
 				}
 
 			// append characters to the current value as long as we are in a string
-			} else if (this.tokenizeState.stringOpen) {
+			} else if (this.tokenizingState.stringOpen) {
 				currentValue.append(chars[i]);
 
 			// reached a possible tuple start character
 			} else if (chars[i] == tupleChars.get().first()) {
 				// if we are already in a tuple, set error and stop tokenizing
-				if (this.tokenizeState.tupleOpen) {
+				if (this.tokenizingState.tupleOpen) {
 					errorType = TokenizeError.TokenizeErrorType.TUPLE_ALREADY_OPEN;
 					break;
 				} else if (!currentValue.isEmpty()) { // if there was something before the tuple, tokenize it
@@ -171,12 +171,12 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 
 				// push the tuple token and set the state to tuple open
 				addToken.accept(TokenType.ARGUMENT_VALUE_TUPLE_START, tupleChars.get().first().toString());
-				this.tokenizeState.tupleOpen = true;
+				this.tokenizingState.tupleOpen = true;
 
 			// reached a possible tuple end character
 			} else if (chars[i] == tupleChars.get().second()) {
 				// if we are not in a tuple, set error and stop tokenizing
-				if (!this.tokenizeState.tupleOpen) {
+				if (!this.tokenizingState.tupleOpen) {
 					errorType = TokenizeError.TokenizeErrorType.UNEXPECTED_TUPLE_CLOSE;
 					break;
 				}
@@ -189,7 +189,7 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 				// push the tuple token and set the state to tuple closed
 				addToken.accept(TokenType.ARGUMENT_VALUE_TUPLE_END, tupleChars.get().second().toString());
 				currentValue.setLength(0);
-				this.tokenizeState.tupleOpen = false;
+				this.tokenizingState.tupleOpen = false;
 
 			// reached the end of the whole input
 			} else if (chars[i] != ' ' && i == chars.length - 1) {
@@ -205,7 +205,7 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 			} else if (
 				(chars[i] == ' ' && !currentValue.isEmpty()) // there's a space and some value to tokenize
 					// also check if this is defining the value of an argument, or we are in a tuple. If so, don't tokenize
-					|| (chars[i] == '=' && !(tokenizeState.tupleOpen || this.isArgumentSpecifier(currentValue.substring(0, currentValue.length() - 1))))
+					|| (chars[i] == '=' && !(tokenizingState.tupleOpen || this.isArgumentSpecifier(currentValue.substring(0, currentValue.length() - 1))))
 			) {
 				tokenizeSection.accept(i);
 
@@ -221,14 +221,14 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 		}
 
 		if (errorType == null)
-			if (this.tokenizeState.tupleOpen) {
+			if (this.tokenizingState.tupleOpen) {
 				errorType = TokenizeError.TokenizeErrorType.TUPLE_NOT_CLOSED;
-			} else if (this.tokenizeState.stringOpen) {
+			} else if (this.tokenizingState.stringOpen) {
 				errorType = TokenizeError.TokenizeErrorType.STRING_NOT_CLOSED;
 			}
 
 		if (errorType != null) {
-			tokenizeState.addError(errorType, finalTokens.size());
+			tokenizingState.addError(errorType, finalTokens.size());
 		}
 
 		parseState.tokens = finalTokens.toArray(Token[]::new);
@@ -238,7 +238,7 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 	private Token tokenizeSection(String str) {
 		TokenType type;
 
-		if (this.tokenizeState.tupleOpen || this.tokenizeState.stringOpen) {
+		if (this.tokenizingState.tupleOpen || this.tokenizingState.stringOpen) {
 			type = TokenType.ARGUMENT_VALUE;
 		} else if (this.isArgAlias(str)) {
 			type = TokenType.ARGUMENT_ALIAS;
@@ -498,7 +498,7 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 	}
 
 	void initParsingState() {
-		tokenizeState = this.new TokenizeState();
+		tokenizingState = this.new TokenizingState();
 		parseState = this.new ParsingState();
 		this.subCommands.forEach(Command::initParsingState);
 	}
@@ -511,7 +511,7 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 		/* If we have errors, or the subcommands had errors, do OR with our own error level.
 		 * By doing this, the error code of a subcommand will be OR'd with the error codes of all its parents. */
 		if (
-			(this.parseState.hasExitErrors() || this.tokenizeState.hasExitErrors())
+			(this.parseState.hasExitErrors() || this.tokenizingState.hasExitErrors())
 				|| this.hasExitErrors()
 				|| errCode != 0
 		) {
@@ -560,14 +560,18 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 	public boolean hasExitErrors() {
 		return super.hasExitErrors()
 			|| this.subCommands.stream().anyMatch(Command::hasExitErrors)
-			|| this.arguments.stream().anyMatch(Argument::hasExitErrors);
+			|| this.arguments.stream().anyMatch(Argument::hasExitErrors)
+			|| this.parseState.hasExitErrors()
+			|| this.tokenizingState.hasExitErrors();
 	}
 
 	@Override
 	public boolean hasDisplayErrors() {
 		return super.hasDisplayErrors()
 			|| this.subCommands.stream().anyMatch(Command::hasDisplayErrors)
-			|| this.arguments.stream().anyMatch(Argument::hasDisplayErrors);
+			|| this.arguments.stream().anyMatch(Argument::hasDisplayErrors)
+			|| this.parseState.hasDisplayErrors()
+			|| this.tokenizingState.hasDisplayErrors();
 	}
 
 	private abstract class ParsingStateBase<T extends ErrorLevelProvider> extends ErrorsContainer<T> {
@@ -576,7 +580,7 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 		}
 	}
 
-	class TokenizeState extends ParsingStateBase<TokenizeError> {
+	class TokenizingState extends ParsingStateBase<TokenizeError> {
 		public boolean tupleOpen = false;
 		public boolean stringOpen = false;
 

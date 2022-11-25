@@ -16,15 +16,10 @@ public class SimpleTests {
 				setErrorCode(128);
 
 				addArgument(new Argument<>('w', "what", ArgumentType.FILE()));
-				addArgument(new Argument<>('h', "hey", KeyValuesArgument.create(ArgumentType.STRING(), '.'))
-					.onOk(System.out::println)
-				);
+				addArgument(new Argument<>("nose", new KeyValuesArgument<>(ArgumentType.INTEGER())));
 			}});
 		}};
 
-		a.setOnErrorCallback(c -> c.addError("Looks like it failed!", ErrorLevel.DEBUG));
-		a.setOnCorrectCallback(c -> c.addError("Looks like it worked!", ErrorLevel.DEBUG));
-
-		a.parseArgs("subcommand -h[x.23 y.56] jdioawjd");
+		a.parseArgs("subcommand --nose [x=1 y=347 z=43423]");
 	}
 }

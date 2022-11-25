@@ -59,6 +59,13 @@ public abstract class ErrorsContainer<T extends ErrorLevelProvider> implements I
 	}
 
 	// --------------------------------------------- Getters and Setters -----------------------------------------------
+
+	/**
+	 * The minimum error level that will cause the program to exit.
+	 * All errors with a level equal to or higher than this will cause the program to exit.
+	 * For example, if this is set to {@link ErrorLevel#WARNING}, then all errors with a level of {@link ErrorLevel#WARNING}
+	 * or {@link ErrorLevel#ERROR} will cause the program to exit.
+	 */
 	@Override
 	public void setMinimumExitErrorLevel(ErrorLevel level) {
 		this.minimumExitErrorLevel.set(level);
@@ -69,6 +76,13 @@ public abstract class ErrorsContainer<T extends ErrorLevelProvider> implements I
 		return this.minimumExitErrorLevel;
 	}
 
+	/**
+	 * The minimum error level that will be displayed to the user.
+	 * All errors with a level lower than this will be ignored.
+	 * For example: If this is set to {@link ErrorLevel#INFO}, then all errors
+	 * (including {@link ErrorLevel#INFO}, {@link ErrorLevel#WARNING}, and {@link ErrorLevel#ERROR}) will be displayed,
+	 * but {@link ErrorLevel#DEBUG} will not.
+	 */
 	@Override
 	public void setMinimumDisplayErrorLevel(ErrorLevel level) {
 		this.minimumDisplayErrorLevel.set(level);

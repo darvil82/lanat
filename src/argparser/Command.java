@@ -521,6 +521,14 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 		return errCode;
 	}
 
+	ParsedArguments getParsedArguments() {
+		return new ParsedArguments(
+			this.name,
+			this.parseState.parsedArguments,
+			this.subCommands.stream().map(Command::getParsedArguments).toArray(ParsedArguments[]::new)
+		);
+	}
+
 	/**
 	 * Specifies the error code that the program should return when this command failed to parse.
 	 * When multiple commands fail, the program will return the result of the OR bit operation that will be

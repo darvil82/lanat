@@ -25,9 +25,7 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> {
 	private int receivedValueCount = 0;
 	/**
 	 * The parent argument type is the one that wants to listen for errors that occur in this argument type.
-	 * This value is set by the parent argument type when it runs the register method.
-	 *
-	 * @see ArgumentType#registerSubType(ArgumentType)
+	 * This value is set by the parent argument type when it runs {@link ArgumentType#registerSubType(ArgumentType)}.
 	 */
 	private ArgumentType<?> parentArgType;
 
@@ -44,9 +42,7 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> {
 
 	/**
 	 * By registering a subtype, this allows you to listen for errors that occurred in this subtype during
-	 * parsing. The <code>onSubTypeError</code> method will be called when an error occurs.
-	 *
-	 * @see ArgumentType#onSubTypeError(CustomError)
+	 * parsing. The {@link ArgumentType#onSubTypeError(CustomError)} method will be called when an error occurs.
 	 */
 	protected void registerSubType(ArgumentType<?> subType) {
 		subType.tokenIndex = 0; // This is so the subtype will not throw the error that it was not parsed.
@@ -56,10 +52,9 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> {
 	/**
 	 * This is called when a subtype of this argument type has an error.
 	 * By default, this adds the error to the list of errors, while also adding
-	 * the current value index.
+	 * the {@link ArgumentType#currentArgValueIndex}.
 	 *
 	 * @param error The error that occurred in the subtype.
-	 * @see ArgumentType#currentArgValueIndex
 	 */
 	protected void onSubTypeError(CustomError error) {
 		error.index += this.currentArgValueIndex;

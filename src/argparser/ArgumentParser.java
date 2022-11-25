@@ -30,7 +30,7 @@ public class ArgumentParser extends Command {
 			System.exit(errorCode);
 		}
 
-		return new ParsedArguments(null, null, null);
+		return this.getParsedArguments();
 	}
 
 

@@ -2,18 +2,6 @@ import argparser.*;
 import argparser.argumentTypes.KeyValuesArgument;
 import argparser.utils.ErrorLevel;
 
-class Ball extends ArgumentType<Integer> {
-	@Override
-	public ArgValueCount getNumberOfArgValues() {
-		return new ArgValueCount(0, 2);
-	}
-
-	@Override
-	public void parseValues(String[] args) {
-		this.addError("This is a test error", 0, ErrorLevel.INFO);
-	}
-}
-
 
 public class SimpleTests {
 	public static void main(String[] args) {
@@ -35,7 +23,8 @@ public class SimpleTests {
 		}};
 
 		a.setOnErrorCallback(c -> c.addError("Looks like it failed!", ErrorLevel.DEBUG));
+		a.setOnCorrectCallback(c -> c.addError("Looks like it worked!", ErrorLevel.DEBUG));
 
-		a.parseArgs("subcommand -h[x.23 y.56]");
+		a.parseArgs("subcommand -h[x.23 y.56] jdioawjd");
 	}
 }

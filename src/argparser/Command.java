@@ -280,8 +280,9 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 					this.executeArgParse(a, args.substring(constIndex + 1)); // if this arg accepts more values, treat the rest of chars as value
 				}
 			}))
-				break;
+				return;
 		}
+		parseState.currentTokenIndex++;
 	}
 
 	/**

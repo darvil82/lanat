@@ -144,12 +144,12 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		return this.argType.getNumberOfArgValues();
 	}
 
-	public boolean checkMatch(String alias) {
+	boolean checkMatch(String alias) {
 		if (this.alias == null) return false;
 		return alias.equals(Character.toString(this.prefix).repeat(2) + this.alias);
 	}
 
-	public boolean checkMatch(char name) {
+	boolean checkMatch(char name) {
 		// getAlias because it has a fallback to return the name if there's no alias.
 		// we want to match single-char aliases too
 		if (this.name == null) {

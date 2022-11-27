@@ -32,20 +32,20 @@ public class ParsedArguments {
 		return new ParsedArgument<>((T)this.parsedArgs.get(arg));
 	}
 
-	public <T> ParsedArgument<T> get(String arg) {
-		return this.get(arg.split("\s*" + Pattern.quote(ParsedArguments.separator) + "\s*"));
+	public <T> ParsedArgument<T> get(String argRoute) {
+		return this.get(argRoute.split("\s*" + Pattern.quote(ParsedArguments.separator) + "\s*"));
 	}
 
 	@SuppressWarnings("unchecked") // we'll just have to trust the user
-	public <T> ParsedArgument<T> get(String... args) {
+	public <T> ParsedArgument<T> get(String... argRoute) {
 		Optional<ParsedArguments> matchedSubArg;
 
-		if (args.length == 1) {
-			return (ParsedArgument<T>)this.get(this.getArgument(args[0]));
-		} else if ((matchedSubArg = Arrays.stream(this.subArgs).filter(sub -> sub.name.equals(args[0])).findFirst()).isPresent()) {
-			return matchedSubArg.get().get(Arrays.copyOfRange(args, 1, args.length));
+		if (argRoute.length == 1) {
+			return (ParsedArgument<T>)this.get(this.getArgument(argRoute[0]));
+		} else if ((matchedSubArg = Arrays.stream(this.subArgs).filter(sub -> sub.name.equals(argRoute[0])).findFirst()).isPresent()) {
+			return matchedSubArg.get().get(Arrays.copyOfRange(argRoute, 1, argRoute.length));
 		} else {
-			throw new IllegalArgumentException("argument '" + args[0] + "' not found");
+			throw new IllegalArgumentException("argument '" + argRoute[0] + "' not found");
 		}
 	}
 

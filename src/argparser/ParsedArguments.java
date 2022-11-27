@@ -1,14 +1,19 @@
 package argparser;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
 
 public class ParsedArguments {
 	private final HashMap<Argument<?, ?>, Object> parsedArgs;
 	private final String name;
 	private final ParsedArguments[] subArgs;
+	public static String separator = ".";
 
 	ParsedArguments(String name, HashMap<Argument<?, ?>, Object> parsedArgs, ParsedArguments[] subArgs) {
 		this.parsedArgs = parsedArgs;
@@ -18,22 +23,40 @@ public class ParsedArguments {
 
 	@SuppressWarnings("unchecked") // we'll just have to trust the user
 	public <T> ParsedArgument<T> get(Argument<?, T> arg) {
+		Objects.requireNonNull(arg);
+
+		if (!this.parsedArgs.containsKey(arg)) {
+			throw new IllegalArgumentException("argument '" + arg.getAlias() + "' not found");
+		}
+
 		return new ParsedArgument<>((T)this.parsedArgs.get(arg));
 	}
 
-	@SuppressWarnings("unchecked") // we'll just have to trust the user
 	public <T> ParsedArgument<T> get(String arg) {
-		return new ParsedArgument<>((T)this.parsedArgs.get(this.getArgument(arg)));
+		return this.get(arg.split("\s*" + Pattern.quote(ParsedArguments.separator) + "\s*"));
+	}
+
+	@SuppressWarnings("unchecked") // we'll just have to trust the user
+	public <T> ParsedArgument<T> get(String... args) {
+		Optional<ParsedArguments> matchedSubArg;
+
+		if (args.length == 1) {
+			return (ParsedArgument<T>)this.get(this.getArgument(args[0]));
+		} else if ((matchedSubArg = Arrays.stream(this.subArgs).filter(sub -> sub.name.equals(args[0])).findFirst()).isPresent()) {
+			return matchedSubArg.get().get(Arrays.copyOfRange(args, 1, args.length));
+		} else {
+			throw new IllegalArgumentException("argument '" + args[0] + "' not found");
+		}
 	}
 
 
-	private <T> Argument<?, ?> getArgument(String name) {
-		for (Argument<?, ?> arg : this.parsedArgs.keySet()) {
+	private Argument<?, ?> getArgument(String name) {
+		for (var arg : this.parsedArgs.keySet()) {
 			if (arg.getAlias().equals(name)) {
 				return arg;
 			}
 		}
-		return null;
+		throw new IllegalArgumentException("argument '" + name + "' not found");
 	}
 
 

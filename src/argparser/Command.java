@@ -467,7 +467,6 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 
 		this.arguments.forEach(argument -> {
 			Object r = argument.finishParsing(parseState);
-			if (r == null) return;
 			parsedArgs.put(argument, r);
 		});
 

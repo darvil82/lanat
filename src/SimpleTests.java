@@ -1,10 +1,6 @@
 import argparser.*;
-import argparser.argumentTypes.FileArgument;
 import argparser.argumentTypes.KeyValuesArgument;
 import argparser.utils.ErrorLevel;
-
-import java.io.FileReader;
-import java.util.ArrayList;
 
 public class SimpleTests {
 	public static void main(String[] args) {
@@ -21,8 +17,12 @@ public class SimpleTests {
 
 				addArgument(new Argument<>('w', "what", ArgumentType.FILE()));
 				addArgument(new Argument<>("nose", new KeyValuesArgument<>(ArgumentType.INTEGER())));
+
+				addSubCommand(new Command("another") {{
+					addArgument(new Argument<>("test", ArgumentType.STRING()));
+				}});
 			}});
-		}}.parseArgs("-fff --test hii subcommand --nose [x=1 y=347 z=43423]");
+		}}.parseArgs("-fff --test hii subcommand --nose [x=1 y=347 z=43423] another --test 'this is a test'");
 
 
 		var v = pargs.<String>get("test").undefined("yeah");
@@ -39,8 +39,10 @@ public class SimpleTests {
 			System.out.println("test is undefined");
 		});
 
-		if (pargs.<Short>get("f").matches(x -> x > 2)) {
-			System.out.println("f is greater than 2");
-		}
+		pargs.<String>get("subcommand.another.test").defined(System.out::println);
+		ParsedArguments.separator = "->";
+		pargs.<String>get("subcommand->another->test").defined(System.out::println);
+
+		pargs.<String>get("subcommand", "another", "test").defined(System.out::println);
 	}
 }

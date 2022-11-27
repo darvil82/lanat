@@ -5,7 +5,7 @@ import argparser.utils.ErrorLevel;
 public class SimpleTests {
 	public static void main(String[] args) {
 
-		var pargs = new ArgumentParser("SimpleTesting") {{
+		var pArgs = new ArgumentParser("SimpleTesting") {{
 			setErrorCode(64);
 			setMinimumDisplayErrorLevel(ErrorLevel.DEBUG);
 
@@ -27,24 +27,24 @@ public class SimpleTests {
 		}}.parseArgs("-fff --test hii subcommand --nose [x=1 y=347 z=43423] another --test 'this is a test'");
 
 
-		var v = pargs.<String>get("test").undefined("yeah");
+		var v = pArgs.<String>get("test").undefined("yeah");
 		System.out.println(v);
 
-		if (pargs.get("test").defined()) {
+		if (pArgs.get("test").defined()) {
 			System.out.println("test is defined");
 		}
 
-		pargs.<String>get("test").defined(t -> {
+		pArgs.<String>get("test").defined(t -> {
 			System.out.println("test is defined");
 			System.out.println(t);
 		}).undefined(() -> {
 			System.out.println("test is undefined");
 		});
 
-		pargs.<String>get("subcommand.another.test").defined(System.out::println);
+		pArgs.<String>get("subcommand.another.test").defined(System.out::println);
 		ParsedArguments.separator = "->";
-		pargs.<String>get("subcommand->another->test").defined(System.out::println);
+		pArgs.<String>get("subcommand->another->test").defined(System.out::println);
 
-		pargs.<String>get("subcommand", "another", "test").defined(System.out::println);
+		pArgs.<String>get("subcommand", "another", "test").defined(System.out::println);
 	}
 }

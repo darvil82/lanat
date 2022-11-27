@@ -463,15 +463,6 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 			}
 		}
 
-		HashMap<Argument<?, ?>, Object> parsedArgs = new HashMap<>();
-
-		this.arguments.forEach(argument -> {
-			Object r = argument.finishParsing(parseState);
-			parsedArgs.put(argument, r);
-		});
-
-		this.parseState.parsedArguments = parsedArgs;
-
 		// now parse the subcommands
 		this.subCommands.stream()
 			.filter(sb -> sb.finishedTokenizing) // only get the commands that were actually tokenized
@@ -524,9 +515,15 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 	ParsedArguments getParsedArguments() {
 		return new ParsedArguments(
 			this.name,
-			this.parseState.parsedArguments,
+			this.getParsedArgumentsHashMap(),
 			this.subCommands.stream().map(Command::getParsedArguments).toArray(ParsedArguments[]::new)
 		);
+	}
+
+	private HashMap<Argument<?, ?>, Object> getParsedArgumentsHashMap() {
+		return new HashMap<>() {{
+			Command.this.arguments.forEach(arg -> this.put(arg, arg.finishParsing(Command.this.parseState)));
+		}};
 	}
 
 	/**
@@ -560,7 +557,7 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 		} else {
 			if (this.onCorrectCallback != null) this.onCorrectCallback.accept(this);
 		}
-		this.parseState.parsedArguments.forEach(Argument::invokeCallbacks);
+		this.getParsedArgumentsHashMap().forEach(Argument::invokeCallbacks);
 		this.subCommands.forEach(Command::invokeCallbacks);
 	}
 
@@ -610,8 +607,6 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 		 * The index of the current token that we are parsing.
 		 */
 		private short currentTokenIndex = 0;
-
-		private HashMap<Argument<?, ?>, Object> parsedArguments = new HashMap<>();
 
 
 		void addError(ParseError.ParseErrorType type, Argument<?, ?> arg, int argValueCount, int currentIndex) {

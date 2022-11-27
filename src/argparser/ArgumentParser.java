@@ -2,6 +2,8 @@ package argparser;
 
 import argparser.utils.Pair;
 
+import java.util.Arrays;
+
 public class ArgumentParser extends Command {
 	public ArgumentParser(String programName, String description) {
 		super(programName, description, true);
@@ -33,6 +35,11 @@ public class ArgumentParser extends Command {
 		return this.getParsedArguments();
 	}
 
+	public ParsedArguments parseArgs() {
+		var args = System.getProperty("sun.java.command").split(" ");
+		return this.parseArgs(Arrays.copyOfRange(args, 1, args.length));
+	}
+
 
 	/**
 	 * <b>DO NOT USE.</b> This is only used for testing purposes.
@@ -43,10 +50,14 @@ public class ArgumentParser extends Command {
 		var errorHandler = new ErrorHandler(this);
 		this.parseTokens(); // same thing, this parses all the stuff recursively
 
+		this.invokeCallbacks();
 		errorHandler.handleErrorsView();
-
 		int errorCode = errorHandler.getErrorCode();
 
-		return new Pair<>(null, errorCode);
+		if (errorCode != 0) {
+			return new Pair<>(null, errorCode);
+		}
+
+		return new Pair<>(this.getParsedArguments(), 0);
 	}
 }

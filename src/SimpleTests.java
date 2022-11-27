@@ -19,7 +19,9 @@ public class SimpleTests {
 				addArgument(new Argument<>("nose", new KeyValuesArgument<>(ArgumentType.INTEGER())));
 
 				addSubCommand(new Command("another") {{
-					addArgument(new Argument<>("test", ArgumentType.STRING()));
+					addArgument(new Argument<>("test", ArgumentType.STRING()).onOk(v -> {
+						System.out.println("test: " + v);
+					}));
 				}});
 			}});
 		}}.parseArgs("-fff --test hii subcommand --nose [x=1 y=347 z=43423] another --test 'this is a test'");

@@ -38,6 +38,10 @@ public class ParsedArguments {
 
 	@SuppressWarnings("unchecked") // we'll just have to trust the user
 	public <T> ParsedArgument<T> get(String... argRoute) {
+		if (argRoute.length == 0) {
+			throw new IllegalArgumentException("argument route must not be empty");
+		}
+
 		Optional<ParsedArguments> matchedSubArg;
 
 		if (argRoute.length == 1) {
@@ -45,7 +49,7 @@ public class ParsedArguments {
 		} else if ((matchedSubArg = Arrays.stream(this.subArgs).filter(sub -> sub.name.equals(argRoute[0])).findFirst()).isPresent()) {
 			return matchedSubArg.get().get(Arrays.copyOfRange(argRoute, 1, argRoute.length));
 		} else {
-			throw new IllegalArgumentException("argument '" + argRoute[0] + "' not found");
+			throw new IllegalArgumentException("subcommand '" + argRoute[0] + "' not found");
 		}
 	}
 

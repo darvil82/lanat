@@ -13,11 +13,19 @@ public class ArgumentParser extends Command {
 		this(programName, null);
 	}
 
+
+	/**
+	 * {@link ArgumentParser#parseArgs(String)}
+	 */
 	public ParsedArguments parseArgs(String[] args) {
 		// if we receive the classic args array, just join it back
 		return this.parseArgs(String.join(" ", args));
 	}
 
+	/**
+	 * Parses the given command line arguments and returns a {@link ParsedArguments} object.
+	 * @param args The command line arguments to parse.
+	 */
 	public ParsedArguments parseArgs(String args) {
 		this.initParsingState();
 		this.tokenize(args); // first. This will tokenize all subCommands recursively
@@ -35,6 +43,9 @@ public class ArgumentParser extends Command {
 		return this.getParsedArguments();
 	}
 
+	/**
+	 * Parses the arguments from the <code>sun.java.command</code> system property.
+	 */
 	public ParsedArguments parseArgs() {
 		var args = System.getProperty("sun.java.command").split(" ");
 		return this.parseArgs(Arrays.copyOfRange(args, 1, args.length));

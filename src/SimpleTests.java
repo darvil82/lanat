@@ -2,6 +2,8 @@ import argparser.*;
 import argparser.argumentTypes.KeyValuesArgument;
 import argparser.utils.ErrorLevel;
 
+import java.util.Scanner;
+
 public class SimpleTests {
 	public static void main(String[] args) {
 

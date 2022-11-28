@@ -42,7 +42,7 @@ public class SimpleTests {
 		});
 
 		pArgs.<String>get("subcommand.another.test").defined(System.out::println);
-		ParsedArguments.separator = "->";
+		ParsedArguments.setSeparator("->");
 		pArgs.<String>get("subcommand->another->test").defined(System.out::println);
 
 		pArgs.<String>get("subcommand", "another", "test").defined(System.out::println);

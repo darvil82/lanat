@@ -13,12 +13,19 @@ public class ParsedArguments {
 	private final HashMap<Argument<?, ?>, Object> parsedArgs;
 	private final String name;
 	private final ParsedArguments[] subArgs;
-	public static String separator = ".";
+	private static String separator = ".";
 
 	ParsedArguments(String name, HashMap<Argument<?, ?>, Object> parsedArgs, ParsedArguments[] subArgs) {
 		this.parsedArgs = parsedArgs;
 		this.name = name;
 		this.subArgs = subArgs;
+	}
+
+	public static void setSeparator(String separator) {
+		if (Objects.requireNonNull(separator).isEmpty()) {
+			throw new IllegalArgumentException("separator cannot be empty");
+		}
+		ParsedArguments.separator = separator;
 	}
 
 	@SuppressWarnings("unchecked") // we'll just have to trust the user
@@ -52,7 +59,6 @@ public class ParsedArguments {
 			throw new IllegalArgumentException("subcommand '" + argRoute[0] + "' not found");
 		}
 	}
-
 
 	private Argument<?, ?> getArgument(String name) {
 		for (var arg : this.parsedArgs.keySet()) {

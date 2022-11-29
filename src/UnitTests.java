@@ -16,7 +16,7 @@ class StringJoiner extends ArgumentType<String> {
 
 	@Override
 	public void parseValues(String[] args) {
-		this.value = "(" + String.join("), (", args) + ")";
+		this.setValue("(" + String.join("), (", args) + ")");
 	}
 }
 

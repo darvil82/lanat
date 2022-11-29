@@ -130,14 +130,23 @@ public class ParsedArguments {
 			this.value = value;
 		}
 
+		/**
+		 * Returns the parsed value of the argument. If the argument was not parsed, this will return <code>null</code>.
+		 */
 		public T get() {
 			return this.value;
 		}
 
+		/**
+		 * Returns true if the argument was parsed, false otherwise.
+		 */
 		public boolean defined() {
 			return this.value != null;
 		}
 
+		/**
+		 * Returns true if the argument was not parsed, false otherwise.
+		 */
 		public boolean undefined() {
 			return this.value == null;
 		}

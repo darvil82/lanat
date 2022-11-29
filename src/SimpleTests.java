@@ -2,6 +2,7 @@ import argparser.*;
 import argparser.argumentTypes.KeyValuesArgument;
 import argparser.utils.ErrorLevel;
 
+import java.util.HashMap;
 import java.util.Scanner;
 
 public class SimpleTests {
@@ -10,6 +11,7 @@ public class SimpleTests {
 		var pArgs = new ArgumentParser("SimpleTesting") {{
 			setErrorCode(64);
 			setMinimumDisplayErrorLevel(ErrorLevel.DEBUG);
+			setTupleChars(TupleCharacter.ANGLE_BRACKETS);
 
 			addArgument(new Argument<>("f", ArgumentType.COUNTER()));
 			addArgument(new Argument<>("test", ArgumentType.STRING()));
@@ -18,7 +20,7 @@ public class SimpleTests {
 				setErrorCode(128);
 
 				addArgument(new Argument<>('w', "what", ArgumentType.FILE()));
-				addArgument(new Argument<>("nose", new KeyValuesArgument<>(ArgumentType.INTEGER())));
+				addArgument(new Argument<>("nose", new KeyValuesArgument<>(ArgumentType.INTEGER(), '.')));
 
 				addSubCommand(new Command("another") {{
 					addArgument(new Argument<>("test", ArgumentType.STRING()).onOk(v -> {
@@ -26,7 +28,7 @@ public class SimpleTests {
 					}));
 				}});
 			}});
-		}}.parseArgs("-fff --test hii subcommand --nose [x=1 y=347 z=43423] another --test 'this is a test'");
+		}}.parseArgs("-fff --test hii subcommand --nose <x.1 y.347 z.43423> another --test 'this is a test' what");
 
 
 		var v = pArgs.<String>get("test").undefined("yeah");
@@ -47,6 +49,10 @@ public class SimpleTests {
 		ParsedArguments.setSeparator("->");
 		pArgs.<String>get("subcommand->another->test").defined(System.out::println);
 
-		pArgs.<String>get("subcommand", "another", "test").defined(System.out::println);
+		pArgs.<HashMap<String, Integer>>get("subcommand", "nose").defined(hm -> {
+			for (var entry : hm.entrySet()) {
+				System.out.println(entry.getKey() + " -> " + entry.getValue());
+			}
+		});
 	}
 }

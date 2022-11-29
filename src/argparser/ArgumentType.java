@@ -6,10 +6,11 @@ import argparser.utils.ErrorsContainer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> {
-	protected T value;
+	private T value;
 	/**
 	 * This is the current index of the value that is being parsed.
 	 */
@@ -65,6 +66,17 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> {
 		if (this.parentArgType != null) {
 			this.parentArgType.onSubTypeError(error);
 		}
+	}
+
+	public T getValue() {
+		return value;
+	}
+
+	/**
+	 * Sets the current value of this argument type.
+	 */
+	public void setValue(T value) {
+		this.value = Objects.requireNonNull(value);
 	}
 
 	/**

@@ -6,7 +6,7 @@ import argparser.ArgumentType;
 public class BooleanArgument extends ArgumentType<Boolean> {
 	@Override
 	public void parseValues(String[] arg) {
-		this.value = true;
+		this.setValue(true);
 	}
 
 	@Override

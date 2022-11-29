@@ -6,7 +6,7 @@ import argparser.ArgumentType;
 public class CounterArgument extends ArgumentType<Short> {
 	// prevent nullptr exceptions
 	public CounterArgument() {
-		this.value = (short)0;
+		this.setValue((short)0);
 	}
 
 	@Override
@@ -16,6 +16,6 @@ public class CounterArgument extends ArgumentType<Short> {
 
 	@Override
 	public void parseValues(String[] args) {
-		this.value++;
+		this.setValue((short)(this.getValue() + 1));
 	}
 }

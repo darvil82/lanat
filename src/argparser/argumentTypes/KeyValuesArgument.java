@@ -26,7 +26,7 @@ public class KeyValuesArgument<T extends ArgumentType<Ts>, Ts> extends ArgumentT
 
 	@Override
 	public void parseValues(String[] args) {
-		this.value = new HashMap<>();
+		HashMap<String, Ts> tempHashMap = new HashMap<>();
 
 		this.forEachArgValue(args, arg -> {
 			var split = arg.split(String.format("\\%c", this.separator));
@@ -44,14 +44,16 @@ public class KeyValuesArgument<T extends ArgumentType<Ts>, Ts> extends ArgumentT
 				return;
 			}
 
-			if (this.value.containsKey(key)) {
+			if (tempHashMap.containsKey(key)) {
 				this.addError("Duplicate key: '" + key + "'.");
 				return;
 			}
 
 			this.valueType.parseValues(value);
-			this.value.put(key, this.valueType.getFinalValue());
+			tempHashMap.put(key, this.valueType.getFinalValue());
 		});
+
+		this.setValue(tempHashMap);
 	}
 
 	public static <T extends ArgumentType<Ts>, Ts> KeyValuesArgument<T, Ts> create(T type, char separator) {

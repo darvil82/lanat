@@ -3,6 +3,7 @@ package argparser;
 import argparser.utils.*;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 public class Argument<Type extends ArgumentType<TInner>, TInner>
@@ -103,7 +104,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * does not accept values, this value will be ignored.
 	 */
 	public Argument<Type, TInner> defaultValue(TInner value) {
-		this.defaultValue = value;
+		this.defaultValue = Objects.requireNonNull(value);
 		return this;
 	}
 

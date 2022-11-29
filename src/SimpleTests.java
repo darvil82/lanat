@@ -8,7 +8,7 @@ import java.util.Scanner;
 public class SimpleTests {
 	public static void main(String[] args) {
 
-		var pArgs = new ArgumentParser("SimpleTesting") {{
+		final var argumentParser = new ArgumentParser("SimpleTesting") {{
 			setErrorCode(64);
 			setMinimumDisplayErrorLevel(ErrorLevel.DEBUG);
 			setTupleChars(TupleCharacter.ANGLE_BRACKETS);
@@ -28,11 +28,13 @@ public class SimpleTests {
 					}));
 				}});
 			}});
-		}}.parseArgs("-fff --test hii subcommand --nose <x.1 y.347 z.43423> another --test 'this is a test' what");
+		}};
+
+//		var pArgs = argumentParser.parseArgs("-fff --test hii subcommand --nose <x.1 y.347 z.43423> another --test 'this is a test' what");
+		final var pArgs = argumentParser.parseArgs("--help");
 
 
-		var v = pArgs.<String>get("test").undefined("yeah");
-		System.out.println(v);
+		System.out.println(pArgs.<String>get("test").undefined("i am the fallback value for --test"));
 
 		if (pArgs.get("test").defined()) {
 			System.out.println("test is defined");

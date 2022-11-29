@@ -151,25 +151,46 @@ public class ParsedArguments {
 			return this.value == null;
 		}
 
+		/**
+		 * Returns <code>true</code> if the argument was parsed and the value matches the given predicate, false otherwise.
+		 * @param predicate The predicate to test the value against (if the argument was parsed). This predicate will
+		 * never receive a <code>null</code> value.
+		 */
 		public boolean matches(Predicate<T> predicate) {
 			return this.defined() && predicate.test(this.value);
 		}
 
+		/**
+		 * Returns the supplied fallback value if the argument was not parsed, otherwise returns the parsed value.
+		 * @param fallbackValue The fallback value to return if the argument was not parsed.
+		 */
 		public T undefined(T fallbackValue) {
 			return this.defined() ? this.value : fallbackValue;
 		}
 
+		/**
+		 * Specifies a supplier function that will be called when the argument is not parsed.
+		 * The supplier will be called and its return value will be returned if so.
+		 * @param fallbackCb The supplier function to call if the argument was not parsed.
+		 */
 		public T undefined(Supplier<T> fallbackCb) {
 			return this.defined() ? this.value : fallbackCb.get();
 		}
 
-		public ParsedArgument<T> undefined(Runnable fallbackCb) {
-			if (this.undefined()) fallbackCb.run();
+		/**
+		 * Specifies a function to run if the argument was not parsed.
+		 */
+		public ParsedArgument<T> undefined(Runnable onUndefined) {
+			if (this.undefined()) onUndefined.run();
 			return this;
 		}
 
-		public ParsedArgument<T> defined(Consumer<T> cb) {
-			if (this.defined()) cb.accept(this.value);
+		/**
+		 * Specifies a function to run if the argument was parsed.
+		 * @param onDefined The function to run if the argument was parsed. This function will receive the parsed value.
+		 */
+		public ParsedArgument<T> defined(Consumer<T> onDefined) {
+			if (this.defined()) onDefined.accept(this.value);
 			return this;
 		}
 	}

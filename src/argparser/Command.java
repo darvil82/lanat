@@ -8,8 +8,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 
+/**
+ * A command is a container for {@link Argument}s and other Sub{@link Command}s.
+ */
 public class Command extends ErrorsContainer<CustomError> implements IErrorCallbacks<Command, Command> {
 	final String name, description;
 	final ArrayList<Argument<?, ?>> arguments = new ArrayList<>();
@@ -17,7 +19,7 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 	final ModifyRecord<Pair<Character, Character>> tupleChars = new ModifyRecord<>(TupleCharacter.SQUARE_BRACKETS.getCharPair());
 	private final ModifyRecord<Integer> errorCode = new ModifyRecord<>(1);
 	TokenizingState tokenizingState;
-	ParsingState parseState;
+	ParsingState parsingState;
 	private Consumer<Command> onErrorCallback;
 	private Consumer<Command> onCorrectCallback;
 	private boolean isRootCommand = false;
@@ -99,8 +101,9 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 	// ---------------------------------------------------- Parsing ----------------------------------------------------
 
 	List<Command> getTokenizedSubCommands() {
-		List<Command> x = new ArrayList<>();
-		Command subCmd;
+		final List<Command> x = new ArrayList<>();
+		final Command subCmd;
+
 		x.add(this);
 		if ((subCmd = this.getTokenizedSubCommand()) != null) {
 			x.addAll(subCmd.getTokenizedSubCommands());
@@ -115,17 +118,12 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 	void tokenize(String content) {
 		this.finishedTokenizing = false; // just in case we are tokenizing again for any reason
 
-		var finalTokens = new ArrayList<Token>();
-		Predicate<Predicate<TokenType>> previousTokenOfType = (t) -> {
-			if (finalTokens.size() < 1) return false;
-			return t.test(finalTokens.get(finalTokens.size() - 1).type());
-		};
-
-		var currentValue = new StringBuilder();
+		final var finalTokens = new ArrayList<Token>();
+		final var currentValue = new StringBuilder();
 		TokenizeError.TokenizeErrorType errorType = null;
 
-		BiConsumer<TokenType, String> addToken = (t, c) -> finalTokens.add(new Token(t, c));
-		Consumer<Integer> tokenizeSection = (i) -> {
+		final BiConsumer<TokenType, String> addToken = (t, c) -> finalTokens.add(new Token(t, c));
+		final Consumer<Integer> tokenizeSection = (i) -> {
 			Token token = this.tokenizeSection(currentValue.toString());
 			Command subCmd;
 			// if this is a subcommand, continue tokenizing next elements
@@ -139,7 +137,7 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 			currentValue.setLength(0);
 		};
 
-		char[] chars = content.toCharArray();
+		final char[] chars = content.toCharArray();
 
 		for (int i = 0; i < chars.length && !finishedTokenizing; i++) {
 			// reached a possible value wrapped in quotes
@@ -231,12 +229,12 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 			tokenizingState.addError(errorType, finalTokens.size());
 		}
 
-		parseState.tokens = finalTokens.toArray(Token[]::new);
+		parsingState.tokens = finalTokens.toArray(Token[]::new);
 		finishedTokenizing = true;
 	}
 
 	private Token tokenizeSection(String str) {
-		TokenType type;
+		final TokenType type;
 
 		if (this.tokenizingState.tupleOpen || this.tokenizingState.stringOpen) {
 			type = TokenType.ARGUMENT_VALUE;
@@ -254,7 +252,7 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 	}
 
 	private Argument<?, ?> getArgumentByPositionalIndex(short index) {
-		var posArgs = this.getPositionalArguments();
+		final var posArgs = this.getPositionalArguments();
 
 		for (short i = 0; i < posArgs.length; i++) {
 			if (i == index) {
@@ -267,14 +265,13 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 	private void parseArgNameList(String args) {
 		// its multiple of them. We can only do this with arguments that accept 0 values.
 		for (short i = 0; i < args.length(); i++) {
-			char currentSimpleArg = args.charAt(i);
-			short constIndex = i; // this is because the lambda requires the variable to be final
+			final short constIndex = i; // this is because the lambda requires the variable to be final
 
-			if (!this.runForArgument(currentSimpleArg, a -> {
+			if (!this.runForArgument(args.charAt(i), a -> {
 				if (a.getNumberOfValues().isZero()) {
 					this.executeArgParse(a);
 				} else if (constIndex == args.length() - 1) {
-					parseState.currentTokenIndex++;
+					parsingState.currentTokenIndex++;
 					this.executeArgParse(a);
 				} else {
 					this.executeArgParse(a, args.substring(constIndex + 1)); // if this arg accepts more values, treat the rest of chars as value
@@ -282,7 +279,7 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 			}))
 				return;
 		}
-		parseState.currentTokenIndex++;
+		parsingState.currentTokenIndex++;
 	}
 
 	/**
@@ -291,7 +288,7 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 	 * @return <a>ParseErrorType.ArgumentNotFound</a> if an argument was found
 	 */
 	private boolean runForArgument(String argAlias, Consumer<Argument<?, ?>> f) {
-		for (var argument : this.arguments) {
+		for (final var argument : this.arguments) {
 			if (argument.checkMatch(argAlias)) {
 				f.accept(argument);
 				return true;
@@ -306,7 +303,7 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 	 * @return <code>true</code> if an argument was found
 	 */
 	private boolean runForArgument(char argName, Consumer<Argument<?, ?>> f) {
-		for (var argument : this.arguments) {
+		for (final var argument : this.arguments) {
 			if (argument.checkMatch(argName)) {
 				f.accept(argument);
 				return true;
@@ -331,10 +328,10 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 	private boolean isArgNameList(String str) {
 		if (str.length() < 2) return false;
 
-		var possiblePrefixes = new ArrayList<Character>();
-		var charArray = str.substring(1).toCharArray();
+		final var possiblePrefixes = new ArrayList<Character>();
+		final var charArray = str.substring(1).toCharArray();
 
-		for (char argName : charArray) {
+		for (final char argName : charArray) {
 			if (!runForArgument(argName, a -> possiblePrefixes.add(a.getPrefix())))
 				break;
 		}
@@ -360,7 +357,7 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 	}
 
 	private void executeArgParse(Argument<?, ?> arg) {
-		ArgValueCount argumentValuesRange = arg.getNumberOfValues();
+		final ArgValueCount argumentValuesRange = arg.getNumberOfValues();
 
 		// just skip the whole thing if it doesn't need any values
 		if (argumentValuesRange.isZero()) {
@@ -368,27 +365,26 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 			return;
 		}
 
-		boolean isInTuple = (
-			parseState.currentTokenIndex < parseState.tokens.length
-				&& parseState.tokens[parseState.currentTokenIndex].type() == TokenType.ARGUMENT_VALUE_TUPLE_START
+		final boolean isInTuple = (
+			parsingState.currentTokenIndex < parsingState.tokens.length
+				&& parsingState.tokens[parsingState.currentTokenIndex].type() == TokenType.ARGUMENT_VALUE_TUPLE_START
 		);
 
-		int ifTupleOffset = isInTuple ? 1 : 0;
+		final int ifTupleOffset = isInTuple ? 1 : 0;
 		int skipCount = ifTupleOffset;
 
-		// first_capture_the_minimum_required_values...
-		ArrayList<Token> tempArgs = new ArrayList<>();
+		final ArrayList<Token> tempArgs = new ArrayList<>();
 
-		// next add more values until we get to the max of the type, or we encounter another argument specifier
+		// add more values until we get to the max of the type, or we encounter another argument specifier
 		for (
-			int i = parseState.currentTokenIndex + ifTupleOffset;
-			i < parseState.tokens.length;
+			int i = parsingState.currentTokenIndex + ifTupleOffset;
+			i < parsingState.tokens.length;
 			i++, skipCount++
 		) {
-			Token currentToken = parseState.tokens[i];
+			final Token currentToken = parsingState.tokens[i];
 			if (
 				(!isInTuple && (
-					currentToken.type().isArgumentSpecifier() || i - parseState.currentTokenIndex >= argumentValuesRange.max
+					currentToken.type().isArgumentSpecifier() || i - parsingState.currentTokenIndex >= argumentValuesRange.max
 				))
 					|| currentToken.type().isTuple()
 			) {
@@ -397,23 +393,23 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 			tempArgs.add(currentToken);
 		}
 
-		int tempArgsSize = tempArgs.size();
-		int newCurrentTokenIndex = skipCount + ifTupleOffset;
+		final int tempArgsSize = tempArgs.size();
+		final int newCurrentTokenIndex = skipCount + ifTupleOffset;
 
 		if (tempArgsSize > argumentValuesRange.max || tempArgsSize < argumentValuesRange.min) {
-			parseState.addError(ParseError.ParseErrorType.ARG_INCORRECT_VALUE_NUMBER, arg, tempArgsSize + ifTupleOffset);
-			parseState.currentTokenIndex += newCurrentTokenIndex;
+			parsingState.addError(ParseError.ParseErrorType.ARG_INCORRECT_VALUE_NUMBER, arg, tempArgsSize + ifTupleOffset);
+			parsingState.currentTokenIndex += newCurrentTokenIndex;
 			return;
 		}
 
 		// pass the arg values to the argument sub parser
-		arg.parseValues(tempArgs.stream().map(Token::contents).toArray(String[]::new), (short)(parseState.currentTokenIndex + ifTupleOffset));
+		arg.parseValues(tempArgs.stream().map(Token::contents).toArray(String[]::new), (short)(parsingState.currentTokenIndex + ifTupleOffset));
 
-		parseState.currentTokenIndex += newCurrentTokenIndex;
+		parsingState.currentTokenIndex += newCurrentTokenIndex;
 	}
 
 	private void executeArgParse(Argument<?, ?> arg, String value) {
-		ArgValueCount argumentValuesRange = arg.getNumberOfValues();
+		final ArgValueCount argumentValuesRange = arg.getNumberOfValues();
 
 		if (value.isEmpty()) {
 			this.executeArgParse(arg); // value is not present in the suffix. Continue parsing values.
@@ -427,12 +423,12 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 		}
 
 		if (argumentValuesRange.min > 1) {
-			parseState.addError(ParseError.ParseErrorType.ARG_INCORRECT_VALUE_NUMBER, arg, 0);
+			parsingState.addError(ParseError.ParseErrorType.ARG_INCORRECT_VALUE_NUMBER, arg, 0);
 			return;
 		}
 
 		// pass the arg values to the argument subParser
-		arg.parseValues(new String[]{value}, parseState.currentTokenIndex);
+		arg.parseValues(new String[]{value}, parsingState.currentTokenIndex);
 	}
 
 	void parseTokens() {
@@ -440,26 +436,26 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 		boolean foundNonPositionalArg = false;
 		Argument<?, ?> lastPosArgument; // this will never be null when being used
 
-		for (parseState.currentTokenIndex = 0; parseState.currentTokenIndex < parseState.tokens.length; ) {
-			Token c_token = parseState.tokens[parseState.currentTokenIndex];
+		for (parsingState.currentTokenIndex = 0; parsingState.currentTokenIndex < parsingState.tokens.length; ) {
+			final Token currentToken = parsingState.tokens[parsingState.currentTokenIndex];
 
-			if (c_token.type() == TokenType.ARGUMENT_ALIAS) {
-				parseState.currentTokenIndex++;
-				runForArgument(c_token.contents(), this::executeArgParse);
+			if (currentToken.type() == TokenType.ARGUMENT_ALIAS) {
+				parsingState.currentTokenIndex++;
+				runForArgument(currentToken.contents(), this::executeArgParse);
 				foundNonPositionalArg = true;
-			} else if (c_token.type() == TokenType.ARGUMENT_NAME_LIST) {
-				parseArgNameList(c_token.contents().substring(1));
+			} else if (currentToken.type() == TokenType.ARGUMENT_NAME_LIST) {
+				parseArgNameList(currentToken.contents().substring(1));
 				foundNonPositionalArg = true;
 			} else if (
-				(c_token.type() == TokenType.ARGUMENT_VALUE || c_token.type() == TokenType.ARGUMENT_VALUE_TUPLE_START)
+				(currentToken.type() == TokenType.ARGUMENT_VALUE || currentToken.type() == TokenType.ARGUMENT_VALUE_TUPLE_START)
 					&& !foundNonPositionalArg
 					&& (lastPosArgument = getArgumentByPositionalIndex(argumentAliasCount)) != null
 			) { // this is most likely a positional argument
 				executeArgParse(lastPosArgument);
 				argumentAliasCount++;
 			} else {
-				parseState.addError(ParseError.ParseErrorType.UNMATCHED_TOKEN, null, 0);
-				parseState.currentTokenIndex++;
+				parsingState.addError(ParseError.ParseErrorType.UNMATCHED_TOKEN, null, 0);
+				parsingState.currentTokenIndex++;
 			}
 		}
 
@@ -474,15 +470,19 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 	 * into one single list. This includes the SubCommand tokens.
 	 */
 	protected ArrayList<Token> getFullTokenList() {
-		ArrayList<Token> list = new ArrayList<>(Arrays.stream(parseState.tokens).toList());
+		final ArrayList<Token> list = new ArrayList<>(Arrays.stream(this.parsingState.tokens).toList());
+		final Command subCmd = this.getTokenizedSubCommand();
 
-		var subCmd = this.getTokenizedSubCommand();
-		return subCmd == null ? list : subCmd.getFullTokenList(list);
+		if (subCmd != null) {
+			list.addAll(subCmd.getFullTokenList());
+		}
+
+		return list;
 	}
 
 	private ArrayList<Token> getFullTokenList(ArrayList<Token> list) {
 		list.add(new Token(TokenType.SUB_COMMAND, this.name));
-		list.addAll(Arrays.stream(parseState.tokens).toList());
+		list.addAll(Arrays.stream(parsingState.tokens).toList());
 
 		var subCmd = this.getTokenizedSubCommand();
 		return subCmd == null ? list : subCmd.getFullTokenList(list);
@@ -490,7 +490,7 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 
 	void initParsingState() {
 		tokenizingState = this.new TokenizingState();
-		parseState = this.new ParsingState();
+		parsingState = this.new ParsingState();
 		this.subCommands.forEach(Command::initParsingState);
 	}
 
@@ -502,7 +502,7 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 		/* If we have errors, or the subcommands had errors, do OR with our own error level.
 		 * By doing this, the error code of a subcommand will be OR'd with the error codes of all its parents. */
 		if (
-			(this.parseState.hasExitErrors() || this.tokenizingState.hasExitErrors())
+			(this.parsingState.hasExitErrors() || this.tokenizingState.hasExitErrors())
 				|| this.hasExitErrors()
 				|| errCode != 0
 		) {
@@ -522,7 +522,7 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 
 	private HashMap<Argument<?, ?>, Object> getParsedArgumentsHashMap() {
 		return new HashMap<>() {{
-			Command.this.arguments.forEach(arg -> this.put(arg, arg.finishParsing(Command.this.parseState)));
+			Command.this.arguments.forEach(arg -> this.put(arg, arg.finishParsing(Command.this.parsingState)));
 		}};
 	}
 
@@ -566,7 +566,7 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 		return super.hasExitErrors()
 			|| this.subCommands.stream().anyMatch(Command::hasExitErrors)
 			|| this.arguments.stream().anyMatch(Argument::hasExitErrors)
-			|| this.parseState.hasExitErrors()
+			|| this.parsingState.hasExitErrors()
 			|| this.tokenizingState.hasExitErrors();
 	}
 
@@ -575,7 +575,7 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 		return super.hasDisplayErrors()
 			|| this.subCommands.stream().anyMatch(Command::hasDisplayErrors)
 			|| this.arguments.stream().anyMatch(Argument::hasDisplayErrors)
-			|| this.parseState.hasDisplayErrors()
+			|| this.parsingState.hasDisplayErrors()
 			|| this.tokenizingState.hasDisplayErrors();
 	}
 

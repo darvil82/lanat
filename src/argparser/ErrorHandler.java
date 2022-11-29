@@ -274,8 +274,8 @@ public class ErrorHandler {
 			new ArrayList<ParseStateErrorBase<?>>() {{
 				addAll(cmd.getErrorsUnderDisplayLevel());
 				addAll(cmd.tokenizingState.getErrorsUnderDisplayLevel());
-				addAll(cmd.parseState.getCustomErrors());
-				addAll(ParseError.filter(cmd.parseState.getErrorsUnderDisplayLevel()));
+				addAll(cmd.parsingState.getCustomErrors());
+				addAll(ParseError.filter(cmd.parsingState.getErrorsUnderDisplayLevel()));
 			}}.stream()
 				.sorted(Comparator.comparingInt(x -> x.index))
 				.forEach(e -> e.handle(this));

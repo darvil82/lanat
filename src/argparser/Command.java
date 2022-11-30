@@ -18,8 +18,6 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 	final ArrayList<Command> subCommands = new ArrayList<>();
 	final ModifyRecord<Pair<Character, Character>> tupleChars = new ModifyRecord<>(TupleCharacter.SQUARE_BRACKETS.getCharPair());
 	private final ModifyRecord<Integer> errorCode = new ModifyRecord<>(1);
-	TokenizingState tokenizingState;
-	ParsingState parsingState;
 	private Consumer<Command> onErrorCallback;
 	private Consumer<Command> onCorrectCallback;
 	private boolean isRootCommand = false;
@@ -100,6 +98,10 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 
 	// ---------------------------------------------------- Parsing ----------------------------------------------------
 
+	TokenizingState tokenizingState;
+	ParsingState parsingState;
+
+
 	List<Command> getTokenizedSubCommands() {
 		final List<Command> x = new ArrayList<>();
 		final Command subCmd;
@@ -130,7 +132,7 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 			if (token.type() == TokenType.SUB_COMMAND && (subCmd = getSubCommandByName(token.contents())) != null) {
 				// forward the rest of stuff to the subCommand
 				subCmd.tokenize(content.substring(i + 1));
-				this.finishedTokenizing = true; // dumb java lambdas require me to do this in order to stop tokenizing
+				this.finishedTokenizing = true;
 			} else {
 				finalTokens.add(token);
 			}
@@ -478,14 +480,6 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 		}
 
 		return list;
-	}
-
-	private ArrayList<Token> getFullTokenList(ArrayList<Token> list) {
-		list.add(new Token(TokenType.SUB_COMMAND, this.name));
-		list.addAll(Arrays.stream(parsingState.tokens).toList());
-
-		var subCmd = this.getTokenizedSubCommand();
-		return subCmd == null ? list : subCmd.getFullTokenList(list);
 	}
 
 	void initParsingState() {

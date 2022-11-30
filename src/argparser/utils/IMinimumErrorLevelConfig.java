@@ -1,9 +1,8 @@
 package argparser.utils;
 
 import java.util.List;
-import java.util.function.Consumer;
 
-public interface IMinimumErrorLevelConfig<T extends ErrorLevelProvider> {
+public interface IMinimumErrorLevelConfig<T extends IErrorLevelProvider> {
 	List<T> getErrorsUnderExitLevel();
 	List<T> getErrorsUnderDisplayLevel();
 	boolean hasExitErrors();

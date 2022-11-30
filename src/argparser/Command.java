@@ -12,7 +12,7 @@ import java.util.function.Consumer;
 /**
  * A command is a container for {@link Argument}s and other Sub{@link Command}s.
  */
-public class Command extends ErrorsContainer<CustomError> implements IErrorCallbacks<Command, Command> {
+public class Command extends ErrorsContainer<CustomError> implements IErrorCallbacks<Command, Command>, IArgumentAdder {
 	final String name, description;
 	final ArrayList<Argument<?, ?>> arguments = new ArrayList<>();
 	final ArrayList<Command> subCommands = new ArrayList<>();
@@ -43,13 +43,7 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 		this.isRootCommand = isRootCommand;
 	}
 
-	/**
-	 * Inserts an argument for this command to be parsed.
-	 *
-	 * @param argument the argument to be inserted
-	 * @param <T> the ArgumentType subclass that will parse the value passed to the argument
-	 * @param <TInner> the actual type of the value passed to the argument
-	 */
+	@Override
 	public <T extends ArgumentType<TInner>, TInner>
 	void addArgument(Argument<T, TInner> argument) {
 		if (this.arguments.stream().anyMatch(a -> a.equals(argument))) {
@@ -57,6 +51,10 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 		}
 		argument.setParentCmd(this);
 		this.arguments.add(argument);
+	}
+
+	public void addGroup(ArgumentGroup group) {
+		group.registerGroup(this);
 	}
 
 	public void addSubCommand(Command cmd) {
@@ -573,7 +571,7 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 			|| this.tokenizingState.hasDisplayErrors();
 	}
 
-	private abstract class ParsingStateBase<T extends ErrorLevelProvider> extends ErrorsContainer<T> {
+	private abstract class ParsingStateBase<T extends IErrorLevelProvider> extends ErrorsContainer<T> {
 		public ParsingStateBase() {
 			super(Command.this.getMinimumExitErrorLevel(), Command.this.getMinimumDisplayErrorLevel());
 		}

@@ -3,7 +3,6 @@ import argparser.argumentTypes.KeyValuesArgument;
 import argparser.utils.ErrorLevel;
 
 import java.util.HashMap;
-import java.util.Scanner;
 
 public class SimpleTests {
 	public static void main(String[] args) {
@@ -14,8 +13,11 @@ public class SimpleTests {
 			setTupleChars(TupleCharacter.ANGLE_BRACKETS);
 
 			addArgument(new Argument<>("f", ArgumentType.COUNTER()));
-			addArgument(new Argument<>("test", ArgumentType.STRING()));
-			addArgument(new Argument<>("what", ArgumentType.FILE()));
+
+			addGroup(new ArgumentGroup("stuff") {{
+				addArgument(new Argument<>("test", ArgumentType.STRING()));
+				addArgument(new Argument<>("what", ArgumentType.FILE()));
+			}});
 			addSubCommand(new Command("subcommand") {{
 				setErrorCode(128);
 
@@ -23,9 +25,9 @@ public class SimpleTests {
 				addArgument(new Argument<>("nose", new KeyValuesArgument<>(ArgumentType.INTEGER(), '.')));
 
 				addSubCommand(new Command("another") {{
-					addArgument(new Argument<>("test", ArgumentType.STRING()).onOk(v -> {
-						System.out.println("test: " + v);
-					}));
+					addArgument(new Argument<>("test", ArgumentType.STRING()).onOk(v ->
+						System.out.println("test: " + v)
+					));
 				}});
 			}});
 		}};
@@ -43,9 +45,9 @@ public class SimpleTests {
 		pArgs.<String>get("test").defined(t -> {
 			System.out.println("test is defined");
 			System.out.println(t);
-		}).undefined(() -> {
-			System.out.println("test is undefined");
-		});
+		}).undefined(() ->
+			System.out.println("test is undefined")
+		);
 
 		pArgs.<String>get("subcommand.another.test").defined(System.out::println);
 		ParsedArguments.setSeparator("->");

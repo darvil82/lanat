@@ -474,6 +474,7 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 		final Command subCmd = this.getTokenizedSubCommand();
 
 		if (subCmd != null) {
+			list.add(new Token(TokenType.SUB_COMMAND, subCmd.name));
 			list.addAll(subCmd.getFullTokenList());
 		}
 

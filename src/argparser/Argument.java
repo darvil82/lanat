@@ -11,7 +11,6 @@ import java.util.function.Consumer;
 public class Argument<Type extends ArgumentType<TInner>, TInner>
 	implements IMinimumErrorLevelConfig<CustomError>, IErrorCallbacks<TInner, Argument<Type, TInner>>
 {
-	public static final char[] INVALID_CHARACTERS = {'=', ' '};
 	final Type argType;
 	private char prefix = '-';
 	private final List<String> names = new ArrayList<>();
@@ -180,6 +179,9 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	void setParentCmd(Command parentCmd) {
+		if (this.parentCmd != null) {
+			throw new IllegalStateException("Argument already added to a command");
+		}
 		this.parentCmd = parentCmd;
 	}
 

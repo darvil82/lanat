@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
-import java.util.regex.Pattern;
 
 public class Argument<Type extends ArgumentType<TInner>, TInner>
 	implements IMinimumErrorLevelConfig<CustomError>, IErrorCallbacks<TInner, Argument<Type, TInner>>
@@ -45,20 +44,18 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		this(argType, String.valueOf(charName), fullName);
 	}
 
-
+	/**
+	 * Creates an argument of type {@link argparser.argumentTypes.BooleanArgument} with the given name.
+	 */
 	@SuppressWarnings("unchecked cast") // we know for sure type returned by BOOLEAN is compatible
 	public Argument(String name) {this(name, (Type)ArgumentType.BOOLEAN());}
 
 
 	public Argument<Type, TInner> addNames(String... names) {
 		Objects.requireNonNull(names);
-		for (String name : names) {
-			if (!Argument.isValidname(name)) {
-				throw new IllegalArgumentException("invalid name '" + name + "'");
-			}
-		}
+
 		Arrays.stream(names)
-			.map(s -> s.replaceAll(String.format("^%s+", Pattern.quote(String.valueOf(this.prefix))), ""))
+			.map(UtlString::sanitizeName)
 			.forEach(this.names::add);
 		return this;
 	}
@@ -271,29 +268,5 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	@Override
 	public ModifyRecord<ErrorLevel> getMinimumExitErrorLevel() {
 		return this.argType.getMinimumExitErrorLevel();
-	}
-
-	/**
-	 * Checks if the specified name is invalid or not
-	 *
-	 * @return <code>true</code> if the name is valid
-	 */
-	private static boolean isValidname(String name) {
-		Objects.requireNonNull(name);
-		return UtlString.matchCharacters(name, c -> {
-			for (char chr : INVALID_CHARACTERS) {
-				if (c == chr) {
-					return false;
-				}
-			}
-			return true;
-		});
-	}
-
-	private static boolean isValidName(char name) {
-		for (char invalidChar : Argument.INVALID_CHARACTERS) {
-			if (invalidChar == name) return false;
-		}
-		return true;
 	}
 }

@@ -1,11 +1,13 @@
 import argparser.*;
 import argparser.argumentTypes.KeyValuesArgument;
 import argparser.utils.ErrorLevel;
+import sun.misc.Unsafe;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
 
 public class SimpleTests {
-	public static void main(String[] args) {
+	public static void main(String[] args) throws NoSuchFieldException, IllegalAccessException {
 
 		final var argumentParser = new ArgumentParser("SimpleTesting") {{
 			setErrorCode(64);

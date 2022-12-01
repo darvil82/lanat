@@ -24,7 +24,7 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 		if (!UtlString.matchCharacters(name, Character::isAlphabetic)) {
 			throw new IllegalArgumentException("name must be alphabetic");
 		}
-		this.name = Objects.requireNonNull(name);
+		this.name = UtlString.sanitizeName(name);
 		this.description = description;
 		this.addArgument(new Argument<>("help", ArgumentType.BOOLEAN())
 			.onOk(t -> System.out.println(this.getHelp()))

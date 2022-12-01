@@ -2,9 +2,12 @@ package argparser;
 
 import argparser.utils.*;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 
 public class Argument<Type extends ArgumentType<TInner>, TInner>
 	implements IMinimumErrorLevelConfig<CustomError>, IErrorCallbacks<TInner, Argument<Type, TInner>>
@@ -13,7 +16,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	final Type argType;
 	private char prefix = '-';
 	private Character name;
-	private String alias;
+	private List<String> aliases = new ArrayList<>();
 	private short usageCount = 0;
 	private boolean obligatory = false, positional = false;
 	private TInner defaultValue;
@@ -25,7 +28,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		if (name == null && alias == null) {
 			throw new IllegalArgumentException("A name or an alias must be specified");
 		}
-		this.setAlias(alias);
+		this.setAliases(alias);
 		this.setName(name);
 		this.argType = argType;
 	}
@@ -41,17 +44,28 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	@SuppressWarnings("unchecked cast") // we know for sure type returned by BOOLEAN is compatible
 	public Argument(Character name) {this(name, null, (Type)ArgumentType.BOOLEAN());}
 
-	public String getAlias() {
-		if (this.alias == null) return this.name.toString();
-		return alias;
+	public List<String> getAliases() {
+//		if (this.aliases.isEmpty()) return this.name.toString();
+		return aliases;
 	}
 
-	public void setAlias(String alias) {
-		if (alias == null) return;
-		if (!Argument.isValidAlias(alias)) {
-			throw new IllegalArgumentException("invalid alias '" + alias + "'");
+	public boolean hasAlias(String alias) {
+		return this.aliases.contains(alias);
+	}
+
+	public String getDisplayName() {
+		return this.aliases == null ? this.name.toString() : this.aliases.get(0);
+	}
+
+	public void setAliases(String... aliases) {
+		for (String alias : aliases) {
+			if (!Argument.isValidAlias(alias)) {
+				throw new IllegalArgumentException("invalid alias '" + alias + "'");
+			}
 		}
-		this.alias = alias.replaceAll(String.format("^%s+", this.prefix), "");
+		this.aliases = Arrays.stream(aliases)
+			.map(s -> s.replaceAll(String.format("^%s+", Pattern.quote(String.valueOf(this.prefix))), ""))
+			.toList();
 	}
 
 	public void setName(Character name) {
@@ -146,16 +160,15 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	boolean checkMatch(String alias) {
-		if (this.alias == null) return false;
-		return alias.equals(Character.toString(this.prefix).repeat(2) + this.alias);
+		if (this.aliases == null) return false;
+		return this.aliases.stream().anyMatch(a -> alias.equals(Character.toString(this.prefix).repeat(2) + a));
 	}
 
 	boolean checkMatch(char name) {
 		// getAlias because it has a fallback to return the name if there's no alias.
 		// we want to match single-char aliases too
 		if (this.name == null) {
-			String alias = this.getAlias();
-			return alias.length() == 1 && alias.charAt(0) == name;
+			return false;
 		}
 		return this.name == name;
 	}
@@ -178,7 +191,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 	public boolean equals(Argument<?, ?> obj) {
 		// we just want to check if there's a difference between identifiers and both are part of the same command
-		return (this.getAlias().equals(obj.getAlias()) || this.prefix == obj.prefix) && this.parentCmd == obj.parentCmd;
+		return (this.getAliases().equals(obj.getAliases()) || this.prefix == obj.prefix) && this.parentCmd == obj.parentCmd;
 	}
 
 	// --------------------------------- just act as a proxy to the type error handling ---------------------------------
@@ -236,7 +249,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	public String toString() {
 		return String.format(
 			"Argument<%s>[alias='%s', prefix='%c', obligatory=%b, positional=%b]",
-			this.argType.getClass().getSimpleName(), this.getAlias(),
+			this.argType.getClass().getSimpleName(), this.getAliases(),
 			this.getPrefix(), this.isObligatory(), this.isPositional()
 		);
 	}

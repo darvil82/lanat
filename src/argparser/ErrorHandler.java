@@ -160,7 +160,7 @@ class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 		this.fmt()
 			.setContents(String.format(
 				"Incorrect number of values for argument '%s'.%nExpected %s, but got %d.",
-				argument.getAlias(), argument.getNumberOfValues().getMessage(), Math.max(valueCount - 1, 0)
+				argument.getDisplayName(), argument.getNumberOfValues().getMessage(), Math.max(valueCount - 1, 0)
 			))
 			.displayTokens(this.index + 1, valueCount, valueCount == 0);
 	}
@@ -172,15 +172,15 @@ class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 		this.fmt()
 			.setContents(
 				argCmd.isRootCommand()
-					? String.format("Obligatory argument '%s' not used.", argument.getAlias())
-					: String.format("Obligatory argument '%s' for command '%s' not used.", argument.getAlias(), argCmd.name)
+					? String.format("Obligatory argument '%s' not used.", argument.getDisplayName())
+					: String.format("Obligatory argument '%s' for command '%s' not used.", argument.getDisplayName(), argCmd.name)
 			)
 			.displayTokens(this.index + 1);
 	}
 
 	@Handler("ARGUMENT_NOT_FOUND")
 	protected void handleArgumentNotFound() {
-		this.fmt().setContents(String.format("Argument '%s' not found.", argument.getAlias()));
+		this.fmt().setContents(String.format("Argument '%s' not found.", argument.getDisplayName()));
 	}
 
 	@Handler("UNMATCHED_TOKEN")

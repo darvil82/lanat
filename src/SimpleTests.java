@@ -12,7 +12,8 @@ public class SimpleTests {
 			setMinimumDisplayErrorLevel(ErrorLevel.DEBUG);
 			setTupleChars(TupleCharacter.ANGLE_BRACKETS);
 
-			addArgument(new Argument<>("f", ArgumentType.COUNTER()));
+			addArgument(new Argument<>("f", ArgumentType.COUNTER()).addAliases("c", "b"));
+			addArgument(new Argument<>("c", ArgumentType.COUNTER()));
 
 			addGroup(new ArgumentGroup("stuff") {{
 				addArgument(new Argument<>("test", ArgumentType.STRING()));
@@ -33,8 +34,9 @@ public class SimpleTests {
 		}};
 
 //		var pArgs = argumentParser.parseArgs("-fff --test hii subcommand --nose <x.1 y.347 z.43423> another --test 'this is a test' what");
-		final var pArgs = argumentParser.parseArgs("--help");
+		final var pArgs = argumentParser.parseArgs("-fcb");
 
+		System.out.println(pArgs.get("f").get());
 
 		System.out.println(pArgs.<String>get("test").undefined("i am the fallback value for --test"));
 

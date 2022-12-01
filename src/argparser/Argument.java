@@ -28,8 +28,12 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		if (name == null && alias == null) {
 			throw new IllegalArgumentException("A name or an alias must be specified");
 		}
-		this.setAliases(alias);
-		this.setName(name);
+		if (name != null) {
+			this.setName(name);
+		}
+		if (alias != null) {
+			this.addAliases(alias);
+		}
 		this.argType = argType;
 	}
 
@@ -44,32 +48,33 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	@SuppressWarnings("unchecked cast") // we know for sure type returned by BOOLEAN is compatible
 	public Argument(Character name) {this(name, null, (Type)ArgumentType.BOOLEAN());}
 
-	public List<String> getAliases() {
-//		if (this.aliases.isEmpty()) return this.name.toString();
-		return aliases;
+
+	public Argument<Type, TInner> addAliases(String... aliases) {
+		for (String alias : aliases) {
+			if (!Argument.isValidAlias(alias)) {
+				throw new IllegalArgumentException("invalid alias '" + alias + "'");
+			}
+		}
+		Arrays.stream(aliases)
+			.map(s -> s.replaceAll(String.format("^%s+", Pattern.quote(String.valueOf(this.prefix))), ""))
+			.forEach(this.aliases::add);
+		return this;
 	}
 
-	public boolean hasAlias(String alias) {
-		return this.aliases.contains(alias);
+	public boolean isNamedAs(String alias) {
+		return this.aliases.contains(alias) || (this.name != null && this.name.toString().equals(alias));
 	}
 
 	public String getDisplayName() {
 		return this.aliases == null ? this.name.toString() : this.aliases.get(0);
 	}
 
-	public void setAliases(String... aliases) {
-		for (String alias : aliases) {
-			if (!Argument.isValidAlias(alias)) {
-				throw new IllegalArgumentException("invalid alias '" + alias + "'");
-			}
-		}
-		this.aliases = Arrays.stream(aliases)
-			.map(s -> s.replaceAll(String.format("^%s+", Pattern.quote(String.valueOf(this.prefix))), ""))
-			.toList();
+	public List<String> getAliases() {
+		return aliases;
 	}
 
 	public void setName(Character name) {
-		if (name == null) return;
+		Objects.requireNonNull(name);
 		if (!Argument.isValidName(name)) {
 			throw new IllegalArgumentException("invalid name '" + name + "'");
 		}
@@ -165,10 +170,10 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	boolean checkMatch(char name) {
-		// getAlias because it has a fallback to return the name if there's no alias.
-		// we want to match single-char aliases too
 		if (this.name == null) {
-			return false;
+			// isNamedAs because it has a fallback to return the name if there's no alias.
+			// We want to match single-char aliases too
+			return this.isNamedAs(String.valueOf(name));
 		}
 		return this.name == name;
 	}
@@ -191,7 +196,9 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 	public boolean equals(Argument<?, ?> obj) {
 		// we just want to check if there's a difference between identifiers and both are part of the same command
-		return (this.getAliases().equals(obj.getAliases()) || this.prefix == obj.prefix) && this.parentCmd == obj.parentCmd;
+		return this.parentCmd == obj.parentCmd && (
+			this.getAliases().stream().anyMatch(alias -> obj.getAliases().contains(alias)) || this.name == obj.name
+		);
 	}
 
 	// --------------------------------- just act as a proxy to the type error handling ---------------------------------
@@ -248,7 +255,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	@Override
 	public String toString() {
 		return String.format(
-			"Argument<%s>[alias='%s', prefix='%c', obligatory=%b, positional=%b]",
+			"Argument<%s>[aliases=%s, prefix='%c', obligatory=%b, positional=%b]",
 			this.argType.getClass().getSimpleName(), this.getAliases(),
 			this.getPrefix(), this.isObligatory(), this.isPositional()
 		);
@@ -280,6 +287,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * @return <code>true</code> if the alias is valid
 	 */
 	private static boolean isValidAlias(String alias) {
+		Objects.requireNonNull(alias);
 		return UtlString.matchCharacters(alias, c -> {
 			for (char chr : INVALID_CHARACTERS) {
 				if (c == chr) {

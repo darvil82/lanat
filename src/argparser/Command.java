@@ -2,10 +2,7 @@ package argparser;
 
 import argparser.utils.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -27,7 +24,7 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 		if (!UtlString.matchCharacters(name, Character::isAlphabetic)) {
 			throw new IllegalArgumentException("name must be alphabetic");
 		}
-		this.name = name;
+		this.name = Objects.requireNonNull(name);
 		this.description = description;
 		this.addArgument(new Argument<>("help", ArgumentType.BOOLEAN())
 			.onOk(t -> System.out.println(this.getHelp()))
@@ -46,10 +43,10 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 	@Override
 	public <T extends ArgumentType<TInner>, TInner>
 	void addArgument(Argument<T, TInner> argument) {
+		argument.setParentCmd(this);
 		if (this.arguments.stream().anyMatch(a -> a.equals(argument))) {
 			throw new IllegalArgumentException("duplicate argument identifiers");
 		}
-		argument.setParentCmd(this);
 		this.arguments.add(argument);
 	}
 

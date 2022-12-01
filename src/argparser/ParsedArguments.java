@@ -108,11 +108,11 @@ public class ParsedArguments {
 	}
 
 	/**
-	 * Returns the argument in {@link #parsedArgs} with the given alias.
+	 * Returns the argument in {@link #parsedArgs} with the given alias/name.
 	 */
 	private Argument<?, ?> getArgument(String name) {
 		for (var arg : this.parsedArgs.keySet()) {
-			if (arg.hasAlias(name)) {
+			if (arg.isNamedAs(name)) {
 				return arg;
 			}
 		}

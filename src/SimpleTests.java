@@ -12,8 +12,7 @@ public class SimpleTests {
 			setMinimumDisplayErrorLevel(ErrorLevel.DEBUG);
 			setTupleChars(TupleCharacter.ANGLE_BRACKETS);
 
-			addArgument(new Argument<>("f", ArgumentType.COUNTER()).addAliases("c", "b"));
-			addArgument(new Argument<>("c", ArgumentType.COUNTER()));
+			addArgument(new Argument<>("f", ArgumentType.COUNTER()).addNames("c", "b"));
 
 			addGroup(new ArgumentGroup("stuff") {{
 				addArgument(new Argument<>("test", ArgumentType.STRING()));

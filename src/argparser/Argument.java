@@ -15,8 +15,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	public static final char[] INVALID_CHARACTERS = {'=', ' '};
 	final Type argType;
 	private char prefix = '-';
-	private Character name;
-	private List<String> aliases = new ArrayList<>();
+	private final List<String> names = new ArrayList<>();
 	private short usageCount = 0;
 	private boolean obligatory = false, positional = false;
 	private TInner defaultValue;
@@ -24,61 +23,56 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	private Consumer<Argument<Type, TInner>> onErrorCallback;
 	private Consumer<TInner> onCorrectCallback;
 
-	public Argument(Character name, String alias, Type argType) {
-		if (name == null && alias == null) {
-			throw new IllegalArgumentException("A name or an alias must be specified");
-		}
-		if (name != null) {
-			this.setName(name);
-		}
-		if (alias != null) {
-			this.addAliases(alias);
-		}
+
+	public Argument(Type argType, String... names) {
+		this.addNames(names);
 		this.argType = argType;
 	}
 
-	public Argument(Character name, Type argType) {
-		this(name, null, argType);
+	public Argument(String name, Type argType) {
+		this(argType, name);
 	}
 
-	public Argument(String alias, Type argType) {
-		this(null, alias, argType);
+	public Argument(String[] name, Type argType) {
+		this(argType, name);
 	}
+
+	public Argument(char name, Type argType) {
+		this(argType, String.valueOf(name));
+	}
+
+	public Argument(char charName, String fullName, Type argType) {
+		this(argType, String.valueOf(charName), fullName);
+	}
+
 
 	@SuppressWarnings("unchecked cast") // we know for sure type returned by BOOLEAN is compatible
-	public Argument(Character name) {this(name, null, (Type)ArgumentType.BOOLEAN());}
+	public Argument(String name) {this(name, (Type)ArgumentType.BOOLEAN());}
 
 
-	public Argument<Type, TInner> addAliases(String... aliases) {
-		for (String alias : aliases) {
-			if (!Argument.isValidAlias(alias)) {
-				throw new IllegalArgumentException("invalid alias '" + alias + "'");
+	public Argument<Type, TInner> addNames(String... names) {
+		Objects.requireNonNull(names);
+		for (String name : names) {
+			if (!Argument.isValidname(name)) {
+				throw new IllegalArgumentException("invalid name '" + name + "'");
 			}
 		}
-		Arrays.stream(aliases)
+		Arrays.stream(names)
 			.map(s -> s.replaceAll(String.format("^%s+", Pattern.quote(String.valueOf(this.prefix))), ""))
-			.forEach(this.aliases::add);
+			.forEach(this.names::add);
 		return this;
 	}
 
-	public boolean isNamedAs(String alias) {
-		return this.aliases.contains(alias) || (this.name != null && this.name.toString().equals(alias));
+	public boolean hasName(String name) {
+		return this.names.contains(name);
 	}
 
 	public String getDisplayName() {
-		return this.aliases == null ? this.name.toString() : this.aliases.get(0);
+		return this.names.get(0);
 	}
 
-	public List<String> getAliases() {
-		return aliases;
-	}
-
-	public void setName(Character name) {
-		Objects.requireNonNull(name);
-		if (!Argument.isValidName(name)) {
-			throw new IllegalArgumentException("invalid name '" + name + "'");
-		}
-		this.name = name;
+	public List<String> getNames() {
+		return names;
 	}
 
 	public char getPrefix() {
@@ -96,9 +90,9 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 	/**
 	 * Marks the argument as positional. This means that the value of this argument may be specified directly
-	 * without indicating the name/alias of this argument. The positional place where it should be placed is
+	 * without indicating the name/name of this argument. The positional place where it should be placed is
 	 * defined by the order of creation of the argument definitions.
-	 * <li>Note that an argument marked as positional can still be used by specifying its name/alias.
+	 * <li>Note that an argument marked as positional can still be used by specifying its name/name.
 	 */
 	public Argument<Type, TInner> positional() {
 		if (this.getNumberOfValues().max == 0) {
@@ -164,18 +158,16 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		return this.argType.getNumberOfArgValues();
 	}
 
-	boolean checkMatch(String alias) {
-		if (this.aliases == null) return false;
-		return this.aliases.stream().anyMatch(a -> alias.equals(Character.toString(this.prefix).repeat(2) + a));
+	/**
+	 * Checks if this argument matches the given name, including the prefix.
+	 *
+	 */
+	boolean checkMatch(String name) {
+		return this.names.stream().anyMatch(a -> name.equals(Character.toString(this.prefix).repeat(2) + a));
 	}
 
 	boolean checkMatch(char name) {
-		if (this.name == null) {
-			// isNamedAs because it has a fallback to return the name if there's no alias.
-			// We want to match single-char aliases too
-			return this.isNamedAs(String.valueOf(name));
-		}
-		return this.name == name;
+		return this.hasName(Character.toString(name));
 	}
 
 	public boolean isObligatory() {
@@ -197,7 +189,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	public boolean equals(Argument<?, ?> obj) {
 		// we just want to check if there's a difference between identifiers and both are part of the same command
 		return this.parentCmd == obj.parentCmd && (
-			this.getAliases().stream().anyMatch(alias -> obj.getAliases().contains(alias)) || this.name == obj.name
+			this.getNames().stream().anyMatch(name -> obj.getNames().contains(name))
 		);
 	}
 
@@ -255,8 +247,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	@Override
 	public String toString() {
 		return String.format(
-			"Argument<%s>[aliases=%s, prefix='%c', obligatory=%b, positional=%b]",
-			this.argType.getClass().getSimpleName(), this.getAliases(),
+			"Argument<%s>[names=%s, prefix='%c', obligatory=%b, positional=%b]",
+			this.argType.getClass().getSimpleName(), this.getNames(),
 			this.getPrefix(), this.isObligatory(), this.isPositional()
 		);
 	}
@@ -282,13 +274,13 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	/**
-	 * Checks if the specified alias is invalid or not
+	 * Checks if the specified name is invalid or not
 	 *
-	 * @return <code>true</code> if the alias is valid
+	 * @return <code>true</code> if the name is valid
 	 */
-	private static boolean isValidAlias(String alias) {
-		Objects.requireNonNull(alias);
-		return UtlString.matchCharacters(alias, c -> {
+	private static boolean isValidname(String name) {
+		Objects.requireNonNull(name);
+		return UtlString.matchCharacters(name, c -> {
 			for (char chr : INVALID_CHARACTERS) {
 				if (c == chr) {
 					return false;

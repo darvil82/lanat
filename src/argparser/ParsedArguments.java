@@ -43,7 +43,7 @@ public class ParsedArguments {
 		Objects.requireNonNull(arg);
 
 		if (!this.parsedArgs.containsKey(arg)) {
-			throw new IllegalArgumentException("argument '" + arg.getAliases() + "' not found");
+			throw new IllegalArgumentException("argument '" + arg.getNames() + "' not found");
 		}
 
 		return new ParsedArgument<>((T)this.parsedArgs.get(arg));
@@ -112,7 +112,7 @@ public class ParsedArguments {
 	 */
 	private Argument<?, ?> getArgument(String name) {
 		for (var arg : this.parsedArgs.keySet()) {
-			if (arg.isNamedAs(name)) {
+			if (arg.hasName(name)) {
 				return arg;
 			}
 		}

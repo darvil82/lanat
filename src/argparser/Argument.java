@@ -108,6 +108,11 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		return this;
 	}
 
+	/**
+	 * Specifies that this argument has priority over other arguments, even if they are obligatory.
+	 * This means that if an argument in a command is set as obligatory, but one argument with {@link #allowUnique}
+	 * was used, then the unused obligatory argument will not throw an error.
+	 */
 	public Argument<Type, TInner> allowUnique() {
 		this.allowUnique = true;
 		return this;

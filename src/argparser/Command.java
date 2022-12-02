@@ -100,13 +100,12 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 	ParsingState parsingState;
 
 
-	List<Command> getTokenizedSubCommands() {
+	List<Command> getAllSubCommands() {
 		final List<Command> x = new ArrayList<>();
-		final Command subCmd;
 
 		x.add(this);
-		if ((subCmd = this.getTokenizedSubCommand()) != null) {
-			x.addAll(subCmd.getTokenizedSubCommands());
+		for (Command subCommand : this.subCommands) {
+			x.addAll(subCommand.getAllSubCommands());
 		}
 		return x;
 	}

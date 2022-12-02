@@ -265,7 +265,7 @@ public class ErrorHandler {
 
 
 	public void handleErrorsView() {
-		List<Command> commands = this.rootCmd.getTokenizedSubCommands();
+		List<Command> commands = this.rootCmd.getAllSubCommands();
 
 		for (int i = 0; i < commands.size(); i++) {
 			Command cmd = commands.get(i);

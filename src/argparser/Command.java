@@ -19,7 +19,7 @@ public class Command
 	final String name, description;
 	final ArrayList<Argument<?, ?>> arguments = new ArrayList<>();
 	final ArrayList<Command> subCommands = new ArrayList<>();
-	final ModifyRecord<Pair<Character, Character>> tupleChars = new ModifyRecord<>(TupleCharacter.SQUARE_BRACKETS.getCharPair());
+	final ModifyRecord<TupleCharacter> tupleChars = new ModifyRecord<>(TupleCharacter.SQUARE_BRACKETS);
 	private final ModifyRecord<Integer> errorCode = new ModifyRecord<>(1);
 	private Consumer<Command> onErrorCallback;
 	private Consumer<Command> onCorrectCallback;
@@ -80,7 +80,7 @@ public class Command
 	}
 
 	public void setTupleChars(TupleCharacter tupleChars) {
-		this.tupleChars.set(tupleChars.getCharPair());
+		this.tupleChars.set(tupleChars);
 	}
 
 	public String getHelp() {
@@ -126,6 +126,7 @@ public class Command
 	void tokenize(String content) {
 		this.finishedTokenizing = false; // just in case we are tokenizing again for any reason
 
+		final var TUPLE_CHARS = this.tupleChars.get().getCharPair();
 		final var finalTokens = new ArrayList<Token>();
 		final var currentValue = new StringBuilder();
 		TokenizeError.TokenizeErrorType errorType = null;
@@ -166,7 +167,7 @@ public class Command
 				currentValue.append(chars[i]);
 
 			// reached a possible tuple start character
-			} else if (chars[i] == tupleChars.get().first()) {
+			} else if (chars[i] == TUPLE_CHARS.first()) {
 				// if we are already in a tuple, set error and stop tokenizing
 				if (this.tokenizingState.tupleOpen) {
 					errorType = TokenizeError.TokenizeErrorType.TUPLE_ALREADY_OPEN;
@@ -176,11 +177,11 @@ public class Command
 				}
 
 				// push the tuple token and set the state to tuple open
-				addToken.accept(TokenType.ARGUMENT_VALUE_TUPLE_START, tupleChars.get().first().toString());
+				addToken.accept(TokenType.ARGUMENT_VALUE_TUPLE_START, TUPLE_CHARS.first().toString());
 				this.tokenizingState.tupleOpen = true;
 
 			// reached a possible tuple end character
-			} else if (chars[i] == tupleChars.get().second()) {
+			} else if (chars[i] == TUPLE_CHARS.second()) {
 				// if we are not in a tuple, set error and stop tokenizing
 				if (!this.tokenizingState.tupleOpen) {
 					errorType = TokenizeError.TokenizeErrorType.UNEXPECTED_TUPLE_CLOSE;
@@ -193,7 +194,7 @@ public class Command
 				}
 
 				// push the tuple token and set the state to tuple closed
-				addToken.accept(TokenType.ARGUMENT_VALUE_TUPLE_END, tupleChars.get().second().toString());
+				addToken.accept(TokenType.ARGUMENT_VALUE_TUPLE_END, TUPLE_CHARS.second().toString());
 				currentValue.setLength(0);
 				this.tokenizingState.tupleOpen = false;
 

@@ -6,6 +6,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 
 class StringJoiner extends ArgumentType<String> {
@@ -26,15 +27,55 @@ class TestingParser extends ArgumentParser {
 		super(programName);
 	}
 
+	public void parseArgsExpectError(String args) {
+		this.__parseArgsNoExit(args);
+	}
+
 	public ParsedArguments parseArgs(String args) {
-		return this.__parseArgsNoExit(args).first();
+		var res = this.__parseArgsNoExit(args).first();
+		assertNotNull(res, "The result of the parsing was null (Arguments have failed)");
+		return res;
 	}
 }
 
 
 
 public class UnitTests {
-	private ArgumentParser parser;
+	private TestingParser parser;
+
+	@BeforeEach
+	public void setup() {
+		this.parser = new TestingParser("Testing") {{
+			addArgument(new Argument<>("what", new StringJoiner())
+				.onOk(t -> System.out.println("wow look a string: '" + t + "'"))
+				.positional()
+				.obligatory()
+			);
+			addArgument(new Argument<>("a", ArgumentType.BOOLEAN()));
+			addSubCommand(new Command("subcommand") {{
+				addArgument(new Argument<>("c", ArgumentType.COUNTER()));
+				addArgument(new Argument<>('s', "more-strings", new StringJoiner()));
+				addSubCommand(new Command("another") {{
+					addArgument(new Argument<>("ball", new StringJoiner()));
+					addArgument(new Argument<>("number", ArgumentType.INTEGER()).positional().obligatory());
+				}});
+			}});
+		}};
+	}
+
+
+	@Nested
+	class ParsedValues {
+		private ParsedArguments parseArgs(String args) {
+			return parser.parseArgs(args);
+		}
+
+		@Test
+		public void testGet() {
+			var pArgs = this.parseArgs("--what hello world");
+			assertEquals("hello", pArgs.<String>get("what").get());
+		}
+	}
 
 
 	@Nested
@@ -49,29 +90,12 @@ public class UnitTests {
 		}
 
 		@BeforeEach
-		public void setUp() {
+		public void setStreams() {
 			System.setErr(new PrintStream(errContent));
-
-			UnitTests.this.parser = new TestingParser("Testing") {{
-				addArgument(new Argument<>("what", new StringJoiner())
-					.onOk(t -> System.out.println("wow look a string: '" + t + "'"))
-					.positional()
-					.obligatory()
-				);
-				addArgument(new Argument<>("a", ArgumentType.BOOLEAN()));
-				addSubCommand(new Command("subcommand") {{
-					addArgument(new Argument<>("c", ArgumentType.COUNTER()));
-					addArgument(new Argument<>('s', "more-strings", new StringJoiner()));
-					addSubCommand(new Command("another") {{
-						addArgument(new Argument<>("ball", new StringJoiner()));
-						addArgument(new Argument<>("number", ArgumentType.INTEGER()).positional().obligatory());
-					}});
-				}});
-			}};
 		}
 
 		private void assertErrorOutput(String args, String expected) {
-			UnitTests.this.parser.parseArgs(args);
+			UnitTests.this.parser.parseArgsExpectError(args);
 			// remove all the decorations to not make the tests a pain to write
 			assertEquals(
 				expected,

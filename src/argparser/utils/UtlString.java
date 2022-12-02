@@ -1,6 +1,7 @@
 package argparser.utils;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 public class UtlString {
@@ -29,5 +30,13 @@ public class UtlString {
 	 */
 	public static String getLongestLine(String str) {
 		return Arrays.stream(str.split("\n")).min((a, b) -> b.length() - a.length()).orElse("");
+	}
+
+	public static String sanitizeName(String name) {
+		Objects.requireNonNull(name);
+		return name.replaceAll("[^a-zA-Z0-9 ]", "") // first remove all prefix invalid chars
+			.trim() // then trim spaces at both ends
+			.replaceAll(" ", "-") // then replace spaces with dashes
+			.replaceAll("=", ""); // finally remove equals signs
 	}
 }

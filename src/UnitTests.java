@@ -47,7 +47,6 @@ public class UnitTests {
 	public void setup() {
 		this.parser = new TestingParser("Testing") {{
 			addArgument(new Argument<>("what", new StringJoiner())
-				.onOk(t -> System.out.println("wow look a string: '" + t + "'"))
 				.positional()
 				.obligatory()
 			);
@@ -73,7 +72,7 @@ public class UnitTests {
 		@Test
 		public void testGet() {
 			var pArgs = this.parseArgs("--what hello world");
-			assertEquals("hello", pArgs.<String>get("what").get());
+			assertEquals("(hello), (world)", pArgs.<String>get("what").get());
 		}
 	}
 

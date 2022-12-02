@@ -2,7 +2,10 @@ package argparser;
 
 import argparser.utils.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -24,7 +27,7 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 		if (!UtlString.matchCharacters(name, Character::isAlphabetic)) {
 			throw new IllegalArgumentException("name must be alphabetic");
 		}
-		this.name = UtlString.sanitizeName(name);
+		this.name = name;
 		this.description = description;
 		this.addArgument(new Argument<>("help", ArgumentType.BOOLEAN())
 			.onOk(t -> System.out.println(this.getHelp()))
@@ -43,10 +46,10 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 	@Override
 	public <T extends ArgumentType<TInner>, TInner>
 	void addArgument(Argument<T, TInner> argument) {
-		argument.setParentCmd(this);
 		if (this.arguments.stream().anyMatch(a -> a.equals(argument))) {
 			throw new IllegalArgumentException("duplicate argument identifiers");
 		}
+		argument.setParentCmd(this);
 		this.arguments.add(argument);
 	}
 
@@ -96,13 +99,13 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 	TokenizingState tokenizingState;
 	ParsingState parsingState;
 
-
-	List<Command> getAllSubCommands() {
+	List<Command> getTokenizedSubCommands() {
 		final List<Command> x = new ArrayList<>();
+		final Command subCmd;
 
 		x.add(this);
-		for (Command subCommand : this.subCommands) {
-			x.addAll(subCommand.getAllSubCommands());
+		if ((subCmd = this.getTokenizedSubCommand()) != null) {
+			x.addAll(subCmd.getTokenizedSubCommands());
 		}
 		return x;
 	}
@@ -485,15 +488,14 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 
 	public int getErrorCode() {
 		int errCode = this.subCommands.stream()
+			.filter(c -> c.finishedTokenizing)
 			.map(sc -> sc.getMinimumExitErrorLevel().get().isInErrorMinimum(this.getMinimumExitErrorLevel().get()) ? sc.getErrorCode() : 0)
 			.reduce(0, (a, b) -> a | b);
 
 		/* If we have errors, or the subcommands had errors, do OR with our own error level.
 		 * By doing this, the error code of a subcommand will be OR'd with the error codes of all its parents. */
 		if (
-			(this.parsingState.hasExitErrors() || this.tokenizingState.hasExitErrors())
-				|| this.hasExitErrors()
-				|| errCode != 0
+			this.hasExitErrors() || errCode != 0
 		) {
 			errCode |= this.errorCode.get();
 		}
@@ -552,8 +554,10 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 
 	@Override
 	public boolean hasExitErrors() {
+		var tokenizedSubCommand = this.getTokenizedSubCommand();
+
 		return super.hasExitErrors()
-			|| this.subCommands.stream().anyMatch(Command::hasExitErrors)
+			|| tokenizedSubCommand != null && tokenizedSubCommand.hasExitErrors()
 			|| this.arguments.stream().anyMatch(Argument::hasExitErrors)
 			|| this.parsingState.hasExitErrors()
 			|| this.tokenizingState.hasExitErrors();
@@ -561,8 +565,10 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 
 	@Override
 	public boolean hasDisplayErrors() {
+		var tokenizedSubCommand = this.getTokenizedSubCommand();
+
 		return super.hasDisplayErrors()
-			|| this.subCommands.stream().anyMatch(Command::hasDisplayErrors)
+			|| tokenizedSubCommand != null && tokenizedSubCommand.hasDisplayErrors()
 			|| this.arguments.stream().anyMatch(Argument::hasDisplayErrors)
 			|| this.parsingState.hasDisplayErrors()
 			|| this.tokenizingState.hasDisplayErrors();

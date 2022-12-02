@@ -29,8 +29,9 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 		}
 		this.name = name;
 		this.description = description;
-		this.addArgument(new Argument<>("help", ArgumentType.BOOLEAN())
+		this.addArgument(new Argument<>("help")
 			.onOk(t -> System.out.println(this.getHelp()))
+			.allowUnique()
 		);
 	}
 
@@ -84,6 +85,10 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 
 	public Argument<?, ?>[] getPositionalArguments() {
 		return this.arguments.stream().filter(Argument::isPositional).toArray(Argument[]::new);
+	}
+
+	public boolean uniqueArgumentReceivedValue() {
+		return this.arguments.stream().anyMatch(a -> a.getUsageCount() >= 1 && a.allowsUnique());
 	}
 
 	@Override

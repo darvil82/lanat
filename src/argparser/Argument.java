@@ -15,7 +15,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	private char prefix = '-';
 	private final List<String> names = new ArrayList<>();
 	private short usageCount = 0;
-	private boolean obligatory = false, positional = false;
+	private boolean obligatory = false, positional = false, allowUnique = false;
 	private TInner defaultValue;
 	private Command parentCmd;
 	private Consumer<Argument<Type, TInner>> onErrorCallback;
@@ -108,6 +108,11 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		return this;
 	}
 
+	public Argument<Type, TInner> allowUnique() {
+		this.allowUnique = true;
+		return this;
+	}
+
 	/**
 	 * The value that should be used if the user does not specify a value for this argument. If the argument
 	 * does not accept values, this value will be ignored.
@@ -129,7 +134,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 	TInner finishParsing(Command.ParsingState parseState) {
 		if (this.usageCount == 0) {
-			if (this.obligatory) {
+			if (this.obligatory && !this.parentCmd.uniqueArgumentReceivedValue()) {
 				parseState.addError(ParseError.ParseErrorType.OBLIGATORY_ARGUMENT_NOT_USED, this, 0);
 				return null;
 			}
@@ -174,6 +179,10 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		return positional;
 	}
 
+	public boolean allowsUnique() {
+		return allowUnique;
+	}
+
 	Command getParentCmd() {
 		return parentCmd;
 	}
@@ -190,6 +199,10 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		return this.parentCmd == obj.parentCmd && (
 			this.getNames().stream().anyMatch(name -> obj.getNames().contains(name))
 		);
+	}
+
+	public short getUsageCount() {
+		return usageCount;
 	}
 
 	// --------------------------------- just act as a proxy to the type error handling ---------------------------------

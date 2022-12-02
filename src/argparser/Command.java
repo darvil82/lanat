@@ -12,7 +12,10 @@ import java.util.function.Consumer;
 /**
  * A command is a container for {@link Argument}s and other Sub{@link Command}s.
  */
-public class Command extends ErrorsContainer<CustomError> implements IErrorCallbacks<Command, Command>, IArgumentAdder {
+public class Command
+	extends ErrorsContainer<CustomError>
+	implements IErrorCallbacks<Command, Command>, IArgumentAdder, IArgumentGroupAdder
+{
 	final String name, description;
 	final ArrayList<Argument<?, ?>> arguments = new ArrayList<>();
 	final ArrayList<Command> subCommands = new ArrayList<>();
@@ -54,6 +57,7 @@ public class Command extends ErrorsContainer<CustomError> implements IErrorCallb
 		this.arguments.add(argument);
 	}
 
+	@Override
 	public void addGroup(ArgumentGroup group) {
 		group.registerGroup(this);
 	}

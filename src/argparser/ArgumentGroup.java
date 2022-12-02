@@ -3,7 +3,7 @@ package argparser;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ArgumentGroup implements IArgumentAdder {
+public class ArgumentGroup implements IArgumentAdder, IArgumentGroupAdder {
 	public final String name;
 	public final String description;
 	private Command parentCommand;
@@ -25,6 +25,7 @@ public class ArgumentGroup implements IArgumentAdder {
 		this.arguments.add(argument);
 	}
 
+	@Override
 	public void addGroup(ArgumentGroup group) {
 		if (group.parentGroup != null) {
 			throw new IllegalArgumentException("Group already has a parent.");
@@ -48,4 +49,13 @@ public class ArgumentGroup implements IArgumentAdder {
 		}
 		this.arguments.clear();
 	}
+}
+
+
+interface IArgumentGroupAdder {
+	/**
+	 * Adds an argument group to this element. Argument groups do not affect the behavior of the parser,
+	 * but they are used to organize the help message.
+	 */
+	void addGroup(ArgumentGroup group);
 }

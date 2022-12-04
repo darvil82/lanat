@@ -3,7 +3,7 @@ package argparser.utils;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class ErrorsContainer<T extends IErrorLevelProvider> implements IMinimumErrorLevelConfig<T> {
+public abstract class ErrorsContainer<T extends ErrorLevelProvider> implements MinimumErrorLevelConfig<T> {
 	private ModifyRecord<ErrorLevel> minimumExitErrorLevel = new ModifyRecord<>(ErrorLevel.ERROR);
 	private ModifyRecord<ErrorLevel> minimumDisplayErrorLevel = new ModifyRecord<>(ErrorLevel.INFO);
 	private final List<T> errors = new ArrayList<>();
@@ -22,10 +22,12 @@ public abstract class ErrorsContainer<T extends IErrorLevelProvider> implements 
 		this.errors.add(error);
 	}
 
+	@Override
 	public boolean hasExitErrors() {
 		return !this.getErrorsUnderExitLevel().isEmpty();
 	}
 
+	@Override
 	public boolean hasDisplayErrors() {
 		return !this.getErrorsUnderDisplayLevel().isEmpty();
 	}
@@ -40,12 +42,12 @@ public abstract class ErrorsContainer<T extends IErrorLevelProvider> implements 
 		return this.getErrorsInLevelMinimum(this.errors, true);
 	}
 
-	protected <TErr extends IErrorLevelProvider>
+	protected <TErr extends ErrorLevelProvider>
 	List<TErr> getErrorsInLevelMinimum(List<TErr> errors, boolean isDisplayError) {
 		return errors.stream().filter(e -> this.errorIsInMinimumLevel(e, isDisplayError)).toList();
 	}
 
-	private <TErr extends IErrorLevelProvider> boolean errorIsInMinimumLevel(TErr error, boolean isDisplayError) {
+	private <TErr extends ErrorLevelProvider> boolean errorIsInMinimumLevel(TErr error, boolean isDisplayError) {
 		return error.getErrorLevel().isInErrorMinimum((
 			isDisplayError
 				? this.minimumDisplayErrorLevel
@@ -53,7 +55,7 @@ public abstract class ErrorsContainer<T extends IErrorLevelProvider> implements 
 		).get());
 	}
 
-	protected <TErr extends IErrorLevelProvider> boolean anyErrorInMinimum(List<TErr> errors, boolean isDisplayError) {
+	protected <TErr extends ErrorLevelProvider> boolean anyErrorInMinimum(List<TErr> errors, boolean isDisplayError) {
 		return errors.stream().anyMatch(e -> this.errorIsInMinimumLevel(e, isDisplayError));
 	}
 

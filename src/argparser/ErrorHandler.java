@@ -1,7 +1,7 @@
 package argparser;
 
 import argparser.utils.ErrorLevel;
-import argparser.utils.IErrorLevelProvider;
+import argparser.utils.ErrorLevelProvider;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -11,7 +11,7 @@ import java.util.Comparator;
 import java.util.List;
 
 
-abstract class ParseStateErrorBase<T extends IErrorLevelProvider> implements IErrorLevelProvider {
+abstract class ParseStateErrorBase<T extends ErrorLevelProvider> implements ErrorLevelProvider {
 	public final T type;
 	public int index;
 	private ErrorHandler errorHandler;
@@ -60,8 +60,9 @@ abstract class ParseStateErrorBase<T extends IErrorLevelProvider> implements IEr
 	}
 }
 
+@SuppressWarnings("unused")
 class TokenizeError extends ParseStateErrorBase<TokenizeError.TokenizeErrorType> {
-	enum TokenizeErrorType implements IErrorLevelProvider {
+	enum TokenizeErrorType implements ErrorLevelProvider {
 		TUPLE_ALREADY_OPEN,
 		UNEXPECTED_TUPLE_CLOSE,
 		TUPLE_NOT_CLOSED,
@@ -106,11 +107,12 @@ class TokenizeError extends ParseStateErrorBase<TokenizeError.TokenizeErrorType>
 	}
 }
 
+@SuppressWarnings("unused")
 class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 	public final Argument<?, ?> argument;
 	public final int valueCount;
 
-	enum ParseErrorType implements IErrorLevelProvider {
+	enum ParseErrorType implements ErrorLevelProvider {
 		ARGUMENT_NOT_FOUND,
 		OBLIGATORY_ARGUMENT_NOT_USED,
 		UNMATCHED_TOKEN(ErrorLevel.WARNING),
@@ -194,12 +196,13 @@ class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 	}
 }
 
+@SuppressWarnings("unused")
 class CustomError extends ParseStateErrorBase<CustomError.CustomParseErrorType> {
 	private final String message;
 	private final ErrorLevel level;
 	private boolean showTokens = true;
 
-	enum CustomParseErrorType implements IErrorLevelProvider {
+	enum CustomParseErrorType implements ErrorLevelProvider {
 		DEFAULT;
 
 		@Override

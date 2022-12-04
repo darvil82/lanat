@@ -1,5 +1,5 @@
 package argparser.utils;
 
-public interface IErrorLevelProvider {
+public interface ErrorLevelProvider {
 	ErrorLevel getErrorLevel();
 }

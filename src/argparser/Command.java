@@ -14,7 +14,7 @@ import java.util.function.Consumer;
  */
 public class Command
 	extends ErrorsContainer<CustomError>
-	implements IErrorCallbacks<Command, Command>, IArgumentAdder, IArgumentGroupAdder
+	implements ErrorCallbacks<Command, Command>, ArgumentAdder, ArgumentGroupAdder
 {
 	final String name, description;
 	final ArrayList<Argument<?, ?>> arguments = new ArrayList<>();
@@ -75,12 +75,26 @@ public class Command
 		this.subCommands.add(cmd);
 	}
 
-	public void addError(String message, ErrorLevel level) {
-		this.addError(new CustomError(message, level));
+	/**
+	 * Specifies the error code that the program should return when this command failed to parse.
+	 * When multiple commands fail, the program will return the result of the OR bit operation that will be
+	 * applied to all other command results. For example:
+	 * <ul>
+	 *     <li>Command 'foo' has a return value of 2. <code>(0b010)</code></li>
+	 *     <li>Command 'bar' has a return value of 5. <code>(0b101)</code></li>
+	 * </ul>
+	 * Both commands failed, so in this case the resultant return value would be 7 <code>(0b111)</code>.
+	 */
+	public void setErrorCode(int errorCode) {
+		this.errorCode.set(errorCode);
 	}
 
 	public void setTupleChars(TupleCharacter tupleChars) {
 		this.tupleChars.set(tupleChars);
+	}
+
+	public void addError(String message, ErrorLevel level) {
+		this.addError(new CustomError(message, level));
 	}
 
 	public String getHelp() {
@@ -91,8 +105,15 @@ public class Command
 		return this.arguments.stream().filter(Argument::isPositional).toArray(Argument[]::new);
 	}
 
+	/**
+	 * Returns true if an argument with {@link Argument#allowUnique()} in the command was used.
+	 */
 	public boolean uniqueArgumentReceivedValue() {
 		return this.arguments.stream().anyMatch(a -> a.getUsageCount() >= 1 && a.allowsUnique());
+	}
+
+	boolean isRootCommand() {
+		return this.isRootCommand;
 	}
 
 	@Override
@@ -103,25 +124,170 @@ public class Command
 		);
 	}
 
-	// ---------------------------------------------------- Parsing ----------------------------------------------------
+	ParsedArguments getParsedArguments() {
+		return new ParsedArguments(
+			this.name,
+			this.getParsedArgumentsHashMap(),
+			this.subCommands.stream().map(Command::getParsedArguments).toArray(ParsedArguments[]::new)
+		);
+	}
+
+	private HashMap<Argument<?, ?>, Object> getParsedArgumentsHashMap() {
+		return new HashMap<>() {{
+			Command.this.arguments.forEach(arg -> this.put(arg, arg.finishParsing(Command.this.parsingState)));
+		}};
+	}
+
+	/**
+	 * Get all the tokens of all subcommands (the ones that we can get without errors)
+	 * into one single list. This includes the SubCommand tokens.
+	 */
+	protected ArrayList<Token> getFullTokenList() {
+		final ArrayList<Token> list = new ArrayList<>(Arrays.stream(this.parsingState.tokens).toList());
+		final Command subCmd = this.getTokenizedSubCommand();
+
+		if (subCmd != null) {
+			list.add(new Token(TokenType.SUB_COMMAND, subCmd.name));
+			list.addAll(subCmd.getFullTokenList());
+		}
+
+		return list;
+	}
+
+	// ------------------------------------------------ Error Handling ------------------------------------------------
+
+	@Override
+	public void setOnErrorCallback(Consumer<Command> callback) {
+		this.onErrorCallback = callback;
+	}
+
+	@Override
+	public void setOnCorrectCallback(Consumer<Command> callback) {
+		this.onCorrectCallback = callback;
+	}
+
+	@Override
+	public void invokeCallbacks() {
+		if (this.hasExitErrors()) {
+			if (this.onErrorCallback != null) this.onErrorCallback.accept(this);
+		} else {
+			if (this.onCorrectCallback != null) this.onCorrectCallback.accept(this);
+		}
+		this.getParsedArgumentsHashMap().forEach(Argument::invokeCallbacks);
+		this.subCommands.forEach(Command::invokeCallbacks);
+	}
+
+	@Override
+	public boolean hasExitErrors() {
+		var tokenizedSubCommand = this.getTokenizedSubCommand();
+
+		return super.hasExitErrors()
+			|| tokenizedSubCommand != null && tokenizedSubCommand.hasExitErrors()
+			|| this.arguments.stream().anyMatch(Argument::hasExitErrors)
+			|| this.parsingState.hasExitErrors()
+			|| this.tokenizingState.hasExitErrors();
+	}
+
+	@Override
+	public boolean hasDisplayErrors() {
+		var tokenizedSubCommand = this.getTokenizedSubCommand();
+
+		return super.hasDisplayErrors()
+			|| tokenizedSubCommand != null && tokenizedSubCommand.hasDisplayErrors()
+			|| this.arguments.stream().anyMatch(Argument::hasDisplayErrors)
+			|| this.parsingState.hasDisplayErrors()
+			|| this.tokenizingState.hasDisplayErrors();
+	}
+
+	public int getErrorCode() {
+		int errCode = this.subCommands.stream()
+			.filter(c -> c.finishedTokenizing)
+			.map(sc -> sc.getMinimumExitErrorLevel().get().isInErrorMinimum(this.getMinimumExitErrorLevel().get()) ? sc.getErrorCode() : 0)
+			.reduce(0, (a, b) -> a | b);
+
+		/* If we have errors, or the subcommands had errors, do OR with our own error level.
+		 * By doing this, the error code of a subcommand will be OR'd with the error codes of all its parents. */
+		if (
+			this.hasExitErrors() || errCode != 0
+		) {
+			errCode |= this.errorCode.get();
+		}
+
+		return errCode;
+	}
+	
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//                                         Argument tokenization and parsing    							      //
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	private abstract class ParsingStateBase<T extends ErrorLevelProvider> extends ErrorsContainer<T> {
+		public ParsingStateBase() {
+			super(Command.this.getMinimumExitErrorLevel(), Command.this.getMinimumDisplayErrorLevel());
+		}
+	}
+
+	class TokenizingState extends ParsingStateBase<TokenizeError> {
+		public boolean tupleOpen = false;
+		public boolean stringOpen = false;
+
+		void addError(TokenizeError.TokenizeErrorType type, int index) {
+			this.addError(new TokenizeError(type, index));
+		}
+
+	}
+
+	class ParsingState extends ParsingStateBase<ParseError> {
+		private final ArrayList<CustomError> customErrors = new ArrayList<>();
+
+		/**
+		 * Array of all the tokens that we have parsed from the CLI arguments.
+		 */
+		private Token[] tokens;
+
+		/**
+		 * The index of the current token that we are parsing.
+		 */
+		private short currentTokenIndex = 0;
+
+
+		void addError(ParseError.ParseErrorType type, Argument<?, ?> arg, int argValueCount, int currentIndex) {
+			this.addError(new ParseError(type, currentIndex, arg, argValueCount));
+		}
+
+		void addError(ParseError.ParseErrorType type, Argument<?, ?> arg, int argValueCount) {
+			this.addError(type, arg, argValueCount, this.currentTokenIndex);
+		}
+
+
+		void addError(CustomError customError) {
+			this.customErrors.add(customError);
+		}
+		@Override
+		public boolean hasExitErrors() {
+			return super.hasExitErrors() || this.anyErrorInMinimum(this.customErrors, false);
+		}
+
+		@Override
+		public boolean hasDisplayErrors() {
+			return super.hasDisplayErrors() || this.anyErrorInMinimum(this.customErrors, true);
+		}
+
+		List<CustomError> getCustomErrors() {
+			return this.getErrorsInLevelMinimum(this.customErrors, true);
+		}
+	}
 
 	TokenizingState tokenizingState;
 	ParsingState parsingState;
 
-	List<Command> getTokenizedSubCommands() {
-		final List<Command> x = new ArrayList<>();
-		final Command subCmd;
-
-		x.add(this);
-		if ((subCmd = this.getTokenizedSubCommand()) != null) {
-			x.addAll(subCmd.getTokenizedSubCommands());
-		}
-		return x;
+	void initParsingState() {
+		tokenizingState = this.new TokenizingState();
+		parsingState = this.new ParsingState();
+		this.subCommands.forEach(Command::initParsingState);
 	}
 
-	boolean isRootCommand() {
-		return this.isRootCommand;
-	}
+	// ------------------------------------------------- Tokenization -------------------------------------------------
 
 	void tokenize(String content) {
 		this.finishedTokenizing = false; // just in case we are tokenizing again for any reason
@@ -260,78 +426,15 @@ public class Command
 		return new Token(type, str);
 	}
 
-	private Argument<?, ?> getArgumentByPositionalIndex(short index) {
-		final var posArgs = this.getPositionalArguments();
+	List<Command> getTokenizedSubCommands() {
+		final List<Command> x = new ArrayList<>();
+		final Command subCmd;
 
-		for (short i = 0; i < posArgs.length; i++) {
-			if (i == index) {
-				return posArgs[i];
-			}
+		x.add(this);
+		if ((subCmd = this.getTokenizedSubCommand()) != null) {
+			x.addAll(subCmd.getTokenizedSubCommands());
 		}
-		return null;
-	}
-
-	private void parseArgNameList(String args) {
-		// its multiple of them. We can only do this with arguments that accept 0 values.
-		for (short i = 0; i < args.length(); i++) {
-			final short constIndex = i; // this is because the lambda requires the variable to be final
-
-			if (!this.runForArgument(args.charAt(i), a -> {
-				if (a.getNumberOfValues().isZero()) {
-					this.executeArgParse(a);
-				} else if (constIndex == args.length() - 1) {
-					parsingState.currentTokenIndex++;
-					this.executeArgParse(a);
-				} else {
-					this.executeArgParse(a, args.substring(constIndex + 1)); // if this arg accepts more values, treat the rest of chars as value
-				}
-			}))
-				return;
-		}
-		parsingState.currentTokenIndex++;
-	}
-
-	/**
-	 * Executes a callback for the argument found by the alias specified.
-	 *
-	 * @return <a>ParseErrorType.ArgumentNotFound</a> if an argument was found
-	 */
-	private boolean runForArgument(String argAlias, Consumer<Argument<?, ?>> f) {
-		for (final var argument : this.arguments) {
-			if (argument.checkMatch(argAlias)) {
-				f.accept(argument);
-				return true;
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * Executes a callback for the argument found by the name specified.
-	 *
-	 * @return <code>true</code> if an argument was found
-	 */
-	private boolean runForArgument(char argName, Consumer<Argument<?, ?>> f) {
-		for (final var argument : this.arguments) {
-			if (argument.checkMatch(argName)) {
-				f.accept(argument);
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private boolean isArgAlias(String str) {
-		// first try to figure out if the prefix is used, to save time (does it start with '--'? (assuming the prefix is '-'))
-		if (
-			str.length() > 1 // make sure we are working with long enough strings
-				&& str.charAt(0) == str.charAt(1) // first and second chars are equal?
-		) {
-			// now check if the alias actually exist
-			return this.arguments.stream().anyMatch(a -> a.checkMatch(str));
-		}
-
-		return false;
+		return x;
 	}
 
 	private boolean isArgNameList(String str) {
@@ -348,8 +451,25 @@ public class Command
 		return possiblePrefixes.size() >= 1 && possiblePrefixes.contains(str.charAt(0));
 	}
 
+	private boolean isArgAlias(String str) {
+		// first try to figure out if the prefix is used, to save time (does it start with '--'? (assuming the prefix is '-'))
+		if (
+			str.length() > 1 // make sure we are working with long enough strings
+				&& str.charAt(0) == str.charAt(1) // first and second chars are equal?
+		) {
+			// now check if the alias actually exist
+			return this.arguments.stream().anyMatch(a -> a.checkMatch(str));
+		}
+
+		return false;
+	}
+
 	private boolean isArgumentSpecifier(String str) {
 		return this.isArgAlias(str) || this.isArgNameList(str);
+	}
+
+	private boolean isSubCommand(String str) {
+		return this.subCommands.stream().anyMatch(c -> c.name.equals(str));
 	}
 
 	private Command getSubCommandByName(String name) {
@@ -361,8 +481,51 @@ public class Command
 		return this.subCommands.stream().filter(sb -> sb.finishedTokenizing).findFirst().orElse(null);
 	}
 
-	private boolean isSubCommand(String str) {
-		return this.subCommands.stream().anyMatch(c -> c.name.equals(str));
+	private Argument<?, ?> getArgumentByPositionalIndex(short index) {
+		final var posArgs = this.getPositionalArguments();
+
+		for (short i = 0; i < posArgs.length; i++) {
+			if (i == index) {
+				return posArgs[i];
+			}
+		}
+		return null;
+	}
+
+	// ---------------------------------------------------- Parsing ----------------------------------------------------
+
+	void parseTokens() {
+		short argumentAliasCount = 0;
+		boolean foundNonPositionalArg = false;
+		Argument<?, ?> lastPosArgument; // this will never be null when being used
+
+		for (parsingState.currentTokenIndex = 0; parsingState.currentTokenIndex < parsingState.tokens.length; ) {
+			final Token currentToken = parsingState.tokens[parsingState.currentTokenIndex];
+
+			if (currentToken.type() == TokenType.ARGUMENT_ALIAS) {
+				parsingState.currentTokenIndex++;
+				runForArgument(currentToken.contents(), this::executeArgParse);
+				foundNonPositionalArg = true;
+			} else if (currentToken.type() == TokenType.ARGUMENT_NAME_LIST) {
+				parseArgNameList(currentToken.contents().substring(1));
+				foundNonPositionalArg = true;
+			} else if (
+				(currentToken.type() == TokenType.ARGUMENT_VALUE || currentToken.type() == TokenType.ARGUMENT_VALUE_TUPLE_START)
+					&& !foundNonPositionalArg
+					&& (lastPosArgument = getArgumentByPositionalIndex(argumentAliasCount)) != null
+			) { // this is most likely a positional argument
+				executeArgParse(lastPosArgument);
+				argumentAliasCount++;
+			} else {
+				parsingState.addError(ParseError.ParseErrorType.UNMATCHED_TOKEN, null, 0);
+				parsingState.currentTokenIndex++;
+			}
+		}
+
+		// now parse the subcommands
+		this.subCommands.stream()
+			.filter(sb -> sb.finishedTokenizing) // only get the commands that were actually tokenized
+			.forEach(Command::parseTokens); // now parse them
 	}
 
 	private void executeArgParse(Argument<?, ?> arg) {
@@ -440,204 +603,53 @@ public class Command
 		arg.parseValues(new String[]{value}, parsingState.currentTokenIndex);
 	}
 
-	void parseTokens() {
-		short argumentAliasCount = 0;
-		boolean foundNonPositionalArg = false;
-		Argument<?, ?> lastPosArgument; // this will never be null when being used
+	private void parseArgNameList(String args) {
+		// its multiple of them. We can only do this with arguments that accept 0 values.
+		for (short i = 0; i < args.length(); i++) {
+			final short constIndex = i; // this is because the lambda requires the variable to be final
 
-		for (parsingState.currentTokenIndex = 0; parsingState.currentTokenIndex < parsingState.tokens.length; ) {
-			final Token currentToken = parsingState.tokens[parsingState.currentTokenIndex];
+			if (!this.runForArgument(args.charAt(i), a -> {
+				if (a.getNumberOfValues().isZero()) {
+					this.executeArgParse(a);
+				} else if (constIndex == args.length() - 1) {
+					parsingState.currentTokenIndex++;
+					this.executeArgParse(a);
+				} else {
+					this.executeArgParse(a, args.substring(constIndex + 1)); // if this arg accepts more values, treat the rest of chars as value
+				}
+			}))
+				return;
+		}
+		parsingState.currentTokenIndex++;
+	}
 
-			if (currentToken.type() == TokenType.ARGUMENT_ALIAS) {
-				parsingState.currentTokenIndex++;
-				runForArgument(currentToken.contents(), this::executeArgParse);
-				foundNonPositionalArg = true;
-			} else if (currentToken.type() == TokenType.ARGUMENT_NAME_LIST) {
-				parseArgNameList(currentToken.contents().substring(1));
-				foundNonPositionalArg = true;
-			} else if (
-				(currentToken.type() == TokenType.ARGUMENT_VALUE || currentToken.type() == TokenType.ARGUMENT_VALUE_TUPLE_START)
-					&& !foundNonPositionalArg
-					&& (lastPosArgument = getArgumentByPositionalIndex(argumentAliasCount)) != null
-			) { // this is most likely a positional argument
-				executeArgParse(lastPosArgument);
-				argumentAliasCount++;
-			} else {
-				parsingState.addError(ParseError.ParseErrorType.UNMATCHED_TOKEN, null, 0);
-				parsingState.currentTokenIndex++;
+	/**
+	 * Executes a callback for the argument found by the alias specified.
+	 *
+	 * @return <a>ParseErrorType.ArgumentNotFound</a> if an argument was found
+	 */
+	private boolean runForArgument(String argAlias, Consumer<Argument<?, ?>> f) {
+		for (final var argument : this.arguments) {
+			if (argument.checkMatch(argAlias)) {
+				f.accept(argument);
+				return true;
 			}
 		}
-
-		// now parse the subcommands
-		this.subCommands.stream()
-			.filter(sb -> sb.finishedTokenizing) // only get the commands that were actually tokenized
-			.forEach(Command::parseTokens); // now parse them
+		return false;
 	}
 
 	/**
-	 * Get all the tokens of all subcommands (the ones that we can get without errors)
-	 * into one single list. This includes the SubCommand tokens.
+	 * Executes a callback for the argument found by the name specified.
+	 *
+	 * @return <code>true</code> if an argument was found
 	 */
-	protected ArrayList<Token> getFullTokenList() {
-		final ArrayList<Token> list = new ArrayList<>(Arrays.stream(this.parsingState.tokens).toList());
-		final Command subCmd = this.getTokenizedSubCommand();
-
-		if (subCmd != null) {
-			list.add(new Token(TokenType.SUB_COMMAND, subCmd.name));
-			list.addAll(subCmd.getFullTokenList());
+	private boolean runForArgument(char argName, Consumer<Argument<?, ?>> f) {
+		for (final var argument : this.arguments) {
+			if (argument.checkMatch(argName)) {
+				f.accept(argument);
+				return true;
+			}
 		}
-
-		return list;
-	}
-
-	void initParsingState() {
-		tokenizingState = this.new TokenizingState();
-		parsingState = this.new ParsingState();
-		this.subCommands.forEach(Command::initParsingState);
-	}
-
-	public int getErrorCode() {
-		int errCode = this.subCommands.stream()
-			.filter(c -> c.finishedTokenizing)
-			.map(sc -> sc.getMinimumExitErrorLevel().get().isInErrorMinimum(this.getMinimumExitErrorLevel().get()) ? sc.getErrorCode() : 0)
-			.reduce(0, (a, b) -> a | b);
-
-		/* If we have errors, or the subcommands had errors, do OR with our own error level.
-		 * By doing this, the error code of a subcommand will be OR'd with the error codes of all its parents. */
-		if (
-			this.hasExitErrors() || errCode != 0
-		) {
-			errCode |= this.errorCode.get();
-		}
-
-		return errCode;
-	}
-
-	ParsedArguments getParsedArguments() {
-		return new ParsedArguments(
-			this.name,
-			this.getParsedArgumentsHashMap(),
-			this.subCommands.stream().map(Command::getParsedArguments).toArray(ParsedArguments[]::new)
-		);
-	}
-
-	private HashMap<Argument<?, ?>, Object> getParsedArgumentsHashMap() {
-		return new HashMap<>() {{
-			Command.this.arguments.forEach(arg -> this.put(arg, arg.finishParsing(Command.this.parsingState)));
-		}};
-	}
-
-	/**
-	 * Specifies the error code that the program should return when this command failed to parse.
-	 * When multiple commands fail, the program will return the result of the OR bit operation that will be
-	 * applied to all other command results. For example:
-	 * <ul>
-	 *     <li>Command 'foo' has a return value of 2. <code>(0b010)</code></li>
-	 *     <li>Command 'bar' has a return value of 5. <code>(0b101)</code></li>
-	 * </ul>
-	 * Both commands failed, so in this case the resultant return value would be 7 <code>(0b111)</code>.
-	 */
-	public void setErrorCode(int errorCode) {
-		this.errorCode.set(errorCode);
-	}
-
-	@Override
-	public void setOnErrorCallback(Consumer<Command> callback) {
-		this.onErrorCallback = callback;
-	}
-
-	@Override
-	public void setOnCorrectCallback(Consumer<Command> callback) {
-		this.onCorrectCallback = callback;
-	}
-
-	@Override
-	public void invokeCallbacks() {
-		if (this.hasExitErrors()) {
-			if (this.onErrorCallback != null) this.onErrorCallback.accept(this);
-		} else {
-			if (this.onCorrectCallback != null) this.onCorrectCallback.accept(this);
-		}
-		this.getParsedArgumentsHashMap().forEach(Argument::invokeCallbacks);
-		this.subCommands.forEach(Command::invokeCallbacks);
-	}
-
-	@Override
-	public boolean hasExitErrors() {
-		var tokenizedSubCommand = this.getTokenizedSubCommand();
-
-		return super.hasExitErrors()
-			|| tokenizedSubCommand != null && tokenizedSubCommand.hasExitErrors()
-			|| this.arguments.stream().anyMatch(Argument::hasExitErrors)
-			|| this.parsingState.hasExitErrors()
-			|| this.tokenizingState.hasExitErrors();
-	}
-
-	@Override
-	public boolean hasDisplayErrors() {
-		var tokenizedSubCommand = this.getTokenizedSubCommand();
-
-		return super.hasDisplayErrors()
-			|| tokenizedSubCommand != null && tokenizedSubCommand.hasDisplayErrors()
-			|| this.arguments.stream().anyMatch(Argument::hasDisplayErrors)
-			|| this.parsingState.hasDisplayErrors()
-			|| this.tokenizingState.hasDisplayErrors();
-	}
-
-	private abstract class ParsingStateBase<T extends IErrorLevelProvider> extends ErrorsContainer<T> {
-		public ParsingStateBase() {
-			super(Command.this.getMinimumExitErrorLevel(), Command.this.getMinimumDisplayErrorLevel());
-		}
-	}
-
-	class TokenizingState extends ParsingStateBase<TokenizeError> {
-		public boolean tupleOpen = false;
-		public boolean stringOpen = false;
-
-		void addError(TokenizeError.TokenizeErrorType type, int index) {
-			this.addError(new TokenizeError(type, index));
-		}
-
-	}
-
-	class ParsingState extends ParsingStateBase<ParseError> {
-		private final ArrayList<CustomError> customErrors = new ArrayList<>();
-
-		/**
-		 * Array of all the tokens that we have parsed from the CLI arguments.
-		 */
-		private Token[] tokens;
-
-		/**
-		 * The index of the current token that we are parsing.
-		 */
-		private short currentTokenIndex = 0;
-
-
-		void addError(ParseError.ParseErrorType type, Argument<?, ?> arg, int argValueCount, int currentIndex) {
-			this.addError(new ParseError(type, currentIndex, arg, argValueCount));
-		}
-
-		void addError(ParseError.ParseErrorType type, Argument<?, ?> arg, int argValueCount) {
-			this.addError(type, arg, argValueCount, this.currentTokenIndex);
-		}
-
-
-		void addError(CustomError customError) {
-			this.customErrors.add(customError);
-		}
-		@Override
-		public boolean hasExitErrors() {
-			return super.hasExitErrors() || this.anyErrorInMinimum(this.customErrors, false);
-		}
-
-		@Override
-		public boolean hasDisplayErrors() {
-			return super.hasDisplayErrors() || this.anyErrorInMinimum(this.customErrors, true);
-		}
-
-		List<CustomError> getCustomErrors() {
-			return this.getErrorsInLevelMinimum(this.customErrors, true);
-		}
+		return false;
 	}
 }

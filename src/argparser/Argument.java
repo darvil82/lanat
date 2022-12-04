@@ -9,7 +9,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 public class Argument<Type extends ArgumentType<TInner>, TInner>
-	implements IMinimumErrorLevelConfig<CustomError>, IErrorCallbacks<TInner, Argument<Type, TInner>>
+	implements MinimumErrorLevelConfig<CustomError>, ErrorCallbacks<TInner, Argument<Type, TInner>>
 {
 	final Type argType;
 	private char prefix = '-';
@@ -50,31 +50,6 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	public Argument(String name) {this(name, (Type)ArgumentType.BOOLEAN());}
 
 
-	public Argument<Type, TInner> addNames(String... names) {
-		Objects.requireNonNull(names);
-
-		Arrays.stream(names)
-			.map(UtlString::sanitizeName)
-			.forEach(this.names::add);
-		return this;
-	}
-
-	public boolean hasName(String name) {
-		return this.names.contains(name);
-	}
-
-	public String getDisplayName() {
-		return this.names.get(0);
-	}
-
-	public List<String> getNames() {
-		return names;
-	}
-
-	public char getPrefix() {
-		return prefix;
-	}
-
 	/**
 	 * Marks the argument as obligatory. This means that this argument should <b>always</b> be used
 	 * by the user.
@@ -82,6 +57,10 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	public Argument<Type, TInner> obligatory() {
 		this.obligatory = true;
 		return this;
+	}
+
+	public boolean isObligatory() {
+		return obligatory;
 	}
 
 	/**
@@ -98,6 +77,10 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		return this;
 	}
 
+	public boolean isPositional() {
+		return positional;
+	}
+
 	/**
 	 * Specify the prefix of this argument. By default, this is <code>'-'</code>. If this argument is used in an
 	 * argument name list (-abcd), the prefix that will be valid is any against all the arguments specified
@@ -106,6 +89,10 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	public Argument<Type, TInner> prefix(char prefix) {
 		this.prefix = prefix;
 		return this;
+	}
+
+	public char getPrefix() {
+		return prefix;
 	}
 
 	/**
@@ -118,6 +105,10 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		return this;
 	}
 
+	public boolean allowsUnique() {
+		return allowUnique;
+	}
+
 	/**
 	 * The value that should be used if the user does not specify a value for this argument. If the argument
 	 * does not accept values, this value will be ignored.
@@ -127,16 +118,93 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		return this;
 	}
 
+	/**
+	 * Add more names to this argument. This is useful if you want the same argument to be used with multiple
+	 * different names.
+	 */
+	public Argument<Type, TInner> addNames(String... names) {
+		Objects.requireNonNull(names);
+
+		Arrays.stream(names)
+			.map(UtlString::sanitizeName)
+			.forEach(newName -> {
+				if (this.names.contains(newName)) {
+					throw new IllegalArgumentException("Name '" + newName + "' is already used by this argument.");
+				}
+				this.names.add(newName);
+			});
+		return this;
+	}
+
+	public boolean hasName(String name) {
+		return this.names.contains(name);
+	}
+
+	public List<String> getNames() {
+		return names;
+	}
+
+	public String getDisplayName() {
+		return this.names.get(0);
+	}
+
+	public ArgValueCount getNumberOfValues() {
+		return this.argType.getNumberOfArgValues();
+	}
+
+	void setParentCmd(Command parentCmd) {
+		if (this.parentCmd != null) {
+			throw new IllegalStateException("Argument already added to a command");
+		}
+		this.parentCmd = parentCmd;
+	}
+
+	Command getParentCmd() {
+		return parentCmd;
+	}
+
+	public short getUsageCount() {
+		return usageCount;
+	}
+
+	/**
+	 * Specify a function that will be called with the value introduced by the user.
+	 */
 	public Argument<Type, TInner> onOk(Consumer<TInner> callback) {
 		this.setOnCorrectCallback(callback);
 		return this;
 	}
 
+	/**
+	 * Specify a function that will be called if an error occurs when parsing this argument.
+	 */
 	public Argument<Type, TInner> onErr(Consumer<Argument<Type, TInner>> callback) {
 		this.setOnErrorCallback(callback);
 		return this;
 	}
 
+	/**
+	 * Pass the specified values array to the argument type to parse it.
+	 * @param tokenIndex This is the global index of the token that is currently being parsed. Used when
+	 * dispatching errors.
+	 */
+	void parseValues(String[] value, short tokenIndex) {
+		this.argType.setTokenIndex(tokenIndex);
+		this.argType.parseArgumentValues(value);
+		this.usageCount++;
+	}
+
+	/**
+	 * {@link #parseValues(String[], short)} but passes in an empty values array to parse.
+	 */
+	void parseValues() {
+		this.parseValues(new String[0], (short)0);
+	}
+
+	/**
+	 * Returns the final parsed value of this argument.
+	 * @param parseState The current state of the parser. Used to dispatch any possible errors.
+	 */
 	TInner finishParsing(Command.ParsingState parseState) {
 		if (this.usageCount == 0) {
 			if (this.obligatory && !this.parentCmd.uniqueArgumentReceivedValue()) {
@@ -150,53 +218,31 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		return this.argType.getFinalValue();
 	}
 
-	public void parseValues(String[] value, short tokenIndex) {
-		this.argType.setTokenIndex(tokenIndex);
-		this.argType.parseArgumentValues(value);
-		this.usageCount++;
-	}
-
-	public void parseValues() {
-		this.parseValues(new String[0], (short)0);
-	}
-
-	public ArgValueCount getNumberOfValues() {
-		return this.argType.getNumberOfArgValues();
-	}
-
 	/**
 	 * Checks if this argument matches the given name, including the prefix.
-	 *
 	 */
 	boolean checkMatch(String name) {
 		return this.names.stream().anyMatch(a -> name.equals(Character.toString(this.prefix).repeat(2) + a));
 	}
 
+	/**
+	 * Checks if this argument matches the given single character name.
+	 */
 	boolean checkMatch(char name) {
 		return this.hasName(Character.toString(name));
 	}
 
-	public boolean isObligatory() {
-		return obligatory;
-	}
+	// no worries about casting here, it will always receive the correct type
+	@SuppressWarnings("unchecked")
+	void invokeCallbacks(Object okValue) {
+		this.invokeCallbacks();
+		if (
+			this.onCorrectCallback == null
+				|| this.usageCount == 0
+				|| (!this.allowUnique && this.parentCmd.uniqueArgumentReceivedValue())
+		) return;
 
-	public boolean isPositional() {
-		return positional;
-	}
-
-	public boolean allowsUnique() {
-		return allowUnique;
-	}
-
-	Command getParentCmd() {
-		return parentCmd;
-	}
-
-	void setParentCmd(Command parentCmd) {
-		if (this.parentCmd != null) {
-			throw new IllegalStateException("Argument already added to a command");
-		}
-		this.parentCmd = parentCmd;
+		this.onCorrectCallback.accept((TInner)okValue);
 	}
 
 	public boolean equals(Argument<?, ?> obj) {
@@ -206,11 +252,19 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		);
 	}
 
-	public short getUsageCount() {
-		return usageCount;
+	@Override
+	public String toString() {
+		return String.format(
+			"Argument<%s>[names=%s, prefix='%c', obligatory=%b, positional=%b, allowUnique=%b, defaultValue=%s]",
+			this.argType.getClass().getSimpleName(), this.names, this.prefix, this.obligatory,
+			this.positional, this.allowUnique, this.defaultValue
+		);
 	}
 
-	// --------------------------------- just act as a proxy to the type error handling ---------------------------------
+
+	// ------------------------------------------------ Error Handling ------------------------------------------------
+	// just act as a proxy to the type error handling
+
 	@Override
 	public List<CustomError> getErrorsUnderExitLevel() {
 		return this.argType.getErrorsUnderExitLevel();
@@ -232,45 +286,6 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	@Override
-	public void setOnErrorCallback(Consumer<Argument<Type, TInner>> callback) {
-		this.onErrorCallback = callback;
-	}
-
-
-
-	/**
-	 * Specify a function that will be called with the value introduced by the user. This function is only
-	 * called if the user used the argument, so it will never be called with a default value, for example.
-	 */
-	@Override
-	public void setOnCorrectCallback(Consumer<TInner> callback) {
-		this.onCorrectCallback = callback;
-	}
-
-	@Override
-	public void invokeCallbacks() {
-		if (this.onErrorCallback == null || this.hasExitErrors()) return;
-		this.onErrorCallback.accept(this);
-	}
-
-	// no worries about casting here, it will always receive the correct type
-	@SuppressWarnings("unchecked")
-	void invokeCallbacks(Object okValue) {
-		this.invokeCallbacks();
-		if (this.onCorrectCallback == null || this.usageCount == 0) return;
-		this.onCorrectCallback.accept((TInner)okValue);
-	}
-
-	@Override
-	public String toString() {
-		return String.format(
-			"Argument<%s>[names=%s, prefix='%c', obligatory=%b, positional=%b]",
-			this.argType.getClass().getSimpleName(), this.getNames(),
-			this.getPrefix(), this.isObligatory(), this.isPositional()
-		);
-	}
-
-	@Override
 	public void setMinimumDisplayErrorLevel(ErrorLevel level) {
 		this.argType.setMinimumDisplayErrorLevel(level);
 	}
@@ -289,10 +304,26 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	public ModifyRecord<ErrorLevel> getMinimumExitErrorLevel() {
 		return this.argType.getMinimumExitErrorLevel();
 	}
+
+	@Override
+	public void setOnErrorCallback(Consumer<Argument<Type, TInner>> callback) {
+		this.onErrorCallback = callback;
+	}
+
+	@Override
+	public void setOnCorrectCallback(Consumer<TInner> callback) {
+		this.onCorrectCallback = callback;
+	}
+
+	@Override
+	public void invokeCallbacks() {
+		if (this.onErrorCallback == null || this.hasExitErrors()) return;
+		this.onErrorCallback.accept(this);
+	}
 }
 
 
-interface IArgumentAdder {
+interface ArgumentAdder {
 	/**
 	 * Inserts an argument for this command to be parsed.
 	 *

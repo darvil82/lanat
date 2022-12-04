@@ -2,7 +2,7 @@ package argparser.utils;
 
 import java.util.List;
 
-public interface IMinimumErrorLevelConfig<T extends IErrorLevelProvider> {
+public interface MinimumErrorLevelConfig<T extends ErrorLevelProvider> {
 	List<T> getErrorsUnderExitLevel();
 	List<T> getErrorsUnderDisplayLevel();
 	boolean hasExitErrors();

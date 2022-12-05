@@ -11,15 +11,51 @@ import java.util.Comparator;
 import java.util.List;
 
 
+/**
+ * Provides a {@link ParseStateErrorBase#handle(ErrorHandler)} method that when called, automatically invokes the
+ * appropriate defined method with the {@link Handler} annotation value that matches the value passed to the constructor.
+ * This is used to display the errors on screen.
+ *
+ * <p>
+ *  Example class that inherits from this:
+ * <pre>
+ * {@code
+ * class MyHandler extends ParseStateErrorBase<MyHandler.MyErrors> {
+ *    public enum MyErrors implements ErrorLevelProvider {
+ *       ERROR1(ErrorLevel.ERROR),
+ *       ERROR2(ErrorLevel.WARNING);
+ *    }
+ *
+ *    @Handler("ERROR1")
+ *    public void handle1() {
+ *       // do something
+ *    }
+ *
+ *    @Handler("ERROR2")
+ *    public void handle2() {
+ *       // do something
+ *    }
+ * }
+ *
+ * ...
+ *
+ * var handler = new MyHandler(MyHandler.MyErrors.ERROR1);
+ * handler.handle(errorHandler); // will call handle1()
+ * }
+ * </pre>
+ * </p>
+ *
+ * @param <T> An enum with the possible error types to handle.
+ */
 abstract class ParseStateErrorBase<T extends ErrorLevelProvider> implements ErrorLevelProvider {
 	public final T type;
-	public int index;
+	public int tokenIndex;
 	private ErrorHandler errorHandler;
 	private ErrorFormatter formatter;
 
-	public ParseStateErrorBase(T type, int index) {
+	public ParseStateErrorBase(T type, int tokenIndex) {
 		this.type = type;
-		this.index = index;
+		this.tokenIndex = tokenIndex;
 	}
 
 	public final void handle(ErrorHandler handler) {
@@ -47,7 +83,7 @@ abstract class ParseStateErrorBase<T extends ErrorLevelProvider> implements Erro
 	}
 
 	protected Token getCurrentToken() {
-		return this.errorHandler.getRelativeToken(this.index);
+		return this.errorHandler.getRelativeToken(this.tokenIndex);
 	}
 
 	protected ErrorFormatter fmt() {
@@ -82,28 +118,28 @@ class TokenizeError extends ParseStateErrorBase<TokenizeError.TokenizeErrorType>
 	protected void handleTupleAlreadyOpen() {
 		this.fmt()
 			.setContents("Tuple already open.")
-			.displayTokens(this.index + 1);
+			.displayTokens(this.tokenIndex + 1);
 	}
 
 	@Handler("TUPLE_NOT_CLOSED")
 	protected void handleTupleNotClosed() {
 		this.fmt()
 			.setContents("Tuple not closed.")
-			.displayTokens(this.index);
+			.displayTokens(this.tokenIndex);
 	}
 
 	@Handler("UNEXPECTED_TUPLE_CLOSE")
 	protected void handleUnexpectedTupleClose() {
 		this.fmt()
 			.setContents("Unexpected tuple close.")
-			.displayTokens(this.index);
+			.displayTokens(this.tokenIndex);
 	}
 
 	@Handler("STRING_NOT_CLOSED")
 	protected void handleStringNotClosed() {
 		this.fmt()
 			.setContents("String not closed.")
-			.displayTokens(this.index, 0, true);
+			.displayTokens(this.tokenIndex, 0, true);
 	}
 }
 
@@ -164,7 +200,7 @@ class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 				"Incorrect number of values for argument '%s'.%nExpected %s, but got %d.",
 				argument.getDisplayName(), argument.getNumberOfValues().getMessage(), Math.max(valueCount - 1, 0)
 			))
-			.displayTokens(this.index + 1, valueCount, valueCount == 0);
+			.displayTokens(this.tokenIndex + 1, valueCount, valueCount == 0);
 	}
 
 	@Handler("OBLIGATORY_ARGUMENT_NOT_USED")
@@ -177,7 +213,7 @@ class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 					? String.format("Obligatory argument '%s' not used.", argument.getDisplayName())
 					: String.format("Obligatory argument '%s' for command '%s' not used.", argument.getDisplayName(), argCmd.name)
 			)
-			.displayTokens(this.index + 1);
+			.displayTokens(this.tokenIndex + 1);
 	}
 
 	@Handler("ARGUMENT_NOT_FOUND")
@@ -192,7 +228,7 @@ class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 				"Token '%s' does not correspond with a valid argument, value, or command.",
 				this.getCurrentToken().contents())
 			)
-			.displayTokens(this.index + 1, 0, false);
+			.displayTokens(this.tokenIndex + 1, 0, false);
 	}
 }
 
@@ -234,7 +270,7 @@ class CustomError extends ParseStateErrorBase<CustomError.CustomParseErrorType> 
 			.setContents(this.message);
 
 		if (this.showTokens)
-			this.fmt().displayTokens(this.index, 0, false);
+			this.fmt().displayTokens(this.tokenIndex, 0, false);
 	}
 }
 
@@ -280,7 +316,7 @@ public class ErrorHandler {
 				addAll(cmd.parsingState.getCustomErrors());
 				addAll(ParseError.filter(cmd.parsingState.getErrorsUnderDisplayLevel()));
 			}}.stream()
-				.sorted(Comparator.comparingInt(x -> x.index))
+				.sorted(Comparator.comparingInt(x -> x.tokenIndex))
 				.forEach(e -> e.handle(this));
 		}
 	}

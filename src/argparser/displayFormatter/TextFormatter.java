@@ -8,7 +8,7 @@ public class TextFormatter {
 	private Color foregroundColor;
 	private Color backgroundColor;
 	private String contents;
-	public static boolean DEBUG_DISABLE = false;
+	public static boolean enableSequences = true;
 
 	public TextFormatter(String contents) {
 		this.contents = contents;
@@ -46,7 +46,7 @@ public class TextFormatter {
 		if (
 			this.contents.length() == 0
 				|| (this.formatOptions.size() == 0 && this.foregroundColor == null && this.backgroundColor == null)
-				|| DEBUG_DISABLE
+				|| !enableSequences
 		)
 			return this.contents;
 

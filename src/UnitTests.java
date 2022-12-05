@@ -31,6 +31,7 @@ class TestingParser extends ArgumentParser {
 		this.__parseArgsNoExit(args);
 	}
 
+	@Override
 	public ParsedArguments parseArgs(String args) {
 		var res = this.__parseArgsNoExit(args).first();
 		assertNotNull(res, "The result of the parsing was null (Arguments have failed)");

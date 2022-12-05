@@ -3,9 +3,6 @@ package argparser;
 import argparser.argumentTypes.*;
 import argparser.utils.ErrorLevel;
 import argparser.utils.ErrorsContainer;
-
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -58,7 +55,7 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> {
 	 * @param error The error that occurred in the subtype.
 	 */
 	protected void onSubTypeError(CustomError error) {
-		error.index += this.currentArgValueIndex;
+		error.tokenIndex += this.currentArgValueIndex;
 		this.addError(error);
 	}
 
@@ -151,11 +148,11 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> {
 
 	@Override
 	public void addError(CustomError error) {
-		if (!this.getNumberOfArgValues().isInRange(error.index, true)) {
-			throw new IndexOutOfBoundsException("Index " + error.index + " is out of range for " + this.getClass().getName());
+		if (!this.getNumberOfArgValues().isInRange(error.tokenIndex, true)) {
+			throw new IndexOutOfBoundsException("Index " + error.tokenIndex + " is out of range for " + this.getClass().getName());
 		}
 
-		error.index = this.tokenIndex + Math.min(error.index + 1, this.receivedValueCount);
+		error.tokenIndex = this.tokenIndex + Math.min(error.tokenIndex + 1, this.receivedValueCount);
 
 		super.addError(error);
 		this.dispatchErrorToParent(error);

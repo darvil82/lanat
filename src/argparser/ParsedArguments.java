@@ -64,7 +64,7 @@ public class ParsedArguments {
 	 * (default is <code>.</code>)
 	 */
 	public <T> ParsedArgument<T> get(String argRoute) {
-		return this.get(argRoute.split("\s*" + Pattern.quote(ParsedArguments.separator) + "\s*"));
+		return this.get(argRoute.split(" *" + Pattern.quote(ParsedArguments.separator) + " *"));
 	}
 
 

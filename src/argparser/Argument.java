@@ -83,7 +83,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 	/**
 	 * Specify the prefix of this argument. By default, this is <code>'-'</code>. If this argument is used in an
-	 * argument name list (-abcd), the prefix that will be valid is any against all the arguments specified
+	 * argument name list (-abc), the prefix that will be valid is any against all the arguments specified
 	 * in that name list.
 	 */
 	public Argument<Type, TInner> prefix(char prefix) {

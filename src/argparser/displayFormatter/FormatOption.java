@@ -3,6 +3,7 @@ package argparser.displayFormatter;
 public enum FormatOption {
 	RESET_ALL(0),
 	BOLD(1),
+	ITALIC(3),
 	DIM(2),
 	UNDERLINE(4),
 	BLINK(5),

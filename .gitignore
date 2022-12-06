@@ -1,2 +1,6 @@
+# compiled stuff
 out
+target
+
+# ides
 .idea

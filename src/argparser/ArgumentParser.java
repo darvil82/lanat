@@ -1,7 +1,7 @@
 package argparser;
 
-import argparser.utils.Pair;
 
+import argparser.utils.Pair;
 import java.util.Arrays;
 
 public class ArgumentParser extends Command {

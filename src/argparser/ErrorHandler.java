@@ -22,8 +22,13 @@ import java.util.List;
  * {@code
  * class MyHandler extends ParseStateErrorBase<MyHandler.MyErrors> {
  *    public enum MyErrors implements ErrorLevelProvider {
- *       ERROR1(ErrorLevel.ERROR),
- *       ERROR2(ErrorLevel.WARNING);
+ *       ERROR1,
+ *       ERROR2;
+ *
+ *       @Override
+ *       public ErrorLevel getErrorLevel() {
+ *          return ErrorLevel.ERROR;
+ *       }
  *    }
  *
  *    @Handler("ERROR1")
@@ -44,6 +49,9 @@ import java.util.List;
  * }
  * </pre>
  * </p>
+ *
+ * The enum type must implement {@link ErrorLevelProvider}. This allows the error text formatter to color errors
+ * according to their severity.
  *
  * @param <T> An enum with the possible error types to handle.
  */
@@ -229,48 +237,6 @@ class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 				this.getCurrentToken().contents())
 			)
 			.displayTokens(this.tokenIndex, 0, false);
-	}
-}
-
-@SuppressWarnings("unused")
-class CustomError extends ParseStateErrorBase<CustomError.CustomParseErrorType> {
-	private final String message;
-	private final ErrorLevel level;
-	private boolean showTokens = true;
-
-	enum CustomParseErrorType implements ErrorLevelProvider {
-		DEFAULT;
-
-		@Override
-		public ErrorLevel getErrorLevel() {
-			return ErrorLevel.ERROR;
-		}
-	}
-
-	public CustomError(String message, int index, ErrorLevel level) {
-		super(CustomParseErrorType.DEFAULT, index);
-		this.message = message;
-		this.level = level;
-	}
-
-	public CustomError(String message, ErrorLevel level) {
-		this(message, -1, level);
-		this.showTokens = false;
-	}
-
-	@Override
-	public ErrorLevel getErrorLevel() {
-		return this.level;
-	}
-
-	@Handler("DEFAULT")
-	protected void handleDefault() {
-		this.fmt()
-			.setErrorLevel(this.level)
-			.setContents(this.message);
-
-		if (this.showTokens)
-			this.fmt().displayTokens(this.tokenIndex, 0, false);
 	}
 }
 

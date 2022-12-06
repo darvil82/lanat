@@ -11,7 +11,7 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> {
 	/**
 	 * This is the current index of the value that is being parsed.
 	 */
-	protected int currentArgValueIndex = 0;
+	private int currentArgValueIndex = 0;
 	/**
 	 * This is used for storing errors that occur during parsing. We need to keep track of the index of
 	 * the token that caused the error. -1 means that this was still not parsed.
@@ -194,5 +194,3 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> {
 	public static <T extends ArgumentType<Ts>, Ts> KeyValuesArgument<T, Ts>
 	KEY_VALUES(T valueType) {return new KeyValuesArgument<>(valueType);}
 }
-
-

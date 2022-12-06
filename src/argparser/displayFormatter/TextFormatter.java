@@ -55,7 +55,8 @@ public class TextFormatter {
 		if (foregroundColor != null) str.append(foregroundColor);
 		if (backgroundColor != null) str.append(backgroundColor.toStringBackground());
 
-		for (var fmt : formatOptions) str.append(fmt);
+		for (var fmt : formatOptions)
+			str.append(fmt);
 
 		str.append(contents);
 

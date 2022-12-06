@@ -108,7 +108,7 @@ public class ParsedArguments {
 	}
 
 	/**
-	 * Returns the argument in {@link #parsedArgs} with the given alias/name.
+	 * Returns the argument in {@link #parsedArgs} with the given name.
 	 */
 	private Argument<?, ?> getArgument(String name) {
 		for (var arg : this.parsedArgs.keySet()) {

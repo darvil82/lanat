@@ -1,4 +1,4 @@
-package argparser.displayFormatter;
+package argparser.utils.displayFormatter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,9 +60,11 @@ public class TextFormatter {
 
 		str.append(contents);
 
-		// reset
-		for (var fmt : formatOptions) str.append(fmt.toStringReset());
+		// reset each format option
+		for (var fmt : formatOptions)
+			str.append(fmt.toStringReset());
 
+		// to reset the color we just set it back to white
 		str.append(Color.BRIGHT_WHITE);
 
 		return str.toString();

@@ -1,6 +1,6 @@
 package argparser.utils;
 
-import argparser.displayFormatter.Color;
+import argparser.utils.displayFormatter.Color;
 
 public enum ErrorLevel {
 	ERROR(Color.BRIGHT_RED),

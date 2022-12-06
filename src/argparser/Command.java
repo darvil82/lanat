@@ -140,14 +140,17 @@ public class Command
 
 	/**
 	 * Get all the tokens of all subcommands (the ones that we can get without errors)
-	 * into one single list. This includes the SubCommand tokens.
+	 * into one single list. This includes the {@link TokenType#SUB_COMMAND} tokens.
 	 */
 	protected ArrayList<Token> getFullTokenList() {
-		final ArrayList<Token> list = new ArrayList<>(Arrays.stream(this.parsingState.tokens).toList());
+		final ArrayList<Token> list = new ArrayList<>() {{
+			add(new Token(TokenType.SUB_COMMAND, name));
+			addAll(Arrays.stream(Command.this.parsingState.tokens).toList());
+		}};
+
 		final Command subCmd = this.getTokenizedSubCommand();
 
 		if (subCmd != null) {
-			list.add(new Token(TokenType.SUB_COMMAND, subCmd.name));
 			list.addAll(subCmd.getFullTokenList());
 		}
 
@@ -388,17 +391,17 @@ public class Command
 			}
 		}
 
-		// we left something in the current value, tokenize it
-		if (!currentValue.isEmpty()) {
-			tokenizeSection.accept(chars.length);
-		}
-
 		if (errorType == null)
 			if (this.tokenizingState.tupleOpen) {
 				errorType = TokenizeError.TokenizeErrorType.TUPLE_NOT_CLOSED;
 			} else if (this.tokenizingState.stringOpen) {
 				errorType = TokenizeError.TokenizeErrorType.STRING_NOT_CLOSED;
 			}
+
+		// we left something in the current value, tokenize it
+		if (!currentValue.isEmpty() && errorType != null) {
+			tokenizeSection.accept(chars.length);
+		}
 
 		if (errorType != null) {
 			tokenizingState.addError(errorType, finalTokens.size());
@@ -413,8 +416,8 @@ public class Command
 
 		if (this.tokenizingState.tupleOpen || this.tokenizingState.stringOpen) {
 			type = TokenType.ARGUMENT_VALUE;
-		} else if (this.isArgAlias(str)) {
-			type = TokenType.ARGUMENT_ALIAS;
+		} else if (this.isArgName(str)) {
+			type = TokenType.ARGUMENT_NAME;
 		} else if (this.isArgNameList(str)) {
 			type = TokenType.ARGUMENT_NAME_LIST;
 		} else if (this.isSubCommand(str)) {
@@ -451,13 +454,13 @@ public class Command
 		return possiblePrefixes.size() >= 1 && possiblePrefixes.contains(str.charAt(0));
 	}
 
-	private boolean isArgAlias(String str) {
+	private boolean isArgName(String str) {
 		// first try to figure out if the prefix is used, to save time (does it start with '--'? (assuming the prefix is '-'))
 		if (
 			str.length() > 1 // make sure we are working with long enough strings
 				&& str.charAt(0) == str.charAt(1) // first and second chars are equal?
 		) {
-			// now check if the alias actually exist
+			// now check if the name actually exist
 			return this.arguments.stream().anyMatch(a -> a.checkMatch(str));
 		}
 
@@ -465,7 +468,7 @@ public class Command
 	}
 
 	private boolean isArgumentSpecifier(String str) {
-		return this.isArgAlias(str) || this.isArgNameList(str);
+		return this.isArgName(str) || this.isArgNameList(str);
 	}
 
 	private boolean isSubCommand(String str) {
@@ -495,14 +498,14 @@ public class Command
 	// ---------------------------------------------------- Parsing ----------------------------------------------------
 
 	void parseTokens() {
-		short argumentAliasCount = 0;
+		short argumentNameCount = 0;
 		boolean foundNonPositionalArg = false;
 		Argument<?, ?> lastPosArgument; // this will never be null when being used
 
 		for (parsingState.currentTokenIndex = 0; parsingState.currentTokenIndex < parsingState.tokens.length; ) {
 			final Token currentToken = parsingState.tokens[parsingState.currentTokenIndex];
 
-			if (currentToken.type() == TokenType.ARGUMENT_ALIAS) {
+			if (currentToken.type() == TokenType.ARGUMENT_NAME) {
 				parsingState.currentTokenIndex++;
 				runForArgument(currentToken.contents(), this::executeArgParse);
 				foundNonPositionalArg = true;
@@ -512,13 +515,13 @@ public class Command
 			} else if (
 				(currentToken.type() == TokenType.ARGUMENT_VALUE || currentToken.type() == TokenType.ARGUMENT_VALUE_TUPLE_START)
 					&& !foundNonPositionalArg
-					&& (lastPosArgument = getArgumentByPositionalIndex(argumentAliasCount)) != null
+					&& (lastPosArgument = getArgumentByPositionalIndex(argumentNameCount)) != null
 			) { // this is most likely a positional argument
 				executeArgParse(lastPosArgument);
-				argumentAliasCount++;
+				argumentNameCount++;
 			} else {
-				parsingState.addError(ParseError.ParseErrorType.UNMATCHED_TOKEN, null, 0);
 				parsingState.currentTokenIndex++;
+				parsingState.addError(ParseError.ParseErrorType.UNMATCHED_TOKEN, null, 0);
 			}
 		}
 
@@ -624,13 +627,13 @@ public class Command
 	}
 
 	/**
-	 * Executes a callback for the argument found by the alias specified.
+	 * Executes a callback for the argument found by the name specified.
 	 *
 	 * @return <a>ParseErrorType.ArgumentNotFound</a> if an argument was found
 	 */
-	private boolean runForArgument(String argAlias, Consumer<Argument<?, ?>> f) {
+	private boolean runForArgument(String argName, Consumer<Argument<?, ?>> f) {
 		for (final var argument : this.arguments) {
-			if (argument.checkMatch(argAlias)) {
+			if (argument.checkMatch(argName)) {
 				f.accept(argument);
 				return true;
 			}

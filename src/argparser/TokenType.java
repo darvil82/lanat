@@ -1,9 +1,9 @@
 package argparser;
 
-import argparser.displayFormatter.Color;
+import argparser.utils.displayFormatter.Color;
 
 public enum TokenType {
-	ARGUMENT_ALIAS(Color.BRIGHT_GREEN),
+	ARGUMENT_NAME(Color.BRIGHT_GREEN),
 	ARGUMENT_NAME_LIST(Color.BRIGHT_BLUE),
 	ARGUMENT_VALUE(Color.BRIGHT_YELLOW),
 	ARGUMENT_VALUE_TUPLE_START(Color.BRIGHT_MAGENTA),
@@ -17,7 +17,7 @@ public enum TokenType {
 	}
 
 	public boolean isArgumentSpecifier() {
-		return this == ARGUMENT_ALIAS || this == ARGUMENT_NAME_LIST;
+		return this == ARGUMENT_NAME || this == ARGUMENT_NAME_LIST;
 	}
 
 	public boolean isTuple() {

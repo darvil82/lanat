@@ -1,5 +1,5 @@
 import argparser.*;
-import argparser.displayFormatter.TextFormatter;
+import argparser.utils.displayFormatter.TextFormatter;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -114,7 +114,7 @@ public class UnitTests {
 		public void testFirstObligatoryArgument() {
 			assertErrorOutput("subcommand", """
 			ERROR
-			<- subcommand
+			Testing <- subcommand
 			Obligatory argument 'what' not used.""");
 		}
 
@@ -122,7 +122,7 @@ public class UnitTests {
 		public void testLastObligatoryArgument() {
 			assertErrorOutput("foo subcommand another", """
 			ERROR
-			foo subcommand another <-
+			Testing foo subcommand another <-
 			Obligatory argument 'number' for command 'another' not used.""");
 		}
 
@@ -130,7 +130,7 @@ public class UnitTests {
 		public void testExceedValueCount() {
 			assertErrorOutput("--what [1 2 3 4 5 6 7 8 9 10]", """
 			ERROR
-			--what [ 1 2 3 4 5 6 7 8 9 10 ]
+			Testing --what [ 1 2 3 4 5 6 7 8 9 10 ]
 			Incorrect number of values for argument 'what'.
 			Expected from 1 to 3 values, but got 10.""");
 		}
@@ -140,7 +140,7 @@ public class UnitTests {
 		public void testMissingValue() {
 			assertErrorOutput("--what", """
 			ERROR
-			--what <-
+			Testing --what <-
 			Incorrect number of values for argument 'what'.
 			Expected from 1 to 3 values, but got 0.""");
 		}
@@ -149,7 +149,7 @@ public class UnitTests {
 		public void testMissingValueBeforeToken() {
 			assertErrorOutput("--what subcommand", """
 			ERROR
-			--what <- subcommand
+			Testing --what <- subcommand
 			Incorrect number of values for argument 'what'.
 			Expected from 1 to 3 values, but got 0.""");
 		}
@@ -158,7 +158,7 @@ public class UnitTests {
 		public void testMissingValueWithTuple() {
 			assertErrorOutput("--what []", """
 			ERROR
-			--what [ ]
+			Testing --what [ ]
 			Incorrect number of values for argument 'what'.
 			Expected from 1 to 3 values, but got 0.""");
 		}
@@ -167,7 +167,7 @@ public class UnitTests {
 		public void testInvalidArgumentTypeValue() {
 			assertErrorOutput("foo subcommand another bar", """
 			ERROR
-			foo subcommand another bar
+			Testing foo subcommand another bar
 			Invalid integer value: 'bar'.""");
 		}
 
@@ -175,7 +175,7 @@ public class UnitTests {
 		public void testUnmatchedToken() {
 			assertErrorOutput("[foo] --unknown", """
 			WARNING
-			[ foo ] --unknown
+			Testing [ foo ] --unknown
 			Token '--unknown' does not correspond with a valid argument, value, or command.""");
 		}
 	}

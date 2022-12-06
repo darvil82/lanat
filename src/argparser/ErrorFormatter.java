@@ -1,7 +1,7 @@
 package argparser;
 
-import argparser.displayFormatter.FormatOption;
-import argparser.displayFormatter.TextFormatter;
+import argparser.utils.displayFormatter.FormatOption;
+import argparser.utils.displayFormatter.TextFormatter;
 import argparser.utils.ErrorLevel;
 import argparser.utils.UtlString;
 

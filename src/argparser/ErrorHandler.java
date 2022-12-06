@@ -125,21 +125,21 @@ class TokenizeError extends ParseStateErrorBase<TokenizeError.TokenizeErrorType>
 	protected void handleTupleNotClosed() {
 		this.fmt()
 			.setContents("Tuple not closed.")
-			.displayTokens(this.tokenIndex);
+			.displayTokens(this.tokenIndex + 1);
 	}
 
 	@Handler("UNEXPECTED_TUPLE_CLOSE")
 	protected void handleUnexpectedTupleClose() {
 		this.fmt()
 			.setContents("Unexpected tuple close.")
-			.displayTokens(this.tokenIndex);
+			.displayTokens(this.tokenIndex + 1);
 	}
 
 	@Handler("STRING_NOT_CLOSED")
 	protected void handleStringNotClosed() {
 		this.fmt()
 			.setContents("String not closed.")
-			.displayTokens(this.tokenIndex, 0, true);
+			.displayTokens(this.tokenIndex + 1);
 	}
 }
 
@@ -178,7 +178,7 @@ class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 
 	public static List<ParseError> filter(List<ParseError> errors) {
 		var newList = new ArrayList<>(errors);
-		for (var err : newList) {
+		for (var err : errors) {
 			/* if we are going to show an error about an argument being incorrectly used, and that argument is defined
 			 * as obligatory, we don't need to show the obligatory error since its obvious that the user knows that
 			 * the argument is obligatory */
@@ -228,7 +228,7 @@ class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 				"Token '%s' does not correspond with a valid argument, value, or command.",
 				this.getCurrentToken().contents())
 			)
-			.displayTokens(this.tokenIndex + 1, 0, false);
+			.displayTokens(this.tokenIndex, 0, false);
 	}
 }
 
@@ -280,29 +280,14 @@ public class ErrorHandler {
 	int cmdAbsoluteTokenIndex = 0;
 
 
-	public ErrorHandler(Command cmd) {
-		this.rootCmd = cmd;
-		this.tokens = cmd.getFullTokenList();
+	public ErrorHandler(Command rootCommand) {
+		this.rootCmd = rootCommand;
+		this.tokens = rootCommand.getFullTokenList();
 	}
 
-
-	private int getCommandTokenIndexByNestingLevel(int level) {
-		for (int i = 0, appearances = 0; i < this.tokens.size(); i++) {
-			if (this.tokens.get(i).type() == TokenType.SUB_COMMAND) {
-				appearances++;
-			}
-			if (appearances >= level) {
-				return i - (level == 0 ? 1 : 0); // this is done to skip the subcommand token itself
-			}
-		}
-		return -1;
-	}
-
-	public int getErrorCode() {
-		return this.rootCmd.getErrorCode();
-	}
-
-
+	/**
+	 * Handles all errors and displays them to the user.
+	 */
 	public void handleErrorsView() {
 		List<Command> commands = this.rootCmd.getTokenizedSubCommands();
 
@@ -321,7 +306,46 @@ public class ErrorHandler {
 		}
 	}
 
+	/**
+	 * Returns the token at the specified index, offset by the current command's token index ({@link #cmdAbsoluteTokenIndex}).
+	 */
 	public Token getRelativeToken(int index) {
-		return this.tokens.get(Math.min(this.cmdAbsoluteTokenIndex + index + 1, this.tokens.size() - 1));
+		return this.tokens.get(this.cmdAbsoluteTokenIndex + index);
+	}
+
+	/**
+	 * Returns the index of a command in the token list by its nesting level by order of appearance.
+	 * For example, in a token list like this:<br>
+	 * <pre>{@code
+	 * {
+	 *   SUB_COMMAND,
+	 *   ARGUMENT_NAME,
+	 *   ARGUMENT_VALUE,
+	 *   SUB_COMMAND, // <- here
+	 *   ARGUMENT_NAME_LIST,
+	 *   SUB_COMMAND,
+	 *   ARGUMENT_NAME
+	 * }}</pre>
+	 * The nesting level of the second subcommand is <strong>1</strong> (starting at 0),
+	 * and its index in the token list is <strong>3</strong>.
+	 * @return <code>-1</code> if the command is not found.
+	 */
+	private int getCommandTokenIndexByNestingLevel(int level) {
+		if (level <= 0) return 0;
+
+		for (int i = 0, appearances = 0; i < this.tokens.size(); i++) {
+			if (this.tokens.get(i).type() == TokenType.SUB_COMMAND) {
+				appearances++;
+			}
+			if (appearances > level) {
+				return i;
+			}
+		}
+
+		return -1;
+	}
+
+	public int getErrorCode() {
+		return this.rootCmd.getErrorCode();
 	}
 }

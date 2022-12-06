@@ -1,4 +1,4 @@
-package argparser.displayFormatter;
+package argparser.utils.displayFormatter;
 
 public enum FormatOption {
 	RESET_ALL(0),

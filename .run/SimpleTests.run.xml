@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="SimpleTests" type="Application" factoryName="Application" nameIsGenerated="true">
+  <configuration default="false" name="SimpleTests" type="Application" factoryName="Application">
     <option name="MAIN_CLASS_NAME" value="SimpleTests" />
-    <module name="java-argparser" />
+    <module name="testing" />
     <method v="2">
       <option name="Make" enabled="true" />
     </method>

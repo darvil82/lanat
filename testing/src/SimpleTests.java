@@ -1,5 +1,4 @@
 import argparser.*;
-import argparser.displayFormatter.Color;
 
 public class SimpleTests {
 	public static void main(String[] args) {

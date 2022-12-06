@@ -1,0 +1,3 @@
+module argparser {
+	exports argparser;
+}

@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="UnitTests" type="JUnit" factoryName="JUnit" nameIsGenerated="true">
-    <module name="java-argparser" />
+  <configuration default="false" name="UnitTests" type="JUnit" factoryName="JUnit">
+    <module name="testing" />
     <option name="PACKAGE_NAME" value="" />
     <option name="MAIN_CLASS_NAME" value="UnitTests" />
     <option name="METHOD_NAME" value="" />

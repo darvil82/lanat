@@ -8,8 +8,7 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 class StringJoiner extends ArgumentType<String> {
@@ -74,9 +73,26 @@ public class UnitTests {
 		}
 
 		@Test
-		public void testGet() {
-			var pArgs = this.parseArgs("--what hello world");
-			assertEquals("(hello), (world)", pArgs.<String>get("what").get());
+		public void testGetSimple() {
+			assertEquals("(hello), (world)", this.parseArgs("--what hello world").<String>get("what").get());
+		}
+
+		@Test
+		public void testUnknownArg() {
+			assertThrows(
+				IllegalArgumentException.class,
+				() -> this.parseArgs("--what hello world").<String>get("not-there")
+			);
+		}
+
+		@Test
+		public void testNestedArguments() {
+			var pArgs = this.parseArgs("smth subcommand -cccc another 56");
+			assertEquals(4, pArgs.<Integer>get("subcommand.c").get());
+			assertEquals(4, pArgs.<Integer>get("subcommand", "c").get());
+
+			assertEquals(56, pArgs.<Integer>get("subcommand.another.number").get());
+			assertEquals(56, pArgs.<Integer>get("subcommand", "another", "number").get());
 		}
 	}
 

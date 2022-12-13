@@ -1,4 +1,5 @@
 import argparser.*;
+import argparser.utils.ErrorLevel;
 
 public class SimpleTests {
 	public static void main(String[] args) {
@@ -21,8 +22,13 @@ public class SimpleTests {
 
 //		var pArgs = argumentParser.parseArgs("-fff --test hii subcommand --nose <x.1 y.347 z.43423> another --test 'this is a test' what");
 //		final var pArgs = argumentParser.parseArgs("--help");
-		final var pArgs = argumentParser.parseArgs("a");
+		final var pArgs = argumentParser.parseArgs("[a] jawoid");
 //
 		System.out.println(pArgs.<Integer>get("subcommand.c").get());
+
+		var whatArg = new String[1];
+		if (pArgs.get("what").defined(whatArg)) {
+			System.out.println("what: " + whatArg[0]);
+		}
 	}
 }

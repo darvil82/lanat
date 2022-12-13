@@ -145,19 +145,36 @@ public class ParsedArguments {
 		}
 
 		/**
+		 * Specifies a function to run if the argument was parsed.
+		 * @param onDefined The function to run if the argument was parsed. This function will receive the parsed value.
+		 */
+		public ParsedArgument<T> defined(Consumer<T> onDefined) {
+			if (this.defined()) onDefined.accept(this.value);
+			return this;
+		}
+
+		/**
+		 * Returns true if the argument was not parsed, false otherwise. If a single value array is passed,
+		 * and the argument was parsed, this will set the first value of the array to the parsed value.
+		 */
+		public boolean defined(T[] value) {
+			if (value.length != 1) {
+				throw new IllegalArgumentException("value must be an array of length 1");
+			}
+
+			if (this.defined()) {
+				value[0] = this.value;
+				return true;
+			}
+
+			return false;
+		}
+
+		/**
 		 * Returns true if the argument was not parsed, false otherwise.
 		 */
 		public boolean undefined() {
 			return this.value == null;
-		}
-
-		/**
-		 * Returns <code>true</code> if the argument was parsed and the value matches the given predicate, false otherwise.
-		 * @param predicate The predicate to test the value against (if the argument was parsed). This predicate will
-		 * never receive a <code>null</code> value.
-		 */
-		public boolean matches(Predicate<T> predicate) {
-			return this.defined() && predicate.test(this.value);
 		}
 
 		/**
@@ -186,12 +203,12 @@ public class ParsedArguments {
 		}
 
 		/**
-		 * Specifies a function to run if the argument was parsed.
-		 * @param onDefined The function to run if the argument was parsed. This function will receive the parsed value.
+		 * Returns <code>true</code> if the argument was parsed and the value matches the given predicate, false otherwise.
+		 * @param predicate The predicate to test the value against (if the argument was parsed). This predicate will
+		 * never receive a <code>null</code> value.
 		 */
-		public ParsedArgument<T> defined(Consumer<T> onDefined) {
-			if (this.defined()) onDefined.accept(this.value);
-			return this;
+		public boolean matches(Predicate<T> predicate) {
+			return this.defined() && predicate.test(this.value);
 		}
 	}
 }

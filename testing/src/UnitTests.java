@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -93,6 +94,21 @@ public class UnitTests {
 
 			assertEquals(56, pArgs.<Integer>get("subcommand.another.number").get());
 			assertEquals(56, pArgs.<Integer>get("subcommand", "another", "number").get());
+		}
+
+		@Test
+		public void testDefinedCallbacks() {
+			var pArgs = this.parseArgs("smth subcommand -cccc");
+			final byte[] called = {0};
+
+			pArgs.<Integer>get("subcommand.c").defined(v -> {
+				assertEquals(4, v);
+				called[0]++;
+			});
+
+			pArgs.<Integer>get("subcommand.another.number").undefined(() -> called[0]++);
+
+			assertEquals(2, called[0]);
 		}
 	}
 

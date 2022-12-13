@@ -83,8 +83,8 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> {
 		return ArgValueCount.ONE;
 	}
 
-	public String getRepresentation() {
-		return this.getClass().getName();
+	public Token[] getRepresentation() {
+		return new Token[] { new Token(TokenType.ARGUMENT_NAME, this.getClass().getSimpleName()) };
 	}
 
 	public T getFinalValue() {

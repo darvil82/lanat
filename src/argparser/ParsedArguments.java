@@ -158,7 +158,7 @@ public class ParsedArguments {
 		 * and the argument was parsed, this will set the first value of the array to the parsed value.
 		 */
 		public boolean defined(T[] value) {
-			if (value.length != 1) {
+			if (Objects.requireNonNull(value).length != 1) {
 				throw new IllegalArgumentException("value must be an array of length 1");
 			}
 

@@ -2,6 +2,7 @@ package argparser.argumentTypes;
 
 import argparser.ArgValueCount;
 import argparser.ArgumentType;
+import argparser.Token;
 
 public class BooleanArgument extends ArgumentType<Boolean> {
 	@Override
@@ -10,8 +11,8 @@ public class BooleanArgument extends ArgumentType<Boolean> {
 	}
 
 	@Override
-	public String getRepresentation() {
-		return "bool";
+	public Token[] getRepresentation() {
+		return new Token[0];
 	}
 
 	@Override

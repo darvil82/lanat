@@ -1,6 +1,8 @@
 package argparser.argumentTypes;
 
 import argparser.ArgumentType;
+import argparser.Token;
+import argparser.TokenType;
 
 public class IntArgument extends ArgumentType<Integer> {
 	@Override
@@ -13,7 +15,7 @@ public class IntArgument extends ArgumentType<Integer> {
 	}
 
 	@Override
-	public String getRepresentation() {
-		return "int";
+	public Token[] getRepresentation() {
+		return new Token[] { new Token(TokenType.ARGUMENT_NAME, "int" )};
 	}
 }

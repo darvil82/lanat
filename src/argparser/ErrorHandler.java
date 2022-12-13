@@ -94,6 +94,9 @@ abstract class ParseStateErrorBase<T extends ErrorLevelProvider> implements Erro
 		return this.errorHandler.getRelativeToken(this.tokenIndex);
 	}
 
+	/**
+	 * Returns the current {@link ErrorFormatter} instance that can be configured to display the error.
+	 */
 	protected ErrorFormatter fmt() {
 		return this.formatter;
 	}

@@ -211,7 +211,10 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 				parseState.addError(ParseError.ParseErrorType.OBLIGATORY_ARGUMENT_NOT_USED, this, 0);
 				return null;
 			}
-			return this.defaultValue;
+
+			// if the argument type has a value defined (even if it wasn't used), use that. Otherwise, use the default value
+			TInner value = this.argType.getValue();
+			return value == null ? this.defaultValue : value;
 		}
 
 		this.argType.getErrorsUnderDisplayLevel().forEach(parseState::addError);

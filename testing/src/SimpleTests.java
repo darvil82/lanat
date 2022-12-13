@@ -21,8 +21,8 @@ public class SimpleTests {
 
 //		var pArgs = argumentParser.parseArgs("-fff --test hii subcommand --nose <x.1 y.347 z.43423> another --test 'this is a test' what");
 //		final var pArgs = argumentParser.parseArgs("--help");
-		final var pArgs = argumentParser.parseArgs("--what [a b c d] baller subcommand -ccc -s another 1234  peter");
+		final var pArgs = argumentParser.parseArgs("a");
 //
-		System.out.println(pArgs.<String>get("what").get());
+		System.out.println(pArgs.<Integer>get("subcommand.c").get());
 	}
 }

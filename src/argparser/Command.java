@@ -24,7 +24,6 @@ public class Command
 	private Consumer<Command> onErrorCallback;
 	private Consumer<Command> onCorrectCallback;
 	private boolean isRootCommand = false, finishedTokenizing = false;
-	private Command parentCmd;
 	private final HelpFormatter helpFormatter = new HelpFormatter(this);
 
 	public Command(String name, String description) {
@@ -74,7 +73,6 @@ public class Command
 		cmd.getMinimumDisplayErrorLevel().setIfNotModified(this.getMinimumDisplayErrorLevel());
 		cmd.errorCode.setIfNotModified(this.errorCode);
 		this.subCommands.add(cmd);
-		cmd.parentCmd = this;
 	}
 
 	/**
@@ -115,7 +113,8 @@ public class Command
 	 * Returns true if an argument with {@link Argument#allowUnique()} in the command was used.
 	 */
 	public boolean uniqueArgumentReceivedValue() {
-		return this.arguments.stream().anyMatch(a -> a.getUsageCount() >= 1 && a.allowsUnique());
+		return this.arguments.stream().anyMatch(a -> a.getUsageCount() >= 1 && a.allowsUnique())
+			|| this.subCommands.stream().anyMatch(Command::uniqueArgumentReceivedValue);
 	}
 
 	boolean isRootCommand() {

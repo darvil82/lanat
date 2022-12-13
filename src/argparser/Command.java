@@ -16,15 +16,16 @@ public class Command
 	extends ErrorsContainer<CustomError>
 	implements ErrorCallbacks<Command, Command>, ArgumentAdder, ArgumentGroupAdder
 {
-	final String name, description;
+	public final String name, description;
 	final ArrayList<Argument<?, ?>> arguments = new ArrayList<>();
 	final ArrayList<Command> subCommands = new ArrayList<>();
-	final ModifyRecord<TupleCharacter> tupleChars = new ModifyRecord<>(TupleCharacter.SQUARE_BRACKETS);
+	private final ModifyRecord<TupleCharacter> tupleChars = new ModifyRecord<>(TupleCharacter.SQUARE_BRACKETS);
 	private final ModifyRecord<Integer> errorCode = new ModifyRecord<>(1);
 	private Consumer<Command> onErrorCallback;
 	private Consumer<Command> onCorrectCallback;
-	private boolean isRootCommand = false;
-	private boolean finishedTokenizing = false;
+	private boolean isRootCommand = false, finishedTokenizing = false;
+	private Command parentCmd;
+	private final HelpFormatter helpFormatter = new HelpFormatter(this);
 
 	public Command(String name, String description) {
 		if (!UtlString.matchCharacters(name, Character::isAlphabetic)) {
@@ -73,6 +74,7 @@ public class Command
 		cmd.getMinimumDisplayErrorLevel().setIfNotModified(this.getMinimumDisplayErrorLevel());
 		cmd.errorCode.setIfNotModified(this.errorCode);
 		this.subCommands.add(cmd);
+		cmd.parentCmd = this;
 	}
 
 	/**
@@ -98,7 +100,11 @@ public class Command
 	}
 
 	public String getHelp() {
-		return "This is the help of the program.";
+		return this.helpFormatter.toString();
+	}
+
+	public HelpFormatter getHelpFormatter() {
+		return this.helpFormatter;
 	}
 
 	public Argument<?, ?>[] getPositionalArguments() {

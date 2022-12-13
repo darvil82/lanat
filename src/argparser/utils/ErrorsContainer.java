@@ -1,5 +1,7 @@
 package argparser.utils;
 
+import argparser.ErrorLevel;
+
 import java.util.ArrayList;
 import java.util.List;
 

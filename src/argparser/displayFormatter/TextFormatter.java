@@ -1,13 +1,15 @@
-package argparser.utils.displayFormatter;
+package argparser.displayFormatter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class TextFormatter {
 	private final ArrayList<FormatOption> formatOptions = new ArrayList<>();
 	private Color foregroundColor;
 	private Color backgroundColor;
 	private String contents;
+	private final List<TextFormatter> concatList = new ArrayList<>();
 	public static boolean enableSequences = true;
 
 	public TextFormatter(String contents) {
@@ -40,6 +42,11 @@ public class TextFormatter {
 		return this;
 	}
 
+	public TextFormatter concat(TextFormatter... formatters) {
+		this.concatList.addAll(Arrays.asList(formatters));
+		return this;
+	}
+
 	@Override
 	public String toString() {
 		// we'll just skip the whole thing if there's nothing to format or the contents are empty
@@ -67,7 +74,7 @@ public class TextFormatter {
 		// to reset the color we just set it back to white
 		str.append(Color.BRIGHT_WHITE);
 
-		return str.toString();
+		return str + this.concatList.stream().map(TextFormatter::toString).reduce("", String::concat);
 	}
 
 	public static TextFormatter ERROR(String msg) {

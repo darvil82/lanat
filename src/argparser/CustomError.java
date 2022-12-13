@@ -1,6 +1,5 @@
 package argparser;
 
-import argparser.utils.ErrorLevel;
 import argparser.utils.ErrorLevelProvider;
 
 @SuppressWarnings("unused")

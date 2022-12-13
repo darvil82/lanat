@@ -1,8 +1,10 @@
 package argparser;
 
 import argparser.argumentTypes.*;
-import argparser.utils.ErrorLevel;
 import argparser.utils.ErrorsContainer;
+import argparser.displayFormatter.Color;
+import argparser.displayFormatter.TextFormatter;
+
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -83,8 +85,8 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> {
 		return ArgValueCount.ONE;
 	}
 
-	public Token[] getRepresentation() {
-		return new Token[] { new Token(TokenType.ARGUMENT_NAME, this.getClass().getSimpleName()) };
+	public TextFormatter getRepresentation() {
+		return new TextFormatter(this.getClass().getSimpleName()).setColor(Color.BRIGHT_CYAN);
 	}
 
 	public T getFinalValue() {

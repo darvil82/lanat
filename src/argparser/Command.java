@@ -68,7 +68,7 @@ public class Command
 		}
 
 		// pass some properties to the subcommand (most of the time this is what the user will want)
-		cmd.inheritProperties(this);
+//		cmd.inheritProperties(this);
 
 		this.subCommands.add(cmd);
 	}
@@ -182,6 +182,10 @@ public class Command
 		/* we need to do this because there is a high chance that subCommands will be added in a non-sequential order.
 		 * For instance, if a command has 2 nested commands, the first one that will insert its children
 		 * will be the root's child */
+		this.passPropertiesToChildren();
+	}
+
+	void passPropertiesToChildren() {
 		this.subCommands.forEach(c -> c.inheritProperties(this));
 	}
 

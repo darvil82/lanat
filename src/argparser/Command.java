@@ -68,15 +68,8 @@ public class Command
 		}
 
 		// pass some properties to the subcommand (most of the time this is what the user will want)
-		cmd.tupleChars.setIfNotModified(this.tupleChars);
-		cmd.getMinimumExitErrorLevel().setIfNotModified(this.getMinimumExitErrorLevel());
-		cmd.getMinimumDisplayErrorLevel().setIfNotModified(this.getMinimumDisplayErrorLevel());
-		cmd.errorCode.setIfNotModified(this.errorCode);
-		cmd.helpFormatter.setIfNotModified(() -> {
-			var fmt = this.helpFormatter.get();
-			fmt.setParentCmd(cmd); // we need to update the parent command!
-			return fmt;
-		});
+		cmd.inheritProperties(this);
+
 		this.subCommands.add(cmd);
 	}
 
@@ -170,6 +163,26 @@ public class Command
 		}
 
 		return list;
+	}
+
+	/**
+	 * Inherits certain properties from another command, only if they are not already set to something.
+	 */
+	private void inheritProperties(Command parent) {
+		this.tupleChars.setIfNotModified(parent.tupleChars);
+		this.getMinimumExitErrorLevel().setIfNotModified(parent.getMinimumExitErrorLevel());
+		this.getMinimumDisplayErrorLevel().setIfNotModified(parent.getMinimumDisplayErrorLevel());
+		this.errorCode.setIfNotModified(parent.errorCode);
+		this.helpFormatter.setIfNotModified(() -> {
+			var fmt = parent.helpFormatter.get();
+			fmt.setParentCmd(this); // we need to update the parent command!
+			return fmt;
+		});
+
+		/* we need to do this because there is a high chance that subCommands will be added in a non-sequential order.
+		 * For instance, if a command has 2 nested commands, the first one that will insert its children
+		 * will be the root's child */
+		this.subCommands.forEach(c -> c.inheritProperties(this));
 	}
 
 	// ------------------------------------------------ Error Handling ------------------------------------------------

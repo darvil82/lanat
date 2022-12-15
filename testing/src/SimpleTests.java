@@ -4,6 +4,7 @@ public class SimpleTests {
 	public static void main(String[] args) {
 
 		final var argumentParser = new ArgumentParser("Testing", "Some description") {{
+			setTupleChars(TupleCharacter.PARENTHESIS);
 			setHelpFormatter(new HelpFormatter() {
 				@Override
 				public void setLayout() {

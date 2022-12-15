@@ -1,5 +1,7 @@
 package argparser.utils;
 
+import java.util.function.Supplier;
+
 /**
  * Provides a way to see if the inner value has been modified since the constructor was called.
  * @param <T> The type of the inner value.
@@ -46,12 +48,22 @@ public class ModifyRecord<T> {
 		}
 	}
 
+	/**
+	 * Sets the value to the supplied value from the callback if it has not been modified.
+	 * @param cb The callback that supplies the value to set.
+	 */
+	public void setIfNotModified(Supplier<T> cb) {
+		if (!this.modified) {
+			this.value = cb.get();
+		}
+	}
+
 	public boolean isModified() {
 		return modified;
 	}
 
 	@Override
 	public String toString() {
-		return this.value.toString();
+		return "[" + (this.modified ? "modified" : "clean") + "] " + this.value.toString();
 	}
 }

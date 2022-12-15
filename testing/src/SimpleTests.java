@@ -4,11 +4,20 @@ public class SimpleTests {
 	public static void main(String[] args) {
 
 		final var argumentParser = new ArgumentParser("Testing", "Some description") {{
+			setHelpFormatter(new HelpFormatter() {
+				@Override
+				public void setLayout() {
+					super.setLayout();
+					this.getLayout().add(() -> "hii!");
+				}
+			});
+
 			addArgument(new Argument<>("what", new StringJoiner())
 				.onOk(t -> System.out.println("wow look a string: '" + t + "'"))
 				.positional()
 				.obligatory()
 			);
+
 			addSubCommand(new Command("subcommand") {{
 				addArgument(new Argument<>("c", ArgumentType.COUNTER()));
 				addArgument(new Argument<>('s', "more-strings", new StringJoiner()));

@@ -24,7 +24,7 @@ public class Command
 	private Consumer<Command> onErrorCallback;
 	private Consumer<Command> onCorrectCallback;
 	private boolean isRootCommand = false, finishedTokenizing = false;
-	private final HelpFormatter helpFormatter = new HelpFormatter(this);
+	private final ModifyRecord<HelpFormatter> helpFormatter = new ModifyRecord<>(new HelpFormatter(this));
 
 	public Command(String name, String description) {
 		if (!UtlString.matchCharacters(name, Character::isAlphabetic)) {
@@ -72,6 +72,11 @@ public class Command
 		cmd.getMinimumExitErrorLevel().setIfNotModified(this.getMinimumExitErrorLevel());
 		cmd.getMinimumDisplayErrorLevel().setIfNotModified(this.getMinimumDisplayErrorLevel());
 		cmd.errorCode.setIfNotModified(this.errorCode);
+		cmd.helpFormatter.setIfNotModified(() -> {
+			var fmt = this.helpFormatter.get();
+			fmt.setParentCmd(cmd); // we need to update the parent command!
+			return fmt;
+		});
 		this.subCommands.add(cmd);
 	}
 
@@ -93,16 +98,21 @@ public class Command
 		this.tupleChars.set(tupleChars);
 	}
 
+	public void setHelpFormatter(HelpFormatter helpFormatter) {
+		helpFormatter.setParentCmd(this);
+		this.helpFormatter.set(helpFormatter);
+	}
+
 	public void addError(String message, ErrorLevel level) {
 		this.addError(new CustomError(message, level));
 	}
 
 	public String getHelp() {
-		return this.helpFormatter.toString();
+		return this.helpFormatter.get().toString();
 	}
 
 	public HelpFormatter getHelpFormatter() {
-		return this.helpFormatter;
+		return this.helpFormatter.get();
 	}
 
 	public Argument<?, ?>[] getPositionalArguments() {

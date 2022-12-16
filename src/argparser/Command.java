@@ -2,10 +2,7 @@ package argparser;
 
 import argparser.utils.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -63,8 +60,14 @@ public class Command
 	}
 
 	public void addSubCommand(Command cmd) {
+		Objects.requireNonNull(cmd);
+
 		if (this.subCommands.stream().anyMatch(a -> a.name.equals(cmd.name))) {
 			throw new IllegalArgumentException("cannot create two sub commands with the same name");
+		}
+
+		if (cmd.isRootCommand) {
+			throw new IllegalArgumentException("cannot add root command as sub command");
 		}
 
 		this.subCommands.add(cmd);

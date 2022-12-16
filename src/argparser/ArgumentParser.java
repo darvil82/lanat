@@ -27,6 +27,7 @@ public class ArgumentParser extends Command {
 	 * @param args The command line arguments to parse.
 	 */
 	public ParsedArguments parseArgs(String args) {
+		// pass the properties of this subcommand to its children recursively (most of the time this is what the user will want)
 		this.passPropertiesToChildren();
 		this.initParsingState();
 		this.tokenize(args); // first. This will tokenize all subCommands recursively

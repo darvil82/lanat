@@ -1,18 +1,24 @@
 package argparser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 public class HelpFormatter {
 	private Command parentCmd;
 	private byte indentSize = 3;
-	protected final LayoutGenerators LAYOUT_GENERATORS = new LayoutGenerators();
-	private final ArrayList<Supplier<String>> layout = new ArrayList<>();
+	private ArrayList<Function<Command, String>> layout = new ArrayList<>();
 
 	HelpFormatter(Command parentCmd) {
 		this.parentCmd = parentCmd;
 		this.setLayout();
+	}
+
+	HelpFormatter(HelpFormatter other) {
+		this.parentCmd = other.parentCmd;
+		this.indentSize = other.indentSize;
+		this.layout.addAll(other.layout);
 	}
 
 	public HelpFormatter() {
@@ -23,30 +29,38 @@ public class HelpFormatter {
 		this.parentCmd = parentCmd;
 	}
 
-	protected ArrayList<Supplier<String>> getLayout() {
+	protected List<Function<Command, String>> getLayout() {
 		return layout;
 	}
 
 	public void setLayout() {
-		this.layout.add(LAYOUT_GENERATORS::title);
+		this.changeLayout(LayoutGenerators::title);
 	}
 
-	protected final class LayoutGenerators {
-		public String title() {
-			return HelpFormatter.this.parentCmd.name + ": " + HelpFormatter.this.parentCmd.description;
-		}
+	@SafeVarargs
+	protected final void addToLayout(Function<Command, String>... layoutGenerator) {
+		this.layout.addAll(Arrays.asList(layoutGenerator));
+	}
 
-		public String text(String content) {
-			return content;
+	@SafeVarargs
+	protected final void changeLayout(Function<Command, String>... layoutGenerator) {
+		this.layout = new ArrayList<>(Arrays.asList(layoutGenerator));
+	}
+
+
+	protected static class LayoutGenerators {
+		public static String title(Command cmd) {
+			return cmd.name + (cmd.description == null ? "" : ": " + cmd.description);
 		}
 	}
+
 
 	@Override
 	public String toString() {
 		var buffer = new StringBuilder();
 
 		for (var generator : this.layout) {
-			buffer.append(generator.get()).append('\n');
+			buffer.append(generator.apply(this.parentCmd)).append('\n');
 		}
 
 		return buffer.toString();

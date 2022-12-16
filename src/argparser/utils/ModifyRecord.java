@@ -24,8 +24,7 @@ public class ModifyRecord<T> {
 	}
 
 	public void set(ModifyRecord<T> value) {
-		this.value = value.value;
-		this.modified = true;
+		this.set(value.value);
 	}
 
 	/**
@@ -34,7 +33,7 @@ public class ModifyRecord<T> {
 	 */
 	public void setIfNotModified(T value) {
 		if (!this.modified) {
-			this.value = value;
+			this.set(value);
 		}
 	}
 
@@ -44,7 +43,7 @@ public class ModifyRecord<T> {
 	 */
 	public void setIfNotModified(ModifyRecord<T> value) {
 		if (!this.modified) {
-			this.value = value.value;
+			this.set(value);
 		}
 	}
 
@@ -54,7 +53,7 @@ public class ModifyRecord<T> {
 	 */
 	public void setIfNotModified(Supplier<T> cb) {
 		if (!this.modified) {
-			this.value = cb.get();
+			this.set(cb.get());
 		}
 	}
 

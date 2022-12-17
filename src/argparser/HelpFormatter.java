@@ -1,5 +1,7 @@
 package argparser;
 
+import argparser.utils.UtlString;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -9,6 +11,7 @@ public class HelpFormatter {
 	private Command parentCmd;
 	private byte indentSize = 3;
 	private ArrayList<Function<Command, String>> layout = new ArrayList<>();
+	public static short maxTextLineLength = 150;
 
 	HelpFormatter(Command parentCmd) {
 		this.parentCmd = parentCmd;
@@ -43,6 +46,11 @@ public class HelpFormatter {
 	}
 
 	@SafeVarargs
+	protected final void addToLayout(int after, Function<Command, String>... layoutGenerator) {
+		this.layout.addAll(after, Arrays.asList(layoutGenerator));
+	}
+
+	@SafeVarargs
 	protected final void changeLayout(Function<Command, String>... layoutGenerator) {
 		this.layout = new ArrayList<>(Arrays.asList(layoutGenerator));
 	}
@@ -60,7 +68,7 @@ public class HelpFormatter {
 		var buffer = new StringBuilder();
 
 		for (var generator : this.layout) {
-			buffer.append(generator.apply(this.parentCmd)).append('\n');
+			buffer.append(UtlString.wrap(generator.apply(this.parentCmd), maxTextLineLength)).append('\n');
 		}
 
 		return buffer.toString();

@@ -65,4 +65,37 @@ public class UtlString {
 
 		return endBuffer.toString();
 	}
+
+	/**
+	 * Adds <code>padCount</code> characters (specified with <code>padChar</code>) at the left of the string.
+	 * If the string has multiple lines, the padding is added on all of them.
+	 * @param str The string to pad.
+	 * @param padCount The amount of characters to add.
+	 * @param padChar The character to use for padding.
+	 * @return The padded string.
+	 */
+	public static String indent(String str, int padCount, char padChar) {
+		var padString = String.valueOf(padChar).repeat(padCount);
+		var endBuffer = new StringBuilder(padString);
+
+		for (char chr : str.toCharArray()) {
+			endBuffer.append(chr);
+			if (chr == '\n') {
+				endBuffer.append(padString);
+			}
+		}
+
+		return endBuffer.toString();
+	}
+
+	/**
+	 * Adds <code>padCount</code> space characters at the left of the string.
+	 * If the string has multiple lines, the padding is added on all of them.
+	 * @param str The string to pad.
+	 * @param padCount The amount of spaces to add.
+	 * @return The padded string.
+	 */
+	public static String indent(String str, int padCount) {
+		return UtlString.indent(str, padCount, ' ');
+	}
 }

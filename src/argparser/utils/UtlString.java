@@ -48,8 +48,8 @@ public class UtlString {
 	 * @return The wrapped text.
 	 */
 	public static String wrap(String str, int maxWidth) {
-		String[] words = str.split(" "); // first split all words, makes stuff easier
-		var endBuffer = new StringBuilder();
+		final String[] words = str.split(" "); // first split all words, makes stuff easier
+		final var endBuffer = new StringBuilder();
 		int currentLength = 0; // the length of the current line
 
 		for (var word : words) {
@@ -75,8 +75,8 @@ public class UtlString {
 	 * @return The padded string.
 	 */
 	public static String indent(String str, int padCount, char padChar) {
-		var padString = String.valueOf(padChar).repeat(padCount);
-		var endBuffer = new StringBuilder(padString);
+		final var padString = String.valueOf(padChar).repeat(padCount);
+		final var endBuffer = new StringBuilder(padString);
 
 		for (char chr : str.toCharArray()) {
 			endBuffer.append(chr);
@@ -97,5 +97,20 @@ public class UtlString {
 	 */
 	public static String indent(String str, int padCount) {
 		return UtlString.indent(str, padCount, ' ');
+	}
+
+	public static String center(String str, int width, char padChar) {
+		final var buffer = new StringBuilder();
+		final var paddingString = String.valueOf(padChar).repeat((width / 2) - (str.length() / 2) - 1);
+
+		buffer.append(paddingString);
+		buffer.append(str);
+		buffer.append(paddingString);
+
+		return buffer.toString();
+	}
+
+	public static String center(String str, int width) {
+		return UtlString.center(str, width, ' ');
 	}
 }

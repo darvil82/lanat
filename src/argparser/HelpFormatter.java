@@ -1,5 +1,6 @@
 package argparser;
 
+import argparser.displayFormatter.Color;
 import argparser.displayFormatter.FormatOption;
 import argparser.displayFormatter.TextFormatter;
 import argparser.utils.UtlString;
@@ -43,8 +44,21 @@ public class HelpFormatter {
 	public void setLayout() {
 		this.changeLayout(
 			new LayoutItem(LayoutGenerators::title).marginBottom(1),
-			new LayoutItem(LayoutGenerators::argumentsUsage).indent(1)
+			new LayoutItem(LayoutGenerators::synopsis).indent(1)
 		);
+	}
+
+	public void moveLayoutItem(int from, int to) {
+		if (from < 0 || from >= this.layout.size() || to < 0 || to >= this.layout.size()) {
+			throw new IndexOutOfBoundsException("invalid indexes given");
+		}
+
+		// same index, nothing to do
+		if (from == to)
+			return;
+
+		final var item = this.layout.remove(from);
+		this.layout.add(to, item);
 	}
 
 	protected final void addToLayout(LayoutItem... layoutItems) {
@@ -65,16 +79,32 @@ public class HelpFormatter {
 			return cmd.name + (cmd.description == null ? "" : ": " + cmd.description);
 		}
 
-		public static String argumentsUsage(Command cmd) {
+		public static String synopsis(Command cmd) {
 			var args = cmd.getArguments();
 			if (args.isEmpty()) return "";
 			var buffer = new StringBuilder();
+
 			for (var arg : args) {
-				var repr = arg.argType.getRepresentation();
-				if (repr != null)
-					buffer.append(repr).append(' ');
+				var repr = LayoutGenerators.synopsisGetArgumentRepr(arg);
+				if (repr == null) continue;
+				buffer.append(repr).append(' ');
 			}
+
 			return buffer.toString();
+		}
+
+		public static String heading(String content, char lineChar) {
+			return UtlString.center(content, lineWrapMax, lineChar);
+		}
+
+		private static String synopsisGetArgumentRepr(Argument<?, ?> arg) {
+			final var repr = arg.argType.getRepresentation();
+			if (repr == null) return null;
+			if (arg.isPositional()) {
+				return repr.toString();
+			} else {
+				return new TextFormatter(arg.getDisplayName() + " " + repr).addFormat(FormatOption.UNDERLINE).toString();
+			}
 		}
 	}
 
@@ -133,7 +163,10 @@ public class HelpFormatter {
 		for (int i = 0; i < this.layout.size(); i++) {
 			var generator = this.layout.get(i);
 			if (HelpFormatter.debugLayout)
-				buffer.append(new TextFormatter("LayoutItem " + i + ":\n").addFormat(FormatOption.UNDERLINE));
+				buffer.append(new TextFormatter("LayoutItem " + i + ":\n")
+					.addFormat(FormatOption.UNDERLINE)
+					.setColor(Color.GREEN)
+				);
 			buffer.append(generator.generate()).append('\n');
 		}
 

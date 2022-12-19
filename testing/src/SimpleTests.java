@@ -16,7 +16,8 @@ public class SimpleTests {
 					super.setLayout();
 					this.addToLayout(
 						new LayoutItem((c) -> "hii!"),
-						new LayoutItem((c) -> "this has " + c.getArguments().size() + " arguments").indent(3)
+						new LayoutItem((c) -> "this has " + c.getArguments().size() + " arguments").indent(3),
+						new LayoutItem((c) -> LayoutGenerators.heading("This is a heading", '-'))
 					);
 				}
 			});
@@ -26,6 +27,8 @@ public class SimpleTests {
 				.positional()
 				.obligatory()
 			);
+
+			addArgument(new Argument<>("what2", ArgumentType.INTEGER()));
 
 			addSubCommand(new Command("subcommand") {{
 				addArgument(new Argument<>("c", ArgumentType.COUNTER()));
@@ -39,6 +42,6 @@ public class SimpleTests {
 
 //		var pArgs = argumentParser.parseArgs("-fff --test hii subcommand --nose <x.1 y.347 z.43423> another --test 'this is a test' what");
 //		final var pArgs = argumentParser.parseArgs("--help");
-		final var pArgs = argumentParser.parseArgs("subcommand --help");
+		final var pArgs = argumentParser.parseArgs("--help");
 	}
 }

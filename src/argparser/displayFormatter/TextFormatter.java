@@ -57,24 +57,31 @@ public class TextFormatter {
 		)
 			return this.contents;
 
-		StringBuilder str = new StringBuilder();
+		final StringBuilder buffer = new StringBuilder();
 
-		if (foregroundColor != null) str.append(foregroundColor);
-		if (backgroundColor != null) str.append(backgroundColor.toStringBackground());
+		if (foregroundColor != null) buffer.append(foregroundColor);
+		if (backgroundColor != null) buffer.append(backgroundColor.toStringBackground());
 
 		for (var fmt : formatOptions)
-			str.append(fmt);
+			buffer.append(fmt);
 
-		str.append(contents);
+		// add the contents
+		buffer.append(contents);
 
-		// reset each format option
-		for (var fmt : formatOptions)
-			str.append(fmt.toStringReset());
+		// reset the formatting
+		if (backgroundColor != null) {
+			// this already resets everything, so we don't need to spend time on the rest
+			buffer.append(FormatOption.RESET_ALL);
+		} else {
+			// reset each format option
+			for (var fmt : formatOptions)
+				buffer.append(fmt.toStringReset());
 
-		// to reset the color we just set it back to white
-		str.append(Color.BRIGHT_WHITE);
+			// to reset the color we just set it back to white
+			buffer.append(Color.BRIGHT_WHITE);
+		}
 
-		return str + this.concatList.stream().map(TextFormatter::toString).reduce("", String::concat);
+		return buffer + this.concatList.stream().map(TextFormatter::toString).reduce("", String::concat);
 	}
 
 	public static TextFormatter ERROR(String msg) {

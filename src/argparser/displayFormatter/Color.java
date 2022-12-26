@@ -1,5 +1,7 @@
 package argparser.displayFormatter;
 
+import argparser.utils.LoopPool;
+
 public enum Color {
 	BLACK(30),
 	RED(31),
@@ -31,5 +33,29 @@ public enum Color {
 
 	public String toStringBackground() {
 		return String.format("\033[%dm", this.value + 10);
+	}
+
+	public static Color[] getBrightColors() {
+		return new Color[] {
+			BRIGHT_RED,
+			BRIGHT_GREEN,
+			BRIGHT_YELLOW,
+			BRIGHT_BLUE,
+			BRIGHT_MAGENTA,
+			BRIGHT_CYAN,
+			BRIGHT_WHITE
+		};
+	}
+
+	public static Color[] getDarkColors() {
+		return new Color[] {
+			RED,
+			GREEN,
+			YELLOW,
+			BLUE,
+			MAGENTA,
+			CYAN,
+			WHITE
+		};
 	}
 }

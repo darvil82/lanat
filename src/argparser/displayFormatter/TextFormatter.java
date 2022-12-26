@@ -1,16 +1,18 @@
 package argparser.displayFormatter;
 
+import argparser.utils.Pair;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class TextFormatter {
+	public static boolean enableSequences = true;
 	private final ArrayList<FormatOption> formatOptions = new ArrayList<>();
+	private final List<TextFormatter> concatList = new ArrayList<>();
 	private Color foregroundColor;
 	private Color backgroundColor;
 	private String contents;
-	private final List<TextFormatter> concatList = new ArrayList<>();
-	public static boolean enableSequences = true;
 
 	public TextFormatter(String contents) {
 		this.contents = contents;
@@ -27,12 +29,16 @@ public class TextFormatter {
 
 	public TextFormatter setColor(Color foreground) {
 		this.foregroundColor = foreground;
-		this.backgroundColor = null;
 		return this;
 	}
 
 	public TextFormatter setColor(Color foreground, Color background) {
 		this.foregroundColor = foreground;
+		this.backgroundColor = background;
+		return this;
+	}
+
+	public TextFormatter setBackgroundColor(Color background) {
 		this.backgroundColor = background;
 		return this;
 	}
@@ -51,9 +57,8 @@ public class TextFormatter {
 	public String toString() {
 		// we'll just skip the whole thing if there's nothing to format or the contents are empty
 		if (
-			this.contents.length() == 0
-				|| (this.formatOptions.size() == 0 && this.foregroundColor == null && this.backgroundColor == null)
-				|| !enableSequences
+			(this.contents.length() == 0 || (this.formatOptions.size() == 0 && this.foregroundColor == null && this.backgroundColor == null) || !enableSequences)
+				&& this.concatList.size() == 0 // we cant skip if we need to concat stuff!
 		)
 			return this.contents;
 
@@ -66,7 +71,7 @@ public class TextFormatter {
 			buffer.append(fmt);
 
 		// add the contents
-		buffer.append(contents);
+		buffer.append(contents).append(this.concatList.stream().map(TextFormatter::toString).reduce("", String::concat));
 
 		// reset the formatting
 		if (backgroundColor != null) {
@@ -81,7 +86,7 @@ public class TextFormatter {
 			buffer.append(Color.BRIGHT_WHITE);
 		}
 
-		return buffer + this.concatList.stream().map(TextFormatter::toString).reduce("", String::concat);
+		return buffer.toString();
 	}
 
 	public static TextFormatter ERROR(String msg) {

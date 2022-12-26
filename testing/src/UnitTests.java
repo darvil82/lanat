@@ -1,4 +1,6 @@
 import argparser.*;
+import argparser.argumentTypes.TupleArgumentType;
+import argparser.displayFormatter.Color;
 import argparser.displayFormatter.TextFormatter;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,10 +13,9 @@ import java.io.PrintStream;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-class StringJoiner extends ArgumentType<String> {
-	@Override
-	public ArgValueCount getNumberOfArgValues() {
-		return new ArgValueCount(1, 3);
+class StringJoiner extends TupleArgumentType<String> {
+	public StringJoiner() {
+		super(new ArgValueCount(1, 3), "");
 	}
 
 	@Override

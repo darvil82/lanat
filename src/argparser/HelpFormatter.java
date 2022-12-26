@@ -3,6 +3,7 @@ package argparser;
 import argparser.displayFormatter.Color;
 import argparser.displayFormatter.FormatOption;
 import argparser.displayFormatter.TextFormatter;
+import argparser.utils.LoopPool;
 import argparser.utils.UtlString;
 
 import java.util.ArrayList;
@@ -13,7 +14,7 @@ import java.util.function.Function;
 public class HelpFormatter {
 	private Command parentCmd;
 	private byte indentSize = 3;
-	public static short lineWrapMax = 150;
+	public static short lineWrapMax = 110;
 	private ArrayList<LayoutItem> layout = new ArrayList<>();
 	public static boolean debugLayout = false;
 
@@ -75,12 +76,24 @@ public class HelpFormatter {
 
 
 	protected static class LayoutGenerators {
+		private static final LoopPool<Color> colorsPool = new LoopPool<>(-1, Color.getBrightColors());
+
 		public static String title(Command cmd) {
 			return cmd.name + (cmd.description == null ? "" : ": " + cmd.description);
 		}
 
 		public static String synopsis(Command cmd) {
-			var args = cmd.getArguments();
+			var args = new ArrayList<>(cmd.getArguments()) {{
+				sort((a, b) -> {
+					if (a.isPositional() && !b.isPositional()) {
+						return -1;
+					} else if (!a.isPositional() && b.isPositional()) {
+						return 1;
+					} else {
+						return 0;
+					}
+				});
+			}};
 			if (args.isEmpty()) return "";
 			var buffer = new StringBuilder();
 
@@ -97,18 +110,39 @@ public class HelpFormatter {
 			return UtlString.center(content, lineWrapMax, lineChar);
 		}
 
+		public static String heading(String content) {
+			return UtlString.center(content, lineWrapMax);
+		}
+
 		private static String synopsisGetArgumentRepr(Argument<?, ?> arg) {
 			final var repr = arg.argType.getRepresentation();
 			if (repr == null) return null;
-			if (arg.isPositional()) {
-				return repr.toString();
-			} else {
-				return new TextFormatter(arg.getDisplayName() + " " + repr).addFormat(FormatOption.UNDERLINE).toString();
+			final var outText = new TextFormatter();
+
+			if (arg.isObligatory()) {
+				outText.addFormat(FormatOption.BOLD);
 			}
+
+			outText.setColor(colorsPool.next());
+
+			if (arg.isPositional()) {
+				outText.concat(repr);
+			} else {
+				// get the largest name
+				final String name = new ArrayList<>(arg.getNames()) {{
+					sort((a, b) -> b.length() - a.length());
+				}}.get(0);
+				final char argPrefix = arg.getPrefix();
+
+				outText
+					.setContents("" + argPrefix + (name.length() > 1 ? argPrefix : "") + name + " ")
+					.concat(repr);
+			}
+			return outText.toString();
 		}
 	}
 
-	public class LayoutItem {
+	public static class LayoutItem {
 		private int indent = 0;
 		private int maxTextLineLength = HelpFormatter.lineWrapMax;
 		private int marginTop, marginBottom;
@@ -144,13 +178,13 @@ public class HelpFormatter {
 			return this;
 		}
 
-		public String generate() {
+		public String generate(HelpFormatter helpFormatter) {
 			return "\n".repeat(this.marginTop) + UtlString.indent(
 				UtlString.wrap(
-					this.layoutGenerator.apply(HelpFormatter.this.parentCmd),
+					this.layoutGenerator.apply(helpFormatter.parentCmd),
 					this.maxTextLineLength - this.indent
 				),
-				this.indent * HelpFormatter.this.indentSize
+				this.indent * helpFormatter.indentSize
 			) + "\n".repeat(this.marginBottom);
 		}
 	}
@@ -167,7 +201,7 @@ public class HelpFormatter {
 					.addFormat(FormatOption.UNDERLINE)
 					.setColor(Color.GREEN)
 				);
-			buffer.append(generator.generate()).append('\n');
+			buffer.append(generator.generate(this)).append('\n');
 		}
 
 		return buffer.toString();

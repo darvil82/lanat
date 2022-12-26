@@ -7,6 +7,7 @@ package argparser;
  */
 public class ArgValueCount {
 	public static final ArgValueCount ANY = new ArgValueCount(0, -1);
+	public static final ArgValueCount AT_LEAST_ONE = new ArgValueCount(1, -1);
 	public static final ArgValueCount NONE = new ArgValueCount(0);
 	public static final ArgValueCount ONE = new ArgValueCount(1);
 
@@ -17,6 +18,8 @@ public class ArgValueCount {
 			throw new IllegalArgumentException("min and max values can only be positive, or -1 for any");
 		if ((min != -1 && max != -1) && (min > max))
 			throw new IllegalArgumentException("min value cannot be higher than max");
+		if (min == -1 && max == -1)
+			throw new IllegalArgumentException("min and max cannot both be -1");
 		this.min = (short)(min == -1 ? Short.MAX_VALUE : min);
 		this.max = (short)(max == -1 ? Short.MAX_VALUE : max);
 	}
@@ -37,6 +40,12 @@ public class ArgValueCount {
 		return this.isRange()
 			? String.format("from %d to %s values", this.min, this.max == Short.MAX_VALUE ? "any number of" : this.max)
 			: String.format("%s value%s", this.min, this.min == 1 ? "" : "s");
+	}
+
+	public String getRegexRange() {
+		return this.isRange()
+			? String.format("{%d, %s}", this.min, "" + (this.max == Short.MAX_VALUE ? "..." : this.max))
+			: String.format("{%d}", this.min);
 	}
 
 	public boolean isInRange(int value, boolean checkIndex) {

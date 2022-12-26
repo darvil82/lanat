@@ -3,6 +3,7 @@ package argparser.utils;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 
 public class UtlString {
 	/**
@@ -34,10 +35,8 @@ public class UtlString {
 
 	public static String sanitizeName(String name) {
 		Objects.requireNonNull(name);
-		return name.replaceAll("[^a-zA-Z0-9 ]", "") // first remove all prefix invalid chars
-			.trim() // then trim spaces at both ends
-			.replaceAll(" ", "-") // then replace spaces with dashes
-			.replaceAll("=", ""); // finally remove equals signs
+		return trim(name.replaceAll("[^a-zA-Z0-9 -]", ""), "[^a-zA-Z0-9]")
+			.replaceAll(" ", "-"); // first remove all prefix invalid chars
 	}
 
 	/**
@@ -110,7 +109,12 @@ public class UtlString {
 		return buffer.toString();
 	}
 
+	public static String trim(String str, String pattern) {
+		return str.replaceAll("^" + pattern + "+", "")
+			.replaceAll(pattern + "+$", "");
+	}
+
 	public static String center(String str, int width) {
-		return UtlString.center(str, width, ' ');
+		return UtlString.center(str, width, '─');
 	}
 }

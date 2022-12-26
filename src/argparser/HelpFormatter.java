@@ -76,7 +76,6 @@ public class HelpFormatter {
 
 
 	protected static class LayoutGenerators {
-		private static final LoopPool<Color> colorsPool = new LoopPool<>(-1, Color.getBrightColors());
 
 		public static String title(Command cmd) {
 			return cmd.name + (cmd.description == null ? "" : ": " + cmd.description);
@@ -117,23 +116,20 @@ public class HelpFormatter {
 		private static String synopsisGetArgumentRepr(Argument<?, ?> arg) {
 			final var repr = arg.argType.getRepresentation();
 			if (repr == null) return null;
+
 			final var outText = new TextFormatter();
+			final String name = arg.getLongestName();
+			final char argPrefix = arg.getPrefix();
 
 			if (arg.isObligatory()) {
 				outText.addFormat(FormatOption.BOLD);
 			}
 
-			outText.setColor(colorsPool.next());
+			outText.setColor(arg.representationColor);
 
 			if (arg.isPositional()) {
-				outText.concat(repr);
+				outText.concat(repr, new TextFormatter("(" + name + ")"));
 			} else {
-				// get the largest name
-				final String name = new ArrayList<>(arg.getNames()) {{
-					sort((a, b) -> b.length() - a.length());
-				}}.get(0);
-				final char argPrefix = arg.getPrefix();
-
 				outText
 					.setContents("" + argPrefix + (name.length() > 1 ? argPrefix : "") + name + " ")
 					.concat(repr);
@@ -144,7 +140,7 @@ public class HelpFormatter {
 
 	public static class LayoutItem {
 		private int indent = 0;
-		private int maxTextLineLength = HelpFormatter.lineWrapMax;
+		private int lineWrapMax = HelpFormatter.lineWrapMax;
 		private int marginTop, marginBottom;
 		private final Function<Command, String> layoutGenerator;
 
@@ -158,7 +154,7 @@ public class HelpFormatter {
 		}
 
 		public LayoutItem lineWrapAt(int maxTextLineLength) {
-			this.maxTextLineLength = maxTextLineLength;
+			this.lineWrapMax = maxTextLineLength;
 			return this;
 		}
 
@@ -182,7 +178,7 @@ public class HelpFormatter {
 			return "\n".repeat(this.marginTop) + UtlString.indent(
 				UtlString.wrap(
 					this.layoutGenerator.apply(helpFormatter.parentCmd),
-					this.maxTextLineLength - this.indent
+					this.lineWrapMax - this.indent
 				),
 				this.indent * helpFormatter.indentSize
 			) + "\n".repeat(this.marginBottom);

@@ -35,8 +35,9 @@ public class UtlString {
 
 	public static String sanitizeName(String name) {
 		Objects.requireNonNull(name);
-		return trim(name.replaceAll("[^a-zA-Z0-9 -]", ""), "[^a-zA-Z0-9]")
-			.replaceAll(" ", "-"); // first remove all prefix invalid chars
+		// remove all non-alphanumeric characters
+		return UtlString.trim(name.replaceAll("[^a-zA-Z0-9 -]", ""), "[^a-zA-Z0-9]")
+			.replaceAll(" ", "-");
 	}
 
 	/**

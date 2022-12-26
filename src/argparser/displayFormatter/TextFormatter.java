@@ -64,14 +64,22 @@ public class TextFormatter {
 
 		final StringBuilder buffer = new StringBuilder();
 
-		if (foregroundColor != null) buffer.append(foregroundColor);
-		if (backgroundColor != null) buffer.append(backgroundColor.toStringBackground());
+		Runnable pushFormat = () -> {
+			if (foregroundColor != null) buffer.append(foregroundColor);
+			if (backgroundColor != null) buffer.append(backgroundColor.toStringBackground());
+			for (var fmt : formatOptions)
+				buffer.append(fmt);
+		};
 
-		for (var fmt : formatOptions)
-			buffer.append(fmt);
+		pushFormat.run();
 
 		// add the contents
-		buffer.append(contents).append(this.concatList.stream().map(TextFormatter::toString).reduce("", String::concat));
+		buffer.append(this.contents);
+
+		for (TextFormatter concat : this.concatList) {
+			buffer.append(concat.toString());
+			pushFormat.run();
+		}
 
 		// reset the formatting
 		if (backgroundColor != null) {
@@ -79,11 +87,13 @@ public class TextFormatter {
 			buffer.append(FormatOption.RESET_ALL);
 		} else {
 			// reset each format option
-			for (var fmt : formatOptions)
-				buffer.append(fmt.toStringReset());
+			if (!this.formatOptions.isEmpty())
+				for (var fmt : this.formatOptions)
+					buffer.append(fmt.toStringReset());
 
 			// to reset the color we just set it back to white
-			buffer.append(Color.BRIGHT_WHITE);
+			if (this.foregroundColor != null)
+				buffer.append(Color.BRIGHT_WHITE);
 		}
 
 		return buffer.toString();

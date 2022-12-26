@@ -1,5 +1,6 @@
 package argparser;
 
+import argparser.displayFormatter.Color;
 import argparser.utils.*;
 
 import java.util.ArrayList;
@@ -20,6 +21,10 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	private Command parentCmd;
 	private Consumer<Argument<Type, TInner>> onErrorCallback;
 	private Consumer<TInner> onCorrectCallback;
+
+	/** A pool of the colors that an argument will have when being represented on the help */
+	private static final LoopPool<Color> colorsPool = new LoopPool<>(-1, Color.getBrightColors());
+	public final Color representationColor = colorsPool.next();
 
 
 	public Argument(Type argType, String... names) {
@@ -142,6 +147,12 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 	public List<String> getNames() {
 		return names;
+	}
+
+	public String getLongestName() {
+		return new ArrayList<>(this.getNames()) {{
+			sort((a, b) -> b.length() - a.length());
+		}}.get(0);
 	}
 
 	public String getDisplayName() {

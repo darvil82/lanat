@@ -2,8 +2,7 @@ package argparser.argumentTypes;
 
 import argparser.ArgValueCount;
 import argparser.ArgumentType;
-import argparser.Token;
-import argparser.displayFormatter.TextFormatter;
+import argparser.utils.displayFormatter.TextFormatter;
 
 public class BooleanArgument extends ArgumentType<Boolean> {
 	@Override

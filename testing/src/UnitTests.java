@@ -1,7 +1,6 @@
 import argparser.*;
 import argparser.argumentTypes.TupleArgumentType;
-import argparser.displayFormatter.Color;
-import argparser.displayFormatter.TextFormatter;
+import argparser.utils.UtlString;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -134,7 +133,7 @@ public class UnitTests {
 			// remove all the decorations to not make the tests a pain to write
 			assertEquals(
 				expected,
-				TextFormatter.removeSequences(errContent.toString())
+				UtlString.removeSequences(errContent.toString())
 					// the reason we replace \r here is that windows uses CRLF (I hate windows)
 					.replaceAll(" *[│─└┌\r] ?", "")
 					.strip()

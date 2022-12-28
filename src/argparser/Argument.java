@@ -1,6 +1,6 @@
 package argparser;
 
-import argparser.displayFormatter.Color;
+import argparser.utils.displayFormatter.Color;
 import argparser.utils.*;
 
 import java.util.ArrayList;
@@ -22,9 +22,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	private Consumer<Argument<Type, TInner>> onErrorCallback;
 	private Consumer<TInner> onCorrectCallback;
 
-	/** A pool of the colors that an argument will have when being represented on the help */
-	private static final LoopPool<Color> colorsPool = new LoopPool<>(-1, Color.getBrightColors());
-	public final Color representationColor = colorsPool.next();
+	private final ModifyRecord<Color> representationColor = new ModifyRecord<>(null);
 
 
 	public Argument(Type argType, String... names) {
@@ -168,6 +166,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 			throw new IllegalStateException("Argument already added to a command");
 		}
 		this.parentCmd = parentCmd;
+		this.representationColor.setIfNotModified(parentCmd.colorsPool.next());
 	}
 
 	Command getParentCmd() {
@@ -176,6 +175,14 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 	public short getUsageCount() {
 		return usageCount;
+	}
+
+	public Color getRepresentationColor() {
+		return representationColor.get();
+	}
+
+	public void setRepresentationColor(Color color) {
+		this.representationColor.set(color);
 	}
 
 	/**

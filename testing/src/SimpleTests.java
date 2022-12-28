@@ -1,17 +1,12 @@
 import argparser.*;
-import argparser.utils.UtlString;
 
 import java.io.IOException;
 
 public class SimpleTests {
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) {
 		final var argumentParser = new ArgumentParser("Testing", "Some description") {{
 			setTupleChars(TupleCharacter.PARENTHESIS);
 			setHelpFormatter(new HelpFormatter() {
-				static {
-					HelpFormatter.debugLayout = true;
-				}
-
 				@Override
 				public void setLayout() {
 					super.setLayout();
@@ -40,8 +35,10 @@ public class SimpleTests {
 			}});
 		}};
 
+		HelpFormatter.debugLayout = true;
+
 //		var pArgs = argumentParser.parseArgs("-fff --test hii subcommand --nose <x.1 y.347 z.43423> another --test 'this is a test' what");
 //		final var pArgs = argumentParser.parseArgs("--help");
-		final var pArgs = argumentParser.parseArgs("subcommand another --help");
+		final var pArgs = argumentParser.parseArgs("--help");
 	}
 }

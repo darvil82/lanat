@@ -3,7 +3,6 @@ package argparser.utils;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.Predicate;
-import java.util.regex.Pattern;
 
 public class UtlString {
 	/**
@@ -53,7 +52,7 @@ public class UtlString {
 		int currentLength = 0; // the length of the current line
 
 		for (var word : words) {
-			var wordLength = word.length() + 1; // + 1 to account for the space
+			var wordLength = UtlString.removeSequences(word).length() + 1; // + 1 to account for the space
 
 			// if the new word makes currentLength exceed the max, push it down
 			if ((currentLength += wordLength) > maxWidth) {
@@ -117,5 +116,12 @@ public class UtlString {
 
 	public static String center(String str, int width) {
 		return UtlString.center(str, width, '─');
+	}
+
+	/**
+	 * Remove all formatting colors or format from the string
+	 */
+	public static String removeSequences(String str) {
+		return str.replaceAll("\033\\[[\\d;]*m", "");
 	}
 }

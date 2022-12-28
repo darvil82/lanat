@@ -1,6 +1,7 @@
 package argparser;
 
 import argparser.utils.*;
+import argparser.utils.displayFormatter.Color;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -22,6 +23,10 @@ public class Command
 	private Consumer<Command> onCorrectCallback;
 	private boolean isRootCommand = false, finishedTokenizing = false;
 	private final ModifyRecord<HelpFormatter> helpFormatter = new ModifyRecord<>(new HelpFormatter(this));
+
+	/** A pool of the colors that an argument will have when being represented on the help */
+	final LoopPool<Color> colorsPool = new LoopPool<>(-1, Color.getBrightColors());
+
 
 	public Command(String name, String description) {
 		if (!UtlString.matchCharacters(name, Character::isAlphabetic)) {

@@ -1,9 +1,8 @@
 package argparser.argumentTypes;
 
 import argparser.ArgumentType;
-import argparser.Token;
-import argparser.TokenType;
-import argparser.displayFormatter.TextFormatter;
+import argparser.ErrorLevel;
+import argparser.utils.displayFormatter.TextFormatter;
 
 public class IntArgument extends ArgumentType<Integer> {
 	@Override
@@ -11,7 +10,7 @@ public class IntArgument extends ArgumentType<Integer> {
 		try {
 			this.setValue(Integer.parseInt(arg[0]));
 		} catch (NumberFormatException e) {
-			this.addError("Invalid integer value: '" + arg[0] + "'.");
+			this.addError("Invalid integer value: '" + arg[0] + "'.", ErrorLevel.DEBUG);
 		}
 	}
 

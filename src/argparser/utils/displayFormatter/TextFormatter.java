@@ -1,6 +1,4 @@
-package argparser.displayFormatter;
-
-import argparser.utils.Pair;
+package argparser.utils.displayFormatter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -53,13 +51,27 @@ public class TextFormatter {
 		return this;
 	}
 
+	public TextFormatter concat(String... strings) {
+		this.concatList.addAll(Arrays.stream(strings).map(TextFormatter::new).toList());
+		return this;
+	}
+
+	public boolean isSimple() {
+		return (
+			this.contents.length() == 0
+			|| (
+				this.formatOptions.size() == 0
+				&& this.foregroundColor == null
+				&& this.backgroundColor == null
+			)
+			|| !enableSequences
+		) && this.concatList.size() == 0; // we cant skip if we need to concat stuff!
+	}
+
 	@Override
 	public String toString() {
 		// we'll just skip the whole thing if there's nothing to format or the contents are empty
-		if (
-			(this.contents.length() == 0 || (this.formatOptions.size() == 0 && this.foregroundColor == null && this.backgroundColor == null) || !enableSequences)
-				&& this.concatList.size() == 0 // we cant skip if we need to concat stuff!
-		)
+		if (this.isSimple())
 			return this.contents;
 
 		final StringBuilder buffer = new StringBuilder();
@@ -71,14 +83,19 @@ public class TextFormatter {
 				buffer.append(fmt);
 		};
 
+		// push the format
 		pushFormat.run();
 
 		// add the contents
 		buffer.append(this.contents);
 
-		for (TextFormatter concat : this.concatList) {
-			buffer.append(concat.toString());
-			pushFormat.run();
+		// concat the other formatters
+		for (int i = 0; i < this.concatList.size(); i++) {
+			final var formatter = this.concatList.get(i);
+			buffer.append(formatter);
+			// add our format back after each concat. Not the last one though, since we will be resetting it anyway
+			if (i < this.concatList.size() - 1 && !formatter.isSimple())
+				pushFormat.run();
 		}
 
 		// reset the formatting
@@ -101,12 +118,5 @@ public class TextFormatter {
 
 	public static TextFormatter ERROR(String msg) {
 		return new TextFormatter(msg).setColor(Color.BRIGHT_RED).addFormat(FormatOption.REVERSE, FormatOption.BOLD);
-	}
-
-	/**
-	 * Remove all formatting colors or format from the string
-	 */
-	public static String removeSequences(String str) {
-		return str.replaceAll("\033\\[[\\d;]*m", "");
 	}
 }

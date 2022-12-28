@@ -1,6 +1,6 @@
 package argparser;
 
-import argparser.displayFormatter.Color;
+import argparser.utils.displayFormatter.Color;
 
 public enum TokenType {
 	ARGUMENT_NAME(Color.BRIGHT_GREEN),

@@ -1,6 +1,6 @@
 package argparser;
 
-import argparser.displayFormatter.TextFormatter;
+import argparser.utils.displayFormatter.TextFormatter;
 import argparser.utils.UtlString;
 
 public record Token(TokenType type, String contents) {

@@ -1,6 +1,4 @@
-package argparser.displayFormatter;
-
-import argparser.utils.LoopPool;
+package argparser.utils.displayFormatter;
 
 public enum Color {
 	BLACK(30),

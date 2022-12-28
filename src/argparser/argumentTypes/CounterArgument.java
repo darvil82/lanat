@@ -2,7 +2,7 @@ package argparser.argumentTypes;
 
 import argparser.ArgValueCount;
 import argparser.ArgumentType;
-import argparser.displayFormatter.TextFormatter;
+import argparser.utils.displayFormatter.TextFormatter;
 
 public class CounterArgument extends ArgumentType<Integer> {
 	// prevent nullptr exceptions

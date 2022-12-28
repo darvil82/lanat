@@ -1,9 +1,8 @@
 package argparser;
 
-import argparser.displayFormatter.Color;
-import argparser.displayFormatter.FormatOption;
-import argparser.displayFormatter.TextFormatter;
-import argparser.utils.LoopPool;
+import argparser.utils.displayFormatter.Color;
+import argparser.utils.displayFormatter.FormatOption;
+import argparser.utils.displayFormatter.TextFormatter;
 import argparser.utils.UtlString;
 
 import java.util.ArrayList;
@@ -81,17 +80,21 @@ public class HelpFormatter {
 			return cmd.name + (cmd.description == null ? "" : ": " + cmd.description);
 		}
 
-		public static String synopsis(Command cmd) {
+		public static String synopsis(Command cmd, boolean includeHelp) {
 			var args = new ArrayList<>(cmd.getArguments()) {{
+				// make sure all positional arguments are at the beginning
 				sort((a, b) -> {
-					if (a.isPositional() && !b.isPositional()) {
+					if (a.isPositional() && !b.isPositional())
 						return -1;
-					} else if (!a.isPositional() && b.isPositional()) {
+					else if (!a.isPositional() && b.isPositional())
 						return 1;
-					} else {
+					else
 						return 0;
-					}
 				});
+
+				// remove help argument if it's not needed
+				if (!includeHelp)
+					removeIf(arg -> arg.getLongestName().equals("help"));
 			}};
 			if (args.isEmpty()) return "";
 			var buffer = new StringBuilder();
@@ -105,6 +108,35 @@ public class HelpFormatter {
 			return buffer.toString();
 		}
 
+		public static String synopsis(Command cmd) {
+			return synopsis(cmd, false);
+		}
+
+		private static String synopsisGetArgumentRepr(Argument<?, ?> arg) {
+			var repr = arg.argType.getRepresentation();
+
+			final var outText = new TextFormatter();
+			final String name = arg.getLongestName();
+			final char argPrefix = arg.getPrefix();
+
+			if (arg.isObligatory()) {
+				outText.addFormat(FormatOption.BOLD, FormatOption.UNDERLINE);
+			}
+
+			outText.setColor(arg.getRepresentationColor());
+
+			if (arg.isPositional() && repr != null) {
+				outText.concat(repr, new TextFormatter("(" + name + ")"));
+			} else {
+				outText.setContents("" + argPrefix + (name.length() > 1 ? argPrefix : "") + name + (repr == null ? "" : " "));
+
+				if (repr != null)
+					outText.concat(repr);
+			}
+
+			return outText.toString();
+		}
+
 		public static String heading(String content, char lineChar) {
 			return UtlString.center(content, lineWrapMax, lineChar);
 		}
@@ -112,31 +144,10 @@ public class HelpFormatter {
 		public static String heading(String content) {
 			return UtlString.center(content, lineWrapMax);
 		}
-
-		private static String synopsisGetArgumentRepr(Argument<?, ?> arg) {
-			final var repr = arg.argType.getRepresentation();
-			if (repr == null) return null;
-
-			final var outText = new TextFormatter();
-			final String name = arg.getLongestName();
-			final char argPrefix = arg.getPrefix();
-
-			if (arg.isObligatory()) {
-				outText.addFormat(FormatOption.BOLD);
-			}
-
-			outText.setColor(arg.representationColor);
-
-			if (arg.isPositional()) {
-				outText.concat(repr, new TextFormatter("(" + name + ")"));
-			} else {
-				outText
-					.setContents("" + argPrefix + (name.length() > 1 ? argPrefix : "") + name + " ")
-					.concat(repr);
-			}
-			return outText.toString();
-		}
 	}
+
+
+
 
 	public static class LayoutItem {
 		private int indent = 0;

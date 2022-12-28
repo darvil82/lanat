@@ -2,8 +2,8 @@ package argparser.argumentTypes;
 
 import argparser.ArgValueCount;
 import argparser.ArgumentType;
-import argparser.displayFormatter.Color;
-import argparser.displayFormatter.TextFormatter;
+import argparser.utils.displayFormatter.Color;
+import argparser.utils.displayFormatter.TextFormatter;
 
 
 public abstract class TupleArgumentType<T> extends ArgumentType<T> {

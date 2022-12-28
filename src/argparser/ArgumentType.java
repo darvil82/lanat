@@ -2,8 +2,7 @@ package argparser;
 
 import argparser.argumentTypes.*;
 import argparser.utils.ErrorsContainer;
-import argparser.displayFormatter.Color;
-import argparser.displayFormatter.TextFormatter;
+import argparser.utils.displayFormatter.TextFormatter;
 
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -36,7 +35,7 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> {
 
 	public abstract void parseValues(String[] args);
 
-	public void parseValues(String arg) {
+	public final void parseValues(String arg) {
 		this.parseValues(new String[]{arg});
 	}
 
@@ -86,7 +85,7 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> {
 	}
 
 	public TextFormatter getRepresentation() {
-		return new TextFormatter(this.getClass().getSimpleName()).setColor(Color.BRIGHT_CYAN);
+		return new TextFormatter(this.getClass().getSimpleName());
 	}
 
 	public T getFinalValue() {

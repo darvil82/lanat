@@ -2,7 +2,7 @@ package argparser.utils;
 
 public class LoopPool<T> {
 	private final T[] pool;
-	private int index = 0;
+	private int index;
 
 	@SafeVarargs
 	public LoopPool(int startAt, T... pool) {
@@ -15,9 +15,26 @@ public class LoopPool<T> {
 		this(0, pool);
 	}
 
+	private void setIndex(int index) {
+		this.index = index % this.pool.length;
+		if (this.index < 0) {
+			this.index = this.pool.length - 1;
+		}
+	}
+
 	public T next() {
 		final T value = this.pool[this.index];
-		this.index = (this.index + 1) % this.pool.length;
+		this.setIndex(this.index + 1);
 		return value;
+	}
+
+	public T prev() {
+		this.setIndex(this.index - 1);
+
+		return this.pool[this.index];
+	}
+
+	public T current() {
+		return this.pool[this.index];
 	}
 }

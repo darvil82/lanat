@@ -183,14 +183,11 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> {
 
 	// Easy to access values. These are methods because we don't want to use the same instance everywhere.
 	public static IntArgument INTEGER() {return new IntArgument();}
-
 	public static BooleanArgument BOOLEAN() {return new BooleanArgument();}
-
 	public static CounterArgument COUNTER() {return new CounterArgument();}
-
-	public static StringArgument STRING() {return new StringArgument();}
-
 	public static FileArgument FILE() {return new FileArgument();}
+	public static StringArgument STRING() {return new StringArgument();}
+	public static MultipleStringsArgument STRINGS() {return new MultipleStringsArgument();}
 
 	public static <T extends ArgumentType<Ts>, Ts> KeyValuesArgument<T, Ts>
 	KEY_VALUES(T valueType) {return new KeyValuesArgument<>(valueType);}

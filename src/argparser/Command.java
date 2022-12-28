@@ -370,10 +370,14 @@ public class Command
 					currentValue.setLength(0);
 					this.tokenizingState.stringOpen = false;
 
-				// open a new string. save the character that opened the string
-				} else if (currentStringChar != cChar) {
-					currentStringChar = cChar;
+				// the string is open, but the character does not match. Push it as a normal character
+				} else if (this.tokenizingState.stringOpen) {
+					currentValue.append(cChar);
+
+				// the string is not open, so open it and set the current string char to the current char
+				} else {
 					this.tokenizingState.stringOpen = true;
+					currentStringChar = cChar;
 				}
 
 			// append characters to the current value as long as we are in a string
@@ -419,8 +423,7 @@ public class Command
 
 			// user is trying to escape a character
 			} else if (cChar == '\\') {
-				i++; // skip the \ character
-				currentValue.append(cChar); // append the next character
+				currentValue.append(chars[++i]); // skip the \ character and append the next character
 
 			// reached a possible separator
 			} else if (

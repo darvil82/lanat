@@ -354,28 +354,34 @@ public class Command
 			currentValue.setLength(0);
 		};
 
-		final char[] chars = content.toCharArray();
 
-		for (int i = 0; i < chars.length && !finishedTokenizing; i++) {
+		final char[] chars = content.toCharArray();
+		char currentStringChar = 0;
+
+		for (int i = 0; i < chars.length && !this.finishedTokenizing; i++) {
+			char cChar = chars[i];
+
 			// reached a possible value wrapped in quotes
-			if (chars[i] == '"' || chars[i] == '\'') {
-				// if we are already in an opened string, push the current value and close the string
-				if (this.tokenizingState.stringOpen) {
+			if (cChar == '"' || cChar == '\'') {
+				// if we are already in an open string, push the current value and close the string. Make sure
+				// that the current char is the same as the one that opened the string
+				if (this.tokenizingState.stringOpen && currentStringChar == cChar) {
 					addToken.accept(TokenType.ARGUMENT_VALUE, currentValue.toString());
 					currentValue.setLength(0);
-				}
+					this.tokenizingState.stringOpen = false;
 
-				// if there's no value, start a new string
-				if (currentValue.isEmpty() || this.tokenizingState.stringOpen) {
-					this.tokenizingState.stringOpen = !this.tokenizingState.stringOpen;
+				// open a new string. save the character that opened the string
+				} else if (currentStringChar != cChar) {
+					currentStringChar = cChar;
+					this.tokenizingState.stringOpen = true;
 				}
 
 			// append characters to the current value as long as we are in a string
 			} else if (this.tokenizingState.stringOpen) {
-				currentValue.append(chars[i]);
+				currentValue.append(cChar);
 
 			// reached a possible tuple start character
-			} else if (chars[i] == TUPLE_CHARS.first()) {
+			} else if (cChar == TUPLE_CHARS.first()) {
 				// if we are already in a tuple, set error and stop tokenizing
 				if (this.tokenizingState.tupleOpen) {
 					errorType = TokenizeError.TokenizeErrorType.TUPLE_ALREADY_OPEN;
@@ -389,7 +395,7 @@ public class Command
 				this.tokenizingState.tupleOpen = true;
 
 			// reached a possible tuple end character
-			} else if (chars[i] == TUPLE_CHARS.second()) {
+			} else if (cChar == TUPLE_CHARS.second()) {
 				// if we are not in a tuple, set error and stop tokenizing
 				if (!this.tokenizingState.tupleOpen) {
 					errorType = TokenizeError.TokenizeErrorType.UNEXPECTED_TUPLE_CLOSE;
@@ -407,26 +413,26 @@ public class Command
 				this.tokenizingState.tupleOpen = false;
 
 			// reached the end of the whole input
-			} else if (chars[i] != ' ' && i == chars.length - 1) {
-				currentValue.append(chars[i]);
+			} else if (cChar != ' ' && i == chars.length - 1) {
+				currentValue.append(cChar);
 				tokenizeSection.accept(i);
 
 			// user is trying to escape a character
-			} else if (chars[i] == '\\') {
+			} else if (cChar == '\\') {
 				i++; // skip the \ character
-				currentValue.append(chars[i]); // append the next character
+				currentValue.append(cChar); // append the next character
 
 			// reached a possible separator
 			} else if (
-				(chars[i] == ' ' && !currentValue.isEmpty()) // there's a space and some value to tokenize
+				(cChar == ' ' && !currentValue.isEmpty()) // there's a space and some value to tokenize
 					// also check if this is defining the value of an argument, or we are in a tuple. If so, don't tokenize
-					|| (chars[i] == '=' && !(tokenizingState.tupleOpen || this.isArgumentSpecifier(currentValue.substring(0, currentValue.length() - 1))))
+					|| (cChar == '=' && !(tokenizingState.tupleOpen || this.isArgumentSpecifier(currentValue.substring(0, currentValue.length() - 1))))
 			) {
 				tokenizeSection.accept(i);
 
 			// push the current char to the current value
-			} else if (chars[i] != ' ') {
-				currentValue.append(chars[i]);
+			} else if (cChar != ' ') {
+				currentValue.append(cChar);
 			}
 		}
 

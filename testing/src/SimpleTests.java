@@ -1,5 +1,7 @@
 import argparser.*;
 
+import java.util.Arrays;
+
 public class SimpleTests {
 	public static void main(String[] args) {
 		final var argumentParser = new ArgumentParser("Testing", "Some description") {{
@@ -15,8 +17,8 @@ public class SimpleTests {
 				}
 			});
 
-			addArgument(new Argument<>("what", new StringJoiner())
-				.onOk(t -> System.out.println("wow look a string: '" + t + "'"))
+			addArgument(new Argument<>("what", ArgumentType.STRINGS())
+				.onOk(t -> System.out.println("wow look a string: '" + Arrays.toString(t) + "'"))
 				.positional()
 				.obligatory()
 			);
@@ -37,6 +39,6 @@ public class SimpleTests {
 
 //		var pArgs = argumentParser.parseArgs("-fff --test hii subcommand --nose <x.1 y.347 z.43423> another --test 'this is a test' what");
 //		final var pArgs = argumentParser.parseArgs("--help");
-		final var pArgs = argumentParser.parseArgs("'hello whats\" 'another one' 'this is \"a test'");
+		final var pArgs = argumentParser.parseArgs("'hello whats\" 'another one \\\" \"thsi is' ano'the'r' test");
 	}
 }

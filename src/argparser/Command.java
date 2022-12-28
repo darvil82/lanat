@@ -447,7 +447,7 @@ public class Command
 			}
 
 		// we left something in the current value, tokenize it
-		if (!currentValue.isEmpty() && errorType != null) {
+		if (!currentValue.isEmpty()) {
 			tokenizeSection.accept(chars.length);
 		}
 

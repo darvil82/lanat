@@ -159,10 +159,10 @@ class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 	public final int valueCount;
 
 	enum ParseErrorType implements ErrorLevelProvider {
-		ARGUMENT_NOT_FOUND,
 		OBLIGATORY_ARGUMENT_NOT_USED,
 		UNMATCHED_TOKEN(ErrorLevel.WARNING),
-		ARG_INCORRECT_VALUE_NUMBER;
+		ARG_INCORRECT_VALUE_NUMBER,
+		MULTIPLE_ARGS_IN_EXCLUSIVE_GROUP_USED;
 
 		public final ErrorLevel level;
 
@@ -208,9 +208,9 @@ class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 		this.fmt()
 			.setContents(String.format(
 				"Incorrect number of values for argument '%s'.%nExpected %s, but got %d.",
-				argument.getDisplayName(), argument.getNumberOfValues().getMessage(), Math.max(valueCount - 1, 0)
+				argument.getDisplayName(), argument.getNumberOfValues().getMessage(), Math.max(this.valueCount - 1, 0)
 			))
-			.displayTokens(this.tokenIndex + 1, valueCount, valueCount == 0);
+			.displayTokens(this.tokenIndex + 1, this.valueCount, this.valueCount == 0);
 	}
 
 	@Handler("OBLIGATORY_ARGUMENT_NOT_USED")
@@ -226,11 +226,6 @@ class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 			.displayTokens(this.tokenIndex + 1);
 	}
 
-	@Handler("ARGUMENT_NOT_FOUND")
-	protected void handleArgumentNotFound() {
-		this.fmt().setContents(String.format("Argument '%s' not found.", argument.getDisplayName()));
-	}
-
 	@Handler("UNMATCHED_TOKEN")
 	protected void handleUnmatchedToken() {
 		this.fmt()
@@ -238,7 +233,17 @@ class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 				"Token '%s' does not correspond with a valid argument, value, or command.",
 				this.getCurrentToken().contents())
 			)
-			.displayTokens(this.tokenIndex, 0, false);
+			.displayTokens(this.tokenIndex, this.valueCount, false);
+	}
+
+	@Handler("MULTIPLE_ARGS_IN_EXCLUSIVE_GROUP_USED")
+	protected void handleMultipleArgsInExclusiveGroupUsed() {
+		this.fmt()
+			.setContents(String.format(
+				"Multiple arguments in exclusive group '%s' used.",
+				argument.getParentGroup().name
+			))
+			.displayTokens(this.tokenIndex, this.valueCount, false);
 	}
 }
 

@@ -151,7 +151,7 @@ public class Command
 
 	private HashMap<Argument<?, ?>, Object> getParsedArgumentsHashMap() {
 		return new HashMap<>() {{
-			Command.this.arguments.forEach(arg -> this.put(arg, arg.finishParsing(Command.this.parsingState)));
+			Command.this.arguments.forEach(arg -> this.put(arg, arg.finishParsing()));
 		}};
 	}
 

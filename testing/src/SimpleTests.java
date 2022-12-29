@@ -5,40 +5,27 @@ import java.util.Arrays;
 public class SimpleTests {
 	public static void main(String[] args) {
 		final var argumentParser = new ArgumentParser("Testing", "Some description") {{
-			setTupleChars(TupleCharacter.PARENTHESIS);
-			setHelpFormatter(new HelpFormatter() {
-				@Override
-				public void setLayout() {
-					super.setLayout();
-					this.addToLayout(
-						new LayoutItem((c) -> LayoutGenerators.heading("This is a heading")),
-						new LayoutItem((c) -> "this has " + c.getArguments().size() + " arguments").indent(3)
-					);
-				}
-			});
+			addGroup(new ArgumentGroup("some group") {{
+				exclusive();
 
-			addArgument(new Argument<>("what", ArgumentType.STRINGS())
-				.onOk(t -> System.out.println("wow look a string: '" + Arrays.toString(t) + "'"))
-				.positional()
-				.obligatory()
-			);
+				addGroup(new ArgumentGroup("subgroup") {{
+					exclusive();
 
-			addArgument(new Argument<>("what2", ArgumentType.INTEGER()));
+					addArgument(new Argument<>("what2", ArgumentType.INTEGER()));
+					addArgument(new Argument<>("what3", ArgumentType.INTEGER()));
+				}});
 
-			addSubCommand(new Command("subcommand") {{
-				addArgument(new Argument<>("c", ArgumentType.COUNTER()).obligatory());
-				addArgument(new Argument<>('s', "more-strings", new StringJoiner()));
-				addSubCommand(new Command("another") {{
-					addArgument(new Argument<>("ball", new StringJoiner()));
-					addArgument(new Argument<>("number", ArgumentType.INTEGER()).positional().obligatory());
+				addGroup(new ArgumentGroup("subgroup2") {{
+					exclusive();
+
+					addArgument(new Argument<>("what4", ArgumentType.INTEGER()));
+					addArgument(new Argument<>("what5", ArgumentType.INTEGER()));
 				}});
 			}});
 		}};
 
-		HelpFormatter.debugLayout = true;
+		final var pArgs = argumentParser.parseArgs("--what2 3 --what3 5 --what4 7");
 
-//		var pArgs = argumentParser.parseArgs("-fff --test hii subcommand --nose <x.1 y.347 z.43423> another --test 'this is a test' what");
-//		final var pArgs = argumentParser.parseArgs("--help");
-		final var pArgs = argumentParser.parseArgs("foo 'bar \\\" qux' idk");
+		System.out.println(pArgs.get("what2").get());
 	}
 }

@@ -19,9 +19,9 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	private boolean obligatory = false, positional = false, allowUnique = false;
 	private TInner defaultValue;
 	private Command parentCmd;
+	private ArgumentGroup parentGroup;
 	private Consumer<Argument<Type, TInner>> onErrorCallback;
 	private Consumer<TInner> onCorrectCallback;
-
 	private final ModifyRecord<Color> representationColor = new ModifyRecord<>(null);
 
 
@@ -169,8 +169,19 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		this.representationColor.setIfNotModified(parentCmd.colorsPool.next());
 	}
 
-	Command getParentCmd() {
+	public Command getParentCmd() {
 		return parentCmd;
+	}
+
+	void setParentGroup(ArgumentGroup parentGroup) {
+		if (this.parentGroup != null) {
+			throw new IllegalStateException("Argument already added to a group");
+		}
+		this.parentGroup = parentGroup;
+	}
+
+	public ArgumentGroup getParentGroup() {
+		return parentGroup;
 	}
 
 	public short getUsageCount() {
@@ -206,9 +217,18 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * @param tokenIndex This is the global index of the token that is currently being parsed. Used when
 	 * dispatching errors.
 	 */
-	void parseValues(String[] value, short tokenIndex) {
+	void parseValues(String[] values, short tokenIndex) {
+		// check if the parent group of this argument is exclusive, and if so, check if any other argument in it has been used
+		if (this.parentGroup != null) {
+			if (!this.parentGroup.checkExclusivity(this)) {
+				this.parentCmd.parsingState.addError(
+					ParseError.ParseErrorType.MULTIPLE_ARGS_IN_EXCLUSIVE_GROUP_USED, this, values.length
+				);
+				return;
+			}
+		}
 		this.argType.setTokenIndex(tokenIndex);
-		this.argType.parseArgumentValues(value);
+		this.argType.parseArgumentValues(values);
 		this.usageCount++;
 	}
 
@@ -223,10 +243,10 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * Returns the final parsed value of this argument.
 	 * @param parseState The current state of the parser. Used to dispatch any possible errors.
 	 */
-	TInner finishParsing(Command.ParsingState parseState) {
+	TInner finishParsing() {
 		if (this.usageCount == 0) {
 			if (this.obligatory && !this.parentCmd.uniqueArgumentReceivedValue()) {
-				parseState.addError(ParseError.ParseErrorType.OBLIGATORY_ARGUMENT_NOT_USED, this, 0);
+				this.parentCmd.parsingState.addError(ParseError.ParseErrorType.OBLIGATORY_ARGUMENT_NOT_USED, this, 0);
 				return null;
 			}
 
@@ -235,7 +255,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 			return value == null ? this.defaultValue : value;
 		}
 
-		this.argType.getErrorsUnderDisplayLevel().forEach(parseState::addError);
+		this.argType.getErrorsUnderDisplayLevel().forEach(this.parentCmd.parsingState::addError);
 		return this.argType.getFinalValue();
 	}
 

@@ -361,8 +361,12 @@ public class Command
 		for (int i = 0; i < chars.length && !this.finishedTokenizing; i++) {
 			char cChar = chars[i];
 
+			// user is trying to escape a character
+			if (cChar == '\\') {
+				currentValue.append(chars[++i]); // skip the \ character and append the next character
+
 			// reached a possible value wrapped in quotes
-			if (cChar == '"' || cChar == '\'') {
+			} else if (cChar == '"' || cChar == '\'') {
 				// if we are already in an open string, push the current value and close the string. Make sure
 				// that the current char is the same as the one that opened the string
 				if (this.tokenizingState.stringOpen && currentStringChar == cChar) {
@@ -415,15 +419,6 @@ public class Command
 				addToken.accept(TokenType.ARGUMENT_VALUE_TUPLE_END, TUPLE_CHARS.second().toString());
 				currentValue.setLength(0);
 				this.tokenizingState.tupleOpen = false;
-
-			// reached the end of the whole input
-			} else if (cChar != ' ' && i == chars.length - 1) {
-				currentValue.append(cChar);
-				tokenizeSection.accept(i);
-
-			// user is trying to escape a character
-			} else if (cChar == '\\') {
-				currentValue.append(chars[++i]); // skip the \ character and append the next character
 
 			// reached a possible separator
 			} else if (

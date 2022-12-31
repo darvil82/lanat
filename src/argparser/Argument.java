@@ -220,16 +220,25 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	void parseValues(String[] values, short tokenIndex) {
 		// check if the parent group of this argument is exclusive, and if so, check if any other argument in it has been used
 		if (this.parentGroup != null) {
-			if (!this.parentGroup.checkExclusivity(this)) {
+			var exclusivityResult = this.parentGroup.checkExclusivity();
+			if (exclusivityResult != null) {
 				this.parentCmd.parsingState.addError(
-					ParseError.ParseErrorType.MULTIPLE_ARGS_IN_EXCLUSIVE_GROUP_USED, this, values.length
+					new ParseError(
+						ParseError.ParseErrorType.MULTIPLE_ARGS_IN_EXCLUSIVE_GROUP_USED,
+						this.parentCmd.parsingState.getCurrentTokenIndex(),
+						this, values.length
+					) {{ this.setArgumentGroup(exclusivityResult); }}
 				);
 				return;
 			}
 		}
+
 		this.argType.setTokenIndex(tokenIndex);
 		this.argType.parseArgumentValues(values);
 		this.usageCount++;
+		if (this.parentGroup != null) {
+			this.parentGroup.setArgUsed();
+		}
 	}
 
 	/**

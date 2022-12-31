@@ -12,7 +12,7 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder {
 	private ArgumentGroup parentGroup;
 	private final List<Argument<?, ?>> arguments = new ArrayList<>();
 	private final List<ArgumentGroup> subGroups = new ArrayList<>();
-	private boolean isExclusive = false;
+	private boolean isExclusive = false, argUsed = false;
 
 	public ArgumentGroup(String name, String description) {
 		this.name = UtlString.sanitizeName(name);
@@ -42,7 +42,7 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder {
 	}
 
 	/**
-	 * Sets this group to be exclusive, meaning that only one argument in can be used.
+	 * Sets this group to be exclusive, meaning that only one argument in it can be used.
 	 */
 	public void exclusive() {
 		this.isExclusive = true;
@@ -63,14 +63,32 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder {
 		this.subGroups.forEach(g -> g.registerGroup(parentCommand));
 	}
 
-	boolean checkExclusivity(Argument<?, ?> argument) {
-		for (var arg : this.arguments.stream().filter(a -> a.getParentGroup() == this).toList()) {
-			if (arg == argument) continue;
-			if (arg.getUsageCount() > 0) {
-				return false;
-			}
+	private ArgumentGroup checkExclusivity(ArgumentGroup childCallee) {
+		if (
+			(
+				this.subGroups.stream().filter(g -> g != childCallee).anyMatch(g -> g.argUsed)
+				|| this.arguments.stream().anyMatch(a -> a.getUsageCount() > 0)
+			) && this.isExclusive
+		) {
+			return this;
 		}
-		return true;
+
+		if (this.parentGroup != null)
+			return this.parentGroup.checkExclusivity(this);
+
+		return null;
+	}
+
+	ArgumentGroup checkExclusivity() {
+		return this.checkExclusivity(null);
+	}
+
+	void setArgUsed() {
+		if (this.isExclusive)
+			this.argUsed = true;
+
+		if (this.parentGroup != null && this.parentGroup.parentGroup != null)
+			this.parentGroup.setArgUsed();
 	}
 }
 

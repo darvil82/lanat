@@ -1,4 +1,5 @@
 import argparser.*;
+import argparser.argumentTypes.IntArgument;
 
 import java.util.Arrays;
 
@@ -13,6 +14,11 @@ public class SimpleTests {
 
 					addArgument(new Argument<>("what2", ArgumentType.INTEGER()));
 					addArgument(new Argument<>("what3", ArgumentType.INTEGER()));
+
+					addGroup(new ArgumentGroup("another subgroup") {{
+						addArgument(new Argument<>("what10", ArgumentType.INTEGER()));
+						addArgument(new Argument<>("what11", ArgumentType.INTEGER()));
+					}});
 				}});
 
 				addGroup(new ArgumentGroup("subgroup2") {{
@@ -24,7 +30,7 @@ public class SimpleTests {
 			}});
 		}};
 
-		final var pArgs = argumentParser.parseArgs("--what2 3 --what3 5 --what4 7");
+		final var pArgs = argumentParser.parseArgs("--what2 3 --what10 23");
 
 		System.out.println(pArgs.get("what2").get());
 	}

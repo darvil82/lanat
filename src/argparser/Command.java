@@ -292,6 +292,9 @@ public class Command
 		 */
 		private short currentTokenIndex = 0;
 
+		public short getCurrentTokenIndex() {
+			return currentTokenIndex;
+		}
 
 		void addError(ParseError.ParseErrorType type, Argument<?, ?> arg, int argValueCount, int currentIndex) {
 			this.addError(new ParseError(type, currentIndex, arg, argValueCount));

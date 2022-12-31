@@ -5,6 +5,7 @@ import argparser.utils.ErrorLevelProvider;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -69,7 +70,15 @@ abstract class ParseStateErrorBase<T extends ErrorLevelProvider> implements Erro
 		this.errorHandler = handler;
 		this.formatter = new ErrorFormatter(handler, type.getErrorLevel());
 
-		for (var method : this.getClass().getDeclaredMethods()) {
+		Method[] methods;
+		Class<?> currentClass = this.getClass();
+
+		// if there are no methods defined, get super class
+		// this is done for cases like usage of anonymous classes
+		while ((methods = currentClass.getDeclaredMethods()).length == 0)
+			currentClass = currentClass.getSuperclass();
+
+		for (var method : methods) {
 			Handler annotation = method.getAnnotation(Handler.class);
 
 			if (annotation != null && annotation.value().equals(this.type.toString())) {
@@ -157,6 +166,7 @@ class TokenizeError extends ParseStateErrorBase<TokenizeError.TokenizeErrorType>
 class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 	public final Argument<?, ?> argument;
 	public final int valueCount;
+	private ArgumentGroup argumentGroup;
 
 	enum ParseErrorType implements ErrorLevelProvider {
 		OBLIGATORY_ARGUMENT_NOT_USED,
@@ -184,6 +194,10 @@ class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 		super(type, index);
 		this.argument = argument;
 		this.valueCount = valueCount;
+	}
+
+	public void setArgumentGroup(ArgumentGroup argumentGroup) {
+		this.argumentGroup = argumentGroup;
 	}
 
 	public static List<ParseError> filter(List<ParseError> errors) {
@@ -241,7 +255,7 @@ class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 		this.fmt()
 			.setContents(String.format(
 				"Multiple arguments in exclusive group '%s' used.",
-				argument.getParentGroup().name
+				argumentGroup.name
 			))
 			.displayTokens(this.tokenIndex, this.valueCount, false);
 	}

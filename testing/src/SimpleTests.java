@@ -30,7 +30,7 @@ public class SimpleTests {
 			}});
 		}};
 
-		final var pArgs = argumentParser.parseArgs("--what2 3 --what10 23");
+		final var pArgs = argumentParser.parseArgs("--what10 3 --what5 23");
 
 		System.out.println(pArgs.get("what2").get());
 	}

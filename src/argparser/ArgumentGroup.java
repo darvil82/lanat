@@ -12,7 +12,9 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder {
 	private ArgumentGroup parentGroup;
 	private final List<Argument<?, ?>> arguments = new ArrayList<>();
 	private final List<ArgumentGroup> subGroups = new ArrayList<>();
-	private boolean isExclusive = false, argUsed = false;
+	private boolean isExclusive = false;
+	/** When set to true, indicates that one argument in this group has been used. */
+	private boolean argumentUsed = false;
 
 	public ArgumentGroup(String name, String description) {
 		this.name = UtlString.sanitizeName(name);
@@ -65,10 +67,10 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder {
 
 	private ArgumentGroup checkExclusivity(ArgumentGroup childCallee) {
 		if (
-			(
-				this.subGroups.stream().filter(g -> g != childCallee).anyMatch(g -> g.argUsed)
+			this.isExclusive && (
+				this.subGroups.stream().filter(g -> g != childCallee && g.isExclusive).anyMatch(g -> g.argumentUsed)
 				|| this.arguments.stream().anyMatch(a -> a.getUsageCount() > 0)
-			) && this.isExclusive
+			)
 		) {
 			return this;
 		}
@@ -84,10 +86,10 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder {
 	}
 
 	void setArgUsed() {
-		if (this.isExclusive)
-			this.argUsed = true;
+		this.argumentUsed = true;
 
-		if (this.parentGroup != null && this.parentGroup.parentGroup != null)
+		// set argUsed to true on all parents until reaching the groups root
+		if (this.parentGroup != null)
 			this.parentGroup.setArgUsed();
 	}
 }

@@ -92,6 +92,18 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder {
 		if (this.parentGroup != null)
 			this.parentGroup.setArgUsed();
 	}
+
+	int getNestingLevel() {
+		ArgumentGroup current = this;
+		int level = 0;
+
+		while (current != null) {
+			level++;
+			current = current.parentGroup;
+		};
+
+		return level;
+	}
 }
 
 

@@ -15,12 +15,14 @@ import java.util.regex.Pattern;
 public class ParsedArguments {
 	private final HashMap<Argument<?, ?>, Object> parsedArgs;
 	private final String name;
+	private final String forwardValue;
 	private final ParsedArguments[] subArgs;
 	private static String separator = ".";
 
-	ParsedArguments(String name, HashMap<Argument<?, ?>, Object> parsedArgs, ParsedArguments[] subArgs) {
+	ParsedArguments(String name, HashMap<Argument<?, ?>, Object> parsedArgs, ParsedArguments[] subArgs, String forwardValue) {
 		this.parsedArgs = parsedArgs;
 		this.name = name;
+		this.forwardValue = forwardValue;
 		this.subArgs = subArgs;
 	}
 
@@ -105,6 +107,10 @@ public class ParsedArguments {
 		} else {
 			throw new IllegalArgumentException("subcommand '" + argRoute[0] + "' not found");
 		}
+	}
+
+	public String getForwardValue() {
+		return this.forwardValue;
 	}
 
 	/**

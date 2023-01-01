@@ -6,9 +6,10 @@ import java.util.Arrays;
 public class SimpleTests {
 	public static void main(String[] args) {
 		final var argumentParser = new ArgumentParser("Testing", "Some description") {{
-			addGroup(new ArgumentGroup("some group") {{
-				exclusive();
 
+			addArgument(new Argument<>("simple test", ArgumentType.INTEGER()));
+
+			addGroup(new ArgumentGroup("some group") {{
 				addGroup(new ArgumentGroup("subgroup") {{
 					exclusive();
 
@@ -30,8 +31,7 @@ public class SimpleTests {
 			}});
 		}};
 
-		final var pArgs = argumentParser.parseArgs("--what10 3 --what5 23");
-
-		System.out.println(pArgs.get("what2").get());
+		final var pArgs = argumentParser.parseArgs("--what2 23 --what5 89 -- this are some values for other sthuff");
+		System.out.println(pArgs.getForwardValue());
 	}
 }

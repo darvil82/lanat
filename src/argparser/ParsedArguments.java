@@ -3,7 +3,6 @@ package argparser;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -123,7 +122,7 @@ public class ParsedArguments {
 	 * Returns the sub {@link ParsedArguments} with the given name. If none is found with
 	 * the given name, returns <code>null</code>.
 	 */
-	private ParsedArguments getSubParsedArgs(String name) {
+	public ParsedArguments getSubParsedArgs(String name) {
 		for (var sub : this.subParsedArguments)
 			if (sub.name.equals(name)) return sub;
 		return null;

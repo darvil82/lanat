@@ -92,17 +92,28 @@ public class HelpFormatter {
 						return 0;
 				});
 
+				// only arguments that are not in exclusive groups, since we handle those later
+				removeIf(arg -> {
+					var parentGroup = arg.getParentGroup();
+					return parentGroup != null && parentGroup.isExclusiveNested();
+				});
+
 				// remove help argument if it's not needed
 				if (!includeHelp)
 					removeIf(arg -> arg.getLongestName().equals("help"));
 			}};
+
 			if (args.isEmpty()) return "";
 			var buffer = new StringBuilder();
 
 			for (var arg : args) {
-				var repr = LayoutGenerators.synopsisGetArgumentRepr(arg);
+				var repr = arg.getRepresentation();
 				if (repr == null) continue;
 				buffer.append(repr).append(' ');
+			}
+
+			for (var group : cmd.argumentGroups) {
+				group.generateRepresentation(buffer);
 			}
 
 			return buffer.toString();
@@ -110,31 +121,6 @@ public class HelpFormatter {
 
 		public static String synopsis(Command cmd) {
 			return synopsis(cmd, false);
-		}
-
-		private static String synopsisGetArgumentRepr(Argument<?, ?> arg) {
-			var repr = arg.argType.getRepresentation();
-
-			final var outText = new TextFormatter();
-			final String name = arg.getLongestName();
-			final char argPrefix = arg.getPrefix();
-
-			if (arg.isObligatory()) {
-				outText.addFormat(FormatOption.BOLD, FormatOption.UNDERLINE);
-			}
-
-			outText.setColor(arg.getRepresentationColor());
-
-			if (arg.isPositional() && repr != null) {
-				outText.concat(repr, new TextFormatter("(" + name + ")"));
-			} else {
-				outText.setContents("" + argPrefix + (name.length() > 1 ? argPrefix : "") + name + (repr == null ? "" : " "));
-
-				if (repr != null)
-					outText.concat(repr);
-			}
-
-			return outText.toString();
 		}
 
 		public static String heading(String content, char lineChar) {

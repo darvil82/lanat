@@ -2,6 +2,8 @@ import argparser.*;
 
 public class SimpleTests {
 	public static void main(String[] args) {
+//		HelpFormatter.lineWrapMax = 1000;
+
 		final var argumentParser = new ArgumentParser("Testing", "Some description") {{
 			addArgument(new Argument<>("simple test", ArgumentType.INTEGER()));
 
@@ -13,12 +15,21 @@ public class SimpleTests {
 				addGroup(new ArgumentGroup("subgroup") {{
 					exclusive();
 
-					addArgument(new Argument<>("what2", ArgumentType.INTEGER()));
-					addArgument(new Argument<>("what3", ArgumentType.INTEGER()));
+					addGroup(new ArgumentGroup("yup another one") {{
+						exclusive();
 
-					addGroup(new ArgumentGroup("another subgroup") {{
-						addArgument(new Argument<>("what10", ArgumentType.INTEGER()));
-						addArgument(new Argument<>("what11", ArgumentType.INTEGER()));
+						addArgument(new Argument<>("what20", ArgumentType.INTEGER()));
+						addArgument(new Argument<>("what21", ArgumentType.INTEGER()));
+						addGroup(new ArgumentGroup("bla") {{
+							exclusive();
+						}});
+					}});
+
+					addGroup(new ArgumentGroup("yeah quite a few") {{
+						exclusive();
+
+						addArgument(new Argument<>("what25", ArgumentType.INTEGER()));
+						addArgument(new Argument<>("what26", ArgumentType.INTEGER()));
 					}});
 				}});
 
@@ -31,7 +42,8 @@ public class SimpleTests {
 			}});
 		}};
 
-		final var pArgs = argumentParser.parseArgs("--what2 23 --what5 89 command --what2 2 -- this are some values for other sthuff");
+
+		final var pArgs = argumentParser.parseArgs("--help");
 		System.out.println(pArgs.getForwardValue());
 	}
 }

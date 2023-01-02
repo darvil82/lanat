@@ -16,6 +16,7 @@ public class Command
 	public final String name, description;
 	final ArrayList<Argument<?, ?>> arguments = new ArrayList<>();
 	final ArrayList<Command> subCommands = new ArrayList<>();
+	final ArrayList<ArgumentGroup> argumentGroups = new ArrayList<>();
 	private final ModifyRecord<TupleCharacter> tupleChars = new ModifyRecord<>(TupleCharacter.SQUARE_BRACKETS);
 	private final ModifyRecord<Integer> errorCode = new ModifyRecord<>(1);
 	private Consumer<Command> onErrorCallback;
@@ -31,7 +32,7 @@ public class Command
 		if (!UtlString.matchCharacters(name, Character::isAlphabetic)) {
 			throw new IllegalArgumentException("name must be alphabetic");
 		}
-		this.name = name;
+		this.name = UtlString.sanitizeName(name);
 		this.description = description;
 		this.addArgument(new Argument<>("help")
 			.onOk(t -> System.out.println(this.getHelp()))
@@ -52,7 +53,7 @@ public class Command
 	public <T extends ArgumentType<TInner>, TInner>
 	void addArgument(Argument<T, TInner> argument) {
 		if (this.arguments.stream().anyMatch(a -> a.equals(argument))) {
-			throw new IllegalArgumentException("duplicate argument identifiers");
+			throw new IllegalArgumentException("duplicate argument identifier '" + argument.getLongestName() + "'");
 		}
 		argument.setParentCmd(this);
 		this.arguments.add(argument);
@@ -60,7 +61,11 @@ public class Command
 
 	@Override
 	public void addGroup(ArgumentGroup group) {
+		if (this.argumentGroups.stream().anyMatch(g -> g.name.equals(group.name))) {
+			throw new IllegalArgumentException("duplicate group identifier '" + group.name + "'");
+		}
 		group.registerGroup(this);
+		this.argumentGroups.add(group);
 	}
 
 	public void addSubCommand(Command cmd) {

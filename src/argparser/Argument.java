@@ -2,6 +2,8 @@ package argparser;
 
 import argparser.utils.displayFormatter.Color;
 import argparser.utils.*;
+import argparser.utils.displayFormatter.FormatOption;
+import argparser.utils.displayFormatter.TextFormatter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -196,6 +198,31 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		this.representationColor.set(color);
 	}
 
+	public String getRepresentation() {
+		var repr = this.argType.getRepresentation();
+
+		final var outText = new TextFormatter();
+		final String name = this.getLongestName();
+		final char argPrefix = this.getPrefix();
+
+		if (this.isObligatory()) {
+			outText.addFormat(FormatOption.BOLD, FormatOption.UNDERLINE);
+		}
+
+		outText.setColor(this.getRepresentationColor());
+
+		if (this.isPositional() && repr != null) {
+			outText.concat(repr, new TextFormatter("(" + name + ")"));
+		} else {
+			outText.setContents("" + argPrefix + (name.length() > 1 ? argPrefix : "") + name + (repr == null ? "" : " "));
+
+			if (repr != null)
+				outText.concat(repr);
+		}
+
+		return outText.toString();
+	}
+
 	/**
 	 * Specify a function that will be called with the value introduced by the user.
 	 */
@@ -250,7 +277,6 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 	/**
 	 * Returns the final parsed value of this argument.
-	 * @param parseState The current state of the parser. Used to dispatch any possible errors.
 	 */
 	TInner finishParsing() {
 		if (this.usageCount == 0) {

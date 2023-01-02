@@ -38,6 +38,10 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder {
 			throw new IllegalArgumentException("Group already has a parent.");
 		}
 
+		if (this.subGroups.stream().anyMatch(g -> g.name.equals(group.name))) {
+			throw new IllegalArgumentException("duplicate group identifier '" + group.name + "'");
+		}
+
 		group.parentGroup = this;
 		group.parentCommand = this.parentCommand;
 		this.subGroups.add(group);
@@ -48,6 +52,22 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder {
 	 */
 	public void exclusive() {
 		this.isExclusive = true;
+	}
+
+	public boolean isExclusive() {
+		return this.isExclusive;
+	}
+
+	/**
+	 * Returns true if this group or any of its parents is exclusive.
+	 */
+	public boolean isExclusiveNested() {
+		var group = this;
+		while (group != null) {
+			if (group.isExclusive()) return true;
+			group = group.parentGroup;
+		}
+		return false;
 	}
 
 	/**
@@ -81,6 +101,10 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder {
 		return null;
 	}
 
+	public boolean isEmpty() {
+		return this.arguments.isEmpty() && this.subGroups.isEmpty();
+	}
+
 	ArgumentGroup checkExclusivity() {
 		return this.checkExclusivity(null);
 	}
@@ -93,16 +117,42 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder {
 			this.parentGroup.setArgUsed();
 	}
 
-	int getNestingLevel() {
-		ArgumentGroup current = this;
-		int level = 0;
+	/**
+	 * Appends the representation of this group tree to the given string builder.
+	 */
+	void generateRepresentation(StringBuilder sb) {
+		// its empty, nothing to append
+		if (this.isEmpty()) return;
 
-		while (current != null) {
-			level++;
-			current = current.parentGroup;
-		};
+		// if this group isn't exclusive, we just want to append the arguments, basically
+		if (this.isExclusive)
+			sb.append('(');
 
-		return level;
+		List<Argument<?, ?>> arguments = this.arguments;
+		for (int i = 0; i < arguments.size(); i++) {
+			Argument<?, ?> arg = arguments.get(i);
+			sb.append(arg.getRepresentation());
+			if (i < arguments.size() - 1)
+				sb.append(' ').append('|').append(' ');
+		}
+
+		List<ArgumentGroup> groups = this.subGroups.stream().filter(g -> !g.isEmpty()).toList();
+
+		if (!arguments.isEmpty() && !groups.isEmpty())
+			sb.append(' ').append('|').append(' ');
+
+		for (int i = 0; i < groups.size(); i++) {
+			ArgumentGroup group = groups.get(i);
+			group.generateRepresentation(sb); // append the group's representation recursively
+			if (i < groups.size() - 1) {
+				sb.append(' ');
+				if (this.isExclusive)
+					sb.append('|').append(' ');
+			}
+		}
+
+		if (this.isExclusive)
+			sb.append(')');
 	}
 }
 

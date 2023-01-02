@@ -35,8 +35,13 @@ public class UtlString {
 	public static String sanitizeName(String name) {
 		Objects.requireNonNull(name);
 		// remove all non-alphanumeric characters
-		return UtlString.trim(name.replaceAll("[^a-zA-Z0-9 -]", ""), "[^a-zA-Z0-9]")
+		final var sanitized = UtlString.trim(name.replaceAll("[^a-zA-Z0-9 -]", ""), "[^a-zA-Z0-9]")
 			.replaceAll(" ", "-");
+
+		if (sanitized.isEmpty())
+			throw new IllegalArgumentException("name must contain at least one alphanumeric character");
+
+		return sanitized;
 	}
 
 	/**

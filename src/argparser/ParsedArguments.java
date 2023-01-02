@@ -15,13 +15,13 @@ import java.util.regex.Pattern;
 public class ParsedArguments {
 	private final HashMap<Argument<?, ?>, Object> parsedArgs;
 	private final String name;
-	private final ParsedArguments[] subArgs;
+	private final ParsedArguments[] subParsedArguments;
 	private static String separator = ".";
 
-	ParsedArguments(String name, HashMap<Argument<?, ?>, Object> parsedArgs, ParsedArguments[] subArgs) {
+	ParsedArguments(String name, HashMap<Argument<?, ?>, Object> parsedArgs, ParsedArguments[] subParsedArguments) {
 		this.parsedArgs = parsedArgs;
 		this.name = name;
-		this.subArgs = subArgs;
+		this.subParsedArguments = subParsedArguments;
 	}
 
 	/**
@@ -96,12 +96,12 @@ public class ParsedArguments {
 			throw new IllegalArgumentException("argument route must not be empty");
 		}
 
-		Optional<ParsedArguments> matchedSubArg;
+		ParsedArguments matchedParsedArgs;
 
 		if (argRoute.length == 1) {
 			return (ParsedArgument<T>)this.get(this.getArgument(argRoute[0]));
-		} else if ((matchedSubArg = Arrays.stream(this.subArgs).filter(sub -> sub.name.equals(argRoute[0])).findFirst()).isPresent()) {
-			return matchedSubArg.get().get(Arrays.copyOfRange(argRoute, 1, argRoute.length));
+		} else if ((matchedParsedArgs = this.getSubParsedArgs(argRoute[0])) != null) {
+			return matchedParsedArgs.get(Arrays.copyOfRange(argRoute, 1, argRoute.length));
 		} else {
 			throw new IllegalArgumentException("subcommand '" + argRoute[0] + "' not found");
 		}
@@ -117,6 +117,16 @@ public class ParsedArguments {
 			}
 		}
 		throw new IllegalArgumentException("argument '" + name + "' not found");
+	}
+
+	/**
+	 * Returns the sub {@link ParsedArguments} with the given name. If none is found with
+	 * the given name, returns <code>null</code>.
+	 */
+	private ParsedArguments getSubParsedArgs(String name) {
+		for (var sub : this.subParsedArguments)
+			if (sub.name.equals(name)) return sub;
+		return null;
 	}
 
 

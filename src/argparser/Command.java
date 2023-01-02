@@ -355,7 +355,7 @@ public class Command
 			// if this is a subcommand, continue tokenizing next elements
 			if (token.type() == TokenType.SUB_COMMAND && (subCmd = getSubCommandByName(token.contents())) != null) {
 				// forward the rest of stuff to the subCommand
-				subCmd.tokenize(content.substring(values.i + 1));
+				subCmd.tokenize(content.substring(values.i));
 				this.finishedTokenizing = true;
 			} else {
 				finalTokens.add(token);

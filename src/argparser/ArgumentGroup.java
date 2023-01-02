@@ -120,7 +120,7 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder {
 	/**
 	 * Appends the representation of this group tree to the given string builder.
 	 */
-	void generateRepresentation(StringBuilder sb) {
+	void getRepresentation(StringBuilder sb) {
 		// its empty, nothing to append
 		if (this.isEmpty()) return;
 
@@ -143,7 +143,7 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder {
 
 		for (int i = 0; i < groups.size(); i++) {
 			ArgumentGroup group = groups.get(i);
-			group.generateRepresentation(sb); // append the group's representation recursively
+			group.getRepresentation(sb); // append the group's representation recursively
 			if (i < groups.size() - 1) {
 				sb.append(' ');
 				if (this.isExclusive)

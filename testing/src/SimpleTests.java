@@ -2,7 +2,7 @@ import argparser.*;
 
 public class SimpleTests {
 	public static void main(String[] args) {
-//		HelpFormatter.lineWrapMax = 1000;
+		HelpFormatter.lineWrapMax = 1000;
 
 		final var argumentParser = new ArgumentParser("Testing", "Some description") {{
 			addArgument(new Argument<>("simple test", ArgumentType.INTEGER()));
@@ -20,9 +20,6 @@ public class SimpleTests {
 
 						addArgument(new Argument<>("what20", ArgumentType.INTEGER()));
 						addArgument(new Argument<>("what21", ArgumentType.INTEGER()));
-						addGroup(new ArgumentGroup("bla") {{
-							exclusive();
-						}});
 					}});
 
 					addGroup(new ArgumentGroup("yeah quite a few") {{

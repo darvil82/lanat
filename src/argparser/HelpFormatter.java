@@ -113,7 +113,7 @@ public class HelpFormatter {
 			}
 
 			for (var group : cmd.argumentGroups) {
-				group.generateRepresentation(buffer);
+				group.getRepresentation(buffer);
 			}
 
 			return buffer.toString();

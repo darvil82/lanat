@@ -1,13 +1,13 @@
 import argparser.*;
-import argparser.argumentTypes.IntArgument;
-
-import java.util.Arrays;
 
 public class SimpleTests {
 	public static void main(String[] args) {
 		final var argumentParser = new ArgumentParser("Testing", "Some description") {{
-
 			addArgument(new Argument<>("simple test", ArgumentType.INTEGER()));
+
+			addSubCommand(new Command("command") {{
+				addArgument(new Argument<>("what2", ArgumentType.INTEGER()));
+			}});
 
 			addGroup(new ArgumentGroup("some group") {{
 				addGroup(new ArgumentGroup("subgroup") {{
@@ -31,7 +31,7 @@ public class SimpleTests {
 			}});
 		}};
 
-		final var pArgs = argumentParser.parseArgs("--what2 23 --what5 89 -- this are some values for other sthuff");
+		final var pArgs = argumentParser.parseArgs("--what2 23 --what5 89 command --what2 2 -- this are some values for other sthuff");
 		System.out.println(pArgs.getForwardValue());
 	}
 }

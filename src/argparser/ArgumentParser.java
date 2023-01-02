@@ -17,7 +17,7 @@ public class ArgumentParser extends Command {
 	/**
 	 * {@link ArgumentParser#parseArgs(String)}
 	 */
-	public ParsedArguments parseArgs(String[] args) {
+	public ParsedArgumentsRoot parseArgs(String[] args) {
 		// if we receive the classic args array, just join it back
 		return this.parseArgs(String.join(" ", args));
 	}
@@ -26,7 +26,7 @@ public class ArgumentParser extends Command {
 	 * Parses the given command line arguments and returns a {@link ParsedArguments} object.
 	 * @param args The command line arguments to parse.
 	 */
-	public ParsedArguments parseArgs(String args) {
+	public ParsedArgumentsRoot parseArgs(String args) {
 		// pass the properties of this subcommand to its children recursively (most of the time this is what the user will want)
 		this.passPropertiesToChildren();
 		this.initParsingState();
@@ -57,7 +57,7 @@ public class ArgumentParser extends Command {
 	/**
 	 * <b>DO NOT USE.</b> This is only used for testing purposes.
 	 */
-	protected Pair<ParsedArguments, Integer> __parseArgsNoExit(String args) {
+	protected Pair<ParsedArgumentsRoot, Integer> __parseArgsNoExit(String args) {
 		this.initParsingState();
 		this.tokenize(args); // first. This will tokenize all subCommands recursively
 		var errorHandler = new ErrorHandler(this);
@@ -72,5 +72,22 @@ public class ArgumentParser extends Command {
 		}
 
 		return new Pair<>(this.getParsedArguments(), 0);
+	}
+
+	@Override
+	ParsedArgumentsRoot getParsedArguments() {
+		return new ParsedArgumentsRoot(
+			this.name,
+			this.getParsedArgumentsHashMap(),
+			this.subCommands.stream().map(Command::getParsedArguments).toArray(ParsedArguments[]::new),
+			this.getForwardValue()
+		);
+	}
+
+	private String getForwardValue() {
+		for (var token : this.getFullTokenList()) {
+			if (token.type() == TokenType.FORWARD_VALUE) return token.contents();
+		}
+		return "";
 	}
 }

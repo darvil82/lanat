@@ -144,23 +144,14 @@ public class Command
 		return new ParsedArguments(
 			this.name,
 			this.getParsedArgumentsHashMap(),
-			this.subCommands.stream().map(Command::getParsedArguments).toArray(ParsedArguments[]::new),
-			this.getForwardValue()
+			this.subCommands.stream().map(Command::getParsedArguments).toArray(ParsedArguments[]::new)
 		);
 	}
 
-	private HashMap<Argument<?, ?>, Object> getParsedArgumentsHashMap() {
+	HashMap<Argument<?, ?>, Object> getParsedArgumentsHashMap() {
 		return new HashMap<>() {{
 			Command.this.arguments.forEach(arg -> put(arg, arg.finishParsing()));
 		}};
-	}
-
-	private String getForwardValue() {
-		if (!this.finishedTokenizing) return "";
-		for (Token t : this.parsingState.tokens) {
-			if (t.type() == TokenType.FORWARD_VALUE) return t.contents();
-		}
-		return "";
 	}
 
 	/**
@@ -440,9 +431,12 @@ public class Command
 				addToken.accept(TokenType.ARGUMENT_VALUE_TUPLE_END, TUPLE_CHARS.second().toString());
 				currentValue.setLength(0);
 				this.tokenizingState.tupleOpen = false;
+
+			// reached a "--". Push all the rest as a FORWARD_VALUE.
 			} else if (cChar == '-' && charAtRelativeIndex.test(1, '-') && charAtRelativeIndex.test(2, ' ')) {
 				addToken.accept(TokenType.FORWARD_VALUE, content.substring(values.i + 3));
 				break;
+
 			// reached a possible separator
 			} else if (
 				(cChar == ' ' && !currentValue.isEmpty()) // there's a space and some value to tokenize

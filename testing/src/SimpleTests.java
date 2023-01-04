@@ -23,8 +23,6 @@ public class SimpleTests {
 					}});
 
 					addGroup(new ArgumentGroup("yeah quite a few") {{
-						exclusive();
-
 						addArgument(new Argument<>("what25", ArgumentType.INTEGER()));
 						addArgument(new Argument<>("what26", ArgumentType.INTEGER()));
 					}});
@@ -40,7 +38,7 @@ public class SimpleTests {
 		}};
 
 
-		final var pArgs = argumentParser.parseArgs("--help");
+		final var pArgs = argumentParser.parseArgs("--what25 25 --what26 26");
 		System.out.println(pArgs.getForwardValue());
 	}
 }

@@ -88,7 +88,7 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder {
 	private ArgumentGroup checkExclusivity(ArgumentGroup childCallee) {
 		if (
 			this.isExclusive && (
-				this.subGroups.stream().filter(g -> g != childCallee && g.isExclusive).anyMatch(g -> g.argumentUsed)
+				this.subGroups.stream().filter(g -> g != childCallee).anyMatch(g -> g.argumentUsed)
 				|| this.arguments.stream().anyMatch(a -> a.getUsageCount() > 0)
 			)
 		) {

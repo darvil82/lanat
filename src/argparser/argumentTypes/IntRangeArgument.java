@@ -21,6 +21,8 @@ public class IntRangeArgument extends IntArgument {
 
 		final var value = this.getValue();
 
+		if (value == null) return;
+
 		if (value < this.min || value > this.max) {
 			this.addError("Value must be between " + this.min + " and " + this.max + ".");
 		}

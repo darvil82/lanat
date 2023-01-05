@@ -31,14 +31,15 @@ public class EnumArgument<T extends Enum<T>> extends ArgumentType<T> {
 		final var fmt = new TextFormatter("(");
 		for (var i = 0; i < this.values.length; i++) {
 			final var value = this.values[i];
-			if (value == this.defaultValue) {
+
+			if (value == this.defaultValue)
 				fmt.concat(new TextFormatter(value.name()).setColor(Color.YELLOW));
-			} else {
+			else
 				fmt.concat(value.name());
-			}
-			if (i < this.values.length - 1) {
+
+
+			if (i < this.values.length - 1)
 				fmt.concat(" | ");
-			}
 		}
 		return fmt.concat(")");
 	}

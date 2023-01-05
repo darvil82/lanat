@@ -446,7 +446,7 @@ public class Command
 			} else if (
 				(cChar == ' ' && !currentValue.isEmpty()) // there's a space and some value to tokenize
 					// also check if this is defining the value of an argument, or we are in a tuple. If so, don't tokenize
-					|| (cChar == '=' && !(tokenizingState.tupleOpen || this.isArgumentSpecifier(currentValue.substring(0, currentValue.length() - 1))))
+					|| (cChar == '=' && !tokenizingState.tupleOpen && this.isArgumentSpecifier(currentValue.toString()))
 			) {
 				tokenizeSection.run();
 

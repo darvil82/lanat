@@ -47,12 +47,22 @@ public class TextFormatter {
 	}
 
 	public TextFormatter concat(TextFormatter... formatters) {
-		this.concatList.addAll(Arrays.asList(formatters));
+		for (var formatter : formatters) {
+			if (formatter.foregroundColor == null) {
+				formatter.foregroundColor = this.foregroundColor;
+			}
+			if (formatter.backgroundColor == null) {
+				formatter.backgroundColor = this.backgroundColor;
+			}
+			this.concatList.add(formatter);
+		}
 		return this;
 	}
 
 	public TextFormatter concat(String... strings) {
-		this.concatList.addAll(Arrays.stream(strings).map(TextFormatter::new).toList());
+		for (var str : strings) {
+			this.concatList.add(new TextFormatter(str));
+		}
 		return this;
 	}
 

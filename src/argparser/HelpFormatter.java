@@ -7,6 +7,7 @@ import argparser.utils.UtlString;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
@@ -63,6 +64,7 @@ public class HelpFormatter {
 
 	protected final void addToLayout(LayoutItem... layoutItems) {
 		this.layout.addAll(Arrays.asList(layoutItems));
+		Collections.addAll(this.layout, layoutItems);
 	}
 
 	protected final void addToLayout(int after, LayoutItem... layoutItems) {

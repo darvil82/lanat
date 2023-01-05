@@ -2,6 +2,7 @@ package argparser.utils.displayFormatter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class TextFormatter {
@@ -47,15 +48,7 @@ public class TextFormatter {
 	}
 
 	public TextFormatter concat(TextFormatter... formatters) {
-		for (var formatter : formatters) {
-			if (formatter.foregroundColor == null) {
-				formatter.foregroundColor = this.foregroundColor;
-			}
-			if (formatter.backgroundColor == null) {
-				formatter.backgroundColor = this.backgroundColor;
-			}
-			this.concatList.add(formatter);
-		}
+		Collections.addAll(this.concatList, formatters);
 		return this;
 	}
 
@@ -69,13 +62,17 @@ public class TextFormatter {
 	public boolean isSimple() {
 		return (
 			this.contents.length() == 0
-			|| (
-				this.formatOptions.size() == 0
-				&& this.foregroundColor == null
-				&& this.backgroundColor == null
-			)
+			|| !formattingDefined()
 			|| !enableSequences
 		) && this.concatList.size() == 0; // we cant skip if we need to concat stuff!
+	}
+
+	public boolean formattingDefined() {
+		return (
+			this.formatOptions.size() > 0
+			|| this.foregroundColor != null
+			|| this.backgroundColor != null
+		);
 	}
 
 	@Override
@@ -102,6 +99,7 @@ public class TextFormatter {
 		// concat the other formatters
 		for (int i = 0; i < this.concatList.size(); i++) {
 			final var formatter = this.concatList.get(i);
+
 			buffer.append(formatter);
 			// add our format back after each concat. Not the last one though, since we will be resetting it anyway
 			if (i < this.concatList.size() - 1 && !formatter.isSimple())

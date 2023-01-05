@@ -2,6 +2,7 @@ package argparser.argumentTypes;
 
 import argparser.ArgValueCount;
 import argparser.ArgumentType;
+import argparser.utils.displayFormatter.TextFormatter;
 
 import java.util.HashMap;
 
@@ -54,6 +55,11 @@ public class KeyValuesArgument<T extends ArgumentType<Ts>, Ts> extends ArgumentT
 		});
 
 		this.setValue(tempHashMap);
+	}
+
+	@Override
+	public TextFormatter getRepresentation() {
+		return new TextFormatter("(key=").concat(this.valueType.getRepresentation()).concat(", ...)");
 	}
 
 	public static <T extends ArgumentType<Ts>, Ts> KeyValuesArgument<T, Ts> create(T type, char separator) {

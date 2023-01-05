@@ -11,14 +11,14 @@ public class SimpleTests {
 		}
 
 		final var argumentParser = new ArgumentParser("Testing", "Some description") {{
-			addArgument(new Argument<>("simple test", ArgumentType.KEY_VALUES(ArgumentType.INTEGER())));
+			addArgument(new Argument<>("simple test", ArgumentType.KEY_VALUES(new EnumArgument<>(Something.ONE))));
 			addArgument(new Argument<>("range", new IntRangeArgument(1, 10)));
 			addArgument(new Argument<>("enum", new EnumArgument<>(Something.ONE)));
 			addArgument(new Argument<>("normal-int", ArgumentType.INTEGER()).defaultValue(89));
 		}};
 
 
-		final var pArgs = argumentParser.parseArgs("--range 23 --range hi");
+		final var pArgs = argumentParser.parseArgs("--help");
 		System.out.println(pArgs.get("range").get());
 	}
 }

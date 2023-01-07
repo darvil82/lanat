@@ -1,6 +1,9 @@
 import argparser.*;
 import argparser.argumentTypes.EnumArgument;
 import argparser.argumentTypes.IntRangeArgument;
+import argparser.utils.displayFormatter.Color;
+import argparser.utils.displayFormatter.FormatOption;
+import argparser.utils.displayFormatter.TextFormatter;
 
 public class SimpleTests {
 	public static void main(String[] args) {
@@ -16,7 +19,6 @@ public class SimpleTests {
 			addArgument(new Argument<>("enum", new EnumArgument<>(Something.ONE)));
 			addArgument(new Argument<>("normal-int", ArgumentType.INTEGER()).defaultValue(89));
 		}};
-
 
 		final var pArgs = argumentParser.parseArgs("--help");
 		System.out.println(pArgs.get("range").get());

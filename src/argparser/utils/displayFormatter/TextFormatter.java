@@ -48,7 +48,12 @@ public class TextFormatter {
 	}
 
 	public TextFormatter concat(TextFormatter... formatters) {
-		Collections.addAll(this.concatList, formatters);
+		for (TextFormatter formatter : formatters) {
+			if (formatter.foregroundColor == null) {
+				formatter.foregroundColor = this.foregroundColor;
+			}
+			this.concatList.add(formatter);
+		}
 		return this;
 	}
 
@@ -75,51 +80,74 @@ public class TextFormatter {
 		);
 	}
 
-	@Override
-	public String toString() {
-		// we'll just skip the whole thing if there's nothing to format or the contents are empty
-		if (this.isSimple())
-			return this.contents;
+	private String getStartSequences() {
+		if (!formattingDefined()) return "";
+		final var buffer = new StringBuilder();
 
-		final StringBuilder buffer = new StringBuilder();
+		if (this.foregroundColor != null)
+			buffer.append(this.foregroundColor);
+		if (this.backgroundColor != null)
+			buffer.append(this.backgroundColor.toStringBackground());
 
-		Runnable pushFormat = () -> {
-			if (foregroundColor != null) buffer.append(foregroundColor);
-			if (backgroundColor != null) buffer.append(backgroundColor.toStringBackground());
-			for (var fmt : formatOptions)
-				buffer.append(fmt);
-		};
-
-		// push the format
-		pushFormat.run();
-
-		// add the contents
-		buffer.append(this.contents);
-
-		// concat the other formatters
-		for (int i = 0; i < this.concatList.size(); i++) {
-			final var formatter = this.concatList.get(i);
-
-			buffer.append(formatter);
-			// add our format back after each concat. Not the last one though, since we will be resetting it anyway
-			if (i < this.concatList.size() - 1 && !formatter.isSimple())
-				pushFormat.run();
+		for (var option : this.formatOptions) {
+			buffer.append(option);
 		}
 
-		// reset the formatting
-		if (backgroundColor != null) {
-			// this already resets everything, so we don't need to spend time on the rest
+		return buffer.toString();
+	}
+
+	private String getEndSequences() {
+		if (!formattingDefined()) return "";
+		final var buffer = new StringBuilder();
+
+		if (this.backgroundColor != null) {
 			buffer.append(FormatOption.RESET_ALL);
 		} else {
-			// reset each format option
-			if (!this.formatOptions.isEmpty())
-				for (var fmt : this.formatOptions)
-					buffer.append(fmt.toStringReset());
-
-			// to reset the color we just set it back to white
+			for (var option : this.formatOptions) {
+				buffer.append(option.toStringReset());
+			}
 			if (this.foregroundColor != null)
 				buffer.append(Color.BRIGHT_WHITE);
 		}
+
+		return buffer.toString();
+	}
+
+	private void forwardFormattingToChildren() {
+		for (var child : this.concatList) {
+			if (child.foregroundColor == null) {
+				child.foregroundColor = this.foregroundColor;
+			}
+			if (child.backgroundColor == null) {
+				child.backgroundColor = this.backgroundColor;
+			}
+			if (child.formatOptions.isEmpty()) {
+				child.formatOptions.addAll(this.formatOptions);
+			}
+			child.forwardFormattingToChildren();
+		}
+	}
+
+	@Override
+	public String toString() {
+		// TODO:
+		//  There's an issue regarding color resetting when there are multiple nesting levels
+		//  of formatters. If a formatter has no formatting defined, but its children do, then sequences
+		//  will not be reset properly.
+		//  For now I just pass the formatting to the children, but this is not ideal.
+		this.forwardFormattingToChildren();
+
+		final var buffer = new StringBuilder();
+
+		buffer.append(this.getStartSequences());
+
+		buffer.append(this.contents);
+
+		for (TextFormatter subFormatter : this.concatList) {
+			buffer.append(subFormatter.toString());
+		}
+
+		buffer.append(this.getEndSequences());
 
 		return buffer.toString();
 	}

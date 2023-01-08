@@ -137,14 +137,17 @@ public class TextFormatter {
 		//  For now I just pass the formatting to the children, but this is not ideal.
 		this.forwardFormattingToChildren();
 
+		if (this.isSimple()) {
+			return this.contents;
+		}
+
 		final var buffer = new StringBuilder();
 
 		buffer.append(this.getStartSequences());
-
 		buffer.append(this.contents);
 
 		for (TextFormatter subFormatter : this.concatList) {
-			buffer.append(subFormatter.toString());
+			buffer.append(subFormatter);
 		}
 
 		buffer.append(this.getEndSequences());

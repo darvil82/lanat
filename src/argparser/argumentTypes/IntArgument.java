@@ -6,11 +6,12 @@ import argparser.utils.displayFormatter.TextFormatter;
 
 public class IntArgument extends ArgumentType<Integer> {
 	@Override
-	public void parseValues(String[] arg) {
+	public Integer parseValues(String[] args) {
 		try {
-			this.setValue(Integer.parseInt(arg[0]));
+			return Integer.parseInt(args[0]);
 		} catch (NumberFormatException e) {
-			this.addError("Invalid integer value: '" + arg[0] + "'.");
+			this.addError("Invalid integer value: '" + args[0] + "'.");
+			return null;
 		}
 	}
 

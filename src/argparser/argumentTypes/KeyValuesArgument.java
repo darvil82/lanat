@@ -26,7 +26,7 @@ public class KeyValuesArgument<T extends ArgumentType<Ts>, Ts> extends ArgumentT
 	}
 
 	@Override
-	public void parseValues(String[] args) {
+	public HashMap<String, Ts> parseValues(String[] args) {
 		HashMap<String, Ts> tempHashMap = new HashMap<>();
 
 		this.forEachArgValue(args, arg -> {
@@ -50,11 +50,11 @@ public class KeyValuesArgument<T extends ArgumentType<Ts>, Ts> extends ArgumentT
 				return;
 			}
 
-			this.valueType.parseValues(value);
+			this.valueType.updateValue(value);
 			tempHashMap.put(key, this.valueType.getFinalValue());
 		});
 
-		this.setValue(tempHashMap);
+		return tempHashMap;
 	}
 
 	@Override

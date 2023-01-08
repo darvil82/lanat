@@ -4,7 +4,7 @@ import argparser.ArgumentType;
 
 public class StringArgument extends ArgumentType<String> {
 	@Override
-	public void parseValues(String[] args) {
-		this.setValue(args[0]);
+	public String parseValues(String[] args) {
+		return args[0];
 	}
 }

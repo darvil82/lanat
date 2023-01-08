@@ -5,9 +5,10 @@ import argparser.ArgumentType;
 import argparser.utils.displayFormatter.TextFormatter;
 
 public class BooleanArgument extends ArgumentType<Boolean> {
+
 	@Override
-	public void parseValues(String[] arg) {
-		this.setValue(true);
+	public Boolean parseValues(String[] args) {
+		return true;
 	}
 
 	@Override

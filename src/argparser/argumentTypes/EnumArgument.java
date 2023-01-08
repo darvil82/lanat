@@ -16,14 +16,14 @@ public class EnumArgument<T extends Enum<T>> extends ArgumentType<T> {
 	}
 
 	@Override
-	public void parseValues(String[] args) {
+	public T parseValues(String[] args) {
 		for (var enumValue : this.values) {
 			if (enumValue.name().equalsIgnoreCase(args[0])) {
-				this.setValue(enumValue);
-				return;
+				return enumValue;
 			}
 		}
 		this.addError("Invalid enum value: '" + args[0] + "'.");
+		return null;
 	}
 
 	@Override

@@ -16,16 +16,17 @@ public class IntRangeArgument extends IntArgument {
 	}
 
 	@Override
-	public void parseValues(String[] args) {
-		super.parseValues(args);
+	public Integer parseValues(String[] args) {
+		var result = super.parseValues(args);
 
-		final var value = this.getValue();
+		if (result == null) return null;
 
-		if (value == null) return;
-
-		if (value < this.min || value > this.max) {
+		if (result < this.min || result > this.max) {
 			this.addError("Value must be between " + this.min + " and " + this.max + ".");
+			return null;
 		}
+
+		return result;
 	}
 
 	@Override

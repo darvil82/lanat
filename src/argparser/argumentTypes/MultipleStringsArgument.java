@@ -10,7 +10,7 @@ public class MultipleStringsArgument extends ArgumentType<String[]> {
 	}
 
 	@Override
-	public void parseValues(String[] args) {
-		this.setValue(args);
+	public String[] parseValues(String[] args) {
+		return args;
 	}
 }

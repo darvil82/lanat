@@ -18,8 +18,8 @@ class StringJoiner extends TupleArgumentType<String> {
 	}
 
 	@Override
-	public void parseValues(String[] args) {
-		this.setValue("(" + String.join("), (", args) + ")");
+	public String parseValues(String[] args) {
+		return "(" + String.join("), (", args) + ")";
 	}
 }
 

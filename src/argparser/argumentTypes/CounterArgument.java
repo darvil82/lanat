@@ -21,7 +21,7 @@ public class CounterArgument extends ArgumentType<Integer> {
 	}
 
 	@Override
-	public void parseValues(String[] args) {
-		this.setValue(this.getValue() + 1);
+	public Integer parseValues(String[] args) {
+		return this.getValue() + 1;
 	}
 }

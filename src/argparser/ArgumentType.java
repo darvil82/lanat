@@ -4,7 +4,6 @@ import argparser.argumentTypes.*;
 import argparser.utils.ErrorsContainer;
 import argparser.utils.displayFormatter.TextFormatter;
 
-import java.util.Objects;
 import java.util.function.Consumer;
 
 public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> {
@@ -30,14 +29,19 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> {
 
 	final void parseArgumentValues(String[] args) {
 		this.receivedValueCount = args.length;
-		this.parseValues(args);
+		this.updateValue(args);
 	}
 
-	public abstract void parseValues(String[] args);
-
-	public final void parseValues(String arg) {
-		this.parseValues(new String[]{arg});
+	public void updateValue(String[] args) {
+		this.setValue(this.parseValues(args));
 	}
+
+	public final void updateValue(String arg) {
+		this.updateValue(new String[]{arg});
+	}
+
+	public abstract T parseValues(String[] args);
+
 
 	/**
 	 * By registering a subtype, this allows you to listen for errors that occurred in this subtype during
@@ -74,7 +78,8 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> {
 	 * Sets the current value of this argument type.
 	 */
 	public void setValue(T value) {
-		this.value = Objects.requireNonNull(value);
+		if (value == null) return;
+		this.value = value;
 	}
 
 	/**

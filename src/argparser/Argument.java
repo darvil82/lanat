@@ -311,7 +311,11 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	// no worries about casting here, it will always receive the correct type
 	@SuppressWarnings("unchecked")
 	void invokeCallbacks(Object okValue) {
-		this.invokeCallbacks();
+		if (this.hasExitErrors()) {
+			this.invokeCallbacks();
+			return;
+		}
+
 		if (
 			this.onCorrectCallback == null
 				|| this.usageCount == 0
@@ -391,9 +395,10 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		this.onCorrectCallback = callback;
 	}
 
+	/** <b>NOTE:</b> Only invokes the error callback! Use {@link Argument#invokeCallbacks(Object)} for invoking both. */
 	@Override
 	public void invokeCallbacks() {
-		if (this.onErrorCallback == null || this.hasExitErrors()) return;
+		if (this.onErrorCallback == null) return;
 		this.onErrorCallback.accept(this);
 	}
 }

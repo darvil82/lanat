@@ -6,11 +6,12 @@ import java.io.FileReader;
 
 public class FileArgument extends ArgumentType<FileReader> {
 	@Override
-	public void parseValues(String[] args) {
+	public FileReader parseValues(String[] args) {
 		try {
-			this.setValue(new FileReader(args[0]));
+			return new FileReader(args[0]);
 		} catch (Exception e) {
 			this.addError("File not found: '" + args[0] + "'.");
+			return null;
 		}
 	}
 }

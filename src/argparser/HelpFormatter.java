@@ -87,12 +87,12 @@ public class HelpFormatter {
 				// only arguments that are not in groups, since we handle those later
 				removeIf(arg -> arg.getParentGroup() != null);
 
-				// make sure all positional and obligatory arguments are at the beginning
-				sort(Argument::compareByPriority);
-
 				// remove help argument if it's not needed
 				if (!includeHelp)
 					removeIf(arg -> arg.getLongestName().equals("help") && arg.allowsUnique());
+
+				// make sure all positional and obligatory arguments are at the beginning
+				sort(Argument::compareByPriority);
 			}};
 
 			if (args.isEmpty() && cmd.argumentGroups.isEmpty()) return "";

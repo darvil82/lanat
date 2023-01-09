@@ -2,11 +2,13 @@ package argparser;
 
 import argparser.argumentTypes.*;
 import argparser.utils.ErrorsContainer;
+import argparser.utils.Resettable;
 import argparser.utils.displayFormatter.TextFormatter;
 
+import java.util.ArrayList;
 import java.util.function.Consumer;
 
-public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> {
+public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> implements Resettable {
 	private T value;
 	/**
 	 * This is the current index of the value that is being parsed.
@@ -26,6 +28,7 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> {
 	 * This value is set by the parent argument type when it runs {@link ArgumentType#registerSubType(ArgumentType)}.
 	 */
 	private ArgumentType<?> parentArgType;
+	private final ArrayList<ArgumentType<?>> subTypes = new ArrayList<>();
 
 	final void parseArgumentValues(String[] args) {
 		this.receivedValueCount = args.length;
@@ -48,8 +51,12 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> {
 	 * parsing. The {@link ArgumentType#onSubTypeError(CustomError)} method will be called when an error occurs.
 	 */
 	protected void registerSubType(ArgumentType<?> subType) {
+		if (subType.parentArgType == this) {
+			throw new IllegalArgumentException("The sub type is already registered to this argument type.");
+		}
 		subType.tokenIndex = 0; // This is so the subtype will not throw the error that it was not parsed.
 		subType.parentArgType = this;
+		this.subTypes.add(subType);
 	}
 
 	/**
@@ -184,6 +191,15 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> {
 			this.currentArgValueIndex = i;
 			consumer.accept(args[i]);
 		}
+	}
+
+	@Override
+	public void resetState() {
+		this.value = null;
+		this.tokenIndex = -1;
+		this.currentArgValueIndex = 0;
+		this.receivedValueCount = 0;
+		this.subTypes.forEach(ArgumentType::resetState);
 	}
 
 	// Easy to access values. These are methods because we don't want to use the same instance everywhere.

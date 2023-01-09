@@ -5,6 +5,7 @@ import argparser.utils.Pair;
 import java.util.Arrays;
 
 public class ArgumentParser extends Command {
+	private int parseCount = 0;
 	public ArgumentParser(String programName, String description) {
 		super(programName, description, true);
 	}
@@ -27,9 +28,13 @@ public class ArgumentParser extends Command {
 	 * @param args The command line arguments to parse.
 	 */
 	public ParsedArgumentsRoot parseArgs(String args) {
+		if (this.parseCount > 0) {
+			// reset all parsing related things to the initial state
+			this.resetState();
+		}
+
 		// pass the properties of this subcommand to its children recursively (most of the time this is what the user will want)
 		this.passPropertiesToChildren();
-		this.initParsingState();
 		this.tokenize(args); // first. This will tokenize all subCommands recursively
 		var errorHandler = new ErrorHandler(this);
 		this.parseTokens(); // same thing, this parses all the stuff recursively
@@ -41,6 +46,8 @@ public class ArgumentParser extends Command {
 		if (errorCode != 0) {
 			System.exit(errorCode);
 		}
+
+		this.parseCount++;
 
 		return this.getParsedArguments();
 	}
@@ -58,7 +65,6 @@ public class ArgumentParser extends Command {
 	 * <b>DO NOT USE.</b> This is only used for testing purposes.
 	 */
 	protected Pair<ParsedArgumentsRoot, Integer> __parseArgsNoExit(String args) {
-		this.initParsingState();
 		this.tokenize(args); // first. This will tokenize all subCommands recursively
 		var errorHandler = new ErrorHandler(this);
 		this.parseTokens(); // same thing, this parses all the stuff recursively

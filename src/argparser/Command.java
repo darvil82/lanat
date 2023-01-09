@@ -11,7 +11,7 @@ import java.util.function.*;
  */
 public class Command
 	extends ErrorsContainer<CustomError>
-	implements ErrorCallbacks<Command, Command>, ArgumentAdder, ArgumentGroupAdder
+	implements ErrorCallbacks<Command, Command>, ArgumentAdder, ArgumentGroupAdder, Resettable
 {
 	public final String name, description;
 	final ArrayList<Argument<?, ?>> arguments = new ArrayList<>();
@@ -327,13 +327,15 @@ public class Command
 		}
 	}
 
-	TokenizingState tokenizingState;
-	ParsingState parsingState;
+	TokenizingState tokenizingState = this.new TokenizingState();
+	ParsingState parsingState = this.new ParsingState();
 
-	void initParsingState() {
+
+	@Override
+	public void resetState() {
 		tokenizingState = this.new TokenizingState();
 		parsingState = this.new ParsingState();
-		this.subCommands.forEach(Command::initParsingState);
+		this.subCommands.forEach(Command::resetState);
 	}
 
 	// ------------------------------------------------- Tokenization -------------------------------------------------

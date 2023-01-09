@@ -12,7 +12,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 public class Argument<Type extends ArgumentType<TInner>, TInner>
-	implements MinimumErrorLevelConfig<CustomError>, ErrorCallbacks<TInner, Argument<Type, TInner>>
+	implements MinimumErrorLevelConfig<CustomError>, ErrorCallbacks<TInner, Argument<Type, TInner>>, Resettable
 {
 	final Type argType;
 	private char prefix = '-';
@@ -354,6 +354,12 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		} else {
 			return 0;
 		}
+	}
+
+	@Override
+	public void resetState() {
+		this.usageCount = 0;
+		this.argType.resetState();
 	}
 
 	@Override

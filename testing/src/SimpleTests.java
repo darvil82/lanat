@@ -2,6 +2,9 @@ import argparser.*;
 import argparser.argumentTypes.EnumArgument;
 import argparser.argumentTypes.IntRangeArgument;
 
+import java.util.Arrays;
+import java.util.Scanner;
+
 public class SimpleTests {
 	public static void main(String[] args) {
 		HelpFormatter.lineWrapMax = 1000;

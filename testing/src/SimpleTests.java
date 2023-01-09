@@ -24,15 +24,5 @@ public class SimpleTests {
 
 		final var pArgs = argumentParser.parseArgs("--help");
 		System.out.println(pArgs.get("range").get());
-
-//		var test = new TextFormatter("(")
-//				.setColor(Color.BLUE)
-//				.concat("a", "b")
-//				.concat(new TextFormatter("c")
-//						.setColor(Color.RED))
-//				.concat(")").toString();
-//
-//		System.out.println(test);
-//		System.out.println(test.replace(String.valueOf(TextFormatter.ESC), new TextFormatter("ESC").setColor(Color.BRIGHT_GREEN).toString()));
 	}
 }

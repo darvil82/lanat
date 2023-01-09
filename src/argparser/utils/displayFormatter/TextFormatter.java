@@ -132,6 +132,9 @@ public class TextFormatter {
 		return Color.BRIGHT_WHITE;
 	}
 
+	/**
+	 * Creates a new {@link String} with the contents and all the formatting applied.
+	 */
 	@Override
 	public String toString() {
 		if (this.isSimple()) {
@@ -156,5 +159,6 @@ public class TextFormatter {
 		return new TextFormatter(msg).setColor(Color.BRIGHT_RED).addFormat(FormatOption.REVERSE, FormatOption.BOLD);
 	}
 
+	/** Escape character which represents the start of a terminal sequence */
 	public static final char ESC = '\u001B';
 }

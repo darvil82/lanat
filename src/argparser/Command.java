@@ -21,7 +21,7 @@ public class Command
 	private final ModifyRecord<Integer> errorCode = new ModifyRecord<>(1);
 	private Consumer<Command> onErrorCallback;
 	private Consumer<Command> onCorrectCallback;
-	private boolean isRootCommand = false, finishedTokenizing = false;
+	private boolean isRootCommand = false;
 	private final ModifyRecord<HelpFormatter> helpFormatter = new ModifyRecord<>(new HelpFormatter(this));
 
 	/** A pool of the colors that an argument will have when being represented on the help */
@@ -247,7 +247,7 @@ public class Command
 
 	public int getErrorCode() {
 		int errCode = this.subCommands.stream()
-			.filter(c -> c.finishedTokenizing)
+			.filter(c -> c.tokenizingState.finishedTokenizing)
 			.map(sc -> sc.getMinimumExitErrorLevel().get().isInErrorMinimum(this.getMinimumExitErrorLevel().get()) ? sc.getErrorCode() : 0)
 			.reduce(0, (a, b) -> a | b);
 
@@ -276,6 +276,7 @@ public class Command
 	class TokenizingState extends ParsingStateBase<TokenizeError> {
 		public boolean tupleOpen = false;
 		public boolean stringOpen = false;
+		public boolean finishedTokenizing = false;
 
 		void addError(TokenizeError.TokenizeErrorType type, int index) {
 			this.addError(new TokenizeError(type, index));
@@ -344,7 +345,7 @@ public class Command
 	// ------------------------------------------------- Tokenization -------------------------------------------------
 
 	void tokenize(String content) {
-		this.finishedTokenizing = false; // just in case we are tokenizing again for any reason
+		this.tokenizingState.finishedTokenizing = false; // just in case we are tokenizing again for any reason
 
 		final var TUPLE_CHARS = this.tupleChars.get().getCharPair();
 		final var finalTokens = new ArrayList<Token>();
@@ -366,7 +367,7 @@ public class Command
 			if (token.type() == TokenType.SUB_COMMAND && (subCmd = getSubCommandByName(token.contents())) != null) {
 				// forward the rest of stuff to the subCommand
 				subCmd.tokenize(content.substring(values.i));
-				this.finishedTokenizing = true;
+				this.tokenizingState.finishedTokenizing = true;
 			} else {
 				finalTokens.add(token);
 			}
@@ -380,7 +381,7 @@ public class Command
 		};
 
 
-		for (values.i = 0; values.i < chars.length && !this.finishedTokenizing; values.i++) {
+		for (values.i = 0; values.i < chars.length && !this.tokenizingState.finishedTokenizing; values.i++) {
 			char cChar = chars[values.i];
 
 			// user is trying to escape a character
@@ -478,7 +479,7 @@ public class Command
 		}
 
 		parsingState.tokens = finalTokens.toArray(Token[]::new);
-		finishedTokenizing = true;
+		this.tokenizingState.finishedTokenizing = true;
 	}
 
 	private Token tokenizeSection(String str) {
@@ -551,7 +552,7 @@ public class Command
 	}
 
 	private Command getTokenizedSubCommand() {
-		return this.subCommands.stream().filter(sb -> sb.finishedTokenizing).findFirst().orElse(null);
+		return this.subCommands.stream().filter(sb -> sb.tokenizingState.finishedTokenizing).findFirst().orElse(null);
 	}
 
 	private Argument<?, ?> getArgumentByPositionalIndex(short index) {
@@ -598,7 +599,7 @@ public class Command
 
 		// now parse the subcommands
 		this.subCommands.stream()
-			.filter(sb -> sb.finishedTokenizing) // only get the commands that were actually tokenized
+			.filter(sb -> sb.tokenizingState.finishedTokenizing) // only get the commands that were actually tokenized
 			.forEach(Command::parseTokens); // now parse them
 	}
 

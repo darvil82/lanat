@@ -335,6 +335,8 @@ public class Command
 	public void resetState() {
 		tokenizingState = this.new TokenizingState();
 		parsingState = this.new ParsingState();
+		this.arguments.forEach(Argument::resetState);
+
 		this.subCommands.forEach(Command::resetState);
 	}
 

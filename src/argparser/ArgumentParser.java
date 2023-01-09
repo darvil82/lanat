@@ -5,7 +5,7 @@ import argparser.utils.Pair;
 import java.util.Arrays;
 
 public class ArgumentParser extends Command {
-	private int parseCount = 0;
+	private boolean isParsed = false;
 	public ArgumentParser(String programName, String description) {
 		super(programName, description, true);
 	}
@@ -28,7 +28,7 @@ public class ArgumentParser extends Command {
 	 * @param args The command line arguments to parse.
 	 */
 	public ParsedArgumentsRoot parseArgs(String args) {
-		if (this.parseCount > 0) {
+		if (this.isParsed) {
 			// reset all parsing related things to the initial state
 			this.resetState();
 		}
@@ -47,7 +47,7 @@ public class ArgumentParser extends Command {
 			System.exit(errorCode);
 		}
 
-		this.parseCount++;
+		this.isParsed = true;
 
 		return this.getParsedArguments();
 	}

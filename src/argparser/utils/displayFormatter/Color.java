@@ -26,11 +26,11 @@ public enum Color {
 
 	@Override
 	public String toString() {
-		return String.format("\033[%dm", this.value);
+		return TextFormatter.ESC + String.format("[%dm", this.value);
 	}
 
 	public String toStringBackground() {
-		return String.format("\033[%dm", this.value + 10);
+		return TextFormatter.ESC + String.format("[%dm", this.value + 10);
 	}
 
 	public static Color[] getBrightColors() {

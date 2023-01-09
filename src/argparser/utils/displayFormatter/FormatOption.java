@@ -19,10 +19,10 @@ public enum FormatOption {
 
 	@Override
 	public String toString() {
-		return String.format("\033[%dm", this.value);
+		return TextFormatter.ESC + String.format("[%dm", this.value);
 	}
 
 	public String toStringReset() {
-		return String.format("\033[%dm", this.value + 20 + (this == BOLD ? 1 : 0));
+		return TextFormatter.ESC + String.format("[%dm", this.value + 20 + (this == BOLD ? 1 : 0));
 	}
 }

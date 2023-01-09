@@ -2,13 +2,13 @@ package argparser.utils.displayFormatter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class TextFormatter {
 	public static boolean enableSequences = true;
 	private final ArrayList<FormatOption> formatOptions = new ArrayList<>();
 	private final List<TextFormatter> concatList = new ArrayList<>();
+	private TextFormatter parent;
 	private Color foregroundColor;
 	private Color backgroundColor;
 	private String contents;
@@ -49,9 +49,11 @@ public class TextFormatter {
 
 	public TextFormatter concat(TextFormatter... formatters) {
 		for (TextFormatter formatter : formatters) {
-			if (formatter.foregroundColor == null) {
-				formatter.foregroundColor = this.foregroundColor;
+			// if it was already added to another formatter, remove it from there
+			if (formatter.parent != null) {
+				formatter.parent.concatList.remove(formatter);
 			}
+			formatter.parent = this;
 			this.concatList.add(formatter);
 		}
 		return this;
@@ -67,21 +69,21 @@ public class TextFormatter {
 	public boolean isSimple() {
 		return (
 			this.contents.length() == 0
-			|| !formattingDefined()
+			|| formattingNotDefined()
 			|| !enableSequences
 		) && this.concatList.size() == 0; // we cant skip if we need to concat stuff!
 	}
 
-	public boolean formattingDefined() {
+	public boolean formattingNotDefined() {
 		return (
-			this.formatOptions.size() > 0
-			|| this.foregroundColor != null
-			|| this.backgroundColor != null
+			this.foregroundColor == null
+			&& this.backgroundColor == null
+			&& this.formatOptions.isEmpty()
 		);
 	}
 
 	private String getStartSequences() {
-		if (!formattingDefined()) return "";
+		if (formattingNotDefined()) return "";
 		final var buffer = new StringBuilder();
 
 		if (this.foregroundColor != null)
@@ -97,7 +99,7 @@ public class TextFormatter {
 	}
 
 	private String getEndSequences() {
-		if (!formattingDefined()) return "";
+		if (formattingNotDefined()) return "";
 		final var buffer = new StringBuilder();
 
 		if (this.backgroundColor != null) {
@@ -106,37 +108,32 @@ public class TextFormatter {
 			for (var option : this.formatOptions) {
 				buffer.append(option.toStringReset());
 			}
-			if (this.foregroundColor != null)
-				buffer.append(Color.BRIGHT_WHITE);
+			if (this.foregroundColor != null) {
+				buffer.append(this.getResetColor());
+			}
 		}
 
 		return buffer.toString();
 	}
 
-	private void forwardFormattingToChildren() {
-		for (var child : this.concatList) {
-			if (child.foregroundColor == null) {
-				child.foregroundColor = this.foregroundColor;
+	/**
+	 * Returns the {@link Color} that should properly reset the foreground color.
+	 * This is determined by looking at the parent formatters.
+	 * If no parent formatter has a foreground color, then {@link Color#BRIGHT_WHITE} is returned.
+	 */
+	private Color getResetColor() {
+		var parent = this.parent;
+		while (parent != null) {
+			if (parent.foregroundColor != null) {
+				return parent.foregroundColor;
 			}
-			if (child.backgroundColor == null) {
-				child.backgroundColor = this.backgroundColor;
-			}
-			if (child.formatOptions.isEmpty()) {
-				child.formatOptions.addAll(this.formatOptions);
-			}
-			child.forwardFormattingToChildren();
+			parent = parent.parent;
 		}
+		return Color.BRIGHT_WHITE;
 	}
 
 	@Override
 	public String toString() {
-		// TODO:
-		//  There's an issue regarding color resetting when there are multiple nesting levels
-		//  of formatters. If a formatter has no formatting defined, but its children do, then sequences
-		//  will not be reset properly.
-		//  For now I just pass the formatting to the children, but this is not ideal.
-		this.forwardFormattingToChildren();
-
 		if (this.isSimple()) {
 			return this.contents;
 		}
@@ -158,4 +155,6 @@ public class TextFormatter {
 	public static TextFormatter ERROR(String msg) {
 		return new TextFormatter(msg).setColor(Color.BRIGHT_RED).addFormat(FormatOption.REVERSE, FormatOption.BOLD);
 	}
+
+	public static final char ESC = '\u001B';
 }

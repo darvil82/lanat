@@ -132,8 +132,11 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder {
 		for (int i = 0; i < arguments.size(); i++) {
 			Argument<?, ?> arg = arguments.get(i);
 			sb.append(arg.getRepresentation());
-			if (i < arguments.size() - 1)
-				sb.append(' ').append('|').append(' ');
+			if (i < arguments.size() - 1) {
+				sb.append(' ');
+				if (this.isExclusive)
+					sb.append('|').append(' ');
+			}
 		}
 
 		List<ArgumentGroup> groups = this.subGroups.stream().filter(g -> !g.isEmpty()).toList();

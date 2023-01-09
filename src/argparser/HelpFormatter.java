@@ -84,28 +84,18 @@ public class HelpFormatter {
 
 		public static String synopsis(Command cmd, boolean includeHelp) {
 			var args = new ArrayList<>(cmd.getArguments()) {{
-				// make sure all positional arguments are at the beginning
-				sort((a, b) -> {
-					if (a.isPositional() && !b.isPositional())
-						return -1;
-					else if (!a.isPositional() && b.isPositional())
-						return 1;
-					else
-						return 0;
-				});
+				// only arguments that are not in groups, since we handle those later
+				removeIf(arg -> arg.getParentGroup() != null);
 
-				// only arguments that are not in exclusive groups, since we handle those later
-				removeIf(arg -> {
-					var parentGroup = arg.getParentGroup();
-					return parentGroup != null && parentGroup.isExclusiveNested();
-				});
+				// make sure all positional and obligatory arguments are at the beginning
+				sort(Argument::compareByPriority);
 
 				// remove help argument if it's not needed
 				if (!includeHelp)
-					removeIf(arg -> arg.getLongestName().equals("help"));
+					removeIf(arg -> arg.getLongestName().equals("help") && arg.allowsUnique());
 			}};
 
-			if (args.isEmpty()) return "";
+			if (args.isEmpty() && cmd.argumentGroups.isEmpty()) return "";
 			var buffer = new StringBuilder();
 
 			for (var arg : args) {

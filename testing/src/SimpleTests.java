@@ -11,13 +11,13 @@ public class SimpleTests {
 		}
 
 		final var argumentParser = new ArgumentParser("Testing", "Some description") {{
-			addArgument(new Argument<>("simple test", ArgumentType.KEY_VALUES(new EnumArgument<>(Something.ONE))));
 			addArgument(new Argument<>("range", new IntRangeArgument(1, 10)).onOk((value) -> System.out.println("Range: " + value)));
-			addArgument(new Argument<>("enum", new EnumArgument<>(Something.ONE)));
-			addArgument(new Argument<>("normal-int", ArgumentType.INTEGER()).defaultValue(89));
+			addArgument(new Argument<>("enum", new EnumArgument<>(Something.ONE)).positional());
+			addArgument(new Argument<>("normal-int", ArgumentType.INTEGER()).defaultValue(89).obligatory());
 		}};
 
-		final var pArgs = argumentParser.parseArgs("--range 0 --range -4 --range 14");
+		final var pArgs = argumentParser.parseArgs("--help");
+//		final var pArgs = argumentParser.parseArgs("--range 5 --enum two --normal-int 213");
 		System.out.println(pArgs.get("range").get());
 	}
 }

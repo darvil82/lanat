@@ -332,6 +332,30 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		);
 	}
 
+	/**
+	 * Compares two arguments by the synopsis view priority order.
+	 * <p>
+	 *     <b>Order:</b>
+	 *     Positional > Obligatory > Optional.
+	 * </p>
+	 *
+	 * @return 0 if both arguments are equal, -1 if the first argument
+	 * goes before the second, 1 if the second goes before the first.
+	 */
+	static int compareByPriority(Argument<?, ?> first, Argument<?, ?> second) {
+		if (first.isPositional() && !second.isPositional()) {
+			return -1;
+		} else if (!first.isPositional() && second.isPositional()) {
+			return 1;
+		} else if (first.isObligatory() && !second.isObligatory()) {
+			return -1;
+		} else if (!first.isObligatory() && second.isObligatory()) {
+			return 1;
+		} else {
+			return 0;
+		}
+	}
+
 	@Override
 	public String toString() {
 		return String.format(

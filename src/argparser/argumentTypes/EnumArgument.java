@@ -2,6 +2,7 @@ package argparser.argumentTypes;
 
 import argparser.ArgumentType;
 import argparser.utils.displayFormatter.Color;
+import argparser.utils.displayFormatter.FormatOption;
 import argparser.utils.displayFormatter.TextFormatter;
 
 import java.util.Arrays;
@@ -33,7 +34,10 @@ public class EnumArgument<T extends Enum<T>> extends ArgumentType<T> {
 			final var value = this.values[i];
 
 			if (value == this.defaultValue)
-				fmt.concat(new TextFormatter(value.name()).setColor(Color.YELLOW));
+				fmt.concat(new TextFormatter(value.name())
+					.setColor(Color.YELLOW)
+					.addFormat(FormatOption.BOLD)
+				);
 			else
 				fmt.concat(value.name());
 

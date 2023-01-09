@@ -1,11 +1,12 @@
 package argparser;
 
+import argparser.utils.Resettable;
 import argparser.utils.UtlString;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder {
+public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resettable {
 	public final String name;
 	public final String description;
 	private Command parentCommand;
@@ -156,6 +157,12 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder {
 
 		if (this.isExclusive)
 			sb.append(')');
+	}
+
+	@Override
+	public void resetState() {
+		this.argumentUsed = false;
+		this.arguments.forEach(Resettable::resetState);
 	}
 }
 

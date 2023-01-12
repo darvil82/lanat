@@ -1,14 +1,8 @@
 import argparser.*;
 import argparser.argumentTypes.EnumArgument;
 import argparser.argumentTypes.IntRangeArgument;
-import argparser.utils.UtlString;
-import argparser.utils.displayFormatter.Color;
-import argparser.utils.displayFormatter.TextFormatter;
 
-import java.util.Arrays;
-import java.util.Scanner;
-
-public class SimpleTests {
+public final class SimpleTests {
 	public static void main(String[] args) {
 		HelpFormatter.lineWrapMax = 1000;
 
@@ -17,9 +11,18 @@ public class SimpleTests {
 		}
 
 		final var argumentParser = new ArgumentParser("Testing", "Some description") {{
-			addArgument(new Argument<>("range", new IntRangeArgument(1, 10)).onOk((value) -> System.out.println("Range: " + value)));
-			addArgument(new Argument<>("enum", new EnumArgument<>(Something.ONE)).positional());
-			addArgument(new Argument<>("normal-int", ArgumentType.INTEGER()).defaultValue(89).obligatory());
+			addArgument(new Argument<>("range", new IntRangeArgument(1, 10))
+				.onOk((value) -> System.out.println("Range: " + value))
+			);
+			addArgument(new Argument<>("number", new EnumArgument<>(Something.ONE))
+				.positional()
+				.description("Pick a number")
+			);
+			addArgument(new Argument<>("normal-int", ArgumentType.INTEGER())
+				.defaultValue(78)
+				.obligatory()
+				.description("just a normal int lmao")
+			);
 		}};
 
 		final var pArgs = argumentParser.parseArgs("--help");

@@ -36,6 +36,7 @@ public class Command
 		this.description = description;
 		this.addArgument(new Argument<>("help")
 			.onOk(t -> System.out.println(this.getHelp()))
+			.description("Shows this message.")
 			.allowUnique()
 		);
 	}
@@ -604,7 +605,7 @@ public class Command
 	}
 
 	private void executeArgParse(Argument<?, ?> arg) {
-		final ArgValueCount argumentValuesRange = arg.getNumberOfValues();
+		final ArgValueCount argumentValuesRange = arg.argType.getNumberOfArgValues();
 
 		// just skip the whole thing if it doesn't need any values
 		if (argumentValuesRange.isZero()) {
@@ -656,7 +657,7 @@ public class Command
 	}
 
 	private void executeArgParse(Argument<?, ?> arg, String value) {
-		final ArgValueCount argumentValuesRange = arg.getNumberOfValues();
+		final ArgValueCount argumentValuesRange = arg.argType.getNumberOfArgValues();
 
 		if (value.isEmpty()) {
 			this.executeArgParse(arg); // value is not present in the suffix. Continue parsing values.
@@ -684,7 +685,7 @@ public class Command
 			final short constIndex = i; // this is because the lambda requires the variable to be final
 
 			if (!this.runForArgument(args.charAt(i), a -> {
-				if (a.getNumberOfValues().isZero()) {
+				if (a.argType.getNumberOfArgValues().isZero()) {
 					this.executeArgParse(a);
 				} else if (constIndex == args.length() - 1) {
 					parsingState.currentTokenIndex++;

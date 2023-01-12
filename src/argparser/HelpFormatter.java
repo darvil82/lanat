@@ -44,8 +44,9 @@ public class HelpFormatter {
 
 	public void setLayout() {
 		this.changeLayout(
-			new LayoutItem(LayoutGenerators::title).marginBottom(1),
-			new LayoutItem(LayoutGenerators::synopsis).indent(1)
+			new LayoutItem(LayoutGenerators::title),
+			new LayoutItem(LayoutGenerators::synopsis).indent(1).margin(1),
+			new LayoutItem(LayoutGenerators::argumentDescriptions).indent(1)
 		);
 	}
 
@@ -76,8 +77,7 @@ public class HelpFormatter {
 	}
 
 
-	protected static class LayoutGenerators {
-
+	protected static abstract class LayoutGenerators {
 		public static String title(Command cmd) {
 			return cmd.name + (cmd.description == null ? "" : ": " + cmd.description);
 		}
@@ -122,6 +122,18 @@ public class HelpFormatter {
 		public static String heading(String content) {
 			return UtlString.center(content, lineWrapMax);
 		}
+
+		public static String argumentDescriptions(Command cmd) {
+			final var buff = new StringBuilder();
+			final ArrayList<Argument<?, ?>> arguments = cmd.getArguments();
+
+			for (Argument<?, ?> arg : arguments) {
+				final var description = arg.getDescription();
+				if (description == null) continue;
+				buff.append(arg.getRepresentation()).append(": ").append(description).append('\n');
+			}
+			return buff.toString();
+		}
 	}
 
 
@@ -138,35 +150,34 @@ public class HelpFormatter {
 		}
 
 		public LayoutItem indent(int indent) {
-			this.indent = indent;
+			this.indent = Math.max(indent, 0);
 			return this;
 		}
 
 		public LayoutItem lineWrapAt(int maxTextLineLength) {
-			this.lineWrapMax = maxTextLineLength;
+			this.lineWrapMax = Math.max(maxTextLineLength, 0);
 			return this;
 		}
 
 		public LayoutItem marginTop(int marginTop) {
-			this.marginTop = marginTop;
+			this.marginTop = Math.max(marginTop, 0);
 			return this;
 		}
 
 		public LayoutItem marginBottom(int marginBottom) {
-			this.marginBottom = marginBottom;
+			this.marginBottom = Math.max(marginBottom, 0);
 			return this;
 		}
 
 		public LayoutItem margin(int margin) {
-			this.marginTop = margin;
-			this.marginBottom = margin;
-			return this;
+			this.marginTop(margin);
+			return this.marginBottom(margin);
 		}
 
 		public String generate(HelpFormatter helpFormatter) {
 			return "\n".repeat(this.marginTop) + UtlString.indent(
 				UtlString.wrap(
-					this.layoutGenerator.apply(helpFormatter.parentCmd),
+					UtlString.trim(this.layoutGenerator.apply(helpFormatter.parentCmd)),
 					this.lineWrapMax - this.indent
 				),
 				this.indent * helpFormatter.indentSize

@@ -1,6 +1,8 @@
 package argparser.utils;
 
-public class Random {
+public final class Random {
+	private Random() {}
+
 	/**
 	 * Returns a random integer between min and max. First inclusive, last exclusive. <code>[min, max)</code>
 	 */

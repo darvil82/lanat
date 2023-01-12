@@ -5,8 +5,6 @@ import argparser.utils.displayFormatter.Color;
 import argparser.utils.displayFormatter.FormatOption;
 import argparser.utils.displayFormatter.TextFormatter;
 
-import java.util.Arrays;
-
 public class EnumArgument<T extends Enum<T>> extends ArgumentType<T> {
 	private final T[] values;
 	private final T defaultValue;

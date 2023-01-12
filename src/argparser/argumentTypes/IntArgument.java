@@ -1,7 +1,6 @@
 package argparser.argumentTypes;
 
 import argparser.ArgumentType;
-import argparser.ErrorLevel;
 import argparser.utils.displayFormatter.TextFormatter;
 
 public class IntArgument extends ArgumentType<Integer> {

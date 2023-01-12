@@ -15,26 +15,29 @@ public class LoopPool<T> {
 		this(0, pool);
 	}
 
+	private int getValidIndex(int index) {
+		return index < 0 ? this.pool.length - 1 : index % this.pool.length;
+	}
+
 	private void setIndex(int index) {
-		this.index = index % this.pool.length;
-		if (this.index < 0) {
-			this.index = this.pool.length - 1;
-		}
+		this.index = this.getValidIndex(index);
 	}
 
 	public T next() {
-		final T value = this.pool[this.index];
 		this.setIndex(this.index + 1);
-		return value;
+		return this.current();
 	}
 
 	public T prev() {
 		this.setIndex(this.index - 1);
-
-		return this.pool[this.index];
+		return this.current();
 	}
 
 	public T current() {
 		return this.pool[this.index];
+	}
+
+	public T at(int relativeIndex) {
+		return this.pool[this.getValidIndex(this.index + relativeIndex)];
 	}
 }

@@ -14,9 +14,10 @@ import java.util.function.Consumer;
 public class Argument<Type extends ArgumentType<TInner>, TInner>
 	implements MinimumErrorLevelConfig<CustomError>, ErrorCallbacks<TInner, Argument<Type, TInner>>, Resettable
 {
-	final Type argType;
+	public final Type argType;
 	private char prefix = '-';
 	private final List<String> names = new ArrayList<>();
+	private String description;
 	private short usageCount = 0;
 	private boolean obligatory = false, positional = false, allowUnique = false;
 	private TInner defaultValue;
@@ -75,7 +76,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * <li>Note that an argument marked as positional can still be used by specifying its name/name.
 	 */
 	public Argument<Type, TInner> positional() {
-		if (this.getNumberOfValues().max == 0) {
+		if (this.argType.getNumberOfArgValues().max == 0) {
 			throw new IllegalArgumentException("An argument that does not accept values cannot be positional");
 		}
 		this.positional = true;
@@ -159,8 +160,13 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		return this.names.get(0);
 	}
 
-	public ArgValueCount getNumberOfValues() {
-		return this.argType.getNumberOfArgValues();
+	public Argument<Type, TInner> description(String description) {
+		this.description = description;
+		return this;
+	}
+
+	public String getDescription() {
+		return description;
 	}
 
 	void setParentCmd(Command parentCmd) {

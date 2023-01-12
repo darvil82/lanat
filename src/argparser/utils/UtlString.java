@@ -4,7 +4,9 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.Predicate;
 
-public class UtlString {
+public final class UtlString {
+	private UtlString() {}
+
 	/**
 	 * Apply a predicate for each character in the string, if any fails, return false.
 	 *
@@ -116,7 +118,11 @@ public class UtlString {
 
 	public static String trim(String str, String pattern) {
 		return str.replaceAll("^" + pattern + "+", "")
-			.replaceAll(pattern + "+$", "");
+				.replaceAll(pattern + "+$", "");
+	}
+
+	public static String trim(String str) {
+		return UtlString.trim(str, "[ \n\r\t]");
 	}
 
 	public static String center(String str, int width) {

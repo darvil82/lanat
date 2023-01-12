@@ -222,7 +222,7 @@ class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 		this.fmt()
 			.setContents(String.format(
 				"Incorrect number of values for argument '%s'.%nExpected %s, but got %d.",
-				argument.getDisplayName(), argument.getNumberOfValues().getMessage(), Math.max(this.valueCount - 1, 0)
+				argument.getDisplayName(), argument.argType.getNumberOfArgValues().getMessage(), Math.max(this.valueCount - 1, 0)
 			))
 			.displayTokens(this.tokenIndex + 1, this.valueCount, this.valueCount == 0);
 	}

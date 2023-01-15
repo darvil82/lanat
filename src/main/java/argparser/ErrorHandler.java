@@ -66,7 +66,7 @@ abstract class ParseStateErrorBase<T extends ErrorLevelProvider> implements Erro
 		this.tokenIndex = tokenIndex;
 	}
 
-	public final void handle(ErrorHandler handler) {
+	public final String handle(ErrorHandler handler) {
 		this.errorHandler = handler;
 		this.formatter = new ErrorFormatter(handler, type.getErrorLevel());
 
@@ -90,7 +90,7 @@ abstract class ParseStateErrorBase<T extends ErrorLevelProvider> implements Erro
 			}
 		}
 
-		this.formatter.print();
+		return this.formatter.toString();
 	}
 
 	@Override
@@ -275,8 +275,9 @@ public class ErrorHandler {
 	/**
 	 * Handles all errors and displays them to the user.
 	 */
-	public void handleErrorsView() {
-		List<Command> commands = this.rootCmd.getTokenizedSubCommands();
+	public String[] handleErrrorsGetMessages() {
+		final List<Command> commands = this.rootCmd.getTokenizedSubCommands();
+		final ArrayList<String> errors = new ArrayList<>();
 
 		for (int i = 0; i < commands.size(); i++) {
 			Command cmd = commands.get(i);
@@ -289,7 +290,15 @@ public class ErrorHandler {
 				addAll(ParseError.filter(cmd.parsingState.getErrorsUnderDisplayLevel()));
 			}}.stream()
 				.sorted(Comparator.comparingInt(x -> x.tokenIndex))
-				.forEach(e -> e.handle(this));
+				.forEach(e -> errors.add(e.handle(this)));
+		}
+
+		return errors.toArray(String[]::new);
+	}
+
+	public void handleErrorsPrint() {
+		for (String error : this.handleErrrorsGetMessages()) {
+			System.out.println(error);
 		}
 	}
 

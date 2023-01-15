@@ -4,6 +4,8 @@ import argparser.ArgumentType;
 import argparser.HelpFormatter;
 import argparser.argumentTypes.*;
 
+import java.util.Arrays;
+
 public final class SimpleTests {
 	public static void main(String[] args) {
 		HelpFormatter.lineWrapMax = 1000;
@@ -12,7 +14,7 @@ public final class SimpleTests {
 			ONE, TWO, THREE
 		}
 
-		final var argumentParser = new ArgumentParser("Testing", "Some description") {{
+		final var argumentParser = new TestingParser("Testing") {{
 			addArgument(new Argument<>("range", new IntRangeArgument(1, 10))
 				.onOk((value) -> System.out.println("Range: " + value))
 			);
@@ -27,7 +29,6 @@ public final class SimpleTests {
 			);
 		}};
 
-		final var pArgs = argumentParser.parseArgs("--help");
-		System.out.println(pArgs.get("range").get());
+		var parsedArgs = argumentParser.parseArgsExpectErrorPrint("--number six");
 	}
 }

@@ -27,7 +27,8 @@ class ErrorFormatter {
 		return this;
 	}
 
-	public void print() {
+	@Override
+	public String toString() {
 		// first figure out the length of the longest line
 		var maxLength = UtlString.getLongestLine(this.contents).length();
 
@@ -35,19 +36,14 @@ class ErrorFormatter {
 			.setColor(this.errorLevel.color)
 			.addFormat(FormatOption.BOLD);
 
-		System.err.println(
+		return
 			formatter.setContents(String.format(" ┌─%s%s", this.errorLevel, !this.tokensView.isEmpty() ? "\n" : "")).toString()
-				+ this.tokensView
-				+ this.contents.replaceAll(
-				"^|\\n",
-				formatter.setContents("\n │ ").toString() // first insert a vertical bar at the start of each line
-			)
-				// then insert a horizontal bar at the end, with the length of the longest line
-				// approximately
-				+ formatter.setContents("\n └" + "─".repeat(Math.max(maxLength - 5, 0)) + " ───── ── ─")
-				.toString()
-				+ "\n"
-		);
+			+ this.tokensView
+			// first insert a vertical bar at the start of each line
+			+ this.contents.replaceAll("^|\\n", formatter.setContents("\n │ ").toString())
+			// then insert a horizontal bar at the end, with the length of the longest line approximately
+			+ formatter.setContents("\n └" + "─".repeat(Math.max(maxLength - 5, 0)) + " ───── ── ─")
+			+ "\n";
 	}
 
 	public ErrorFormatter displayTokens(int start, int offset, boolean placeArrow) {

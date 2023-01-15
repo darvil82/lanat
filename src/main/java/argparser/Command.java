@@ -149,15 +149,9 @@ public class Command
 	ParsedArguments getParsedArguments() {
 		return new ParsedArguments(
 			this.name,
-			this.getParsedArgumentsHashMap(),
+			this.parsingState.getParsedArgumentsHashMap(),
 			this.subCommands.stream().map(Command::getParsedArguments).toArray(ParsedArguments[]::new)
 		);
-	}
-
-	HashMap<Argument<?, ?>, Object> getParsedArgumentsHashMap() {
-		return new HashMap<>() {{
-			Command.this.arguments.forEach(arg -> put(arg, arg.finishParsing()));
-		}};
 	}
 
 	/**
@@ -220,7 +214,7 @@ public class Command
 		} else {
 			if (this.onCorrectCallback != null) this.onCorrectCallback.accept(this);
 		}
-		this.getParsedArgumentsHashMap().forEach(Argument::invokeCallbacks);
+		this.parsingState.getParsedArgumentsHashMap().forEach(Argument::invokeCallbacks);
 		this.subCommands.forEach(Command::invokeCallbacks);
 	}
 
@@ -297,6 +291,17 @@ public class Command
 		 * The index of the current token that we are parsing.
 		 */
 		private short currentTokenIndex = 0;
+
+		private HashMap<Argument<?, ?>, Object> parsedArguments;
+
+		HashMap<Argument<?, ?>, Object> getParsedArgumentsHashMap() {
+			if (this.parsedArguments == null) {
+				this.parsedArguments = new HashMap<>() {{
+					Command.this.arguments.forEach(arg -> put(arg, arg.finishParsing()));
+				}};
+			}
+			return this.parsedArguments;
+		}
 
 		public short getCurrentTokenIndex() {
 			return currentTokenIndex;

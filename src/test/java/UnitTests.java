@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -29,8 +30,14 @@ class TestingParser extends ArgumentParser {
 		super(programName);
 	}
 
-	public void parseArgsExpectError(String args) {
-		this.__parseArgsNoExit(args);
+	public String[] parseArgsExpectError(String args) {
+		return this.__parseArgsNoExit(args).second();
+	}
+
+	public ParsedArgumentsRoot parseArgsExpectErrorPrint(String args) {
+		final var parsed = this.__parseArgsNoExit(args);
+		System.out.println(String.join("\n", parsed.second()));
+		return parsed.first();
 	}
 
 	@Override
@@ -114,31 +121,17 @@ public class UnitTests {
 
 	@Nested
 	class TerminalOutput {
-		private final ByteArrayOutputStream errContent = new ByteArrayOutputStream();
-		private final PrintStream originalErr = System.err;
-
-
-		@AfterEach
-		public void restoreStreams() {
-			System.setErr(originalErr);
-		}
-
-		@BeforeEach
-		public void setStreams() {
-			System.setErr(new PrintStream(errContent));
-		}
-
 		private void assertErrorOutput(String args, String expected) {
-			UnitTests.this.parser.parseArgsExpectError(args);
+			String[] errors = UnitTests.this.parser.parseArgsExpectError(args);
 			// remove all the decorations to not make the tests a pain to write
 			assertEquals(
 				expected,
-				UtlString.removeSequences(errContent.toString())
+				UtlString.removeSequences(errors[0])
 					// the reason we replace \r here is that windows uses CRLF (I hate windows)
 					.replaceAll(" *[│─└┌\r] ?", "")
 					.strip()
 			);
-			System.out.printf("Test error output:\n%s", errContent);
+			System.out.printf("Test error output:\n%s", errors[0]);
 		}
 
 		@Test

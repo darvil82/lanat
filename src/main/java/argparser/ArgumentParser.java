@@ -40,7 +40,7 @@ public class ArgumentParser extends Command {
 		this.parseTokens(); // same thing, this parses all the stuff recursively
 
 		this.invokeCallbacks();
-		errorHandler.handleErrorsView();
+		errorHandler.handleErrorsPrint();
 		int errorCode = errorHandler.getErrorCode();
 
 		if (errorCode != 0) {
@@ -64,27 +64,28 @@ public class ArgumentParser extends Command {
 	/**
 	 * <b>DO NOT USE.</b> This is only used for testing purposes.
 	 */
-	protected Pair<ParsedArgumentsRoot, Integer> __parseArgsNoExit(String args) {
-		this.tokenize(args); // first. This will tokenize all subCommands recursively
-		var errorHandler = new ErrorHandler(this);
-		this.parseTokens(); // same thing, this parses all the stuff recursively
-
-		this.invokeCallbacks();
-		errorHandler.handleErrorsView();
-		int errorCode = errorHandler.getErrorCode();
-
-		if (errorCode != 0) {
-			return new Pair<>(null, errorCode);
+	protected Pair<ParsedArgumentsRoot, String[]> __parseArgsNoExit(String args) {
+		if (this.isParsed) {
+			// reset all parsing related things to the initial state
+			this.resetState();
 		}
 
-		return new Pair<>(this.getParsedArguments(), 0);
+		this.passPropertiesToChildren();
+		this.tokenize(args);
+		var errorHandler = new ErrorHandler(this);
+		this.parseTokens();
+		this.invokeCallbacks();
+
+		this.isParsed = true;
+
+		return new Pair<>(this.getParsedArguments(), errorHandler.handleErrrorsGetMessages());
 	}
 
 	@Override
 	ParsedArgumentsRoot getParsedArguments() {
 		return new ParsedArgumentsRoot(
 			this.name,
-			this.getParsedArgumentsHashMap(),
+			this.parsingState.getParsedArgumentsHashMap(),
 			this.subCommands.stream().map(Command::getParsedArguments).toArray(ParsedArguments[]::new),
 			this.getForwardValue()
 		);

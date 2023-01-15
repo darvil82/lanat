@@ -1,6 +1,5 @@
-# compiled stuff
-out
-target
+.gradle
+build
 
 # ides
 .idea

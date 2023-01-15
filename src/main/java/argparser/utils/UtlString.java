@@ -116,6 +116,10 @@ public final class UtlString {
 		return buffer.toString();
 	}
 
+	public static String center(String str, int width) {
+		return UtlString.center(str, width, '─');
+	}
+
 	public static String trim(String str, String pattern) {
 		return str.replaceAll("^" + pattern + "+", "")
 				.replaceAll(pattern + "+$", "");
@@ -125,9 +129,6 @@ public final class UtlString {
 		return UtlString.trim(str, "[ \n\r\t]");
 	}
 
-	public static String center(String str, int width) {
-		return UtlString.center(str, width, '─');
-	}
 
 	/**
 	 * Remove all formatting colors or format from the string

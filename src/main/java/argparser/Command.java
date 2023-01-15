@@ -34,7 +34,7 @@ public class Command
 		}
 		this.name = UtlString.sanitizeName(name);
 		this.description = description;
-		this.addArgument(new Argument<>("help")
+		this.addArgument(Argument.simple("help")
 			.onOk(t -> System.out.println(this.getHelp()))
 			.description("Shows this message.")
 			.allowUnique()

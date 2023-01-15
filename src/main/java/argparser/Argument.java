@@ -1,5 +1,6 @@
 package argparser;
 
+import argparser.argumentTypes.BooleanArgument;
 import argparser.utils.displayFormatter.Color;
 import argparser.utils.*;
 import argparser.utils.displayFormatter.FormatOption;
@@ -49,11 +50,10 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		this(argType, String.valueOf(charName), fullName);
 	}
 
-	/**
-	 * Creates an argument of type {@link argparser.argumentTypes.BooleanArgument} with the given name.
-	 */
-	@SuppressWarnings("unchecked cast") // we know for sure type returned by BOOLEAN is compatible
-	public Argument(String name) {this(name, (Type)ArgumentType.BOOLEAN());}
+	/** Creates an argument with a {@link BooleanArgument} type. */
+	public static Argument<BooleanArgument, Boolean> simple(String name) {
+		return new Argument<>(ArgumentType.BOOLEAN(), name);
+	}
 
 
 	/**

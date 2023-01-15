@@ -3,3 +3,4 @@ build
 
 # ides
 .idea
+.run

@@ -71,9 +71,9 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 	/**
 	 * Marks the argument as positional. This means that the value of this argument may be specified directly
-	 * without indicating the name/name of this argument. The positional place where it should be placed is
+	 * without indicating a name of this argument. The positional place where it should be placed is
 	 * defined by the order of creation of the argument definitions.
-	 * <li>Note that an argument marked as positional can still be used by specifying its name/name.
+	 * <li>Note that an argument marked as positional can still be used by specifying a name.
 	 */
 	public Argument<Type, TInner> positional() {
 		if (this.argType.getNumberOfArgValues().max == 0) {

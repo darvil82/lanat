@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class TextFormatter {
-	public static boolean enableSequences = true;
+	public static boolean enableSequences = true, debug = false;
 	private final ArrayList<FormatOption> formatOptions = new ArrayList<>();
 	private final List<TextFormatter> concatList = new ArrayList<>();
 	private TextFormatter parent;
@@ -83,7 +83,7 @@ public class TextFormatter {
 	}
 
 	private String getStartSequences() {
-		if (formattingNotDefined()) return "";
+		if (formattingNotDefined() || !TextFormatter.enableSequences) return "";
 		final var buffer = new StringBuilder();
 
 		if (this.foregroundColor != null)
@@ -99,7 +99,7 @@ public class TextFormatter {
 	}
 
 	private String getEndSequences() {
-		if (formattingNotDefined()) return "";
+		if (formattingNotDefined() || !TextFormatter.enableSequences) return "";
 		final var buffer = new StringBuilder();
 
 		if (this.backgroundColor != null) {
@@ -157,6 +157,12 @@ public class TextFormatter {
 
 	public static TextFormatter ERROR(String msg) {
 		return new TextFormatter(msg).setColor(Color.BRIGHT_RED).addFormat(FormatOption.REVERSE, FormatOption.BOLD);
+	}
+
+	public static String getSequence(int code) {
+		if (debug)
+			return "ESC[" + code;
+		return ESC + "[" + code + "m";
 	}
 
 	/** Escape character which represents the start of a terminal sequence */

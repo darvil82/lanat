@@ -146,12 +146,12 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		return this.names.contains(name);
 	}
 
-	public List<String> getNames() {
-		return names;
+	public String[] getNames() {
+		return names.toArray(String[]::new);
 	}
 
 	public String getLongestName() {
-		return new ArrayList<>(this.getNames()) {{
+		return new ArrayList<>(List.of(this.getNames())) {{
 			sort((a, b) -> b.length() - a.length());
 		}}.get(0);
 	}
@@ -208,7 +208,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		var repr = this.argType.getRepresentation();
 
 		final var outText = new TextFormatter();
-		final String name = this.getLongestName();
+		final String names = String.join("/", this.getNames());
 		final char argPrefix = this.getPrefix();
 
 		if (this.isObligatory()) {
@@ -218,9 +218,9 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		outText.setColor(this.getRepresentationColor());
 
 		if (this.isPositional() && repr != null) {
-			outText.concat(repr, new TextFormatter("(" + name + ")"));
+			outText.concat(repr, new TextFormatter("(" + names + ")"));
 		} else {
-			outText.setContents("" + argPrefix + (name.length() > 1 ? argPrefix : "") + name + (repr == null ? "" : " "));
+			outText.setContents("" + argPrefix + (names.length() > 1 ? argPrefix : "") + names + (repr == null ? "" : " "));
 
 			if (repr != null)
 				outText.concat(repr);
@@ -334,7 +334,12 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	public boolean equals(Argument<?, ?> obj) {
 		// we just want to check if there's a difference between identifiers and both are part of the same command
 		return this.parentCmd == obj.parentCmd && (
-			this.getNames().stream().anyMatch(name -> obj.getNames().contains(name))
+			Arrays.stream(this.getNames()).anyMatch(name -> {
+				for (var otherName : obj.getNames()) {
+					if (name.equals(otherName)) return true;
+				}
+				return false;
+			})
 		);
 	}
 

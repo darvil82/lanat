@@ -13,7 +13,7 @@ import java.util.function.Function;
 
 public class HelpFormatter {
 	private Command parentCmd;
-	private byte indentSize = 3;
+	private byte indent = 3;
 	public static short lineWrapMax = 110;
 	private ArrayList<LayoutItem> layout = new ArrayList<>();
 	public static boolean debugLayout = false;
@@ -30,12 +30,20 @@ public class HelpFormatter {
 
 	HelpFormatter(HelpFormatter other) {
 		this.parentCmd = other.parentCmd;
-		this.indentSize = other.indentSize;
+		this.indent = other.indent;
 		this.layout.addAll(other.layout);
 	}
 
 	void setParentCmd(Command parentCmd) {
 		this.parentCmd = parentCmd;
+	}
+
+	public void setIndent(byte indent) {
+		this.indent = indent;
+	}
+
+	public byte getIndent() {
+		return indent;
 	}
 
 	protected List<LayoutItem> getLayout() {
@@ -130,8 +138,12 @@ public class HelpFormatter {
 			for (Argument<?, ?> arg : arguments) {
 				final var description = arg.getDescription();
 				if (description == null) continue;
-				buff.append(arg.getRepresentation()).append(": ").append(description).append('\n');
+				buff.append(arg.getRepresentation())
+					.append(":\n")
+					.append(UtlString.indent(description, cmd.getHelpFormatter().indent))
+					.append('\n');
 			}
+
 			return buff.toString();
 		}
 	}
@@ -180,7 +192,7 @@ public class HelpFormatter {
 					UtlString.trim(this.layoutGenerator.apply(helpFormatter.parentCmd)),
 					this.lineWrapMax - this.indent
 				),
-				this.indent * helpFormatter.indentSize
+				this.indent * helpFormatter.indent
 			) + "\n".repeat(this.marginBottom);
 		}
 	}

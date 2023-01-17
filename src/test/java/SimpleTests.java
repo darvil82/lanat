@@ -3,12 +3,14 @@ import argparser.ArgumentParser;
 import argparser.ArgumentType;
 import argparser.HelpFormatter;
 import argparser.argumentTypes.*;
+import argparser.utils.displayFormatter.TextFormatter;
 
 import java.util.Arrays;
 
 public final class SimpleTests {
 	public static void main(String[] args) {
-		HelpFormatter.lineWrapMax = 1000;
+		HelpFormatter.lineWrapMax = 110;
+//		TextFormatter.debug = true;
 
 		enum Something {
 			ONE, TWO, THREE
@@ -17,6 +19,7 @@ public final class SimpleTests {
 		final var argumentParser = new TestingParser("Testing") {{
 			addArgument(new Argument<>("range", new IntRangeArgument(1, 10))
 				.onOk((value) -> System.out.println("Range: " + value))
+				.description("a ".repeat(50))
 			);
 			addArgument(new Argument<>("number", new EnumArgument<>(Something.ONE))
 				.positional()
@@ -29,6 +32,6 @@ public final class SimpleTests {
 			);
 		}};
 
-		var parsedArgs = argumentParser.parseArgsExpectErrorPrint("--number six");
+		var parsedArgs = argumentParser.parseArgsExpectErrorPrint("--help");
 	}
 }

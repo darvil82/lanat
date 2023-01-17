@@ -61,8 +61,11 @@ public final class UtlString {
 		for (var word : words) {
 			var wordLength = UtlString.removeSequences(word).length() + 1; // + 1 to account for the space
 
+			if (word.contains("\n")) {
+				currentLength = wordLength;
+
 			// if the new word makes currentLength exceed the max, push it down
-			if ((currentLength += wordLength) > maxWidth) {
+			} else if ((currentLength += wordLength) > maxWidth) {
 				endBuffer.append('\n');
 				currentLength = wordLength;
 			}

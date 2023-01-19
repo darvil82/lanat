@@ -1,7 +1,4 @@
-import argparser.Argument;
-import argparser.ArgumentParser;
-import argparser.ArgumentType;
-import argparser.HelpFormatter;
+import argparser.*;
 import argparser.argumentTypes.*;
 import argparser.utils.displayFormatter.TextFormatter;
 
@@ -30,6 +27,9 @@ public final class SimpleTests {
 				.obligatory()
 				.description("just a normal int lmao")
 			);
+			addSubCommand(new Command("cmd") {{
+				addArgument(Argument.simple("test-arg"));
+			}});
 		}};
 
 		var parsedArgs = argumentParser.parseArgsExpectErrorPrint("--help");

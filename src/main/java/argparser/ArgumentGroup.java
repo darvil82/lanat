@@ -33,6 +33,14 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resetta
 		argument.setParentGroup(this);
 	}
 
+	public Argument<?, ?>[] getArguments() {
+		return arguments.toArray(Argument[]::new);
+	}
+
+	public ArgumentGroup[] getSubGroups() {
+		return subGroups.toArray(ArgumentGroup[]::new);
+	}
+
 	@Override
 	public void addGroup(ArgumentGroup group) {
 		if (group.parentGroup != null) {
@@ -57,18 +65,6 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resetta
 
 	public boolean isExclusive() {
 		return this.isExclusive;
-	}
-
-	/**
-	 * Returns true if this group or any of its parents is exclusive.
-	 */
-	public boolean isExclusiveNested() {
-		var group = this;
-		while (group != null) {
-			if (group.isExclusive()) return true;
-			group = group.parentGroup;
-		}
-		return false;
 	}
 
 	/**

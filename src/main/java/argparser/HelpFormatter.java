@@ -116,6 +116,12 @@ public class HelpFormatter {
 				group.getRepresentation(buffer);
 			}
 
+			if (!cmd.subCommands.isEmpty()) {
+				buffer.append('{')
+					.append(String.join(" | ", cmd.subCommands.stream().map(c -> c.name).toList()))
+					.append('}');
+			}
+
 			return buffer.toString();
 		}
 

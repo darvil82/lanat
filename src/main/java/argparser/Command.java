@@ -69,6 +69,11 @@ public class Command
 		this.argumentGroups.add(group);
 	}
 
+	@Override
+	public ArgumentGroup[] getSubGroups() {
+		return this.argumentGroups.toArray(ArgumentGroup[]::new);
+	}
+
 	public void addSubCommand(Command cmd) {
 		Objects.requireNonNull(cmd);
 
@@ -118,8 +123,9 @@ public class Command
 		return this.helpFormatter.get();
 	}
 
-	public ArrayList<Argument<?, ?>> getArguments() {
-		return arguments;
+	@Override
+	public Argument<?, ?>[] getArguments() {
+		return arguments.toArray(Argument[]::new);
 	}
 
 	public Argument<?, ?>[] getPositionalArguments() {

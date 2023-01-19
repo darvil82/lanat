@@ -91,7 +91,7 @@ public class HelpFormatter {
 		}
 
 		public static String synopsis(Command cmd, boolean includeHelp) {
-			var args = new ArrayList<>(cmd.getArguments()) {{
+			var args = new ArrayList<>(List.of(cmd.getArguments())) {{
 				// only arguments that are not in groups, since we handle those later
 				removeIf(arg -> arg.getParentGroup() != null);
 
@@ -103,7 +103,7 @@ public class HelpFormatter {
 				sort(Argument::compareByPriority);
 			}};
 
-			if (args.isEmpty() && cmd.argumentGroups.isEmpty()) return "";
+			if (args.isEmpty() && cmd.getSubGroups().length == 0) return "";
 			var buffer = new StringBuilder();
 
 			for (var arg : args) {
@@ -112,7 +112,7 @@ public class HelpFormatter {
 				buffer.append(repr).append(' ');
 			}
 
-			for (var group : cmd.argumentGroups) {
+			for (var group : cmd.getSubGroups()) {
 				group.getRepresentation(buffer);
 			}
 
@@ -139,14 +139,14 @@ public class HelpFormatter {
 
 		public static String argumentDescriptions(Command cmd) {
 			final var buff = new StringBuilder();
-			final ArrayList<Argument<?, ?>> arguments = cmd.getArguments();
+			final List<Argument<?, ?>> arguments = List.of(cmd.getArguments());
 
 			for (Argument<?, ?> arg : arguments) {
 				final var description = arg.getDescription();
 				if (description == null) continue;
 				buff.append(arg.getRepresentation())
 					.append(":\n")
-					.append(UtlString.indent(description, cmd.getHelpFormatter().indent))
+					.append(description)
 					.append('\n');
 			}
 

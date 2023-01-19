@@ -4,6 +4,7 @@ import argparser.utils.Resettable;
 import argparser.utils.UtlString;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resettable {
@@ -33,10 +34,12 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resetta
 		argument.setParentGroup(this);
 	}
 
+	@Override
 	public Argument<?, ?>[] getArguments() {
 		return arguments.toArray(Argument[]::new);
 	}
 
+	@Override
 	public ArgumentGroup[] getSubGroups() {
 		return subGroups.toArray(ArgumentGroup[]::new);
 	}
@@ -117,7 +120,7 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resetta
 	/**
 	 * Appends the representation of this group tree to the given string builder.
 	 */
-	void getRepresentation(StringBuilder sb) {
+	public void getRepresentation(StringBuilder sb) {
 		// its empty, nothing to append
 		if (this.isEmpty()) return;
 
@@ -168,4 +171,5 @@ interface ArgumentGroupAdder {
 	 * Adds an argument group to this element.
 	 */
 	void addGroup(ArgumentGroup group);
+	ArgumentGroup[] getSubGroups();
 }

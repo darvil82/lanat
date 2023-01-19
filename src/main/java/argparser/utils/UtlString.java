@@ -140,27 +140,4 @@ public final class UtlString {
 	public static String removeSequences(String str) {
 		return str.replaceAll("\033\\[[\\d;]*m", "");
 	}
-
-	public static class IndentationGroup {
-		private int indentation = 3;
-		private final ArrayList<Object> objects = new ArrayList<>();
-
-		public IndentationGroup(int indentation) {
-			this.indentation = indentation;
-		}
-
-		public IndentationGroup() {}
-
-		public void addObject(Object obj) {
-			this.objects.add(obj);
-		}
-
-		@Override
-		public String toString() {
-			final var buff = new StringBuilder();
-			for (final var obj : this.objects)
-				buff.append(UtlString.indent(obj.toString(), this.indentation));
-			return buff.toString();
-		}
-	}
 }

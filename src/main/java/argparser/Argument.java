@@ -353,7 +353,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * @return 0 if both arguments are equal, -1 if the first argument
 	 * goes before the second, 1 if the second goes before the first.
 	 */
-	static int compareByPriority(Argument<?, ?> first, Argument<?, ?> second) {
+	public static int compareByPriority(Argument<?, ?> first, Argument<?, ?> second) {
 		if (first.isPositional() && !second.isPositional()) {
 			return -1;
 		} else if (!first.isPositional() && second.isPositional()) {
@@ -454,4 +454,5 @@ interface ArgumentAdder {
 	 * @param <TInner> the actual type of the value passed to the argument
 	 */
 	<T extends ArgumentType<TInner>, TInner> void addArgument(Argument<T, TInner> argument);
+	Argument<?, ?>[] getArguments();
 }

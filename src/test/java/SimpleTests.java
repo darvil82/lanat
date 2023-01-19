@@ -1,8 +1,6 @@
 import argparser.*;
 import argparser.argumentTypes.*;
-import argparser.utils.displayFormatter.TextFormatter;
-
-import java.util.Arrays;
+import argparser.HelpFormatter;
 
 public final class SimpleTests {
 	public static void main(String[] args) {
@@ -14,19 +12,29 @@ public final class SimpleTests {
 		}
 
 		final var argumentParser = new TestingParser("Testing") {{
-			addArgument(new Argument<>("range", new IntRangeArgument(1, 10))
-				.onOk((value) -> System.out.println("Range: " + value))
-				.description("a ".repeat(50))
-			);
-			addArgument(new Argument<>("number", new EnumArgument<>(Something.ONE))
-				.positional()
-				.description("Pick a number")
-			);
-			addArgument(new Argument<>("normal-int", ArgumentType.INTEGER())
-				.defaultValue(78)
-				.obligatory()
-				.description("just a normal int lmao")
-			);
+			addGroup(new ArgumentGroup("a group") {{
+				addArgument(new Argument<>("range", new IntRangeArgument(1, 10))
+						.onOk((value) -> System.out.println("Range: " + value))
+						.description("word ".repeat(123))
+				);
+				addArgument(new Argument<>("number", new EnumArgument<>(Something.ONE))
+						.positional()
+						.description("Pick a number")
+				);
+				addArgument(new Argument<>("normal-int", ArgumentType.INTEGER())
+						.defaultValue(78)
+						.obligatory()
+						.description("just a normal int lmao")
+				);
+				addGroup(new ArgumentGroup("a subgroup") {{
+					addArgument(new Argument<>("string", ArgumentType.STRING())
+							.description("a string")
+					);
+					addArgument(new Argument<>("bool", ArgumentType.BOOLEAN())
+							.description("a bool")
+					);
+				}});
+			}});
 			addSubCommand(new Command("cmd") {{
 				addArgument(Argument.simple("test-arg"));
 			}});

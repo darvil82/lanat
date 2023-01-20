@@ -60,10 +60,11 @@ public final class UtlString {
 		int currentLength = 0; // the length of the current line
 
 		for (var word : words) {
-			var wordLength = UtlString.removeSequences(word).length() + 1; // + 1 to account for the space
+			final var sanitizedWord = UtlString.removeSequences(word);
+			final var wordLength = sanitizedWord.length() + 1; // + 1 to account for the space
 
 			if (word.contains("\n")) {
-				currentLength = wordLength;
+				currentLength = wordLength - sanitizedWord.lastIndexOf("\n") + 1;
 
 			// if the new word makes currentLength exceed the max, push it down
 			} else if ((currentLength += wordLength) > maxWidth) {

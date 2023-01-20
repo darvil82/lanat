@@ -1,6 +1,7 @@
 import argparser.*;
 import argparser.argumentTypes.*;
 import argparser.HelpFormatter;
+import argparser.utils.UtlString;
 
 public final class SimpleTests {
 	public static void main(String[] args) {

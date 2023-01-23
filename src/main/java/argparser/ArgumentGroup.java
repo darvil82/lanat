@@ -130,6 +130,7 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resetta
 		Argument<?, ?>[] arguments = Argument.sortByPriority(this.getArguments());
 		for (int i = 0; i < arguments.length; i++) {
 			Argument<?, ?> arg = arguments[i];
+
 			sb.append(arg.getRepresentation());
 			if (i < arguments.length - 1) {
 				sb.append(' ');

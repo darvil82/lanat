@@ -229,6 +229,10 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		return outText.toString();
 	}
 
+	public boolean isHelpArgument() {
+		return this.getLongestName().equals("help") && this.allowsUnique();
+	}
+
 	/**
 	 * Specify a function that will be called with the value introduced by the user.
 	 */
@@ -367,6 +371,9 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		}
 	}
 
+	/**
+	 * Sorts the given array of arguments by the synopsis view priority order.
+	 */
 	public static Argument<?, ?>[] sortByPriority(Argument<?, ?>[] args) {
 		Arrays.sort(args, Argument::compareByPriority);
 		return args;

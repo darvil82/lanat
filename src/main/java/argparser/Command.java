@@ -615,6 +615,13 @@ public class Command
 			.forEach(Command::parseTokens); // now parse them
 	}
 
+	/**
+	 * Reads the next tokens and parses them as values for the given argument.
+	 * <p>
+	 *     This keeps in mind the type of the argument, and will stop reading tokens when it
+	 *     reaches the max number of values, or if the end of a tuple is reached.
+	 * </p>
+	 */
 	private void executeArgParse(Argument<?, ?> arg) {
 		final ArgValueCount argumentValuesRange = arg.argType.getNumberOfArgValues();
 
@@ -667,11 +674,17 @@ public class Command
 		parsingState.currentTokenIndex += newCurrentTokenIndex;
 	}
 
+	/**
+	 * Parses the given string as an argument value for the given argument.
+	 * <p>
+	 *     If the value passed in is present (not empty or null), the argument should only require 0 or 1 values.
+	 * </p>
+	 */
 	private void executeArgParse(Argument<?, ?> arg, String value) {
 		final ArgValueCount argumentValuesRange = arg.argType.getNumberOfArgValues();
 
-		if (value.isEmpty()) {
-			this.executeArgParse(arg); // value is not present in the suffix. Continue parsing values.
+		if (value == null || value.isEmpty()) {
+			this.executeArgParse(arg); // value is not present in the suffix of the argList. Continue parsing values.
 			return;
 		}
 
@@ -690,19 +703,30 @@ public class Command
 		arg.parseValues(new String[]{value}, parsingState.currentTokenIndex);
 	}
 
+
+	/**
+	 * Parses the given string as a list of single-char argument names.
+	 */
 	private void parseArgNameList(String args) {
 		// its multiple of them. We can only do this with arguments that accept 0 values.
 		for (short i = 0; i < args.length(); i++) {
 			final short constIndex = i; // this is because the lambda requires the variable to be final
 
 			if (!this.runForArgument(args.charAt(i), a -> {
+				// if the argument accepts 0 values, then we can just parse it like normal
 				if (a.argType.getNumberOfArgValues().isZero()) {
 					this.executeArgParse(a);
+
+				// -- arguments now may accept 1 or more values from now on:
+
+				// if this argument is the last one in the list, then we can parse the next values after it
 				} else if (constIndex == args.length() - 1) {
 					parsingState.currentTokenIndex++;
 					this.executeArgParse(a);
+
+				// if this argument is not the last one in the list, then we can parse the rest of the chars as the value
 				} else {
-					this.executeArgParse(a, args.substring(constIndex + 1)); // if this arg accepts more values, treat the rest of chars as value
+					this.executeArgParse(a, args.substring(constIndex + 1));
 				}
 			}))
 				return;
@@ -731,12 +755,6 @@ public class Command
 	 * @return <code>true</code> if an argument was found
 	 */
 	private boolean runForArgument(char argName, Consumer<Argument<?, ?>> f) {
-		for (final var argument : this.arguments) {
-			if (argument.checkMatch(argName)) {
-				f.accept(argument);
-				return true;
-			}
-		}
-		return false;
+		return this.runForArgument(String.valueOf(argName), f);
 	}
 }

@@ -5,10 +5,7 @@ import argparser.utils.displayFormatter.FormatOption;
 import argparser.utils.displayFormatter.TextFormatter;
 import argparser.utils.UtlString;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
 
 public class HelpFormatter {
@@ -91,22 +88,23 @@ public class HelpFormatter {
 		}
 
 		public static String synopsis(Command cmd, boolean includeHelp) {
-			var args = new ArrayList<>(List.of(Argument.sortByPriority(cmd.getArguments()))) {{
-				// only arguments that are not in groups, since we handle those later
-				removeIf(arg -> arg.getParentGroup() != null);
+			final var args = Argument.sortByPriority(cmd.getArguments());
 
-				// remove help argument if it's not needed
-				if (!includeHelp)
-					removeIf(arg -> arg.getLongestName().equals("help") && arg.allowsUnique());
-			}};
-
-			if (args.isEmpty() && cmd.getSubGroups().length == 0) return "";
-			var buffer = new StringBuilder();
+			if (args.length == 0 && cmd.getSubGroups().length == 0) return "";
+			final var buffer = new StringBuilder();
 
 			for (var arg : args) {
-				var repr = arg.getRepresentation();
-				if (repr == null) continue;
-				buffer.append(repr).append(' ');
+				String representation;
+
+				// skip arguments that are in groups (handled later), and help argument if it's not needed
+				if (
+					arg.getParentGroup() != null
+					|| (!includeHelp && arg.isHelpArgument())
+					|| (representation = arg.getRepresentation()) == null
+				)
+					continue;
+
+				buffer.append(representation).append(' ');
 			}
 
 			for (var group : cmd.getSubGroups()) {
@@ -136,11 +134,12 @@ public class HelpFormatter {
 
 		public static String argumentDescriptions(Command cmd) {
 			final var buff = new StringBuilder();
-			final List<Argument<?, ?>> arguments = List.of(cmd.getArguments());
+			final var arguments = Argument.sortByPriority(cmd.getArguments());
 
 			for (Argument<?, ?> arg : arguments) {
-				final var description = arg.getDescription();
-				if (description == null) continue;
+				final String description;
+				if ((description = arg.getDescription()) == null) continue;
+
 				buff.append(arg.getRepresentation())
 					.append(":\n")
 					.append(description)

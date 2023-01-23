@@ -367,6 +367,11 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		}
 	}
 
+	public static Argument<?, ?>[] sortByPriority(Argument<?, ?>[] args) {
+		Arrays.sort(args, Argument::compareByPriority);
+		return args;
+	}
+
 	@Override
 	public void resetState() {
 		this.usageCount = 0;

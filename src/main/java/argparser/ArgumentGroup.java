@@ -4,7 +4,6 @@ import argparser.utils.Resettable;
 import argparser.utils.UtlString;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resettable {
@@ -128,11 +127,11 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resetta
 		if (this.isExclusive)
 			sb.append('(');
 
-		List<Argument<?, ?>> arguments = this.arguments;
-		for (int i = 0; i < arguments.size(); i++) {
-			Argument<?, ?> arg = arguments.get(i);
+		Argument<?, ?>[] arguments = Argument.sortByPriority(this.getArguments());
+		for (int i = 0; i < arguments.length; i++) {
+			Argument<?, ?> arg = arguments[i];
 			sb.append(arg.getRepresentation());
-			if (i < arguments.size() - 1) {
+			if (i < arguments.length - 1) {
 				sb.append(' ');
 				if (this.isExclusive)
 					sb.append('|').append(' ');
@@ -141,7 +140,7 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resetta
 
 		List<ArgumentGroup> groups = this.subGroups.stream().filter(g -> !g.isEmpty()).toList();
 
-		if (!arguments.isEmpty() && !groups.isEmpty()) {
+		if (arguments.length != 0 && !groups.isEmpty()) {
 			sb.append(' ');
 			if (this.isExclusive)
 				sb.append("| ");

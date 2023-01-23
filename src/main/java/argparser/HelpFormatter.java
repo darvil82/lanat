@@ -117,7 +117,7 @@ public class HelpFormatter {
 			}
 
 			if (!cmd.subCommands.isEmpty()) {
-				buffer.append('{')
+				buffer.append(" {")
 					.append(String.join(" | ", cmd.subCommands.stream().map(c -> c.name).toList()))
 					.append('}');
 			}

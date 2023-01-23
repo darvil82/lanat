@@ -141,8 +141,11 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resetta
 
 		List<ArgumentGroup> groups = this.subGroups.stream().filter(g -> !g.isEmpty()).toList();
 
-		if (!arguments.isEmpty() && !groups.isEmpty())
-			sb.append(' ').append('|').append(' ');
+		if (!arguments.isEmpty() && !groups.isEmpty()) {
+			sb.append(' ');
+			if (this.isExclusive)
+				sb.append("| ");
+		}
 
 		for (int i = 0; i < groups.size(); i++) {
 			ArgumentGroup group = groups.get(i);

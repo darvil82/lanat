@@ -28,6 +28,7 @@ public final class SimpleTests {
 						.description("just a normal int lmao")
 				);
 				addGroup(new ArgumentGroup("a subgroup") {{
+					exclusive();
 					addArgument(new Argument<>("string", ArgumentType.STRING())
 							.description("a string")
 					);

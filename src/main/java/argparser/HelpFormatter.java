@@ -142,8 +142,8 @@ public class HelpFormatter {
 
 				buff.append(arg.getRepresentation())
 					.append(":\n")
-					.append(description)
-					.append('\n');
+					.append(UtlString.indent(description, 3))
+					.append("\n\n");
 			}
 
 			return buff.toString();
@@ -189,13 +189,12 @@ public class HelpFormatter {
 		}
 
 		public String generate(HelpFormatter helpFormatter) {
-			return "\n".repeat(this.marginTop) + UtlString.indent(
-				UtlString.wrap(
+			return "\n".repeat(this.marginTop)
+				+ UtlString.indent(
 					UtlString.trim(this.layoutGenerator.apply(helpFormatter.parentCmd)),
-					this.lineWrapMax - this.indent
-				),
 				this.indent * helpFormatter.indent
-			) + "\n".repeat(this.marginBottom);
+				)
+				+ "\n".repeat(this.marginBottom);
 		}
 	}
 
@@ -211,7 +210,7 @@ public class HelpFormatter {
 					.addFormat(FormatOption.UNDERLINE)
 					.setColor(Color.GREEN)
 				);
-			buffer.append(generator.generate(this)).append('\n');
+			buffer.append(UtlString.wrap(generator.generate(this), lineWrapMax)).append('\n');
 		}
 
 		return buffer.toString();

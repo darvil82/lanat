@@ -1,6 +1,5 @@
 package argparser.utils;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.Predicate;
@@ -55,23 +54,62 @@ public final class UtlString {
 	 * @return The wrapped text.
 	 */
 	public static String wrap(String str, int maxWidth) {
-		final String[] words = str.split(" "); // first split all words, makes stuff easier
-		final var endBuffer = new StringBuilder();
-		int currentLength = 0; // the length of the current line
+		// we cant split anyway, so why bother
+		if (!(str.contains(" ") || str.contains("\t")))
+			return str;
 
-		for (var word : words) {
-			final var sanitizedWord = UtlString.removeSequences(word);
-			final var wordLength = sanitizedWord.length() + 1; // + 1 to account for the space
+		final var wordBuff = new StringBuilder(); // buffer for the current word
+		final var endBuffer = new StringBuilder(); // buffer for the final string. words are pushed here
+		final var indentBuff = new StringBuilder(); // buffer for the current indentation that will be added to the beginning of each line if needed
 
-			if (word.contains("\n")) {
-				currentLength = wordLength - sanitizedWord.lastIndexOf("\n") + 1;
+		int lineWidth = 0; // the current line width
+		boolean jumped = true; // true if a newline was added. starts off as true in case the string with indentation
 
-			// if the new word makes currentLength exceed the max, push it down
-			} else if ((currentLength += wordLength) > maxWidth) {
-				endBuffer.append('\n');
-				currentLength = wordLength;
+		for (char chr : str.toCharArray()) {
+			if (chr == ' ' || chr == '\t') {
+				// if the word buffer is empty, we are at the beginning of a line, so we save this indentation
+				if (wordBuff.isEmpty())
+					indentBuff.append(chr);
+
+				// if the word buffer is not empty, we are in the middle of a word, so append the word buffer to the end buffer
+				else {
+					// add a newline if the line width exceeds the maximum width
+					if (lineWidth >= maxWidth) {
+						endBuffer.append('\n').append(indentBuff);
+						lineWidth = 0;
+					}
+					endBuffer.append(wordBuff).append(chr);
+					// make sure to not count escape sequences on the length!
+					lineWidth += UtlString.removeSequences(wordBuff.toString()).length() + 1;
+					wordBuff.setLength(0);
+				}
+
+			/* if the char is a newline, same as above but we reset the indentation
+			 * After this character, new indentation may be added. We need to push the new one right when the
+			 * next word starts, so jumped is set to true and checked below. */
+			} else if (chr == '\n') {
+				endBuffer.append(wordBuff).append('\n');
+				wordBuff.setLength(0);
+				indentBuff.setLength(0);
+				jumped = true;
+				lineWidth = 0;
+
+			/* just append any other character to the word buffer.
+			 * we need to append the indentation to the end buffer if we jumped to a new line */
+			} else {
+				if (jumped) {
+					endBuffer.append(indentBuff);
+					jumped = false;
+				}
+				wordBuff.append(chr);
 			}
-			endBuffer.append(word).append(' ');
+		}
+
+		if (!wordBuff.isEmpty()) {
+			if (lineWidth >= maxWidth) {
+				endBuffer.append('\n').append(indentBuff);
+			}
+			endBuffer.append(wordBuff);
 		}
 
 		return endBuffer.toString();

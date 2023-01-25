@@ -1,11 +1,11 @@
 import argparser.*;
 import argparser.argumentTypes.*;
 import argparser.HelpFormatter;
-import argparser.utils.UtlString;
 
 public final class SimpleTests {
 	public static void main(String[] args) {
 		HelpFormatter.lineWrapMax = 110;
+		HelpFormatter.debugLayout = true;
 //		TextFormatter.debug = true;
 
 		enum Something {
@@ -24,7 +24,6 @@ public final class SimpleTests {
 				);
 				addArgument(new Argument<>("normal-int", ArgumentType.INTEGER())
 						.defaultValue(78)
-						.obligatory()
 						.description("just a normal int lmao")
 				);
 				addGroup(new ArgumentGroup("a subgroup") {{

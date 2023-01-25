@@ -755,17 +755,7 @@ public class Command
 	 *
 	 * @return <code>true</code> if an argument was found
 	 */
-	/* This method right here looks like it could be replaced by just changing it to
-	 *    return this.runForArgument(String.valueOf(argName), f);
-	 *
-	 * ITS NOT. "checkMatch" has also a char overload. The former will always return false. */
 	private boolean runForArgument(char argName, Consumer<Argument<?, ?>> f) {
-		for (final var argument : this.arguments) {
-			if (argument.checkMatch(argName)) {
-				f.accept(argument);
-				return true;
-			}
-		}
-		return false;
+		return this.runForArgument(String.valueOf(argName), f);
 	}
 }

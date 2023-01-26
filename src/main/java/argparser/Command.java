@@ -758,7 +758,9 @@ public class Command
 	/* This method right here looks like it could be replaced by just changing it to
 	 *    return this.runForArgument(String.valueOf(argName), f);
 	 *
-	 * ITS NOT. "checkMatch" has also a char overload. The former will always return false. */
+	 * It can't. "checkMatch" has also a char overload. The former would always return false.
+	 * I don't really want to make "checkMatch" have different behavior depending on the length of the string, so
+	 * an overload seems better. */
 	private boolean runForArgument(char argName, Consumer<Argument<?, ?>> f) {
 		for (final var argument : this.arguments) {
 			if (argument.checkMatch(argName)) {

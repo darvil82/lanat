@@ -1,6 +1,9 @@
 import argparser.*;
 import argparser.argumentTypes.*;
 import argparser.HelpFormatter;
+import argparser.utils.displayFormatter.Color;
+import argparser.utils.displayFormatter.FormatOption;
+import argparser.utils.displayFormatter.TextFormatter;
 
 public final class SimpleTests {
 	public static void main(String[] args) {
@@ -13,6 +16,7 @@ public final class SimpleTests {
 		}
 
 		final var argumentParser = new TestingParser("Testing") {{
+			addArgument(new Argument<>("a shit", ArgumentType.STRING()));
 			addGroup(new ArgumentGroup("a group") {{
 				addArgument(new Argument<>("range", new IntRangeArgument(1, 10))
 						.onOk((value) -> System.out.println("Range: " + value))
@@ -22,10 +26,6 @@ public final class SimpleTests {
 						.positional()
 						.description("Pick a number")
 				);
-				addArgument(new Argument<>("normal-int", ArgumentType.INTEGER())
-						.defaultValue(78)
-						.description("just a normal int lmao")
-				);
 				addGroup(new ArgumentGroup("a subgroup") {{
 					exclusive();
 					addArgument(new Argument<>("string", ArgumentType.STRING())
@@ -33,6 +33,25 @@ public final class SimpleTests {
 					);
 					addArgument(new Argument<>("bool", ArgumentType.BOOLEAN())
 							.description("a bool")
+					);
+				}});
+			}});
+			addGroup(new ArgumentGroup("another group") {{
+				exclusive();
+				addArgument(new Argument<>("string2", ArgumentType.STRING())
+					.description("a string")
+					.onOk((value) -> System.out.println("String: " + value))
+				);
+				addArgument(new Argument<>("bool2", ArgumentType.BOOLEAN())
+					.description("a bool")
+				);
+				addGroup(new ArgumentGroup("another subgroup") {{
+					exclusive();
+					addArgument(new Argument<>("string3", ArgumentType.STRING())
+						.description("a string")
+					);
+					addArgument(new Argument<>("bool3", ArgumentType.BOOLEAN())
+						.description("a bool")
 					);
 				}});
 			}});

@@ -1,5 +1,7 @@
 package argparser;
 
+import argparser.helpRepresentation.ArgumentGroupRepr;
+import argparser.helpRepresentation.ArgumentRepr;
 import argparser.utils.displayFormatter.Color;
 import argparser.utils.displayFormatter.FormatOption;
 import argparser.utils.displayFormatter.TextFormatter;
@@ -100,7 +102,7 @@ public class HelpFormatter {
 				if (
 					arg.getParentGroup() != null
 					|| (!includeHelp && arg.isHelpArgument())
-					|| (representation = arg.getRepresentation()) == null
+					|| (representation = ArgumentRepr.getSynopsisRepresentation(arg)) == null
 				)
 					continue;
 
@@ -108,7 +110,8 @@ public class HelpFormatter {
 			}
 
 			for (var group : cmd.getSubGroups()) {
-				group.getRepresentation(buffer);
+				ArgumentGroupRepr.getRepresentation(group, buffer);
+				buffer.append(' ');
 			}
 
 			if (!cmd.subCommands.isEmpty()) {
@@ -136,14 +139,15 @@ public class HelpFormatter {
 			final var buff = new StringBuilder();
 			final var arguments = Argument.sortByPriority(cmd.getArguments());
 
-			for (Argument<?, ?> arg : arguments) {
-				final String description;
-				if ((description = arg.getDescription()) == null) continue;
+			if (arguments.length == 0 && cmd.getSubGroups().length == 0) return "";
 
-				buff.append(arg.getRepresentation())
-					.append(":\n")
-					.append(UtlString.indent(description, 3))
-					.append("\n\n");
+			for (var arg : arguments) {
+				if (arg.getParentGroup() != null) continue;
+				buff.append(ArgumentRepr.getDescriptionRepresentation(arg));
+			}
+
+			for (var group : cmd.getSubGroups()) {
+				buff.append(ArgumentGroupRepr.getArgumentDescriptions(group));
 			}
 
 			return buff.toString();

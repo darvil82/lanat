@@ -2,6 +2,8 @@ package argparser;
 
 import argparser.utils.Resettable;
 import argparser.utils.UtlString;
+import argparser.utils.displayFormatter.FormatOption;
+import argparser.utils.displayFormatter.TextFormatter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -116,50 +118,6 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resetta
 			this.parentGroup.setArgUsed();
 	}
 
-	/**
-	 * Appends the representation of this group tree to the given string builder.
-	 */
-	public void getRepresentation(StringBuilder sb) {
-		// its empty, nothing to append
-		if (this.isEmpty()) return;
-
-		// if this group isn't exclusive, we just want to append the arguments, basically
-		if (this.isExclusive)
-			sb.append('(');
-
-		Argument<?, ?>[] arguments = Argument.sortByPriority(this.getArguments());
-		for (int i = 0; i < arguments.length; i++) {
-			Argument<?, ?> arg = arguments[i];
-
-			sb.append(arg.getRepresentation());
-			if (i < arguments.length - 1) {
-				sb.append(' ');
-				if (this.isExclusive)
-					sb.append('|').append(' ');
-			}
-		}
-
-		List<ArgumentGroup> groups = this.subGroups.stream().filter(g -> !g.isEmpty()).toList();
-
-		if (arguments.length != 0 && !groups.isEmpty()) {
-			sb.append(' ');
-			if (this.isExclusive)
-				sb.append("| ");
-		}
-
-		for (int i = 0; i < groups.size(); i++) {
-			ArgumentGroup group = groups.get(i);
-			group.getRepresentation(sb); // append the group's representation recursively
-			if (i < groups.size() - 1) {
-				sb.append(' ');
-				if (this.isExclusive)
-					sb.append('|').append(' ');
-			}
-		}
-
-		if (this.isExclusive)
-			sb.append(')');
-	}
 
 	@Override
 	public void resetState() {

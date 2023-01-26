@@ -1,5 +1,6 @@
 package argparser;
 
+import argparser.helpRepresentation.HelpFormatter;
 import argparser.utils.*;
 import argparser.utils.displayFormatter.Color;
 
@@ -86,6 +87,10 @@ public class Command
 		}
 
 		this.subCommands.add(cmd);
+	}
+
+	public Command[] getSubCommands() {
+		return this.subCommands.toArray(Command[]::new);
 	}
 
 	/**

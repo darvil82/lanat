@@ -1,9 +1,6 @@
 import argparser.*;
 import argparser.argumentTypes.*;
-import argparser.HelpFormatter;
-import argparser.utils.displayFormatter.Color;
-import argparser.utils.displayFormatter.FormatOption;
-import argparser.utils.displayFormatter.TextFormatter;
+import argparser.helpRepresentation.HelpFormatter;
 
 public final class SimpleTests {
 	public static void main(String[] args) {

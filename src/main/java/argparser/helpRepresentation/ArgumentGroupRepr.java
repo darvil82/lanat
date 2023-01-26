@@ -18,9 +18,19 @@ public abstract class ArgumentGroupRepr {
 		if (group.isExclusive())
 			name.addFormat(FormatOption.UNDERLINE);
 
-		for (Argument<?, ?> arg : arguments) {
-			buff.append(ArgumentRepr.getDescriptionRepresentation(arg)).append('\n');
+		for (int i = 0; i < arguments.length; i++) {
+			Argument<?, ?> arg = arguments[i];
+
+			final var argDesc = ArgumentRepr.getDescriptionRepresentation(arg);
+			if (argDesc == null) continue;
+
+			buff.append(argDesc);
+
+			if (i < arguments.length - 1)
+				buff.append("\n\n");
 		}
+
+		buff.append('\n');
 
 		for (final var subGroup : group.getSubGroups()) {
 			buff.append(ArgumentGroupRepr.getArgumentDescriptions(subGroup));
@@ -28,6 +38,7 @@ public abstract class ArgumentGroupRepr {
 
 		return '\n' + name.toString() + '\n' + UtlString.indent(buff.toString(), 3);
 	}
+
 
 	/**
 	 * Appends the representation of this group tree to the given string builder.

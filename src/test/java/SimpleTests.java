@@ -1,20 +1,23 @@
 import argparser.*;
 import argparser.argumentTypes.*;
 import argparser.helpRepresentation.HelpFormatter;
+import argparser.utils.displayFormatter.TextFormatter;
 
 public final class SimpleTests {
 	public static void main(String[] args) {
 		HelpFormatter.lineWrapMax = 110;
 		HelpFormatter.debugLayout = true;
-//		TextFormatter.debug = true;
 
 		enum Something {
 			ONE, TWO, THREE
 		}
 
 		final var argumentParser = new TestingParser("Testing") {{
-			addArgument(new Argument<>("a shit", ArgumentType.STRING()));
+			addArgument(new Argument<>("a shit", ArgumentType.STRING()).description("some description"));
+			addArgument(new Argument<>("a shit2", ArgumentType.STRING()));
 			addGroup(new ArgumentGroup("a group") {{
+				addArgument(Argument.simple("this is just a bool arg"));
+
 				addArgument(new Argument<>("range", new IntRangeArgument(1, 10))
 						.onOk((value) -> System.out.println("Range: " + value))
 						.description("word ".repeat(123))

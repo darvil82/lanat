@@ -33,8 +33,8 @@ public abstract class ArgumentRepr {
 	public static String getDescriptionRepresentation(argparser.Argument<?, ?> arg) {
 		String desc = arg.getDescription();
 		if (desc == null)
-			return "\n";
+			return null;
 
-		return ArgumentRepr.getSynopsisRepresentation(arg) + ":\n" + UtlString.indent(desc, 3) + '\n';
+		return ArgumentRepr.getSynopsisRepresentation(arg) + ":\n" + UtlString.indent(desc, 3);
 	}
 }

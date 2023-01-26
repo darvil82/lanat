@@ -308,10 +308,14 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * Checks if this argument matches the given name, including the prefix.
 	 */
 	boolean checkMatch(String name) {
-		if (name.length() == 1) {
-			return this.hasName(name);
-		}
 		return this.names.stream().anyMatch(a -> name.equals(Character.toString(this.prefix).repeat(2) + a));
+	}
+
+	/**
+	 * Checks if this argument matches the given single character name.
+	 */
+	boolean checkMatch(char name) {
+		return this.hasName(Character.toString(name));
 	}
 
 	// no worries about casting here, it will always receive the correct type

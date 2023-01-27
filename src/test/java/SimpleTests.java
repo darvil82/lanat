@@ -13,8 +13,8 @@ public final class SimpleTests {
 		}
 
 		final var argumentParser = new TestingParser("Testing") {{
-			addArgument(new Argument<>("a shit", ArgumentType.STRING()).description("some description"));
-			addArgument(new Argument<>("a shit2", ArgumentType.STRING()));
+			addArgument(new Argument<>("testing", ArgumentType.STRING()).description("some description"));
+
 			addGroup(new ArgumentGroup("a group") {{
 				addArgument(Argument.simple("this is just a bool arg"));
 

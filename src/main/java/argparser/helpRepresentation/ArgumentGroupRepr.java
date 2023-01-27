@@ -9,28 +9,20 @@ import argparser.utils.displayFormatter.TextFormatter;
 import java.util.Arrays;
 import java.util.List;
 
-public abstract class ArgumentGroupRepr {
+public final class ArgumentGroupRepr {
+	private ArgumentGroupRepr() {}
+
 	public static String getArgumentDescriptions(argparser.ArgumentGroup group) {
-		final var arguments = argparser.Argument.sortByPriority(group.getArguments());
+		final var arguments = Arrays.stream(Argument.sortByPriority(group.getArguments())).filter(arg ->
+				arg.getDescription() != null
+		).toArray(Argument[]::new);
 		final var buff = new StringBuilder();
 		final var name = new TextFormatter(group.name + ':').addFormat(FormatOption.BOLD);
 
 		if (group.isExclusive())
 			name.addFormat(FormatOption.UNDERLINE);
 
-		for (int i = 0; i < arguments.length; i++) {
-			Argument<?, ?> arg = arguments[i];
-
-			final var argDesc = ArgumentRepr.getDescriptionRepresentation(arg);
-			if (argDesc == null) continue;
-
-			buff.append(argDesc);
-
-			if (i < arguments.length - 1)
-				buff.append("\n\n");
-		}
-
-		buff.append('\n');
+		ArgumentRepr.appendArgumentDescriptions(buff, arguments);
 
 		for (final var subGroup : group.getSubGroups()) {
 			buff.append(ArgumentGroupRepr.getArgumentDescriptions(subGroup));

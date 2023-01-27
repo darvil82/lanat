@@ -6,7 +6,9 @@ import argparser.utils.UtlString;
 
 import java.util.Arrays;
 
-public abstract class LayoutGenerators {
+public final class LayoutGenerators {
+	private LayoutGenerators() {}
+
 	public static String title(Command cmd) {
 		return cmd.name + (cmd.description == null ? "" : ": " + cmd.description);
 	}
@@ -61,24 +63,12 @@ public abstract class LayoutGenerators {
 	public static String argumentDescriptions(Command cmd) {
 		final var buff = new StringBuilder();
 		final var arguments = Arrays.stream(Argument.sortByPriority(cmd.getArguments())).filter(arg ->
-			arg.getParentGroup() == null && !arg.isHelpArgument()
+			arg.getParentGroup() == null && !arg.isHelpArgument() && arg.getDescription() != null
 		).toArray(Argument[]::new);
 
 		if (arguments.length == 0 && cmd.getSubGroups().length == 0) return "";
 
-		for (int i = 0; i < arguments.length; i++) {
-			Argument<?, ?> arg = arguments[i];
-			if (arg.getParentGroup() != null) continue;
-
-			final var argDesc = ArgumentRepr.getDescriptionRepresentation(arg);
-			if (argDesc == null) continue;
-
-			buff.append(argDesc);
-			if (i < arguments.length - 1)
-				buff.append("\n\n");
-		}
-
-		buff.append('\n');
+		ArgumentRepr.appendArgumentDescriptions(buff, arguments);
 
 		for (var group : cmd.getSubGroups()) {
 			buff.append(ArgumentGroupRepr.getArgumentDescriptions(group));

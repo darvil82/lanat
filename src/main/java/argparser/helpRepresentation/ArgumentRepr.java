@@ -1,10 +1,13 @@
 package argparser.helpRepresentation;
 
+import argparser.Argument;
 import argparser.utils.UtlString;
 import argparser.utils.displayFormatter.FormatOption;
 import argparser.utils.displayFormatter.TextFormatter;
 
-public abstract class ArgumentRepr {
+public final class ArgumentRepr {
+	private ArgumentRepr() {}
+
 	public static String getSynopsisRepresentation(argparser.Argument<?, ?> arg) {
 		final var repr = arg.argType.getRepresentation();
 
@@ -36,5 +39,18 @@ public abstract class ArgumentRepr {
 			return null;
 
 		return ArgumentRepr.getSynopsisRepresentation(arg) + ":\n" + UtlString.indent(desc, 3);
+	}
+
+	static void appendArgumentDescriptions(StringBuilder buff, Argument<?, ?>[] arguments) {
+		for (int i = 0; i < arguments.length; i++) {
+			Argument<?, ?> arg = arguments[i];
+
+			buff.append(getDescriptionRepresentation(arg));
+
+			if (i < arguments.length - 1)
+				buff.append("\n\n");
+		}
+
+		buff.append('\n');
 	}
 }

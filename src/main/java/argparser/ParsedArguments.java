@@ -42,7 +42,7 @@ public class ParsedArguments {
 		Objects.requireNonNull(arg);
 
 		if (!this.parsedArgs.containsKey(arg)) {
-			throw new IllegalArgumentException("argument '" + arg.getNames() + "' not found");
+			throw new IllegalArgumentException("argument '" + arg.getLongestName() + "' not found");
 		}
 
 		return new ParsedArgument<>((T)this.parsedArgs.get(arg));

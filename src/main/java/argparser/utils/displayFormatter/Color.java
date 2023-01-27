@@ -21,7 +21,7 @@ public enum Color {
 	private final Byte value;
 
 	Color(int value) {
-		this.value = (byte)value;
+		this.value = (byte) value;
 	}
 
 	@Override
@@ -34,7 +34,7 @@ public enum Color {
 	}
 
 	public static Color[] getBrightColors() {
-		return new Color[] {
+		return new Color[]{
 			BRIGHT_RED,
 			BRIGHT_GREEN,
 			BRIGHT_YELLOW,
@@ -46,7 +46,7 @@ public enum Color {
 	}
 
 	public static Color[] getDarkColors() {
-		return new Color[] {
+		return new Color[]{
 			RED,
 			GREEN,
 			YELLOW,

@@ -2,6 +2,7 @@ package argparser;
 
 
 import argparser.utils.Pair;
+
 import java.util.Arrays;
 
 public class ArgumentParser extends Command {
@@ -27,8 +28,6 @@ public class ArgumentParser extends Command {
 	}
 
 
-
-
 	/**
 	 * {@link ArgumentParser#parseArgs(String)}
 	 */
@@ -39,6 +38,7 @@ public class ArgumentParser extends Command {
 
 	/**
 	 * Parses the given command line arguments and returns a {@link ParsedArguments} object.
+	 *
 	 * @param args The command line arguments to parse.
 	 */
 	public ParsedArgumentsRoot parseArgs(String args) {

@@ -1,8 +1,8 @@
 package argparser;
 
 import argparser.argumentTypes.BooleanArgument;
-import argparser.utils.displayFormatter.Color;
 import argparser.utils.*;
+import argparser.utils.displayFormatter.Color;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,8 +12,7 @@ import java.util.function.Consumer;
 
 public class Argument<Type extends ArgumentType<TInner>, TInner>
 	implements MinimumErrorLevelConfig<CustomError>, ErrorCallbacks<TInner, Argument<Type, TInner>>, Resettable,
-		ParentCommandGetter
-{
+	ParentCommandGetter {
 	public final Type argType;
 	private char prefix = '-';
 	private final List<String> names = new ArrayList<>();
@@ -49,7 +48,9 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		this(argType, String.valueOf(charName), fullName);
 	}
 
-	/** Creates an argument with a {@link BooleanArgument} type. */
+	/**
+	 * Creates an argument with a {@link BooleanArgument} type.
+	 */
 	public static Argument<BooleanArgument, Boolean> simple(String name) {
 		return new Argument<>(ArgumentType.BOOLEAN(), name);
 	}
@@ -223,6 +224,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 	/**
 	 * Pass the specified values array to the argument type to parse it.
+	 *
 	 * @param tokenIndex This is the global index of the token that is currently being parsed. Used when
 	 * dispatching errors.
 	 */
@@ -236,7 +238,9 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 						ParseError.ParseErrorType.MULTIPLE_ARGS_IN_EXCLUSIVE_GROUP_USED,
 						this.parentCmd.parsingState.getCurrentTokenIndex(),
 						this, values.length
-					) {{ this.setArgumentGroup(exclusivityResult); }}
+					) {{
+						this.setArgumentGroup(exclusivityResult);
+					}}
 				);
 				return;
 			}
@@ -254,7 +258,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * {@link #parseValues(String[], short)} but passes in an empty values array to parse.
 	 */
 	void parseValues() {
-		this.parseValues(new String[0], (short)0);
+		this.parseValues(new String[0], (short) 0);
 	}
 
 	/**
@@ -304,7 +308,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 				|| (!this.allowUnique && this.parentCmd.uniqueArgumentReceivedValue())
 		) return;
 
-		this.onCorrectCallback.accept((TInner)okValue);
+		this.onCorrectCallback.accept((TInner) okValue);
 	}
 
 	public boolean equals(Argument<?, ?> obj) {
@@ -322,8 +326,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	/**
 	 * Compares two arguments by the synopsis view priority order.
 	 * <p>
-	 *     <b>Order:</b>
-	 *     Positional > Obligatory > Optional.
+	 * <b>Order:</b>
+	 * Positional > Obligatory > Optional.
 	 * </p>
 	 *
 	 * @return 0 if both arguments are equal, -1 if the first argument
@@ -420,7 +424,9 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		this.onCorrectCallback = callback;
 	}
 
-	/** <b>NOTE:</b> Only invokes the error callback! Use {@link Argument#invokeCallbacks(Object)} for invoking both. */
+	/**
+	 * <b>NOTE:</b> Only invokes the error callback! Use {@link Argument#invokeCallbacks(Object)} for invoking both.
+	 */
 	@Override
 	public void invokeCallbacks() {
 		if (this.onErrorCallback == null) return;
@@ -438,5 +444,6 @@ interface ArgumentAdder {
 	 * @param <TInner> the actual type of the value passed to the argument
 	 */
 	<T extends ArgumentType<TInner>, TInner> void addArgument(Argument<T, TInner> argument);
+
 	Argument<?, ?>[] getArguments();
 }

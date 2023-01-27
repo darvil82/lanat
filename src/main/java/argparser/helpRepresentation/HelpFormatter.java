@@ -2,12 +2,15 @@ package argparser.helpRepresentation;
 
 import argparser.Command;
 import argparser.ParentCommandGetter;
+import argparser.utils.UtlString;
 import argparser.utils.displayFormatter.Color;
 import argparser.utils.displayFormatter.FormatOption;
 import argparser.utils.displayFormatter.TextFormatter;
-import argparser.utils.UtlString;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class HelpFormatter {
 	Command parentCmd;
@@ -37,7 +40,7 @@ public class HelpFormatter {
 	}
 
 	public void setIndentSize(int indentSize) {
-		this.indentSize = (byte)Math.max(indentSize, 0);
+		this.indentSize = (byte) Math.max(indentSize, 0);
 	}
 
 	public byte getIndentSize() {
@@ -71,7 +74,6 @@ public class HelpFormatter {
 	}
 
 	public final void addToLayout(LayoutItem... layoutItems) {
-		this.layout.addAll(Arrays.asList(layoutItems));
 		Collections.addAll(this.layout, layoutItems);
 	}
 
@@ -96,8 +98,8 @@ public class HelpFormatter {
 
 			if (HelpFormatter.debugLayout)
 				buffer.append(new TextFormatter("LayoutItem " + i + ":\n")
-						.addFormat(FormatOption.UNDERLINE)
-						.setColor(Color.GREEN)
+					.addFormat(FormatOption.UNDERLINE)
+					.setColor(Color.GREEN)
 				);
 
 			buffer.append(UtlString.wrap(generatedContent, lineWrapMax)).append('\n');
@@ -108,6 +110,7 @@ public class HelpFormatter {
 
 	/**
 	 * Indents a string by the indent size specified in the {@link HelpFormatter} of the specified {@link Command}.
+	 *
 	 * @param str the string to indent
 	 * @param cmd the {@link Command} that has the {@link HelpFormatter}
 	 * @return the indented string
@@ -119,6 +122,7 @@ public class HelpFormatter {
 	/**
 	 * Indents a string by the indent size specified in the {@link HelpFormatter}
 	 * instance of the {@link Command} this object belongs to.
+	 *
 	 * @param str the string to indent
 	 * @param obj the object that belongs to the {@link Command} that has the {@link HelpFormatter}
 	 * @return the indented string

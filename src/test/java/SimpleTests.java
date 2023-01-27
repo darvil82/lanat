@@ -1,10 +1,10 @@
-import argparser.*;
-import argparser.argumentTypes.*;
+import argparser.Argument;
+import argparser.ArgumentGroup;
+import argparser.ArgumentType;
+import argparser.Command;
+import argparser.argumentTypes.EnumArgument;
+import argparser.argumentTypes.IntRangeArgument;
 import argparser.helpRepresentation.HelpFormatter;
-import argparser.helpRepresentation.LayoutItem;
-import argparser.utils.displayFormatter.TextFormatter;
-
-import java.util.function.Consumer;
 
 public final class SimpleTests {
 	public static void main(String[] args) {
@@ -22,20 +22,20 @@ public final class SimpleTests {
 				addArgument(Argument.simple("this is just a bool arg"));
 
 				addArgument(new Argument<>("range", new IntRangeArgument(1, 10))
-						.onOk((value) -> System.out.println("Range: " + value))
-						.description("word ".repeat(50))
+					.onOk((value) -> System.out.println("Range: " + value))
+					.description("word ".repeat(50))
 				);
 				addArgument(new Argument<>("number", new EnumArgument<>(Something.ONE))
-						.positional()
-						.description("Pick a number")
+					.positional()
+					.description("Pick a number")
 				);
 				addGroup(new ArgumentGroup("a subgroup") {{
 					exclusive();
 					addArgument(new Argument<>("string", ArgumentType.STRING())
-							.description("a string")
+						.description("a string")
 					);
 					addArgument(new Argument<>("bool", ArgumentType.BOOLEAN())
-							.description("a bool")
+						.description("a bool")
 					);
 				}});
 			}});

@@ -69,16 +69,16 @@ public class TextFormatter {
 	public boolean isSimple() {
 		return (
 			this.contents.length() == 0
-			|| formattingNotDefined()
-			|| !enableSequences
+				|| formattingNotDefined()
+				|| !enableSequences
 		) && this.concatList.size() == 0; // we cant skip if we need to concat stuff!
 	}
 
 	public boolean formattingNotDefined() {
 		return (
 			this.foregroundColor == null
-			&& this.backgroundColor == null
-			&& this.formatOptions.isEmpty()
+				&& this.backgroundColor == null
+				&& this.formatOptions.isEmpty()
 		);
 	}
 
@@ -165,6 +165,8 @@ public class TextFormatter {
 		return ESC + "[" + code + "m";
 	}
 
-	/** Escape character which represents the start of a terminal sequence */
+	/**
+	 * Escape character which represents the start of a terminal sequence
+	 */
 	public static final char ESC = '\u001B';
 }

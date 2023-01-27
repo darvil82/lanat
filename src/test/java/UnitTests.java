@@ -1,14 +1,9 @@
 import argparser.*;
 import argparser.argumentTypes.TupleArgumentType;
 import argparser.utils.UtlString;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -47,7 +42,6 @@ class TestingParser extends ArgumentParser {
 		return res;
 	}
 }
-
 
 
 public class UnitTests {
@@ -137,70 +131,70 @@ public class UnitTests {
 		@Test
 		public void testFirstObligatoryArgument() {
 			assertErrorOutput("subcommand", """
-			ERROR
-			Testing <- subcommand
-			Obligatory argument 'what' not used.""");
+				ERROR
+				Testing <- subcommand
+				Obligatory argument 'what' not used.""");
 		}
 
 		@Test
 		public void testLastObligatoryArgument() {
 			assertErrorOutput("foo subcommand another", """
-			ERROR
-			Testing foo subcommand another <-
-			Obligatory argument 'number' for command 'another' not used.""");
+				ERROR
+				Testing foo subcommand another <-
+				Obligatory argument 'number' for command 'another' not used.""");
 		}
 
 		@Test
 		public void testExceedValueCount() {
 			assertErrorOutput("--what [1 2 3 4 5 6 7 8 9 10]", """
-			ERROR
-			Testing --what [ 1 2 3 4 5 6 7 8 9 10 ]
-			Incorrect number of values for argument 'what'.
-			Expected from 1 to 3 values, but got 10.""");
+				ERROR
+				Testing --what [ 1 2 3 4 5 6 7 8 9 10 ]
+				Incorrect number of values for argument 'what'.
+				Expected from 1 to 3 values, but got 10.""");
 		}
 
 
 		@Test
 		public void testMissingValue() {
 			assertErrorOutput("--what", """
-			ERROR
-			Testing --what <-
-			Incorrect number of values for argument 'what'.
-			Expected from 1 to 3 values, but got 0.""");
+				ERROR
+				Testing --what <-
+				Incorrect number of values for argument 'what'.
+				Expected from 1 to 3 values, but got 0.""");
 		}
 
 		@Test
 		public void testMissingValueBeforeToken() {
 			assertErrorOutput("--what subcommand", """
-			ERROR
-			Testing --what <- subcommand
-			Incorrect number of values for argument 'what'.
-			Expected from 1 to 3 values, but got 0.""");
+				ERROR
+				Testing --what <- subcommand
+				Incorrect number of values for argument 'what'.
+				Expected from 1 to 3 values, but got 0.""");
 		}
 
 		@Test
 		public void testMissingValueWithTuple() {
 			assertErrorOutput("--what []", """
-			ERROR
-			Testing --what [ ]
-			Incorrect number of values for argument 'what'.
-			Expected from 1 to 3 values, but got 0.""");
+				ERROR
+				Testing --what [ ]
+				Incorrect number of values for argument 'what'.
+				Expected from 1 to 3 values, but got 0.""");
 		}
 
 		@Test
 		public void testInvalidArgumentTypeValue() {
 			assertErrorOutput("foo subcommand another bar", """
-			ERROR
-			Testing foo subcommand another bar
-			Invalid integer value: 'bar'.""");
+				ERROR
+				Testing foo subcommand another bar
+				Invalid integer value: 'bar'.""");
 		}
 
 		@Test
 		public void testUnmatchedToken() {
 			assertErrorOutput("[foo] --unknown", """
-			WARNING
-			Testing [ foo ] --unknown
-			Token '--unknown' does not correspond with a valid argument, value, or command.""");
+				WARNING
+				Testing [ foo ] --unknown
+				Token '--unknown' does not correspond with a valid argument, value, or command.""");
 		}
 	}
 

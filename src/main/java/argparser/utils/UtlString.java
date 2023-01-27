@@ -5,7 +5,8 @@ import java.util.Objects;
 import java.util.function.Predicate;
 
 public final class UtlString {
-	private UtlString() {}
+	private UtlString() {
+	}
 
 	/**
 	 * Apply a predicate for each character in the string, if any fails, return false.
@@ -49,6 +50,7 @@ public final class UtlString {
 	/**
 	 * Wraps a string into multiple lines in order to fit in the given maximum width.
 	 * Wrapping respects words, so no word will be split in two lines.
+	 *
 	 * @param str The text to wrap.
 	 * @param maxWidth The maximum width that the text should never exceed.
 	 * @return The wrapped text.
@@ -74,7 +76,7 @@ public final class UtlString {
 				if (wordBuff.isEmpty())
 					indentBuff.append(chr);
 
-				// if the word buffer is not empty, we are in the middle of a word, so append the word buffer to the end buffer
+					// if the word buffer is not empty, we are in the middle of a word, so append the word buffer to the end buffer
 				else {
 					// add a newline if the line width exceeds the maximum width
 					if (lineWidth >= maxWidth) {
@@ -87,9 +89,9 @@ public final class UtlString {
 					wordBuff.setLength(0);
 				}
 
-			/* if the char is a newline, same as above but we reset the indentation
-			 * After this character, new indentation may be added. We need to push the new one right when the
-			 * next word starts, so jumped is set to true and checked below. */
+				/* if the char is a newline, same as above but we reset the indentation
+				 * After this character, new indentation may be added. We need to push the new one right when the
+				 * next word starts, so jumped is set to true and checked below. */
 			} else if (chr == '\n') {
 				endBuffer.append(wordBuff).append('\n');
 				wordBuff.setLength(0);
@@ -97,8 +99,8 @@ public final class UtlString {
 				jumped = true;
 				lineWidth = 0;
 
-			/* just append any other character to the word buffer.
-			 * we need to append the indentation to the end buffer if we jumped to a new line */
+				/* just append any other character to the word buffer.
+				 * we need to append the indentation to the end buffer if we jumped to a new line */
 			} else {
 				if (jumped) {
 					endBuffer.append(indentBuff);
@@ -122,6 +124,7 @@ public final class UtlString {
 	/**
 	 * Adds <code>padCount</code> characters (specified with <code>padChar</code>) at the left of the string.
 	 * If the string has multiple lines, the padding is added on all of them.
+	 *
 	 * @param str The string to pad.
 	 * @param padCount The amount of characters to add.
 	 * @param padChar The character to use for padding.
@@ -144,6 +147,7 @@ public final class UtlString {
 	/**
 	 * Adds <code>padCount</code> space characters at the left of the string.
 	 * If the string has multiple lines, the padding is added on all of them.
+	 *
 	 * @param str The string to pad.
 	 * @param padCount The amount of spaces to add.
 	 * @return The padded string.
@@ -169,7 +173,7 @@ public final class UtlString {
 
 	public static String trim(String str, String pattern) {
 		return str.replaceAll("^" + pattern + "+", "")
-				.replaceAll(pattern + "+$", "");
+			.replaceAll(pattern + "+$", "");
 	}
 
 	public static String trim(String str) {

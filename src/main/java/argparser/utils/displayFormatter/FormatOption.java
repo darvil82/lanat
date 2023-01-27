@@ -14,7 +14,7 @@ public enum FormatOption {
 	private final Byte value;
 
 	FormatOption(int value) {
-		this.value = (byte)value;
+		this.value = (byte) value;
 	}
 
 	@Override

@@ -17,7 +17,7 @@ import java.util.List;
  * This is used to display the errors on screen.
  *
  * <p>
- *  Example class that inherits from this:
+ * Example class that inherits from this:
  * <pre>
  * {@code
  * class MyHandler extends ParseStateErrorBase<MyHandler.MyErrors> {
@@ -49,7 +49,7 @@ import java.util.List;
  * }
  * </pre>
  * </p>
- *
+ * <p>
  * The enum type must implement {@link ErrorLevelProvider}. This allows the error text formatter to color errors
  * according to their severity.
  *
@@ -326,6 +326,7 @@ public class ErrorHandler {
 	 * }}</pre>
 	 * The nesting level of the second subcommand is <strong>1</strong> (starting at 0),
 	 * and its index in the token list is <strong>3</strong>.
+	 *
 	 * @return <code>-1</code> if the command is not found.
 	 */
 	private int getCommandTokenIndexByNestingLevel(int level) {

@@ -1,7 +1,6 @@
 package argparser.argumentTypes;
 
 import argparser.ArgumentType;
-import argparser.utils.displayFormatter.FormatOption;
 import argparser.utils.displayFormatter.TextFormatter;
 
 public class StringArgument extends ArgumentType<String> {

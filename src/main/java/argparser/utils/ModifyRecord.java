@@ -4,6 +4,7 @@ import java.util.function.Supplier;
 
 /**
  * Provides a way to see if the inner value has been modified since the constructor was called.
+ *
  * @param <T> The type of the inner value.
  */
 public class ModifyRecord<T> {
@@ -29,6 +30,7 @@ public class ModifyRecord<T> {
 
 	/**
 	 * Sets the value to the specified value if it has not been modified.
+	 *
 	 * @param value The value to set.
 	 */
 	public void setIfNotModified(T value) {
@@ -39,6 +41,7 @@ public class ModifyRecord<T> {
 
 	/**
 	 * Sets the value to the specified value if it has not been modified.
+	 *
 	 * @param value The value to set.
 	 */
 	public void setIfNotModified(ModifyRecord<T> value) {
@@ -49,6 +52,7 @@ public class ModifyRecord<T> {
 
 	/**
 	 * Sets the value to the supplied value from the callback if it has not been modified.
+	 *
 	 * @param cb The callback that supplies the value to set.
 	 */
 	public void setIfNotModified(Supplier<T> cb) {

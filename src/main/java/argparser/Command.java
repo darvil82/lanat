@@ -5,15 +5,16 @@ import argparser.utils.*;
 import argparser.utils.displayFormatter.Color;
 
 import java.util.*;
-import java.util.function.*;
+import java.util.function.BiConsumer;
+import java.util.function.BiPredicate;
+import java.util.function.Consumer;
 
 /**
  * A command is a container for {@link Argument}s and other Sub{@link Command}s.
  */
 public class Command
 	extends ErrorsContainer<CustomError>
-	implements ErrorCallbacks<Command, Command>, ArgumentAdder, ArgumentGroupAdder, Resettable
-{
+	implements ErrorCallbacks<Command, Command>, ArgumentAdder, ArgumentGroupAdder, Resettable {
 	public final String name, description;
 	final ArrayList<Argument<?, ?>> arguments = new ArrayList<>();
 	final ArrayList<Command> subCommands = new ArrayList<>();
@@ -25,7 +26,9 @@ public class Command
 	private boolean isRootCommand = false;
 	private final ModifyRecord<HelpFormatter> helpFormatter = new ModifyRecord<>(new HelpFormatter(this));
 
-	/** A pool of the colors that an argument will have when being represented on the help */
+	/**
+	 * A pool of the colors that an argument will have when being represented on the help
+	 */
 	final LoopPool<Color> colorsPool = new LoopPool<>(-1, Color.getBrightColors());
 
 
@@ -267,7 +270,7 @@ public class Command
 
 		return errCode;
 	}
-	
+
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//                                         Argument tokenization and parsing    							      //
@@ -330,6 +333,7 @@ public class Command
 		void addError(CustomError customError) {
 			this.customErrors.add(customError);
 		}
+
 		@Override
 		public boolean hasExitErrors() {
 			return super.hasExitErrors() || this.anyErrorInMinimum(this.customErrors, false);
@@ -405,7 +409,7 @@ public class Command
 			if (cChar == '\\') {
 				currentValue.append(chars[++values.i]); // skip the \ character and append the next character
 
-			// reached a possible value wrapped in quotes
+				// reached a possible value wrapped in quotes
 			} else if (cChar == '"' || cChar == '\'') {
 				// if we are already in an open string, push the current value and close the string. Make sure
 				// that the current char is the same as the one that opened the string
@@ -414,21 +418,21 @@ public class Command
 					currentValue.setLength(0);
 					this.tokenizingState.stringOpen = false;
 
-				// the string is open, but the character does not match. Push it as a normal character
+					// the string is open, but the character does not match. Push it as a normal character
 				} else if (this.tokenizingState.stringOpen) {
 					currentValue.append(cChar);
 
-				// the string is not open, so open it and set the current string char to the current char
+					// the string is not open, so open it and set the current string char to the current char
 				} else {
 					this.tokenizingState.stringOpen = true;
 					values.currentStringChar = cChar;
 				}
 
-			// append characters to the current value as long as we are in a string
+				// append characters to the current value as long as we are in a string
 			} else if (this.tokenizingState.stringOpen) {
 				currentValue.append(cChar);
 
-			// reached a possible tuple start character
+				// reached a possible tuple start character
 			} else if (cChar == TUPLE_CHARS.first()) {
 				// if we are already in a tuple, set error and stop tokenizing
 				if (this.tokenizingState.tupleOpen) {
@@ -442,7 +446,7 @@ public class Command
 				addToken.accept(TokenType.ARGUMENT_VALUE_TUPLE_START, TUPLE_CHARS.first().toString());
 				this.tokenizingState.tupleOpen = true;
 
-			// reached a possible tuple end character
+				// reached a possible tuple end character
 			} else if (cChar == TUPLE_CHARS.second()) {
 				// if we are not in a tuple, set error and stop tokenizing
 				if (!this.tokenizingState.tupleOpen) {
@@ -460,12 +464,12 @@ public class Command
 				currentValue.setLength(0);
 				this.tokenizingState.tupleOpen = false;
 
-			// reached a "--". Push all the rest as a FORWARD_VALUE.
+				// reached a "--". Push all the rest as a FORWARD_VALUE.
 			} else if (cChar == '-' && charAtRelativeIndex.test(1, '-') && charAtRelativeIndex.test(2, ' ')) {
 				addToken.accept(TokenType.FORWARD_VALUE, content.substring(values.i + 3));
 				break;
 
-			// reached a possible separator
+				// reached a possible separator
 			} else if (
 				(cChar == ' ' && !currentValue.isEmpty()) // there's a space and some value to tokenize
 					// also check if this is defining the value of an argument, or we are in a tuple. If so, don't tokenize
@@ -473,7 +477,7 @@ public class Command
 			) {
 				tokenizeSection.run();
 
-			// push the current char to the current value
+				// push the current char to the current value
 			} else if (cChar != ' ') {
 				currentValue.append(cChar);
 			}
@@ -623,8 +627,8 @@ public class Command
 	/**
 	 * Reads the next tokens and parses them as values for the given argument.
 	 * <p>
-	 *     This keeps in mind the type of the argument, and will stop reading tokens when it
-	 *     reaches the max number of values, or if the end of a tuple is reached.
+	 * This keeps in mind the type of the argument, and will stop reading tokens when it
+	 * reaches the max number of values, or if the end of a tuple is reached.
 	 * </p>
 	 */
 	private void executeArgParse(Argument<?, ?> arg) {
@@ -674,7 +678,7 @@ public class Command
 		}
 
 		// pass the arg values to the argument sub parser
-		arg.parseValues(tempArgs.stream().map(Token::contents).toArray(String[]::new), (short)(parsingState.currentTokenIndex + ifTupleOffset));
+		arg.parseValues(tempArgs.stream().map(Token::contents).toArray(String[]::new), (short) (parsingState.currentTokenIndex + ifTupleOffset));
 
 		parsingState.currentTokenIndex += newCurrentTokenIndex;
 	}
@@ -682,7 +686,7 @@ public class Command
 	/**
 	 * Parses the given string as an argument value for the given argument.
 	 * <p>
-	 *     If the value passed in is present (not empty or null), the argument should only require 0 or 1 values.
+	 * If the value passed in is present (not empty or null), the argument should only require 0 or 1 values.
 	 * </p>
 	 */
 	private void executeArgParse(Argument<?, ?> arg, String value) {
@@ -722,14 +726,14 @@ public class Command
 				if (a.argType.getNumberOfArgValues().isZero()) {
 					this.executeArgParse(a);
 
-				// -- arguments now may accept 1 or more values from now on:
+					// -- arguments now may accept 1 or more values from now on:
 
-				// if this argument is the last one in the list, then we can parse the next values after it
+					// if this argument is the last one in the list, then we can parse the next values after it
 				} else if (constIndex == args.length() - 1) {
 					parsingState.currentTokenIndex++;
 					this.executeArgParse(a);
 
-				// if this argument is not the last one in the list, then we can parse the rest of the chars as the value
+					// if this argument is not the last one in the list, then we can parse the rest of the chars as the value
 				} else {
 					this.executeArgParse(a, args.substring(constIndex + 1));
 				}

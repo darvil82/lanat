@@ -10,7 +10,8 @@ public abstract class ErrorsContainer<T extends ErrorLevelProvider> implements M
 	private ModifyRecord<ErrorLevel> minimumDisplayErrorLevel = new ModifyRecord<>(ErrorLevel.INFO);
 	private final List<T> errors = new ArrayList<>();
 
-	public ErrorsContainer() {}
+	public ErrorsContainer() {
+	}
 
 	public ErrorsContainer(
 		ModifyRecord<ErrorLevel> minimumExitErrorLevelRecord,

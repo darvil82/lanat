@@ -45,7 +45,7 @@ public class ParsedArguments {
 			throw new IllegalArgumentException("argument '" + arg.getLongestName() + "' not found");
 		}
 
-		return new ParsedArgument<>((T)this.parsedArgs.get(arg));
+		return new ParsedArgument<>((T) this.parsedArgs.get(arg));
 	}
 
 	/**
@@ -56,7 +56,7 @@ public class ParsedArguments {
 	 * <pre>
 	 * {@code var argValue = parsedArguments.<String>get("rootcommand.subcommand.argument")}
 	 * </pre>
-	 * 
+	 * <p>
 	 * More info at {@link #get(String...)}
 	 *
 	 * @param argRoute The route to the argument, separated by a separator set by {@link #setSeparator(String)}
@@ -98,7 +98,7 @@ public class ParsedArguments {
 		ParsedArguments matchedParsedArgs;
 
 		if (argRoute.length == 1) {
-			return (ParsedArgument<T>)this.get(this.getArgument(argRoute[0]));
+			return (ParsedArgument<T>) this.get(this.getArgument(argRoute[0]));
 		} else if ((matchedParsedArgs = this.getSubParsedArgs(argRoute[0])) != null) {
 			return matchedParsedArgs.get(Arrays.copyOfRange(argRoute, 1, argRoute.length));
 		} else {
@@ -155,6 +155,7 @@ public class ParsedArguments {
 
 		/**
 		 * Specifies a function to run if the argument was parsed.
+		 *
 		 * @param onDefined The function to run if the argument was parsed. This function will receive the parsed value.
 		 */
 		public ParsedArgument<T> defined(Consumer<T> onDefined) {
@@ -188,6 +189,7 @@ public class ParsedArguments {
 
 		/**
 		 * Returns the supplied fallback value if the argument was not parsed, otherwise returns the parsed value.
+		 *
 		 * @param fallbackValue The fallback value to return if the argument was not parsed.
 		 */
 		public T undefined(T fallbackValue) {
@@ -197,6 +199,7 @@ public class ParsedArguments {
 		/**
 		 * Specifies a supplier function that will be called when the argument is not parsed.
 		 * The supplier will be called and its return value will be returned if so.
+		 *
 		 * @param fallbackCb The supplier function to call if the argument was not parsed.
 		 */
 		public T undefined(Supplier<T> fallbackCb) {
@@ -213,6 +216,7 @@ public class ParsedArguments {
 
 		/**
 		 * Returns <code>true</code> if the argument was parsed and the value matches the given predicate, false otherwise.
+		 *
 		 * @param predicate The predicate to test the value against (if the argument was parsed). This predicate will
 		 * never receive a <code>null</code> value.
 		 */

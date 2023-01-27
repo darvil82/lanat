@@ -1,8 +1,8 @@
 package argparser;
 
+import argparser.utils.UtlString;
 import argparser.utils.displayFormatter.FormatOption;
 import argparser.utils.displayFormatter.TextFormatter;
-import argparser.utils.UtlString;
 
 import java.util.ArrayList;
 
@@ -38,12 +38,12 @@ class ErrorFormatter {
 
 		return
 			formatter.setContents(String.format(" ┌─%s%s", this.errorLevel, !this.tokensView.isEmpty() ? "\n" : "")).toString()
-			+ this.tokensView
-			// first insert a vertical bar at the start of each line
-			+ this.contents.replaceAll("^|\\n", formatter.setContents("\n │ ").toString())
-			// then insert a horizontal bar at the end, with the length of the longest line approximately
-			+ formatter.setContents("\n └" + "─".repeat(Math.max(maxLength - 5, 0)) + " ───── ── ─")
-			+ "\n";
+				+ this.tokensView
+				// first insert a vertical bar at the start of each line
+				+ this.contents.replaceAll("^|\\n", formatter.setContents("\n │ ").toString())
+				// then insert a horizontal bar at the end, with the length of the longest line approximately
+				+ formatter.setContents("\n └" + "─".repeat(Math.max(maxLength - 5, 0)) + " ───── ── ─")
+				+ "\n";
 	}
 
 	public ErrorFormatter displayTokens(int start, int offset, boolean placeArrow) {

@@ -1,6 +1,5 @@
 package argparser.helpRepresentation;
 
-import argparser.ArgumentParser;
 import argparser.Command;
 import argparser.utils.UtlString;
 
@@ -22,11 +21,11 @@ public class LayoutItem {
 	}
 
 	public LayoutItem(String content) {
-		this(() -> content);
+		this((c) -> content);
 	}
 
 	public LayoutItem indent(int indent) {
-		this.indentCount = (byte)Math.max(indent, 0);
+		this.indentCount = (byte) Math.max(indent, 0);
 		return this;
 	}
 
@@ -54,9 +53,9 @@ public class LayoutItem {
 		final var content = this.layoutGenerator.apply(helpFormatter.parentCmd);
 		return content == null ? null : (
 			"\n".repeat(this.marginTop)
-			+ (this.title == null ? "" : this.title + "\n\n")
-			+ UtlString.indent(UtlString.trim(content), this.indentCount * helpFormatter.getIndentSize())
-			+ "\n".repeat(this.marginBottom)
+				+ (this.title == null ? "" : this.title + "\n\n")
+				+ UtlString.indent(UtlString.trim(content), this.indentCount * helpFormatter.getIndentSize())
+				+ "\n".repeat(this.marginBottom)
 		);
 
 	}

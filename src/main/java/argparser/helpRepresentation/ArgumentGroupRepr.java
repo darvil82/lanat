@@ -2,7 +2,6 @@ package argparser.helpRepresentation;
 
 import argparser.Argument;
 import argparser.ArgumentGroup;
-import argparser.utils.UtlString;
 import argparser.utils.displayFormatter.FormatOption;
 import argparser.utils.displayFormatter.TextFormatter;
 
@@ -10,11 +9,12 @@ import java.util.Arrays;
 import java.util.List;
 
 public final class ArgumentGroupRepr {
-	private ArgumentGroupRepr() {}
+	private ArgumentGroupRepr() {
+	}
 
 	public static String getArgumentDescriptions(argparser.ArgumentGroup group) {
 		final var arguments = Arrays.stream(Argument.sortByPriority(group.getArguments())).filter(arg ->
-				arg.getDescription() != null
+			arg.getDescription() != null
 		).toArray(Argument[]::new);
 		final var buff = new StringBuilder();
 		final var name = new TextFormatter(group.name + ':').addFormat(FormatOption.BOLD);

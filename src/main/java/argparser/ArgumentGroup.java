@@ -2,8 +2,6 @@ package argparser;
 
 import argparser.utils.Resettable;
 import argparser.utils.UtlString;
-import argparser.utils.displayFormatter.FormatOption;
-import argparser.utils.displayFormatter.TextFormatter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +14,9 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resetta
 	private final List<Argument<?, ?>> arguments = new ArrayList<>();
 	private final List<ArgumentGroup> subGroups = new ArrayList<>();
 	private boolean isExclusive = false;
-	/** When set to true, indicates that one argument in this group has been used. */
+	/**
+	 * When set to true, indicates that one argument in this group has been used.
+	 */
 	private boolean argumentUsed = false;
 
 	public ArgumentGroup(String name, String description) {
@@ -95,7 +95,7 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resetta
 		if (
 			this.isExclusive && (
 				this.subGroups.stream().filter(g -> g != childCallee).anyMatch(g -> g.argumentUsed)
-				|| this.arguments.stream().anyMatch(a -> a.getUsageCount() > 0)
+					|| this.arguments.stream().anyMatch(a -> a.getUsageCount() > 0)
 			)
 		) {
 			return this;
@@ -137,5 +137,6 @@ interface ArgumentGroupAdder {
 	 * Adds an argument group to this element.
 	 */
 	void addGroup(ArgumentGroup group);
+
 	ArgumentGroup[] getSubGroups();
 }

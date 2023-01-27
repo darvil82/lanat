@@ -1,12 +1,12 @@
 package argparser.helpRepresentation;
 
 import argparser.Argument;
-import argparser.utils.UtlString;
 import argparser.utils.displayFormatter.FormatOption;
 import argparser.utils.displayFormatter.TextFormatter;
 
 public final class ArgumentRepr {
-	private ArgumentRepr() {}
+	private ArgumentRepr() {
+	}
 
 	public static String getSynopsisRepresentation(argparser.Argument<?, ?> arg) {
 		final var repr = arg.argType.getRepresentation();

@@ -11,7 +11,8 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 public class Argument<Type extends ArgumentType<TInner>, TInner>
-	implements MinimumErrorLevelConfig<CustomError>, ErrorCallbacks<TInner, Argument<Type, TInner>>, Resettable, ParentCommandGetter
+	implements MinimumErrorLevelConfig<CustomError>, ErrorCallbacks<TInner, Argument<Type, TInner>>, Resettable,
+		ParentCommandGetter
 {
 	public final Type argType;
 	private char prefix = '-';
@@ -152,10 +153,6 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		return new ArrayList<>(List.of(this.getNames())) {{
 			sort((a, b) -> b.length() - a.length());
 		}}.get(0);
-	}
-
-	public String getDisplayName() {
-		return this.names.get(0);
 	}
 
 	public Argument<Type, TInner> description(String description) {

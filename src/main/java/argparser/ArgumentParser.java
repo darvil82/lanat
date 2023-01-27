@@ -6,6 +6,18 @@ import java.util.Arrays;
 
 public class ArgumentParser extends Command {
 	private boolean isParsed = false;
+	private String license;
+
+
+	public String getLicense() {
+		return this.license;
+	}
+
+	public void setLicense(String license) {
+		this.license = license;
+	}
+
+
 	public ArgumentParser(String programName, String description) {
 		super(programName, description, true);
 	}
@@ -13,6 +25,8 @@ public class ArgumentParser extends Command {
 	public ArgumentParser(String programName) {
 		this(programName, null);
 	}
+
+
 
 
 	/**

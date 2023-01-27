@@ -201,8 +201,9 @@ class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 	}
 
 	public static List<ParseError> filter(List<ParseError> errors) {
-		var newList = new ArrayList<>(errors);
-		for (var err : errors) {
+		final var newList = new ArrayList<>(errors);
+
+		for (final var err : errors) {
 			/* if we are going to show an error about an argument being incorrectly used, and that argument is defined
 			 * as obligatory, we don't need to show the obligatory error since its obvious that the user knows that
 			 * the argument is obligatory */
@@ -214,6 +215,7 @@ class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 				);
 			}
 		}
+
 		return newList;
 	}
 
@@ -222,20 +224,20 @@ class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 		this.fmt()
 			.setContents(String.format(
 				"Incorrect number of values for argument '%s'.%nExpected %s, but got %d.",
-				argument.getDisplayName(), argument.argType.getNumberOfArgValues().getMessage(), Math.max(this.valueCount - 1, 0)
+				argument.getLongestName(), argument.argType.getNumberOfArgValues().getMessage(), Math.max(this.valueCount - 1, 0)
 			))
 			.displayTokens(this.tokenIndex + 1, this.valueCount, this.valueCount == 0);
 	}
 
 	@Handler("OBLIGATORY_ARGUMENT_NOT_USED")
 	protected void handleObligatoryArgumentNotUsed() {
-		var argCmd = argument.getParentCommand();
+		final var argCmd = argument.getParentCommand();
 
 		this.fmt()
 			.setContents(
 				argCmd.isRootCommand()
-					? String.format("Obligatory argument '%s' not used.", argument.getDisplayName())
-					: String.format("Obligatory argument '%s' for command '%s' not used.", argument.getDisplayName(), argCmd.name)
+					? String.format("Obligatory argument '%s' not used.", argument.getLongestName())
+					: String.format("Obligatory argument '%s' for command '%s' not used.", argument.getLongestName(), argCmd.name)
 			)
 			.displayTokens(this.tokenIndex + 1);
 	}

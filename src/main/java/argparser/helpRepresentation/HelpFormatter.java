@@ -1,7 +1,5 @@
 package argparser.helpRepresentation;
 
-import argparser.Argument;
-import argparser.ArgumentGroup;
 import argparser.Command;
 import argparser.ParentCommandGetter;
 import argparser.utils.displayFormatter.Color;
@@ -20,12 +18,12 @@ public class HelpFormatter {
 
 	public HelpFormatter(Command parentCmd) {
 		this.parentCmd = parentCmd;
-		this.setLayout();
+		this.initLayout();
 	}
 
 	// the user can create a helpFormatter, though, the parentCmd should be applied later (otherwise stuff will fail)
 	public HelpFormatter() {
-		this.setLayout();
+		this.initLayout();
 	}
 
 	public HelpFormatter(HelpFormatter other) {
@@ -46,16 +44,16 @@ public class HelpFormatter {
 		return indentSize;
 	}
 
-	protected List<LayoutItem> getLayout() {
+	public List<LayoutItem> getLayout() {
 		return layout;
 	}
 
-	public void setLayout() {
-		this.changeLayout(
+	protected void initLayout() {
+		this.setLayout(
 			new LayoutItem(LayoutGenerators::title),
 			new LayoutItem(LayoutGenerators::synopsis).indent(1).margin(1),
-			new LayoutItem((c) -> "Description:").marginTop(1),
-			new LayoutItem(LayoutGenerators::argumentDescriptions).indent(1)
+			new LayoutItem(LayoutGenerators::argumentDescriptions).title("Description:").indent(1),
+			new LayoutItem(LayoutGenerators::commandLicense).marginTop(2)
 		);
 	}
 
@@ -72,16 +70,16 @@ public class HelpFormatter {
 		this.layout.add(to, item);
 	}
 
-	protected final void addToLayout(LayoutItem... layoutItems) {
+	public final void addToLayout(LayoutItem... layoutItems) {
 		this.layout.addAll(Arrays.asList(layoutItems));
 		Collections.addAll(this.layout, layoutItems);
 	}
 
-	protected final void addToLayout(int after, LayoutItem... layoutItems) {
-		this.layout.addAll(after, Arrays.asList(layoutItems));
+	public final void addToLayout(int at, LayoutItem... layoutItems) {
+		this.layout.addAll(at, Arrays.asList(layoutItems));
 	}
 
-	protected final void changeLayout(LayoutItem... layoutItems) {
+	public final void setLayout(LayoutItem... layoutItems) {
 		this.layout = new ArrayList<>(Arrays.asList(layoutItems));
 	}
 
@@ -91,13 +89,18 @@ public class HelpFormatter {
 		var buffer = new StringBuilder();
 
 		for (int i = 0; i < this.layout.size(); i++) {
-			var generator = this.layout.get(i);
+			final var generatedContent = this.layout.get(i).generate(this);
+
+			if (generatedContent == null)
+				continue;
+
 			if (HelpFormatter.debugLayout)
 				buffer.append(new TextFormatter("LayoutItem " + i + ":\n")
-					.addFormat(FormatOption.UNDERLINE)
-					.setColor(Color.GREEN)
+						.addFormat(FormatOption.UNDERLINE)
+						.setColor(Color.GREEN)
 				);
-			buffer.append(UtlString.wrap(generator.generate(this), lineWrapMax)).append('\n');
+
+			buffer.append(UtlString.wrap(generatedContent, lineWrapMax)).append('\n');
 		}
 
 		return buffer.toString();

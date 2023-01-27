@@ -1,12 +1,15 @@
 import argparser.*;
 import argparser.argumentTypes.*;
 import argparser.helpRepresentation.HelpFormatter;
+import argparser.helpRepresentation.LayoutItem;
 import argparser.utils.displayFormatter.TextFormatter;
+
+import java.util.function.Consumer;
 
 public final class SimpleTests {
 	public static void main(String[] args) {
 		HelpFormatter.lineWrapMax = 110;
-//		HelpFormatter.debugLayout = true;
+		HelpFormatter.debugLayout = true;
 
 		enum Something {
 			ONE, TWO, THREE

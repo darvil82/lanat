@@ -16,7 +16,8 @@ public abstract class ErrorsContainer<T extends ErrorLevelProvider> implements M
 	public ErrorsContainer(
 		ModifyRecord<ErrorLevel> minimumExitErrorLevelRecord,
 		ModifyRecord<ErrorLevel> minimumDisplayErrorLevelRecord
-	) {
+	)
+	{
 		this.minimumExitErrorLevel = minimumExitErrorLevelRecord;
 		this.minimumDisplayErrorLevel = minimumDisplayErrorLevelRecord;
 	}

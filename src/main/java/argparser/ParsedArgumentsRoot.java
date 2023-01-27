@@ -10,7 +10,8 @@ public class ParsedArgumentsRoot extends ParsedArguments {
 		HashMap<Argument<?, ?>, Object> parsedArgs,
 		ParsedArguments[] subArgs,
 		String forwardValue
-	) {
+	)
+	{
 		super(name, parsedArgs, subArgs);
 		this.forwardValue = forwardValue;
 	}

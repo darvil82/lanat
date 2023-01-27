@@ -14,7 +14,8 @@ import java.util.function.Consumer;
  */
 public class Command
 	extends ErrorsContainer<CustomError>
-	implements ErrorCallbacks<Command, Command>, ArgumentAdder, ArgumentGroupAdder, Resettable {
+	implements ErrorCallbacks<Command, Command>, ArgumentAdder, ArgumentGroupAdder, Resettable
+{
 	public final String name, description;
 	final ArrayList<Argument<?, ?>> arguments = new ArrayList<>();
 	final ArrayList<Command> subCommands = new ArrayList<>();
@@ -474,7 +475,8 @@ public class Command
 				(cChar == ' ' && !currentValue.isEmpty()) // there's a space and some value to tokenize
 					// also check if this is defining the value of an argument, or we are in a tuple. If so, don't tokenize
 					|| (cChar == '=' && !tokenizingState.tupleOpen && this.isArgumentSpecifier(currentValue.toString()))
-			) {
+			)
+			{
 				tokenizeSection.run();
 
 				// push the current char to the current value
@@ -551,7 +553,8 @@ public class Command
 		if (
 			str.length() > 1 // make sure we are working with long enough strings
 				&& str.charAt(0) == str.charAt(1) // first and second chars are equal?
-		) {
+		)
+		{
 			// now check if the name actually exist
 			return this.arguments.stream().anyMatch(a -> a.checkMatch(str));
 		}
@@ -608,7 +611,8 @@ public class Command
 				(currentToken.type() == TokenType.ARGUMENT_VALUE || currentToken.type() == TokenType.ARGUMENT_VALUE_TUPLE_START)
 					&& !foundNonPositionalArg
 					&& (lastPosArgument = getArgumentByPositionalIndex(argumentNameCount)) != null
-			) { // this is most likely a positional argument
+			)
+			{ // this is most likely a positional argument
 				executeArgParse(lastPosArgument);
 				argumentNameCount++;
 			} else {
@@ -662,7 +666,8 @@ public class Command
 					currentToken.type().isArgumentSpecifier() || i - parsingState.currentTokenIndex >= argumentValuesRange.max
 				))
 					|| currentToken.type().isTuple()
-			) {
+			)
+			{
 				break;
 			}
 			tempArgs.add(currentToken);

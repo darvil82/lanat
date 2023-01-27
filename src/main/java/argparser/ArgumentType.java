@@ -228,7 +228,8 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> imple
 	}
 
 	public static <T extends ArgumentType<Ts>, Ts> KeyValuesArgument<T, Ts>
-	KEY_VALUES(T valueType) {
+	KEY_VALUES(T valueType)
+	{
 		return new KeyValuesArgument<>(valueType);
 	}
 }

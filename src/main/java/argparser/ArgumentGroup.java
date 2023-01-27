@@ -97,7 +97,8 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resetta
 				this.subGroups.stream().filter(g -> g != childCallee).anyMatch(g -> g.argumentUsed)
 					|| this.arguments.stream().anyMatch(a -> a.getUsageCount() > 0)
 			)
-		) {
+		)
+		{
 			return this;
 		}
 

@@ -12,7 +12,8 @@ import java.util.function.Consumer;
 
 public class Argument<Type extends ArgumentType<TInner>, TInner>
 	implements MinimumErrorLevelConfig<CustomError>, ErrorCallbacks<TInner, Argument<Type, TInner>>, Resettable,
-	ParentCommandGetter {
+	ParentCommandGetter
+{
 	public final Type argType;
 	private char prefix = '-';
 	private final List<String> names = new ArrayList<>();
@@ -238,7 +239,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 						ParseError.ParseErrorType.MULTIPLE_ARGS_IN_EXCLUSIVE_GROUP_USED,
 						this.parentCmd.parsingState.getCurrentTokenIndex(),
 						this, values.length
-					) {{
+					)
+					{{
 						this.setArgumentGroup(exclusivityResult);
 					}}
 				);

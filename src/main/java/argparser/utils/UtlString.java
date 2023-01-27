@@ -58,6 +58,9 @@ public final class UtlString {
 		if (!(str.contains(" ") || str.contains("\t")))
 			return str;
 
+		if (maxWidth <= 0)
+			throw new IllegalArgumentException("maxWidth must be greater than 0");
+
 		final var wordBuff = new StringBuilder(); // buffer for the current word
 		final var endBuffer = new StringBuilder(); // buffer for the final string. words are pushed here
 		final var indentBuff = new StringBuilder(); // buffer for the current indentation that will be added to the beginning of each line if needed
@@ -76,7 +79,7 @@ public final class UtlString {
 					// add a newline if the line width exceeds the maximum width
 					if (lineWidth >= maxWidth) {
 						endBuffer.append('\n').append(indentBuff);
-						lineWidth = 0;
+						lineWidth = indentBuff.length();
 					}
 					endBuffer.append(wordBuff).append(chr);
 					// make sure to not count escape sequences on the length!
@@ -100,6 +103,7 @@ public final class UtlString {
 				if (jumped) {
 					endBuffer.append(indentBuff);
 					jumped = false;
+					lineWidth = indentBuff.length();
 				}
 				wordBuff.append(chr);
 			}

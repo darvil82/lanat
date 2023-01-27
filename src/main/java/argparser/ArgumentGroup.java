@@ -8,7 +8,7 @@ import argparser.utils.displayFormatter.TextFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resettable {
+public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resettable, ParentCommandGetter {
 	public final String name;
 	public final String description;
 	private Command parentCommand;
@@ -84,6 +84,11 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resetta
 			parentCommand.addArgument(argument);
 		}
 		this.subGroups.forEach(g -> g.registerGroup(parentCommand));
+	}
+
+	@Override
+	public Command getParentCommand() {
+		return parentCommand;
 	}
 
 	private ArgumentGroup checkExclusivity(ArgumentGroup childCallee) {

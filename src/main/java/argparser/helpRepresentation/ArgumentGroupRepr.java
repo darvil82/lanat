@@ -28,7 +28,7 @@ public final class ArgumentGroupRepr {
 			buff.append(ArgumentGroupRepr.getArgumentDescriptions(subGroup));
 		}
 
-		return '\n' + name.toString() + '\n' + UtlString.indent(buff.toString(), 3);
+		return '\n' + name.toString() + '\n' + HelpFormatter.indent(buff.toString(), group);
 	}
 
 

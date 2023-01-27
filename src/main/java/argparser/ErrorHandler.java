@@ -229,7 +229,7 @@ class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 
 	@Handler("OBLIGATORY_ARGUMENT_NOT_USED")
 	protected void handleObligatoryArgumentNotUsed() {
-		var argCmd = argument.getParentCmd();
+		var argCmd = argument.getParentCommand();
 
 		this.fmt()
 			.setContents(

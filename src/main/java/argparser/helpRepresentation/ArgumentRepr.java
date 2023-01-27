@@ -38,7 +38,7 @@ public final class ArgumentRepr {
 		if (desc == null)
 			return null;
 
-		return ArgumentRepr.getSynopsisRepresentation(arg) + ":\n" + UtlString.indent(desc, 3);
+		return ArgumentRepr.getSynopsisRepresentation(arg) + ":\n" + HelpFormatter.indent(desc, arg);
 	}
 
 	static void appendArgumentDescriptions(StringBuilder buff, Argument<?, ?>[] arguments) {

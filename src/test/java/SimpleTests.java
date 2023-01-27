@@ -6,7 +6,7 @@ import argparser.utils.displayFormatter.TextFormatter;
 public final class SimpleTests {
 	public static void main(String[] args) {
 		HelpFormatter.lineWrapMax = 110;
-		HelpFormatter.debugLayout = true;
+//		HelpFormatter.debugLayout = true;
 
 		enum Something {
 			ONE, TWO, THREE
@@ -20,7 +20,7 @@ public final class SimpleTests {
 
 				addArgument(new Argument<>("range", new IntRangeArgument(1, 10))
 						.onOk((value) -> System.out.println("Range: " + value))
-						.description("word ".repeat(123))
+						.description("word ".repeat(50))
 				);
 				addArgument(new Argument<>("number", new EnumArgument<>(Something.ONE))
 						.positional()

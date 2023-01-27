@@ -1,18 +1,19 @@
 package argparser.helpRepresentation;
 
 import argparser.Argument;
+import argparser.ArgumentGroup;
 import argparser.Command;
+import argparser.ParentCommandGetter;
 import argparser.utils.displayFormatter.Color;
 import argparser.utils.displayFormatter.FormatOption;
 import argparser.utils.displayFormatter.TextFormatter;
 import argparser.utils.UtlString;
 
 import java.util.*;
-import java.util.function.Function;
 
 public class HelpFormatter {
 	Command parentCmd;
-	private byte indent = 3;
+	private byte indentSize = 3;
 	public static short lineWrapMax = 110;
 	private ArrayList<LayoutItem> layout = new ArrayList<>();
 	public static boolean debugLayout = false;
@@ -29,7 +30,7 @@ public class HelpFormatter {
 
 	public HelpFormatter(HelpFormatter other) {
 		this.parentCmd = other.parentCmd;
-		this.indent = other.indent;
+		this.indentSize = other.indentSize;
 		this.layout.addAll(other.layout);
 	}
 
@@ -37,12 +38,12 @@ public class HelpFormatter {
 		this.parentCmd = parentCmd;
 	}
 
-	public void setIndent(byte indent) {
-		this.indent = indent;
+	public void setIndentSize(int indentSize) {
+		this.indentSize = (byte)Math.max(indentSize, 0);
 	}
 
-	public byte getIndent() {
-		return indent;
+	public byte getIndentSize() {
+		return indentSize;
 	}
 
 	protected List<LayoutItem> getLayout() {
@@ -53,6 +54,7 @@ public class HelpFormatter {
 		this.changeLayout(
 			new LayoutItem(LayoutGenerators::title),
 			new LayoutItem(LayoutGenerators::synopsis).indent(1).margin(1),
+			new LayoutItem((c) -> "Description:").marginTop(1),
 			new LayoutItem(LayoutGenerators::argumentDescriptions).indent(1)
 		);
 	}
@@ -99,5 +101,26 @@ public class HelpFormatter {
 		}
 
 		return buffer.toString();
+	}
+
+	/**
+	 * Indents a string by the indent size specified in the {@link HelpFormatter} of the specified {@link Command}.
+	 * @param str the string to indent
+	 * @param cmd the {@link Command} that has the {@link HelpFormatter}
+	 * @return the indented string
+	 */
+	public static String indent(String str, Command cmd) {
+		return UtlString.indent(str, cmd.getHelpFormatter().getIndentSize());
+	}
+
+	/**
+	 * Indents a string by the indent size specified in the {@link HelpFormatter}
+	 * instance of the {@link Command} this object belongs to.
+	 * @param str the string to indent
+	 * @param obj the object that belongs to the {@link Command} that has the {@link HelpFormatter}
+	 * @return the indented string
+	 */
+	public static <T extends ParentCommandGetter> String indent(String str, T obj) {
+		return HelpFormatter.indent(str, obj.getParentCommand());
 	}
 }

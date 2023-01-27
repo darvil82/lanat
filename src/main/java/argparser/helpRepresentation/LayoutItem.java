@@ -6,7 +6,7 @@ import argparser.utils.UtlString;
 import java.util.function.Function;
 
 public class LayoutItem {
-	private int indent = 0;
+	private byte indentCount = 0;
 	private int marginTop, marginBottom;
 	private final Function<Command, String> layoutGenerator;
 
@@ -15,7 +15,7 @@ public class LayoutItem {
 	}
 
 	public LayoutItem indent(int indent) {
-		this.indent = Math.max(indent, 0);
+		this.indentCount = (byte)Math.max(indent, 0);
 		return this;
 	}
 
@@ -38,7 +38,7 @@ public class LayoutItem {
 		return "\n".repeat(this.marginTop)
 				+ UtlString.indent(
 				UtlString.trim(this.layoutGenerator.apply(helpFormatter.parentCmd)),
-				this.indent * helpFormatter.getIndent()
+				this.indentCount * helpFormatter.getIndentSize()
 		)
 				+ "\n".repeat(this.marginBottom);
 	}

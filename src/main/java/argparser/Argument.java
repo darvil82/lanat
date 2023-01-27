@@ -3,8 +3,6 @@ package argparser;
 import argparser.argumentTypes.BooleanArgument;
 import argparser.utils.displayFormatter.Color;
 import argparser.utils.*;
-import argparser.utils.displayFormatter.FormatOption;
-import argparser.utils.displayFormatter.TextFormatter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,7 +11,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 public class Argument<Type extends ArgumentType<TInner>, TInner>
-	implements MinimumErrorLevelConfig<CustomError>, ErrorCallbacks<TInner, Argument<Type, TInner>>, Resettable
+	implements MinimumErrorLevelConfig<CustomError>, ErrorCallbacks<TInner, Argument<Type, TInner>>, Resettable, ParentCommandGetter
 {
 	public final Type argType;
 	private char prefix = '-';
@@ -177,7 +175,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		this.representationColor.setIfNotModified(parentCmd.colorsPool.next());
 	}
 
-	public Command getParentCmd() {
+	@Override
+	public Command getParentCommand() {
 		return parentCmd;
 	}
 

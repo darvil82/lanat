@@ -40,7 +40,7 @@ public class HelpFormatter {
 	}
 
 	public void setIndentSize(int indentSize) {
-		this.indentSize = (byte) Math.max(indentSize, 0);
+		this.indentSize = (byte)Math.max(indentSize, 0);
 	}
 
 	public byte getIndentSize() {

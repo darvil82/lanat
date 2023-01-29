@@ -8,7 +8,7 @@ public final class Random {
 	 * Returns a random integer between min and max. First inclusive, last exclusive. <code>[min, max)</code>
 	 */
 	public static int randInt(int min, int max) {
-		return (int) (Math.random() * (max - min)) + min;
+		return (int)(Math.random() * (max - min)) + min;
 	}
 
 	/**

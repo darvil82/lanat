@@ -45,7 +45,7 @@ public class ParsedArguments {
 			throw new IllegalArgumentException("argument '" + arg.getLongestName() + "' not found");
 		}
 
-		return new ParsedArgument<>((T) this.parsedArgs.get(arg));
+		return new ParsedArgument<>((T)this.parsedArgs.get(arg));
 	}
 
 	/**
@@ -98,7 +98,7 @@ public class ParsedArguments {
 		ParsedArguments matchedParsedArgs;
 
 		if (argRoute.length == 1) {
-			return (ParsedArgument<T>) this.get(this.getArgument(argRoute[0]));
+			return (ParsedArgument<T>)this.get(this.getArgument(argRoute[0]));
 		} else if ((matchedParsedArgs = this.getSubParsedArgs(argRoute[0])) != null) {
 			return matchedParsedArgs.get(Arrays.copyOfRange(argRoute, 1, argRoute.length));
 		} else {

@@ -40,7 +40,7 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> imple
 	}
 
 	public final void updateValue(String arg) {
-		this.updateValue(new String[]{arg});
+		this.updateValue(new String[] { arg });
 	}
 
 	public abstract T parseValues(String[] args);

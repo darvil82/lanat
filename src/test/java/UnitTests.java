@@ -99,7 +99,7 @@ public class UnitTests {
 		@Test
 		public void testDefinedCallbacks() {
 			var pArgs = this.parseArgs("smth subcommand -cccc");
-			final byte[] called = {0};
+			final byte[] called = { 0 };
 
 			pArgs.<Integer>get("subcommand.c").defined(v -> {
 				assertEquals(4, v);

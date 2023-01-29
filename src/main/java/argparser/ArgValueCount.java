@@ -20,8 +20,8 @@ public class ArgValueCount {
 			throw new IllegalArgumentException("min value cannot be higher than max");
 		if (min == -1 && max == -1)
 			throw new IllegalArgumentException("min and max cannot both be -1");
-		this.min = (short) (min == -1 ? Short.MAX_VALUE : min);
-		this.max = (short) (max == -1 ? Short.MAX_VALUE : max);
+		this.min = (short)(min == -1 ? Short.MAX_VALUE : min);
+		this.max = (short)(max == -1 ? Short.MAX_VALUE : max);
 	}
 
 	public ArgValueCount(int value) {

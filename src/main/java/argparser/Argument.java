@@ -260,7 +260,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * {@link #parseValues(String[], short)} but passes in an empty values array to parse.
 	 */
 	void parseValues() {
-		this.parseValues(new String[0], (short) 0);
+		this.parseValues(new String[0], (short)0);
 	}
 
 	/**
@@ -310,7 +310,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 				|| (!this.allowUnique && this.parentCmd.uniqueArgumentReceivedValue())
 		) return;
 
-		this.onCorrectCallback.accept((TInner) okValue);
+		this.onCorrectCallback.accept((TInner)okValue);
 	}
 
 	public boolean equals(Argument<?, ?> obj) {

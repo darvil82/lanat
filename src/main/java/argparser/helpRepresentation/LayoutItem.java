@@ -25,7 +25,7 @@ public class LayoutItem {
 	}
 
 	public LayoutItem indent(int indent) {
-		this.indentCount = (byte) Math.max(indent, 0);
+		this.indentCount = (byte)Math.max(indent, 0);
 		return this;
 	}
 

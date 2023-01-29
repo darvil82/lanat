@@ -82,6 +82,6 @@ public final class LayoutGenerators {
 	public static String commandLicense(Command cmd) {
 		/* This is a bit of a special case. getLicense() is only present in ArgumentParser... It doesn't make much sense
 		 * to have it in Command, since it's a program-only property. So we have to do this check here. */
-		return cmd instanceof ArgumentParser ? ((ArgumentParser) cmd).getLicense() : null;
+		return cmd instanceof ArgumentParser ? ((ArgumentParser)cmd).getLicense() : null;
 	}
 }

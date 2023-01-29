@@ -683,7 +683,7 @@ public class Command
 		}
 
 		// pass the arg values to the argument sub parser
-		arg.parseValues(tempArgs.stream().map(Token::contents).toArray(String[]::new), (short) (parsingState.currentTokenIndex + ifTupleOffset));
+		arg.parseValues(tempArgs.stream().map(Token::contents).toArray(String[]::new), (short)(parsingState.currentTokenIndex + ifTupleOffset));
 
 		parsingState.currentTokenIndex += newCurrentTokenIndex;
 	}
@@ -714,7 +714,7 @@ public class Command
 		}
 
 		// pass the arg values to the argument subParser
-		arg.parseValues(new String[]{value}, parsingState.currentTokenIndex);
+		arg.parseValues(new String[] { value }, parsingState.currentTokenIndex);
 	}
 
 

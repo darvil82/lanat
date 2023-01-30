@@ -4,12 +4,8 @@ import argparser.utils.ErrorLevelProvider;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 
 /**
@@ -56,7 +52,7 @@ import java.util.List;
  *
  * @param <T> An enum with the possible error types to handle.
  */
-abstract class ParseStateErrorBase<T extends ErrorLevelProvider> implements ErrorLevelProvider {
+abstract class ParseStateErrorBase<T extends Enum<T> & ErrorLevelProvider> implements ErrorLevelProvider {
 	public final T type;
 	public int tokenIndex;
 	private ErrorHandler errorHandler;
@@ -67,10 +63,7 @@ abstract class ParseStateErrorBase<T extends ErrorLevelProvider> implements Erro
 		this.tokenIndex = tokenIndex;
 	}
 
-	public final String handle(ErrorHandler handler) {
-		this.errorHandler = handler;
-		this.formatter = new ErrorFormatter(handler, type.getErrorLevel());
-
+	private List<Method> getAnnotatedMethods() {
 		Method[] methods;
 		Class<?> currentClass = this.getClass();
 
@@ -79,14 +72,38 @@ abstract class ParseStateErrorBase<T extends ErrorLevelProvider> implements Erro
 		while ((methods = currentClass.getDeclaredMethods()).length == 0)
 			currentClass = currentClass.getSuperclass();
 
-		for (var method : methods) {
-			Handler annotation = method.getAnnotation(Handler.class);
+		return Arrays.stream(methods).filter(m -> m.isAnnotationPresent(Handler.class)).toList();
+	}
 
-			if (annotation != null && annotation.value().equals(this.type.toString())) {
-				try {
-					method.invoke(this);
-				} catch (IllegalAccessException | InvocationTargetException e) {
-					throw new RuntimeException(e);
+	private boolean isHandlerMethod(Method method, String handlerName) {
+		return method.getAnnotation(Handler.class).value().equals(handlerName);
+	}
+
+	private boolean isHandlerMethod(Method method) {
+		return this.isHandlerMethod(method, this.type.name());
+	}
+
+	public final String handle(ErrorHandler handler) {
+		this.errorHandler = handler;
+		this.formatter = new ErrorFormatter(handler, type.getErrorLevel());
+
+		List<Method> methods = this.getAnnotatedMethods();
+
+		for (final var handlerName : this.type.getClass().getEnumConstants()) {
+			final var handlerNameStr = handlerName.name();
+
+			// throw an exception if there is no method defined for the error type
+			if (methods.stream().noneMatch(m -> this.isHandlerMethod(m, handlerNameStr)))
+				throw new RuntimeException("No method defined for error type " + handlerNameStr);
+
+			// invoke the method if it is defined
+			for (final var method : methods) {
+				if (this.isHandlerMethod(method)) {
+					try {
+						method.invoke(this);
+					} catch (Exception e) {
+						throw new RuntimeException(e);
+					}
 				}
 			}
 		}

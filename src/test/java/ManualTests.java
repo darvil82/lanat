@@ -16,7 +16,10 @@ public final class ManualTests {
 		}
 
 		final var argumentParser = new TestingParser("Testing") {{
-			addArgument(new Argument<>("testing", ArgumentType.STRING()).description("some description"));
+			addArgument(new Argument<>("testing", ArgumentType.STRING())
+				.description("some description")
+				.obligatory()
+			);
 
 			addGroup(new ArgumentGroup("a group") {{
 				addArgument(Argument.simple("this is just a bool arg"));
@@ -63,6 +66,6 @@ public final class ManualTests {
 			}});
 		}};
 
-		var parsedArgs = argumentParser.parseArgsExpectErrorPrint("--help");
+		var parsedArgs = argumentParser.parseArgsExpectErrorPrint("");
 	}
 }

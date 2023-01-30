@@ -1,9 +1,6 @@
 package argparser;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -223,6 +220,10 @@ public class ParsedArguments {
 		 */
 		public boolean matches(Predicate<T> predicate) {
 			return this.defined() && predicate.test(this.value);
+		}
+
+		public Optional<T> asOptional() {
+			return Optional.ofNullable(this.value);
 		}
 	}
 }

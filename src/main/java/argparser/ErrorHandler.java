@@ -365,4 +365,8 @@ public class ErrorHandler {
 	public int getErrorCode() {
 		return this.rootCmd.getErrorCode();
 	}
+
+	public Command getRootCmd() {
+		return rootCmd;
+	}
 }

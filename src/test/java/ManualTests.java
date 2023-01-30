@@ -66,6 +66,6 @@ public final class ManualTests {
 			}});
 		}};
 
-		var parsedArgs = argumentParser.parseArgsExpectErrorPrint("");
+		var parsedArgs = argumentParser.parseArgsExpectErrorPrint("--help");
 	}
 }

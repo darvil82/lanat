@@ -2,6 +2,7 @@ package argparser;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -14,10 +15,10 @@ import java.util.regex.Pattern;
 public class ParsedArguments {
 	private final HashMap<Argument<?, ?>, Object> parsedArgs;
 	private final String name;
-	private final ParsedArguments[] subParsedArguments;
+	private final List<ParsedArguments> subParsedArguments;
 	private static String separator = ".";
 
-	ParsedArguments(String name, HashMap<Argument<?, ?>, Object> parsedArgs, ParsedArguments[] subParsedArguments) {
+	ParsedArguments(String name, HashMap<Argument<?, ?>, Object> parsedArgs, List<ParsedArguments> subParsedArguments) {
 		this.parsedArgs = parsedArgs;
 		this.name = name;
 		this.subParsedArguments = subParsedArguments;

@@ -7,6 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -277,7 +278,7 @@ public class ErrorHandler {
 	/**
 	 * Handles all errors and displays them to the user.
 	 */
-	public String[] handleErrrorsGetMessages() {
+	public List<String> handleErrorsGetMessages() {
 		final List<Command> commands = this.rootCmd.getTokenizedSubCommands();
 		final ArrayList<String> errors = new ArrayList<>();
 
@@ -295,11 +296,11 @@ public class ErrorHandler {
 				.forEach(e -> errors.add(e.handle(this)));
 		}
 
-		return errors.toArray(String[]::new);
+		return Collections.unmodifiableList(errors);
 	}
 
 	public void handleErrorsPrint() {
-		for (String error : this.handleErrrorsGetMessages()) {
+		for (String error : this.handleErrorsGetMessages()) {
 			System.out.println(error);
 		}
 	}

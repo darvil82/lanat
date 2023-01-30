@@ -6,7 +6,7 @@ import argparser.argumentTypes.EnumArgument;
 import argparser.argumentTypes.IntRangeArgument;
 import argparser.helpRepresentation.HelpFormatter;
 
-public final class SimpleTests {
+public final class ManualTests {
 	public static void main(String[] args) {
 		HelpFormatter.lineWrapMax = 110;
 		HelpFormatter.debugLayout = true;

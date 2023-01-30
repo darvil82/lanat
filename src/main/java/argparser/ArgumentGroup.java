@@ -4,6 +4,7 @@ import argparser.utils.Resettable;
 import argparser.utils.UtlString;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resettable, ParentCommandGetter {
@@ -36,13 +37,13 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resetta
 	}
 
 	@Override
-	public Argument<?, ?>[] getArguments() {
-		return arguments.toArray(Argument[]::new);
+	public List<Argument<?, ?>> getArguments() {
+		return Collections.unmodifiableList(this.arguments);
 	}
 
 	@Override
-	public ArgumentGroup[] getSubGroups() {
-		return subGroups.toArray(ArgumentGroup[]::new);
+	public List<ArgumentGroup> getSubGroups() {
+		return Collections.unmodifiableList(this.subGroups);
 	}
 
 	@Override
@@ -139,5 +140,5 @@ interface ArgumentGroupAdder {
 	 */
 	void addGroup(ArgumentGroup group);
 
-	ArgumentGroup[] getSubGroups();
+	List<ArgumentGroup> getSubGroups();
 }

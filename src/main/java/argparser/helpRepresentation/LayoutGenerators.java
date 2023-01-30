@@ -5,8 +5,6 @@ import argparser.ArgumentParser;
 import argparser.Command;
 import argparser.utils.UtlString;
 
-import java.util.Arrays;
-
 public final class LayoutGenerators {
 	private LayoutGenerators() {}
 
@@ -17,7 +15,7 @@ public final class LayoutGenerators {
 	public static String synopsis(Command cmd, boolean includeHelp) {
 		final var args = Argument.sortByPriority(cmd.getArguments());
 
-		if (args.length == 0 && cmd.getSubGroups().length == 0) return null;
+		if (args.isEmpty() && cmd.getSubGroups().isEmpty()) return null;
 		final var buffer = new StringBuilder();
 
 		for (var arg : args) {
@@ -40,9 +38,9 @@ public final class LayoutGenerators {
 		}
 
 		final var subCommands = cmd.getSubCommands();
-		if (subCommands.length > 0) {
+		if (!subCommands.isEmpty()) {
 			buffer.append(" {")
-				.append(String.join(" | ", Arrays.stream(subCommands).map(c -> c.name).toList()))
+				.append(String.join(" | ", subCommands.stream().map(c -> c.name).toList()))
 				.append('}');
 		}
 
@@ -63,11 +61,11 @@ public final class LayoutGenerators {
 
 	public static String argumentDescriptions(Command cmd) {
 		final var buff = new StringBuilder();
-		final var arguments = Arrays.stream(Argument.sortByPriority(cmd.getArguments())).filter(arg ->
+		final var arguments = Argument.sortByPriority(cmd.getArguments()).stream().filter(arg ->
 			arg.getParentGroup() == null && !arg.isHelpArgument() && arg.getDescription() != null
-		).toArray(Argument[]::new);
+		).toList();
 
-		if (arguments.length == 0 && cmd.getSubGroups().length == 0) return null;
+		if (arguments.isEmpty() && cmd.getSubGroups().isEmpty()) return null;
 
 		ArgumentRepr.appendArgumentDescriptions(buff, arguments);
 

@@ -5,16 +5,15 @@ import argparser.ArgumentGroup;
 import argparser.utils.displayFormatter.FormatOption;
 import argparser.utils.displayFormatter.TextFormatter;
 
-import java.util.Arrays;
 import java.util.List;
 
 public final class ArgumentGroupRepr {
 	private ArgumentGroupRepr() {}
 
 	public static String getArgumentDescriptions(argparser.ArgumentGroup group) {
-		final var arguments = Arrays.stream(Argument.sortByPriority(group.getArguments())).filter(arg ->
+		final var arguments = Argument.sortByPriority(group.getArguments()).stream().filter(arg ->
 			arg.getDescription() != null
-		).toArray(Argument[]::new);
+		).toList();
 		final var buff = new StringBuilder();
 		final var name = new TextFormatter(group.name + ':').addFormat(FormatOption.BOLD);
 
@@ -42,21 +41,21 @@ public final class ArgumentGroupRepr {
 		if (group.isExclusive())
 			sb.append('(');
 
-		final Argument<?, ?>[] arguments = Argument.sortByPriority(group.getArguments());
-		for (int i = 0; i < arguments.length; i++) {
-			Argument<?, ?> arg = arguments[i];
+		final var arguments = Argument.sortByPriority(group.getArguments());
+		for (int i = 0; i < arguments.size(); i++) {
+			Argument<?, ?> arg = arguments.get(i);
 
 			sb.append(ArgumentRepr.getSynopsisRepresentation(arg));
-			if (i < arguments.length - 1) {
+			if (i < arguments.size() - 1) {
 				sb.append(' ');
 				if (group.isExclusive())
 					sb.append('|').append(' ');
 			}
 		}
 
-		final List<ArgumentGroup> groups = Arrays.stream(group.getSubGroups()).filter(g -> !g.isEmpty()).toList();
+		final List<ArgumentGroup> groups = group.getSubGroups().stream().filter(g -> !g.isEmpty()).toList();
 
-		if (arguments.length != 0 && !groups.isEmpty()) {
+		if (!arguments.isEmpty() && !groups.isEmpty()) {
 			sb.append(' ');
 			if (group.isExclusive())
 				sb.append("| ");

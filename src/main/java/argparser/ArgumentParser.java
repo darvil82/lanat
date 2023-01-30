@@ -4,6 +4,7 @@ package argparser;
 import argparser.utils.Pair;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class ArgumentParser extends Command {
 	private boolean isParsed = false;
@@ -78,7 +79,7 @@ public class ArgumentParser extends Command {
 	/**
 	 * <b>DO NOT USE.</b> This is only used for testing purposes.
 	 */
-	protected Pair<ParsedArgumentsRoot, String[]> __parseArgsNoExit(String args) {
+	protected Pair<ParsedArgumentsRoot, List<String>> __parseArgsNoExit(String args) {
 		if (this.isParsed) {
 			// reset all parsing related things to the initial state
 			this.resetState();
@@ -92,7 +93,7 @@ public class ArgumentParser extends Command {
 
 		this.isParsed = true;
 
-		return new Pair<>(this.getParsedArguments(), errorHandler.handleErrrorsGetMessages());
+		return new Pair<>(this.getParsedArguments(), errorHandler.handleErrorsGetMessages());
 	}
 
 	@Override
@@ -100,7 +101,7 @@ public class ArgumentParser extends Command {
 		return new ParsedArgumentsRoot(
 			this.name,
 			this.parsingState.getParsedArgumentsHashMap(),
-			this.subCommands.stream().map(Command::getParsedArguments).toArray(ParsedArguments[]::new),
+			this.subCommands.stream().map(Command::getParsedArguments).toList(),
 			this.getForwardValue()
 		);
 	}

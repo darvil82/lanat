@@ -1,6 +1,7 @@
 package argparser;
 
 import java.util.HashMap;
+import java.util.List;
 
 public class ParsedArgumentsRoot extends ParsedArguments {
 	private final String forwardValue;
@@ -8,7 +9,7 @@ public class ParsedArgumentsRoot extends ParsedArguments {
 	ParsedArgumentsRoot(
 		String name,
 		HashMap<Argument<?, ?>, Object> parsedArgs,
-		ParsedArguments[] subArgs,
+		List<ParsedArguments> subArgs,
 		String forwardValue
 	)
 	{

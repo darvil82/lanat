@@ -4,6 +4,8 @@ import argparser.Argument;
 import argparser.utils.displayFormatter.FormatOption;
 import argparser.utils.displayFormatter.TextFormatter;
 
+import java.util.List;
+
 public final class ArgumentRepr {
 	private ArgumentRepr() {}
 
@@ -40,13 +42,13 @@ public final class ArgumentRepr {
 		return ArgumentRepr.getSynopsisRepresentation(arg) + ":\n" + HelpFormatter.indent(desc, arg);
 	}
 
-	static void appendArgumentDescriptions(StringBuilder buff, Argument<?, ?>[] arguments) {
-		for (int i = 0; i < arguments.length; i++) {
-			Argument<?, ?> arg = arguments[i];
+	static void appendArgumentDescriptions(StringBuilder buff, List<Argument<?, ?>> arguments) {
+		for (int i = 0; i < arguments.size(); i++) {
+			Argument<?, ?> arg = arguments.get(i);
 
 			buff.append(getDescriptionRepresentation(arg));
 
-			if (i < arguments.length - 1)
+			if (i < arguments.size() - 1)
 				buff.append("\n\n");
 		}
 

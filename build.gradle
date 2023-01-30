@@ -16,6 +16,10 @@ dependencies {
 
 test {
 	useJUnitPlatform()
+
+	filter {
+		includeTestsMatching("Test*")
+	}
 }
 
 tasks.withType(JavaCompile).configureEach {

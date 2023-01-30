@@ -75,8 +75,8 @@ public class Command
 	}
 
 	@Override
-	public ArgumentGroup[] getSubGroups() {
-		return this.argumentGroups.toArray(ArgumentGroup[]::new);
+	public List<ArgumentGroup> getSubGroups() {
+		return Collections.unmodifiableList(this.argumentGroups);
 	}
 
 	public void addSubCommand(Command cmd) {
@@ -93,8 +93,8 @@ public class Command
 		this.subCommands.add(cmd);
 	}
 
-	public Command[] getSubCommands() {
-		return this.subCommands.toArray(Command[]::new);
+	public List<Command> getSubCommands() {
+		return Collections.unmodifiableList(this.subCommands);
 	}
 
 	/**
@@ -133,12 +133,12 @@ public class Command
 	}
 
 	@Override
-	public Argument<?, ?>[] getArguments() {
-		return arguments.toArray(Argument[]::new);
+	public List<Argument<?, ?>> getArguments() {
+		return Collections.unmodifiableList(this.arguments);
 	}
 
-	public Argument<?, ?>[] getPositionalArguments() {
-		return this.arguments.stream().filter(Argument::isPositional).toArray(Argument[]::new);
+	public List<Argument<?, ?>> getPositionalArguments() {
+		return this.getArguments().stream().filter(Argument::isPositional).toList();
 	}
 
 	/**
@@ -165,7 +165,7 @@ public class Command
 		return new ParsedArguments(
 			this.name,
 			this.parsingState.getParsedArgumentsHashMap(),
-			this.subCommands.stream().map(Command::getParsedArguments).toArray(ParsedArguments[]::new)
+			this.subCommands.stream().map(Command::getParsedArguments).toList()
 		);
 	}
 
@@ -176,7 +176,7 @@ public class Command
 	protected ArrayList<Token> getFullTokenList() {
 		final ArrayList<Token> list = new ArrayList<>() {{
 			add(new Token(TokenType.SUB_COMMAND, name));
-			addAll(Arrays.stream(Command.this.parsingState.tokens).toList());
+			addAll(Command.this.parsingState.tokens);
 		}};
 
 		final Command subCmd = this.getTokenizedSubCommand();
@@ -300,7 +300,7 @@ public class Command
 		/**
 		 * Array of all the tokens that we have parsed from the CLI arguments.
 		 */
-		private Token[] tokens;
+		private List<Token> tokens;
 
 		/**
 		 * The index of the current token that we are parsing.
@@ -501,7 +501,7 @@ public class Command
 			tokenizingState.addError(values.errorType, finalTokens.size());
 		}
 
-		parsingState.tokens = finalTokens.toArray(Token[]::new);
+		parsingState.tokens = Collections.unmodifiableList(finalTokens);
 		this.tokenizingState.finishedTokenizing = true;
 	}
 
@@ -582,9 +582,9 @@ public class Command
 	private Argument<?, ?> getArgumentByPositionalIndex(short index) {
 		final var posArgs = this.getPositionalArguments();
 
-		for (short i = 0; i < posArgs.length; i++) {
+		for (short i = 0; i < posArgs.size(); i++) {
 			if (i == index) {
-				return posArgs[i];
+				return posArgs.get(i);
 			}
 		}
 		return null;
@@ -597,8 +597,8 @@ public class Command
 		boolean foundNonPositionalArg = false;
 		Argument<?, ?> lastPosArgument; // this will never be null when being used
 
-		for (parsingState.currentTokenIndex = 0; parsingState.currentTokenIndex < parsingState.tokens.length; ) {
-			final Token currentToken = parsingState.tokens[parsingState.currentTokenIndex];
+		for (parsingState.currentTokenIndex = 0; parsingState.currentTokenIndex < parsingState.tokens.size(); ) {
+			final Token currentToken = parsingState.tokens.get(parsingState.currentTokenIndex);
 
 			if (currentToken.type() == TokenType.ARGUMENT_NAME) {
 				parsingState.currentTokenIndex++;
@@ -645,8 +645,8 @@ public class Command
 		}
 
 		final boolean isInTuple = (
-			parsingState.currentTokenIndex < parsingState.tokens.length
-				&& parsingState.tokens[parsingState.currentTokenIndex].type() == TokenType.ARGUMENT_VALUE_TUPLE_START
+			parsingState.currentTokenIndex < parsingState.tokens.size()
+				&& parsingState.tokens.get(parsingState.currentTokenIndex).type() == TokenType.ARGUMENT_VALUE_TUPLE_START
 		);
 
 		final int ifTupleOffset = isInTuple ? 1 : 0;
@@ -657,10 +657,10 @@ public class Command
 		// add more values until we get to the max of the type, or we encounter another argument specifier
 		for (
 			int i = parsingState.currentTokenIndex + ifTupleOffset;
-			i < parsingState.tokens.length;
+			i < parsingState.tokens.size();
 			i++, skipCount++
 		) {
-			final Token currentToken = parsingState.tokens[i];
+			final Token currentToken = parsingState.tokens.get(i);
 			if (
 				(!isInTuple && (
 					currentToken.type().isArgumentSpecifier() || i - parsingState.currentTokenIndex >= argumentValuesRange.max

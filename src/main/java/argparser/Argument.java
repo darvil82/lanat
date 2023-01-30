@@ -4,10 +4,7 @@ import argparser.argumentTypes.BooleanArgument;
 import argparser.utils.*;
 import argparser.utils.displayFormatter.Color;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Consumer;
 
 public class Argument<Type extends ArgumentType<TInner>, TInner>
@@ -147,12 +144,12 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		return this.names.contains(name);
 	}
 
-	public String[] getNames() {
-		return names.toArray(String[]::new);
+	public List<String> getNames() {
+		return Collections.unmodifiableList(this.names);
 	}
 
 	public String getLongestName() {
-		return new ArrayList<>(List.of(this.getNames())) {{
+		return new ArrayList<>(this.getNames()) {{
 			sort((a, b) -> b.length() - a.length());
 		}}.get(0);
 	}
@@ -316,7 +313,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	public boolean equals(Argument<?, ?> obj) {
 		// we just want to check if there's a difference between identifiers and both are part of the same command
 		return this.parentCmd == obj.parentCmd || (
-			Arrays.stream(this.getNames()).anyMatch(name -> {
+			this.getNames().stream().anyMatch(name -> {
 				for (var otherName : obj.getNames()) {
 					if (name.equals(otherName)) return true;
 				}
@@ -352,9 +349,10 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	/**
 	 * Sorts the given array of arguments by the synopsis view priority order.
 	 */
-	public static Argument<?, ?>[] sortByPriority(Argument<?, ?>[] args) {
-		Arrays.sort(args, Argument::compareByPriority);
-		return args;
+	public static List<Argument<?, ?>> sortByPriority(List<Argument<?, ?>> args) {
+		return new ArrayList<>(args) {{
+			this.sort(Argument::compareByPriority);
+		}};
 	}
 
 	@Override
@@ -447,5 +445,5 @@ interface ArgumentAdder {
 	 */
 	<T extends ArgumentType<TInner>, TInner> void addArgument(Argument<T, TInner> argument);
 
-	Argument<?, ?>[] getArguments();
+	List<Argument<?, ?>> getArguments();
 }

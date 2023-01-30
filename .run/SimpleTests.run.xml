@@ -1,11 +1,11 @@
 <component name="ProjectRunConfigurationManager">
-    <configuration default="false" name="SimpleTests" type="Application" factoryName="Application">
-        <option name="ALTERNATIVE_JRE_PATH" value="corretto-19"/>
-        <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true"/>
-        <option name="MAIN_CLASS_NAME" value="SimpleTests"/>
-        <module name="java-argparser.test"/>
-        <method v="2">
-            <option name="Make" enabled="true"/>
-        </method>
-    </configuration>
+	<configuration default="false" name="SimpleTests" type="Application" factoryName="Application">
+		<option name="ALTERNATIVE_JRE_PATH" value="corretto-19"/>
+		<option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true"/>
+		<option name="MAIN_CLASS_NAME" value="SimpleTests"/>
+		<module name="java-argparser.test"/>
+		<method v="2">
+			<option name="Make" enabled="true"/>
+		</method>
+	</configuration>
 </component>

@@ -5,8 +5,7 @@ import java.util.Objects;
 import java.util.function.Predicate;
 
 public final class UtlString {
-	private UtlString() {
-	}
+	private UtlString() {}
 
 	/**
 	 * Apply a predicate for each character in the string, if any fails, return false.

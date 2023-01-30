@@ -8,8 +8,7 @@ import argparser.utils.UtlString;
 import java.util.Arrays;
 
 public final class LayoutGenerators {
-	private LayoutGenerators() {
-	}
+	private LayoutGenerators() {}
 
 	public static String title(Command cmd) {
 		return cmd.name + (cmd.description == null ? "" : ": " + cmd.description);

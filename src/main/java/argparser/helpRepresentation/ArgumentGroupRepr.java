@@ -9,8 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public final class ArgumentGroupRepr {
-	private ArgumentGroupRepr() {
-	}
+	private ArgumentGroupRepr() {}
 
 	public static String getArgumentDescriptions(argparser.ArgumentGroup group) {
 		final var arguments = Arrays.stream(Argument.sortByPriority(group.getArguments())).filter(arg ->

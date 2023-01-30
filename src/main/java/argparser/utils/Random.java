@@ -1,8 +1,7 @@
 package argparser.utils;
 
 public final class Random {
-	private Random() {
-	}
+	private Random() {}
 
 	/**
 	 * Returns a random integer between min and max. First inclusive, last exclusive. <code>[min, max)</code>

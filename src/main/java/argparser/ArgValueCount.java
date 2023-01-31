@@ -38,14 +38,14 @@ public class ArgValueCount {
 
 	public String getMessage() {
 		return this.isRange()
-			? String.format("from %d to %s values", this.min, this.max == Short.MAX_VALUE ? "any number of" : this.max)
-			: String.format("%s value%s", this.min, this.min == 1 ? "" : "s");
+			? "from %d to %s values".formatted(this.min, this.max == Short.MAX_VALUE ? "any number of" : this.max)
+			: "%s value%s".formatted(this.min, this.min == 1 ? "" : "s");
 	}
 
 	public String getRegexRange() {
 		return this.isRange()
-			? String.format("{%d, %s}", this.min, "" + (this.max == Short.MAX_VALUE ? "..." : this.max))
-			: String.format("{%d}", this.min);
+			? "{%d, %s}".formatted(this.min, "" + (this.max == Short.MAX_VALUE ? "..." : this.max))
+			: "{%d}".formatted(this.min);
 	}
 
 	public boolean isInRange(int value, boolean checkIndex) {

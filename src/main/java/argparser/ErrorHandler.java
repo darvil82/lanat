@@ -240,10 +240,12 @@ class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 	@Handler("ARG_INCORRECT_VALUE_NUMBER")
 	protected void handleIncorrectValueNumber() {
 		this.fmt()
-			.setContents(String.format(
-				"Incorrect number of values for argument '%s'.%nExpected %s, but got %d.",
-				argument.getLongestName(), argument.argType.getNumberOfArgValues().getMessage(), Math.max(this.valueCount - 1, 0)
-			))
+			.setContents("Incorrect number of values for argument '%s'.%nExpected %s, but got %d."
+				.formatted(
+					argument.getLongestName(), argument.argType.getNumberOfArgValues().getMessage(),
+					Math.max(this.valueCount - 1, 0)
+				)
+			)
 			.displayTokens(this.tokenIndex + 1, this.valueCount, this.valueCount == 0);
 	}
 
@@ -254,8 +256,8 @@ class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 		this.fmt()
 			.setContents(
 				argCmd.isRootCommand()
-					? String.format("Obligatory argument '%s' not used.", argument.getLongestName())
-					: String.format("Obligatory argument '%s' for command '%s' not used.", argument.getLongestName(), argCmd.name)
+					? "Obligatory argument '%s' not used.".formatted(argument.getLongestName())
+					: "Obligatory argument '%s' for command '%s' not used.".formatted(argument.getLongestName(), argCmd.name)
 			)
 			.displayTokens(this.tokenIndex + 1);
 	}
@@ -263,9 +265,8 @@ class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 	@Handler("UNMATCHED_TOKEN")
 	protected void handleUnmatchedToken() {
 		this.fmt()
-			.setContents(String.format(
-				"Token '%s' does not correspond with a valid argument, value, or command.",
-				this.getCurrentToken().contents())
+			.setContents("Token '%s' does not correspond with a valid argument, value, or command."
+				.formatted(this.getCurrentToken().contents())
 			)
 			.displayTokens(this.tokenIndex, this.valueCount, false);
 	}
@@ -273,10 +274,9 @@ class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 	@Handler("MULTIPLE_ARGS_IN_EXCLUSIVE_GROUP_USED")
 	protected void handleMultipleArgsInExclusiveGroupUsed() {
 		this.fmt()
-			.setContents(String.format(
-				"Multiple arguments in exclusive group '%s' used.",
-				argumentGroup.name
-			))
+			.setContents("Multiple arguments in exclusive group '%s' used."
+				.formatted(argumentGroup.name)
+			)
 			.displayTokens(this.tokenIndex, this.valueCount, false);
 	}
 }

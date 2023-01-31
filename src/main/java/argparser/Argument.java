@@ -246,7 +246,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		}
 
 		this.argType.setTokenIndex(tokenIndex);
-		this.argType.parseArgumentValues(values);
+		this.argType.parseAndUpdateValue(values);
 		this.usageCount++;
 		if (this.parentGroup != null) {
 			this.parentGroup.setArgUsed();
@@ -363,11 +363,11 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 	@Override
 	public String toString() {
-		return String.format(
-			"Argument<%s>[names=%s, prefix='%c', obligatory=%b, positional=%b, allowUnique=%b, defaultValue=%s]",
-			this.argType.getClass().getSimpleName(), this.names, this.prefix, this.obligatory,
-			this.positional, this.allowUnique, this.defaultValue
-		);
+		return "Argument<%s>[names=%s, prefix='%c', obligatory=%b, positional=%b, allowUnique=%b, defaultValue=%s]"
+			.formatted(
+				this.argType.getClass().getSimpleName(), this.names, this.prefix, this.obligatory,
+				this.positional, this.allowUnique, this.defaultValue
+			);
 	}
 
 

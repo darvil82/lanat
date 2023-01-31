@@ -38,7 +38,7 @@ class ErrorFormatter {
 			.addFormat(FormatOption.BOLD);
 
 		return
-			formatter.setContents(String.format(" ┌─%s%s", this.errorLevel, !this.tokensView.isEmpty() ? "\n" : "")).toString()
+			formatter.setContents(" ┌─%s%s".formatted(this.errorLevel, !this.tokensView.isEmpty() ? "\n" : "")).toString()
 				+ this.tokensView
 				// first insert a vertical bar at the start of each line
 				+ UtlString.wrap(this.contents, HelpFormatter.lineWrapMax).replaceAll("^|\\n", formatter.setContents("\n │ ").toString())

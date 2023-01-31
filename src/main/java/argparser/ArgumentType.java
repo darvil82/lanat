@@ -30,17 +30,18 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> imple
 	private ArgumentType<?> parentArgType;
 	private final ArrayList<ArgumentType<?>> subTypes = new ArrayList<>();
 
-	final void parseArgumentValues(String[] args) {
+	public void parseAndUpdateValue(String[] args) {
 		this.receivedValueCount = args.length;
-		this.updateValue(args);
-	}
-
-	public void updateValue(String[] args) {
 		this.setValue(this.parseValues(args));
 	}
 
-	public final void updateValue(String arg) {
-		this.updateValue(new String[] { arg });
+	public final void parseAndUpdateValue(String arg) {
+		this.receivedValueCount = 1;
+		this.setValue(this.parseValues(arg));
+	}
+
+	public final T parseValues(String arg) {
+		return this.parseValues(new String[] { arg });
 	}
 
 	public abstract T parseValues(String[] args);

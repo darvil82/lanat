@@ -155,10 +155,10 @@ public class Command
 
 	@Override
 	public String toString() {
-		return String.format(
-			"Command[name='%s', description='%s', arguments=%s, subCommands=%s]",
-			this.name, this.description, this.arguments, this.subCommands
-		);
+		return "Command[name='%s', description='%s', arguments=%s, subCommands=%s]"
+			.formatted(
+				this.name, this.description, this.arguments, this.subCommands
+			);
 	}
 
 	ParsedArguments getParsedArguments() {

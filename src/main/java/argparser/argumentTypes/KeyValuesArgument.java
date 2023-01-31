@@ -30,15 +30,15 @@ public class KeyValuesArgument<T extends ArgumentType<Ts>, Ts> extends ArgumentT
 		HashMap<String, Ts> tempHashMap = new HashMap<>();
 
 		this.forEachArgValue(args, arg -> {
-			var split = arg.split(String.format("\\%c", this.separator));
+			final var split = arg.split("\\%c".formatted(this.separator));
 
 			if (split.length != 2) {
 				this.addError("Invalid key-value pair: '" + arg + "'.");
 				return;
 			}
 
-			var key = split[0].strip();
-			var value = split[1].strip();
+			final var key = split[0].strip();
+			final var value = split[1].strip();
 
 			if (key.isEmpty()) {
 				this.addError("Key cannot be empty.");
@@ -50,7 +50,7 @@ public class KeyValuesArgument<T extends ArgumentType<Ts>, Ts> extends ArgumentT
 				return;
 			}
 
-			this.valueType.updateValue(value);
+			this.valueType.parseAndUpdateValue(value);
 			tempHashMap.put(key, this.valueType.getFinalValue());
 		});
 

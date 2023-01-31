@@ -32,6 +32,6 @@ public class IntRangeArgument extends IntArgument {
 	@Override
 	public TextFormatter getRepresentation() {
 		return super.getRepresentation()
-			.concat(new TextFormatter(String.format("[%d-%d]", this.min, this.max)).setColor(Color.YELLOW));
+			.concat(new TextFormatter("[%d-%d]".formatted(this.min, this.max)).setColor(Color.YELLOW));
 	}
 }

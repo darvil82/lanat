@@ -9,7 +9,8 @@ import java.util.ArrayList;
 import java.util.function.Consumer;
 
 public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> implements Resettable {
-	private T value;
+	private T currentValue;
+	private T initialValue;
 	/**
 	 * This is the current index of the value that is being parsed.
 	 */
@@ -29,6 +30,12 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> imple
 	 */
 	private ArgumentType<?> parentArgType;
 	private final ArrayList<ArgumentType<?>> subTypes = new ArrayList<>();
+
+	public ArgumentType(T initialValue) {
+		this.setValue(this.initialValue = initialValue);
+	}
+
+	public ArgumentType() { }
 
 	public void parseAndUpdateValue(String[] args) {
 		this.receivedValueCount = args.length;
@@ -79,7 +86,11 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> imple
 	}
 
 	public T getValue() {
-		return value;
+		return currentValue;
+	}
+
+	public T getInitialValue() {
+		return initialValue;
 	}
 
 	/**
@@ -87,7 +98,7 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> imple
 	 */
 	public void setValue(T value) {
 		if (value == null) return;
-		this.value = value;
+		this.currentValue = value;
 	}
 
 	/**
@@ -102,7 +113,7 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> imple
 	}
 
 	public T getFinalValue() {
-		return this.value;
+		return this.currentValue;
 	}
 
 	/**
@@ -196,7 +207,7 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> imple
 
 	@Override
 	public void resetState() {
-		this.value = null;
+		this.currentValue = this.initialValue;
 		this.tokenIndex = -1;
 		this.currentArgValueIndex = 0;
 		this.receivedValueCount = 0;
@@ -206,6 +217,14 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> imple
 	// Easy to access values. These are methods because we don't want to use the same instance everywhere.
 	public static IntArgument INTEGER() {
 		return new IntArgument();
+	}
+
+	public static IntRangeArgument INTEGER_RANGE(int min, int max) {
+		return new IntRangeArgument(min, max);
+	}
+
+	public static FloatArgument FLOAT() {
+		return new FloatArgument();
 	}
 
 	public static BooleanArgument BOOLEAN() {
@@ -232,5 +251,9 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> imple
 	KEY_VALUES(T valueType)
 	{
 		return new KeyValuesArgument<>(valueType);
+	}
+
+	public static <T extends Enum<T>> EnumArgument<T> ENUM(T enumDefault) {
+		return new EnumArgument<>(enumDefault);
 	}
 }

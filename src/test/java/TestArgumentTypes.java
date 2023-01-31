@@ -1,0 +1,108 @@
+import argparser.Argument;
+import argparser.ArgumentType;
+import org.junit.jupiter.api.Test;
+
+import java.io.File;
+import java.io.FileReader;
+import java.util.HashMap;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+public class TestArgumentTypes extends UnitTests {
+	enum TestEnum {
+		ONE, TWO, THREE
+	}
+
+	@Override
+	public void setParser() {
+		this.parser = new TestingParser("Testing") {{
+			addArgument(new Argument<>("boolean", ArgumentType.BOOLEAN()));
+			addArgument(new Argument<>(ArgumentType.COUNTER(), "counter", "c"));
+			addArgument(new Argument<>("integer", ArgumentType.INTEGER()));
+			addArgument(new Argument<>("float", ArgumentType.FLOAT()));
+			addArgument(new Argument<>("string", ArgumentType.STRING()));
+			addArgument(new Argument<>("multiple-strings", ArgumentType.STRINGS()));
+			addArgument(new Argument<>("file", ArgumentType.FILE()));
+			addArgument(new Argument<>("enum", ArgumentType.ENUM(TestEnum.TWO)));
+			addArgument(new Argument<>("key-value", ArgumentType.KEY_VALUES(ArgumentType.INTEGER())));
+			addArgument(new Argument<>("int-range", ArgumentType.INTEGER_RANGE(3, 10)));
+		}};
+	}
+
+	@Test
+	public void testBoolean() {
+		assertTrue(this.parser.parseArgs("--boolean").<Boolean>get("boolean").get());
+		assertFalse(this.parser.parseArgs("").<Boolean>get("boolean").defined());
+	}
+
+	@Test
+	public void testCounter() {
+		assertEquals(0, this.parser.parseArgs("").<Integer>get("counter").get());
+		assertEquals(1, this.parser.parseArgs("-c").<Integer>get("counter").get());
+		assertEquals(4, this.parser.parseArgs("-cccc").<Integer>get("counter").get());
+	}
+
+	@Test
+	public void testInteger() {
+		assertEquals(4, this.<Integer>parseArg("integer", "4"));
+		this.assertNotPresent("integer");
+		assertNull(this.parseArg("integer", "invalid"));
+	}
+
+	@Test
+	public void testFloat() {
+		assertEquals(4.67f, this.<Float>parseArg("float", "4.67"));
+		this.assertNotPresent("float");
+		assertNull(this.parseArg("float", "invalid"));
+	}
+
+	@Test
+	public void testString() {
+		assertEquals("hello", this.parseArg("string", "hello"));
+		assertEquals("foo", this.parseArg("string", "foo bar"));
+		assertEquals("foo bar", this.parseArg("string", "'foo bar'"));
+		this.assertNotPresent("string");
+	}
+
+	@Test
+	public void testStrings() {
+		assertArrayEquals(new String[] { "hello" }, this.parseArg("multiple-strings", "hello"));
+		assertArrayEquals(new String[] { "hello", "world" }, this.parseArg("multiple-strings", "hello world"));
+		assertArrayEquals(new String[] { "hello world" }, this.parseArg("multiple-strings", "'hello world'"));
+	}
+
+	@Test
+	public void testFile() {
+		assertEquals("hello.txt", this.<File>parseArg("file", "hello.txt").getName());
+		this.assertNotPresent("file");
+	}
+
+	@Test
+	public void testEnum() {
+		assertEquals(TestEnum.ONE, this.parseArg("enum", "ONE"));
+		assertEquals(TestEnum.TWO, this.parseArg("enum", "TWO"));
+		assertEquals(TestEnum.THREE, this.parseArg("enum", "THREE"));
+		assertEquals(TestEnum.TWO, this.parser.parseArgs("").get("enum").get());
+	}
+
+	@Test
+	public void testKeyValue() {
+		final var hashMap = new HashMap<String, Integer>() {{
+			put("key", 6);
+			put("foo", 2);
+			put("foo2", 1996);
+		}};
+
+		assertEquals(hashMap, this.parseArg("key-value", "key=6 foo=2 foo2=1996"));
+		this.assertNotPresent("key-value");
+		assertNull(this.parseArg("key-value", "invalid"));
+	}
+
+	@Test
+	public void testIntegerRange() {
+		assertEquals(4, this.<Integer>parseArg("int-range", "4"));
+		this.assertNotPresent("int-range");
+		assertNull(this.parseArg("int-range", "invalid"));
+		assertNull(this.parseArg("int-range", "11"));
+	}
+}

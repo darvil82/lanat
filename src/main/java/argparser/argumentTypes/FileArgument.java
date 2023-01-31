@@ -2,13 +2,14 @@ package argparser.argumentTypes;
 
 import argparser.ArgumentType;
 
+import java.io.File;
 import java.io.FileReader;
 
-public class FileArgument extends ArgumentType<FileReader> {
+public class FileArgument extends ArgumentType<File> {
 	@Override
-	public FileReader parseValues(String[] args) {
+	public File parseValues(String[] args) {
 		try {
-			return new FileReader(args[0]);
+			return new File(args[0]);
 		} catch (Exception e) {
 			this.addError("File not found: '" + args[0] + "'.");
 			return null;

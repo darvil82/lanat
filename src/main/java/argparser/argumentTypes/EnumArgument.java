@@ -7,10 +7,9 @@ import argparser.utils.displayFormatter.TextFormatter;
 
 public class EnumArgument<T extends Enum<T>> extends ArgumentType<T> {
 	private final T[] values;
-	private final T defaultValue;
 
 	public EnumArgument(T defaultValue) {
-		this.setValue(this.defaultValue = defaultValue);
+		super(defaultValue);
 		this.values = defaultValue.getDeclaringClass().getEnumConstants();
 	}
 
@@ -31,7 +30,7 @@ public class EnumArgument<T extends Enum<T>> extends ArgumentType<T> {
 		for (var i = 0; i < this.values.length; i++) {
 			final var value = this.values[i];
 
-			if (value == this.defaultValue)
+			if (value == this.getInitialValue())
 				fmt.concat(new TextFormatter(value.name())
 					.setColor(Color.YELLOW)
 					.addFormat(FormatOption.BOLD)

@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestTerminalOutput extends UnitTests {
 	private void assertErrorOutput(String args, String expected) {
-		final var errors = this.getParser().parseArgsExpectError(args);
+		final var errors = this.parser.parseArgsExpectError(args);
 		// remove all the decorations to not make the tests a pain to write
 		assertEquals(
 			expected,

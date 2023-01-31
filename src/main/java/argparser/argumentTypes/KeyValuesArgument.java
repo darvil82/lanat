@@ -54,6 +54,9 @@ public class KeyValuesArgument<T extends ArgumentType<Ts>, Ts> extends ArgumentT
 			tempHashMap.put(key, this.valueType.getFinalValue());
 		});
 
+		if (tempHashMap.isEmpty())
+			return null;
+
 		return tempHashMap;
 	}
 

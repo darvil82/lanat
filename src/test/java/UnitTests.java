@@ -3,8 +3,10 @@ import argparser.argumentTypes.TupleArgumentType;
 import org.junit.jupiter.api.BeforeEach;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 
 class StringJoiner extends TupleArgumentType<String> {
@@ -44,14 +46,9 @@ class TestingParser extends ArgumentParser {
 
 
 public class UnitTests {
-	private TestingParser parser;
+	protected TestingParser parser;
 
-	public TestingParser getParser() {
-		return parser;
-	}
-
-	@BeforeEach
-	public void setup() {
+	public void setParser() {
 		this.parser = new TestingParser("Testing") {{
 			addArgument(new Argument<>("what", new StringJoiner())
 				.positional()
@@ -67,5 +64,32 @@ public class UnitTests {
 				}});
 			}});
 		}};
+	}
+
+	@BeforeEach
+	public void setup() {
+		this.setParser();
+	}
+
+	/**
+	 * Shorthand for parsing arguments and getting the value of an argument.
+	 * Same as
+	 * <pre>
+	 * {@code this.parser.parseArgs("--%s %s".formatted(arg, values)).<T>get(arg).get();}
+	 * </pre>
+	 */
+	protected <T> T parseArg(String arg, String values) {
+		return this.parser.parseArgs("--%s %s".formatted(arg.trim(), values)).<T>get(arg).get();
+	}
+
+	/**
+	 * Shorthand for checking if an argument value is not present.
+	 * Same as
+	 * <pre>
+	 * {@code assertNull(this.parser.parseArgs("").get(arg).get());}
+	 * </pre>
+	 */
+	protected void assertNotPresent(String arg) {
+		assertNull(this.parser.parseArgs("").get(arg).get());
 	}
 }

@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class TestParsedValues extends UnitTests {
 	private ParsedArguments parseArgs(String args) {
-		return this.getParser().parseArgs(args);
+		return this.parser.parseArgs(args);
 	}
 
 	@Test

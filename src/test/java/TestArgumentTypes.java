@@ -9,7 +9,7 @@ import java.util.HashMap;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TestArgumentTypes extends UnitTests {
-	enum TestEnum {
+	private enum TestEnum {
 		ONE, TWO, THREE
 	}
 

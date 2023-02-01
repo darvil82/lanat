@@ -10,14 +10,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Tokenizer extends ParsingStateBase<TokenizeError> {
+	/** Are we currently within a tuple? */
 	protected boolean tupleOpen = false;
+	/** Are we currently within a string? */
 	protected boolean stringOpen = false;
+	/** Whether we finished tokenizing the input or not */
 	private boolean finishedTokenizing = false;
+	/** The index of the current character in the {@link Tokenizer#inputString} */
 	private int currentCharIndex = 0;
+	/** The characters that are used to open and close tuples.
+	 * {@link Pair#first()} is the open character and {@link Pair#second()} is the close character */
 	public final Pair<Character, Character> tupleChars;
+	/** The tokens that have been parsed so far */
 	private final List<Token> finalTokens = new ArrayList<>();
+	/** The current value of the token that is being parsed */
 	private final StringBuilder currentValue = new StringBuilder();
-	private String input;
+	/** The input string that is being tokenized */
+	private String inputString;
+	/** The input string that is being tokenized, split into characters */
 	private char[] inputChars;
 
 	public Tokenizer(Command command) {
@@ -29,9 +39,9 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 		this.addError(new TokenizeError(type, index));
 	}
 
-	private void setInput(String input) {
-		this.input = input;
-		this.inputChars = input.toCharArray();
+	private void setInputString(String inputString) {
+		this.inputString = inputString;
+		this.inputChars = inputString.toCharArray();
 	}
 
 
@@ -40,7 +50,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 			throw new IllegalStateException("Tokenizer has already finished tokenizing");
 		}
 
-		this.setInput(input);
+		this.setInputString(input);
 
 		final var values = new Object() {
 			char currentStringChar = 0;
@@ -120,7 +130,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 					&& this.isCharAtRelativeIndex(1, '-')
 					&& this.isCharAtRelativeIndex(2, ' ')
 			) {
-				this.addToken(TokenType.FORWARD_VALUE, this.input.substring(this.currentCharIndex + 3));
+				this.addToken(TokenType.FORWARD_VALUE, this.inputString.substring(this.currentCharIndex + 3));
 				break;
 
 				// reached a possible separator
@@ -191,7 +201,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 		// if this is a subcommand, continue tokenizing next elements
 		if (token.type() == TokenType.SUB_COMMAND && (subCmd = getSubCommandByName(token.contents())) != null) {
 			// forward the rest of stuff to the subCommand
-			subCmd.getTokenizer().tokenize(input.substring(this.currentCharIndex));
+			subCmd.getTokenizer().tokenize(inputString.substring(this.currentCharIndex));
 			this.finishedTokenizing = true;
 		} else {
 			finalTokens.add(token);

@@ -9,10 +9,12 @@ import java.util.HashMap;
 import java.util.List;
 
 public class Parser extends ParsingStateBase<ParseError> {
+	/** List of all the custom errors that have been added to this parser.
+	 * Custom errors are thrown by {@link ArgumentType}s */
 	private final ArrayList<CustomError> customErrors = new ArrayList<>();
 
 	/**
-	 * Array of all the tokens that we have parsed from the CLI arguments.
+	 * Array of all the tokens that we have tokenized from the CLI arguments.
 	 */
 	private List<Token> tokens;
 
@@ -22,6 +24,7 @@ public class Parser extends ParsingStateBase<ParseError> {
 	private short currentTokenIndex = 0;
 
 	private HashMap<Argument<?, ?>, Object> parsedArguments;
+
 
 	public Parser(Command command) {
 		super(command);

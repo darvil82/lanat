@@ -1,6 +1,7 @@
 package argparser;
 
 
+import argparser.parsing.errors.ErrorHandler;
 import argparser.utils.Pair;
 
 import java.util.Arrays;

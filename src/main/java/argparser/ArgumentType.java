@@ -1,6 +1,7 @@
 package argparser;
 
 import argparser.argumentTypes.*;
+import argparser.parsing.errors.CustomError;
 import argparser.utils.ErrorsContainer;
 import argparser.utils.Resettable;
 import argparser.utils.displayFormatter.TextFormatter;

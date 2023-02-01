@@ -1,5 +1,7 @@
-package argparser;
+package argparser.parsing.errors;
 
+import argparser.ErrorLevel;
+import argparser.Token;
 import argparser.helpRepresentation.HelpFormatter;
 import argparser.utils.UtlString;
 import argparser.utils.displayFormatter.FormatOption;

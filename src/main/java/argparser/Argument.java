@@ -1,6 +1,8 @@
 package argparser;
 
 import argparser.argumentTypes.BooleanArgument;
+import argparser.parsing.errors.CustomError;
+import argparser.parsing.errors.ParseError;
 import argparser.utils.*;
 import argparser.utils.displayFormatter.Color;
 
@@ -9,7 +11,7 @@ import java.util.function.Consumer;
 
 public class Argument<Type extends ArgumentType<TInner>, TInner>
 	implements MinimumErrorLevelConfig<CustomError>, ErrorCallbacks<TInner, Argument<Type, TInner>>, Resettable,
-	ParentCommandGetter
+		ParentCommandGetter
 {
 	public final Type argType;
 	private char prefix = '-';
@@ -226,15 +228,15 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * @param tokenIndex This is the global index of the token that is currently being parsed. Used when
 	 * dispatching errors.
 	 */
-	void parseValues(String[] values, short tokenIndex) {
+	public void parseValues(String[] values, short tokenIndex) {
 		// check if the parent group of this argument is exclusive, and if so, check if any other argument in it has been used
 		if (this.parentGroup != null) {
 			var exclusivityResult = this.parentGroup.checkExclusivity();
 			if (exclusivityResult != null) {
-				this.parentCmd.parsingState.addError(
+				this.parentCmd.getParser().addError(
 					new ParseError(
 						ParseError.ParseErrorType.MULTIPLE_ARGS_IN_EXCLUSIVE_GROUP_USED,
-						this.parentCmd.parsingState.getCurrentTokenIndex(),
+						this.parentCmd.getParser().getCurrentTokenIndex(),
 						this, values.length
 					)
 					{{
@@ -256,17 +258,17 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	/**
 	 * {@link #parseValues(String[], short)} but passes in an empty values array to parse.
 	 */
-	void parseValues() {
+	public void parseValues() {
 		this.parseValues(new String[0], (short)0);
 	}
 
 	/**
 	 * Returns the final parsed value of this argument.
 	 */
-	TInner finishParsing() {
+	public TInner finishParsing() {
 		if (this.usageCount == 0) {
 			if (this.obligatory && !this.parentCmd.uniqueArgumentReceivedValue()) {
-				this.parentCmd.parsingState.addError(ParseError.ParseErrorType.OBLIGATORY_ARGUMENT_NOT_USED, this, 0);
+				this.parentCmd.getParser().addError(ParseError.ParseErrorType.OBLIGATORY_ARGUMENT_NOT_USED, this, 0);
 				return null;
 			}
 
@@ -275,21 +277,21 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 			return value == null ? this.defaultValue : value;
 		}
 
-		this.argType.getErrorsUnderDisplayLevel().forEach(this.parentCmd.parsingState::addError);
+		this.argType.getErrorsUnderDisplayLevel().forEach(this.parentCmd.getParser()::addError);
 		return this.argType.getFinalValue();
 	}
 
 	/**
 	 * Checks if this argument matches the given name, including the prefix.
 	 */
-	boolean checkMatch(String name) {
+	public boolean checkMatch(String name) {
 		return this.names.stream().anyMatch(a -> name.equals(Character.toString(this.prefix).repeat(2) + a));
 	}
 
 	/**
 	 * Checks if this argument matches the given single character name.
 	 */
-	boolean checkMatch(char name) {
+	public boolean checkMatch(char name) {
 		return this.hasName(Character.toString(name));
 	}
 

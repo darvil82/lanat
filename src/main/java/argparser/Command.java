@@ -1,12 +1,13 @@
 package argparser;
 
 import argparser.helpRepresentation.HelpFormatter;
+import argparser.parsing.Parser;
+import argparser.parsing.Tokenizer;
+import argparser.parsing.errors.CustomError;
 import argparser.utils.*;
 import argparser.utils.displayFormatter.Color;
 
 import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 
 /**
@@ -115,6 +116,10 @@ public class Command
 		this.tupleChars.set(tupleChars);
 	}
 
+	public TupleCharacter getTupleChars() {
+		return tupleChars.get();
+	}
+
 	public void setHelpFormatter(HelpFormatter helpFormatter) {
 		helpFormatter.setParentCmd(this);
 		this.helpFormatter.set(helpFormatter);
@@ -164,7 +169,7 @@ public class Command
 	ParsedArguments getParsedArguments() {
 		return new ParsedArguments(
 			this.name,
-			this.parsingState.getParsedArgumentsHashMap(),
+			this.parser.getParsedArgumentsHashMap(),
 			this.subCommands.stream().map(Command::getParsedArguments).toList()
 		);
 	}
@@ -176,7 +181,7 @@ public class Command
 	protected ArrayList<Token> getFullTokenList() {
 		final ArrayList<Token> list = new ArrayList<>() {{
 			add(new Token(TokenType.SUB_COMMAND, name));
-			addAll(Command.this.parsingState.tokens);
+			addAll(Command.this.parser.tokens);
 		}};
 
 		final Command subCmd = this.getTokenizedSubCommand();
@@ -229,7 +234,7 @@ public class Command
 		} else {
 			if (this.onCorrectCallback != null) this.onCorrectCallback.accept(this);
 		}
-		this.parsingState.getParsedArgumentsHashMap().forEach(Argument::invokeCallbacks);
+		this.parser.getParsedArgumentsHashMap().forEach(Argument::invokeCallbacks);
 		this.subCommands.forEach(Command::invokeCallbacks);
 	}
 
@@ -240,8 +245,8 @@ public class Command
 		return super.hasExitErrors()
 			|| tokenizedSubCommand != null && tokenizedSubCommand.hasExitErrors()
 			|| this.arguments.stream().anyMatch(Argument::hasExitErrors)
-			|| this.parsingState.hasExitErrors()
-			|| this.tokenizingState.hasExitErrors();
+			|| this.parser.hasExitErrors()
+			|| this.tokenizer.hasExitErrors();
 	}
 
 	@Override
@@ -251,13 +256,13 @@ public class Command
 		return super.hasDisplayErrors()
 			|| tokenizedSubCommand != null && tokenizedSubCommand.hasDisplayErrors()
 			|| this.arguments.stream().anyMatch(Argument::hasDisplayErrors)
-			|| this.parsingState.hasDisplayErrors()
-			|| this.tokenizingState.hasDisplayErrors();
+			|| this.parser.hasDisplayErrors()
+			|| this.tokenizer.hasDisplayErrors();
 	}
 
 	public int getErrorCode() {
 		int errCode = this.subCommands.stream()
-			.filter(c -> c.tokenizingState.finishedTokenizing)
+			.filter(c -> c.tokenizer.finishedTokenizing)
 			.map(sc -> sc.getMinimumExitErrorLevel().get().isInErrorMinimum(this.getMinimumExitErrorLevel().get()) ? sc.getErrorCode() : 0)
 			.reduce(0, (a, b) -> a | b);
 
@@ -277,512 +282,25 @@ public class Command
 	//                                         Argument tokenization and parsing    							      //
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	private abstract class ParsingStateBase<T extends ErrorLevelProvider> extends ErrorsContainer<T> {
-		public ParsingStateBase() {
-			super(Command.this.getMinimumExitErrorLevel(), Command.this.getMinimumDisplayErrorLevel());
-		}
+	private Tokenizer tokenizer = new Tokenizer(this);
+	private Parser parser = new Parser(this);
+
+	public Tokenizer getTokenizer() {
+		return tokenizer;
 	}
 
-	class TokenizingState extends ParsingStateBase<TokenizeError> {
-		public boolean tupleOpen = false;
-		public boolean stringOpen = false;
-		public boolean finishedTokenizing = false;
-
-		void addError(TokenizeError.TokenizeErrorType type, int index) {
-			this.addError(new TokenizeError(type, index));
-		}
-
+	public Parser getParser() {
+		return parser;
 	}
-
-	class ParsingState extends ParsingStateBase<ParseError> {
-		private final ArrayList<CustomError> customErrors = new ArrayList<>();
-
-		/**
-		 * Array of all the tokens that we have parsed from the CLI arguments.
-		 */
-		private List<Token> tokens;
-
-		/**
-		 * The index of the current token that we are parsing.
-		 */
-		private short currentTokenIndex = 0;
-
-		private HashMap<Argument<?, ?>, Object> parsedArguments;
-
-		HashMap<Argument<?, ?>, Object> getParsedArgumentsHashMap() {
-			if (this.parsedArguments == null) {
-				this.parsedArguments = new HashMap<>() {{
-					Command.this.arguments.forEach(arg -> put(arg, arg.finishParsing()));
-				}};
-			}
-			return this.parsedArguments;
-		}
-
-		public short getCurrentTokenIndex() {
-			return currentTokenIndex;
-		}
-
-		void addError(ParseError.ParseErrorType type, Argument<?, ?> arg, int argValueCount, int currentIndex) {
-			this.addError(new ParseError(type, currentIndex, arg, argValueCount));
-		}
-
-		void addError(ParseError.ParseErrorType type, Argument<?, ?> arg, int argValueCount) {
-			this.addError(type, arg, argValueCount, this.currentTokenIndex);
-		}
-
-
-		void addError(CustomError customError) {
-			this.customErrors.add(customError);
-		}
-
-		@Override
-		public boolean hasExitErrors() {
-			return super.hasExitErrors() || this.anyErrorInMinimum(this.customErrors, false);
-		}
-
-		@Override
-		public boolean hasDisplayErrors() {
-			return super.hasDisplayErrors() || this.anyErrorInMinimum(this.customErrors, true);
-		}
-
-		List<CustomError> getCustomErrors() {
-			return this.getErrorsInLevelMinimum(this.customErrors, true);
-		}
-	}
-
-	TokenizingState tokenizingState = this.new TokenizingState();
-	ParsingState parsingState = this.new ParsingState();
-
 
 	@Override
 	public void resetState() {
-		tokenizingState = this.new TokenizingState();
-		parsingState = this.new ParsingState();
+		this.tokenizer =  new Tokenizer(this);
+		this.parser = new Parser(this);
 		this.arguments.forEach(Argument::resetState);
 		this.argumentGroups.forEach(ArgumentGroup::resetState);
 
 		this.subCommands.forEach(Command::resetState);
-	}
-
-	// ------------------------------------------------- Tokenization -------------------------------------------------
-
-	void tokenize(String content) {
-		this.tokenizingState.finishedTokenizing = false; // just in case we are tokenizing again for any reason
-
-		final var TUPLE_CHARS = this.tupleChars.get().getCharPair();
-		final var finalTokens = new ArrayList<Token>();
-		final var currentValue = new StringBuilder();
-		final char[] chars = content.toCharArray();
-
-		final var values = new Object() {
-			int i;
-			char currentStringChar = 0;
-			TokenizeError.TokenizeErrorType errorType = null;
-		};
-
-		final BiConsumer<TokenType, String> addToken = (t, c) -> finalTokens.add(new Token(t, c));
-
-		final Runnable tokenizeSection = () -> {
-			Token token = this.tokenizeSection(currentValue.toString());
-			Command subCmd;
-			// if this is a subcommand, continue tokenizing next elements
-			if (token.type() == TokenType.SUB_COMMAND && (subCmd = getSubCommandByName(token.contents())) != null) {
-				// forward the rest of stuff to the subCommand
-				subCmd.tokenize(content.substring(values.i));
-				this.tokenizingState.finishedTokenizing = true;
-			} else {
-				finalTokens.add(token);
-			}
-			currentValue.setLength(0);
-		};
-
-		BiPredicate<Integer, Character> charAtRelativeIndex = (index, character) -> {
-			index += values.i;
-			if (index >= chars.length || index < 0) return false;
-			return chars[index] == character;
-		};
-
-
-		for (values.i = 0; values.i < chars.length && !this.tokenizingState.finishedTokenizing; values.i++) {
-			char cChar = chars[values.i];
-
-			// user is trying to escape a character
-			if (cChar == '\\') {
-				currentValue.append(chars[++values.i]); // skip the \ character and append the next character
-
-				// reached a possible value wrapped in quotes
-			} else if (cChar == '"' || cChar == '\'') {
-				// if we are already in an open string, push the current value and close the string. Make sure
-				// that the current char is the same as the one that opened the string
-				if (this.tokenizingState.stringOpen && values.currentStringChar == cChar) {
-					addToken.accept(TokenType.ARGUMENT_VALUE, currentValue.toString());
-					currentValue.setLength(0);
-					this.tokenizingState.stringOpen = false;
-
-					// the string is open, but the character does not match. Push it as a normal character
-				} else if (this.tokenizingState.stringOpen) {
-					currentValue.append(cChar);
-
-					// the string is not open, so open it and set the current string char to the current char
-				} else {
-					this.tokenizingState.stringOpen = true;
-					values.currentStringChar = cChar;
-				}
-
-				// append characters to the current value as long as we are in a string
-			} else if (this.tokenizingState.stringOpen) {
-				currentValue.append(cChar);
-
-				// reached a possible tuple start character
-			} else if (cChar == TUPLE_CHARS.first()) {
-				// if we are already in a tuple, set error and stop tokenizing
-				if (this.tokenizingState.tupleOpen) {
-					values.errorType = TokenizeError.TokenizeErrorType.TUPLE_ALREADY_OPEN;
-					break;
-				} else if (!currentValue.isEmpty()) { // if there was something before the tuple, tokenize it
-					tokenizeSection.run();
-				}
-
-				// push the tuple token and set the state to tuple open
-				addToken.accept(TokenType.ARGUMENT_VALUE_TUPLE_START, TUPLE_CHARS.first().toString());
-				this.tokenizingState.tupleOpen = true;
-
-				// reached a possible tuple end character
-			} else if (cChar == TUPLE_CHARS.second()) {
-				// if we are not in a tuple, set error and stop tokenizing
-				if (!this.tokenizingState.tupleOpen) {
-					values.errorType = TokenizeError.TokenizeErrorType.UNEXPECTED_TUPLE_CLOSE;
-					break;
-				}
-
-				// if there was something before the tuple, tokenize it
-				if (!currentValue.isEmpty()) {
-					addToken.accept(TokenType.ARGUMENT_VALUE, currentValue.toString());
-				}
-
-				// push the tuple token and set the state to tuple closed
-				addToken.accept(TokenType.ARGUMENT_VALUE_TUPLE_END, TUPLE_CHARS.second().toString());
-				currentValue.setLength(0);
-				this.tokenizingState.tupleOpen = false;
-
-				// reached a "--". Push all the rest as a FORWARD_VALUE.
-			} else if (cChar == '-' && charAtRelativeIndex.test(1, '-') && charAtRelativeIndex.test(2, ' ')) {
-				addToken.accept(TokenType.FORWARD_VALUE, content.substring(values.i + 3));
-				break;
-
-				// reached a possible separator
-			} else if (
-				(cChar == ' ' && !currentValue.isEmpty()) // there's a space and some value to tokenize
-					// also check if this is defining the value of an argument, or we are in a tuple. If so, don't tokenize
-					|| (cChar == '=' && !tokenizingState.tupleOpen && this.isArgumentSpecifier(currentValue.toString()))
-			)
-			{
-				tokenizeSection.run();
-
-				// push the current char to the current value
-			} else if (cChar != ' ') {
-				currentValue.append(cChar);
-			}
-		}
-
-		if (values.errorType == null)
-			if (this.tokenizingState.tupleOpen) {
-				values.errorType = TokenizeError.TokenizeErrorType.TUPLE_NOT_CLOSED;
-			} else if (this.tokenizingState.stringOpen) {
-				values.errorType = TokenizeError.TokenizeErrorType.STRING_NOT_CLOSED;
-			}
-
-		// we left something in the current value, tokenize it
-		if (!currentValue.isEmpty()) {
-			tokenizeSection.run();
-		}
-
-		if (values.errorType != null) {
-			tokenizingState.addError(values.errorType, finalTokens.size());
-		}
-
-		parsingState.tokens = Collections.unmodifiableList(finalTokens);
-		this.tokenizingState.finishedTokenizing = true;
-	}
-
-	private Token tokenizeSection(String str) {
-		final TokenType type;
-
-		if (this.tokenizingState.tupleOpen || this.tokenizingState.stringOpen) {
-			type = TokenType.ARGUMENT_VALUE;
-		} else if (this.isArgName(str)) {
-			type = TokenType.ARGUMENT_NAME;
-		} else if (this.isArgNameList(str)) {
-			type = TokenType.ARGUMENT_NAME_LIST;
-		} else if (this.isSubCommand(str)) {
-			type = TokenType.SUB_COMMAND;
-		} else {
-			type = TokenType.ARGUMENT_VALUE;
-		}
-
-		return new Token(type, str);
-	}
-
-	List<Command> getTokenizedSubCommands() {
-		final List<Command> x = new ArrayList<>();
-		final Command subCmd;
-
-		x.add(this);
-		if ((subCmd = this.getTokenizedSubCommand()) != null) {
-			x.addAll(subCmd.getTokenizedSubCommands());
-		}
-		return x;
-	}
-
-	private boolean isArgNameList(String str) {
-		if (str.length() < 2) return false;
-
-		final var possiblePrefixes = new ArrayList<Character>();
-		final var charArray = str.substring(1).toCharArray();
-
-		for (final char argName : charArray) {
-			if (!runForArgument(argName, a -> possiblePrefixes.add(a.getPrefix())))
-				break;
-		}
-
-		return possiblePrefixes.size() >= 1 && possiblePrefixes.contains(str.charAt(0));
-	}
-
-	private boolean isArgName(String str) {
-		// first try to figure out if the prefix is used, to save time (does it start with '--'? (assuming the prefix is '-'))
-		if (
-			str.length() > 1 // make sure we are working with long enough strings
-				&& str.charAt(0) == str.charAt(1) // first and second chars are equal?
-		)
-		{
-			// now check if the name actually exist
-			return this.arguments.stream().anyMatch(a -> a.checkMatch(str));
-		}
-
-		return false;
-	}
-
-	private boolean isArgumentSpecifier(String str) {
-		return this.isArgName(str) || this.isArgNameList(str);
-	}
-
-	private boolean isSubCommand(String str) {
-		return this.subCommands.stream().anyMatch(c -> c.name.equals(str));
-	}
-
-	private Command getSubCommandByName(String name) {
-		var x = this.subCommands.stream().filter(sc -> sc.name.equals(name)).toList();
-		return x.isEmpty() ? null : x.get(0);
-	}
-
-	private Command getTokenizedSubCommand() {
-		return this.subCommands.stream().filter(sb -> sb.tokenizingState.finishedTokenizing).findFirst().orElse(null);
-	}
-
-	private Argument<?, ?> getArgumentByPositionalIndex(short index) {
-		final var posArgs = this.getPositionalArguments();
-
-		for (short i = 0; i < posArgs.size(); i++) {
-			if (i == index) {
-				return posArgs.get(i);
-			}
-		}
-		return null;
-	}
-
-	// ---------------------------------------------------- Parsing ----------------------------------------------------
-
-	void parseTokens() {
-		short argumentNameCount = 0;
-		boolean foundNonPositionalArg = false;
-		Argument<?, ?> lastPosArgument; // this will never be null when being used
-
-		for (parsingState.currentTokenIndex = 0; parsingState.currentTokenIndex < parsingState.tokens.size(); ) {
-			final Token currentToken = parsingState.tokens.get(parsingState.currentTokenIndex);
-
-			if (currentToken.type() == TokenType.ARGUMENT_NAME) {
-				parsingState.currentTokenIndex++;
-				runForArgument(currentToken.contents(), this::executeArgParse);
-				foundNonPositionalArg = true;
-			} else if (currentToken.type() == TokenType.ARGUMENT_NAME_LIST) {
-				parseArgNameList(currentToken.contents().substring(1));
-				foundNonPositionalArg = true;
-			} else if (
-				(currentToken.type() == TokenType.ARGUMENT_VALUE || currentToken.type() == TokenType.ARGUMENT_VALUE_TUPLE_START)
-					&& !foundNonPositionalArg
-					&& (lastPosArgument = getArgumentByPositionalIndex(argumentNameCount)) != null
-			)
-			{ // this is most likely a positional argument
-				executeArgParse(lastPosArgument);
-				argumentNameCount++;
-			} else {
-				parsingState.currentTokenIndex++;
-				if (currentToken.type() != TokenType.FORWARD_VALUE)
-					parsingState.addError(ParseError.ParseErrorType.UNMATCHED_TOKEN, null, 0);
-			}
-		}
-
-		// now parse the subcommands
-		this.subCommands.stream()
-			.filter(sb -> sb.tokenizingState.finishedTokenizing) // only get the commands that were actually tokenized
-			.forEach(Command::parseTokens); // now parse them
-	}
-
-	/**
-	 * Reads the next tokens and parses them as values for the given argument.
-	 * <p>
-	 * This keeps in mind the type of the argument, and will stop reading tokens when it
-	 * reaches the max number of values, or if the end of a tuple is reached.
-	 * </p>
-	 */
-	private void executeArgParse(Argument<?, ?> arg) {
-		final ArgValueCount argumentValuesRange = arg.argType.getNumberOfArgValues();
-
-		// just skip the whole thing if it doesn't need any values
-		if (argumentValuesRange.isZero()) {
-			arg.parseValues();
-			return;
-		}
-
-		final boolean isInTuple = (
-			parsingState.currentTokenIndex < parsingState.tokens.size()
-				&& parsingState.tokens.get(parsingState.currentTokenIndex).type() == TokenType.ARGUMENT_VALUE_TUPLE_START
-		);
-
-		final int ifTupleOffset = isInTuple ? 1 : 0;
-		int skipCount = ifTupleOffset;
-
-		final ArrayList<Token> tempArgs = new ArrayList<>();
-
-		// add more values until we get to the max of the type, or we encounter another argument specifier
-		for (
-			int i = parsingState.currentTokenIndex + ifTupleOffset;
-			i < parsingState.tokens.size();
-			i++, skipCount++
-		) {
-			final Token currentToken = parsingState.tokens.get(i);
-			if (
-				(!isInTuple && (
-					currentToken.type().isArgumentSpecifier() || i - parsingState.currentTokenIndex >= argumentValuesRange.max
-				))
-					|| currentToken.type().isTuple()
-			)
-			{
-				break;
-			}
-			tempArgs.add(currentToken);
-		}
-
-		final int tempArgsSize = tempArgs.size();
-		final int newCurrentTokenIndex = skipCount + ifTupleOffset;
-
-		if (tempArgsSize > argumentValuesRange.max || tempArgsSize < argumentValuesRange.min) {
-			parsingState.addError(ParseError.ParseErrorType.ARG_INCORRECT_VALUE_NUMBER, arg, tempArgsSize + ifTupleOffset);
-			parsingState.currentTokenIndex += newCurrentTokenIndex;
-			return;
-		}
-
-		// pass the arg values to the argument sub parser
-		arg.parseValues(tempArgs.stream().map(Token::contents).toArray(String[]::new), (short)(parsingState.currentTokenIndex + ifTupleOffset));
-
-		parsingState.currentTokenIndex += newCurrentTokenIndex;
-	}
-
-	/**
-	 * Parses the given string as an argument value for the given argument.
-	 * <p>
-	 * If the value passed in is present (not empty or null), the argument should only require 0 or 1 values.
-	 * </p>
-	 */
-	private void executeArgParse(Argument<?, ?> arg, String value) {
-		final ArgValueCount argumentValuesRange = arg.argType.getNumberOfArgValues();
-
-		if (value == null || value.isEmpty()) {
-			this.executeArgParse(arg); // value is not present in the suffix of the argList. Continue parsing values.
-			return;
-		}
-
-		// just skip the whole thing if it doesn't need any values
-		if (argumentValuesRange.isZero()) {
-			arg.parseValues();
-			return;
-		}
-
-		if (argumentValuesRange.min > 1) {
-			parsingState.addError(ParseError.ParseErrorType.ARG_INCORRECT_VALUE_NUMBER, arg, 0);
-			return;
-		}
-
-		// pass the arg values to the argument subParser
-		arg.parseValues(new String[] { value }, parsingState.currentTokenIndex);
-	}
-
-
-	/**
-	 * Parses the given string as a list of single-char argument names.
-	 */
-	private void parseArgNameList(String args) {
-		// its multiple of them. We can only do this with arguments that accept 0 values.
-		for (short i = 0; i < args.length(); i++) {
-			final short constIndex = i; // this is because the lambda requires the variable to be final
-
-			if (!this.runForArgument(args.charAt(i), a -> {
-				// if the argument accepts 0 values, then we can just parse it like normal
-				if (a.argType.getNumberOfArgValues().isZero()) {
-					this.executeArgParse(a);
-
-					// -- arguments now may accept 1 or more values from now on:
-
-					// if this argument is the last one in the list, then we can parse the next values after it
-				} else if (constIndex == args.length() - 1) {
-					parsingState.currentTokenIndex++;
-					this.executeArgParse(a);
-
-					// if this argument is not the last one in the list, then we can parse the rest of the chars as the value
-				} else {
-					this.executeArgParse(a, args.substring(constIndex + 1));
-				}
-			}))
-				return;
-		}
-		parsingState.currentTokenIndex++;
-	}
-
-	/**
-	 * Executes a callback for the argument found by the name specified.
-	 *
-	 * @return <a>ParseErrorType.ArgumentNotFound</a> if an argument was found
-	 */
-	private boolean runForArgument(String argName, Consumer<Argument<?, ?>> f) {
-		for (final var argument : this.arguments) {
-			if (argument.checkMatch(argName)) {
-				f.accept(argument);
-				return true;
-			}
-		}
-		return false;
-	}
-
-
-	/**
-	 * Executes a callback for the argument found by the name specified.
-	 *
-	 * @return <code>true</code> if an argument was found
-	 */
-	/* This method right here looks like it could be replaced by just changing it to
-	 *    return this.runForArgument(String.valueOf(argName), f);
-	 *
-	 * It can't. "checkMatch" has also a char overload. The former would always return false.
-	 * I don't really want to make "checkMatch" have different behavior depending on the length of the string, so
-	 * an overload seems better. */
-	private boolean runForArgument(char argName, Consumer<Argument<?, ?>> f) {
-		for (final var argument : this.arguments) {
-			if (argument.checkMatch(argName)) {
-				f.accept(argument);
-				return true;
-			}
-		}
-		return false;
 	}
 }
 

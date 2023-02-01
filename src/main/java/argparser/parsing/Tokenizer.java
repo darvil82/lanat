@@ -16,8 +16,11 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	protected boolean tupleOpen = false;
 	protected boolean stringOpen = false;
 	private boolean finishedTokenizing = false;
+	private int currentCharIndex = 0;
 	public final Pair<Character, Character> tupleChars;
-	private List<Token> finalTokens;
+	private final List<Token> finalTokens = new ArrayList<>();
+	private String input;
+	private char[] inputChars;
 
 	public Tokenizer(Command command) {
 		super(command);
@@ -28,29 +31,40 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 		this.addError(new TokenizeError(type, index));
 	}
 
+	public void setInput(String input) {
+		this.input = input;
+		this.inputChars = input.toCharArray();
+	}
+
+	private void addToken(TokenType type, String contents) {
+		this.finalTokens.add(new Token(type, contents));
+	}
+
+	private boolean isCharAtRelativeIndex(int index, char character) {
+		index += this.currentCharIndex;
+		if (index >= this.inputChars.length || index < 0) return false;
+		return this.inputChars[index] == character;
+	}
+
 
 	public void tokenize(String content) {
 		this.finishedTokenizing = false; // just in case we are tokenizing again for any reason
 
-		final var finalTokens = new ArrayList<Token>();
+		this.setInput(content);
 		final var currentValue = new StringBuilder();
-		final char[] chars = content.toCharArray();
 
 		final var values = new Object() {
-			int i;
 			char currentStringChar = 0;
 			TokenizeError.TokenizeErrorType errorType = null;
 		};
 
-		final BiConsumer<TokenType, String> addToken = (t, c) -> finalTokens.add(new Token(t, c));
-
 		final Runnable tokenizeSection = () -> {
-			Token token = this.tokenizeSection(currentValue.toString());
+			final Token token = this.tokenizeSection(currentValue.toString());
 			Command subCmd;
 			// if this is a subcommand, continue tokenizing next elements
 			if (token.type() == TokenType.SUB_COMMAND && (subCmd = getSubCommandByName(token.contents())) != null) {
 				// forward the rest of stuff to the subCommand
-				subCmd.getTokenizer().tokenize(content.substring(values.i));
+				subCmd.getTokenizer().tokenize(content.substring(this.currentCharIndex));
 				this.finishedTokenizing = true;
 			} else {
 				finalTokens.add(token);
@@ -58,26 +72,24 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 			currentValue.setLength(0);
 		};
 
-		BiPredicate<Integer, Character> charAtRelativeIndex = (index, character) -> {
-			index += values.i;
-			if (index >= chars.length || index < 0) return false;
-			return chars[index] == character;
-		};
 
-
-		for (values.i = 0; values.i < chars.length && !this.finishedTokenizing; values.i++) {
-			char cChar = chars[values.i];
+		for (
+			this.currentCharIndex = 0;
+			this.currentCharIndex < this.inputChars.length && !this.finishedTokenizing;
+			this.currentCharIndex++
+		) {
+			char cChar = this.inputChars[this.currentCharIndex];
 
 			// user is trying to escape a character
 			if (cChar == '\\') {
-				currentValue.append(chars[++values.i]); // skip the \ character and append the next character
+				currentValue.append(this.inputChars[++this.currentCharIndex]); // skip the \ character and append the next character
 
 				// reached a possible value wrapped in quotes
 			} else if (cChar == '"' || cChar == '\'') {
 				// if we are already in an open string, push the current value and close the string. Make sure
 				// that the current char is the same as the one that opened the string
 				if (this.stringOpen && values.currentStringChar == cChar) {
-					addToken.accept(TokenType.ARGUMENT_VALUE, currentValue.toString());
+					this.addToken(TokenType.ARGUMENT_VALUE, currentValue.toString());
 					currentValue.setLength(0);
 					this.stringOpen = false;
 
@@ -106,7 +118,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 				}
 
 				// push the tuple token and set the state to tuple open
-				addToken.accept(TokenType.ARGUMENT_VALUE_TUPLE_START, this.tupleChars.first().toString());
+				this.addToken(TokenType.ARGUMENT_VALUE_TUPLE_START, this.tupleChars.first().toString());
 				this.tupleOpen = true;
 
 				// reached a possible tuple end character
@@ -119,17 +131,21 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 
 				// if there was something before the tuple, tokenize it
 				if (!currentValue.isEmpty()) {
-					addToken.accept(TokenType.ARGUMENT_VALUE, currentValue.toString());
+					this.addToken(TokenType.ARGUMENT_VALUE, currentValue.toString());
 				}
 
 				// push the tuple token and set the state to tuple closed
-				addToken.accept(TokenType.ARGUMENT_VALUE_TUPLE_END, this.tupleChars.second().toString());
+				this.addToken(TokenType.ARGUMENT_VALUE_TUPLE_END, this.tupleChars.second().toString());
 				currentValue.setLength(0);
 				this.tupleOpen = false;
 
 				// reached a "--". Push all the rest as a FORWARD_VALUE.
-			} else if (cChar == '-' && charAtRelativeIndex.test(1, '-') && charAtRelativeIndex.test(2, ' ')) {
-				addToken.accept(TokenType.FORWARD_VALUE, content.substring(values.i + 3));
+			} else if (
+				cChar == '-'
+					&& this.isCharAtRelativeIndex(1, '-')
+					&& this.isCharAtRelativeIndex(2, ' ')
+			) {
+				this.addToken(TokenType.FORWARD_VALUE, content.substring(this.currentCharIndex + 3));
 				break;
 
 				// reached a possible separator
@@ -164,7 +180,6 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 		}
 
 		this.finishedTokenizing = true;
-		this.finalTokens = Collections.unmodifiableList(finalTokens);
 	}
 
 	private Token tokenizeSection(String str) {

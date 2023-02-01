@@ -1,12 +1,13 @@
 package argparser.parsing.errors;
 
-import argparser.*;
-import argparser.utils.ErrorLevelProvider;
+import argparser.Command;
+import argparser.Token;
+import argparser.TokenType;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 
 public class ErrorHandler {

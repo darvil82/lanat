@@ -7,7 +7,6 @@ import argparser.parsing.errors.ParseError;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.function.Consumer;
 
 public class Parser extends ParsingStateBase<ParseError> {
 	private final ArrayList<CustomError> customErrors = new ArrayList<>();
@@ -28,7 +27,7 @@ public class Parser extends ParsingStateBase<ParseError> {
 		super(command);
 	}
 
-	HashMap<Argument<?, ?>, Object> getParsedArgumentsHashMap() {
+	public HashMap<Argument<?, ?>, Object> getParsedArgumentsHashMap() {
 		if (this.parsedArguments == null) {
 			this.parsedArguments = new HashMap<>() {{
 				Parser.this.getArguments().forEach(arg -> put(arg, arg.finishParsing()));
@@ -68,9 +67,11 @@ public class Parser extends ParsingStateBase<ParseError> {
 		return this.getErrorsInLevelMinimum(this.customErrors, true);
 	}
 
+	public void setTokens(List<Token> tokens) {
+		this.tokens = tokens;
+	}
 
-
-	public void parseTokens(List<Token> tokens) {
+	public void parseTokens() {
 		short argumentNameCount = 0;
 		boolean foundNonPositionalArg = false;
 		Argument<?, ?> lastPosArgument; // this will never be null when being used
@@ -102,7 +103,7 @@ public class Parser extends ParsingStateBase<ParseError> {
 
 		// now parse the subcommands
 		this.getSubCommands().stream()
-			.filter(sb -> sb.getTokenizer().finishedTokenizing) // only get the commands that were actually tokenized
+			.filter(sb -> sb.getTokenizer().isFinishedTokenizing()) // only get the commands that were actually tokenized
 			.forEach(sb -> sb.getParser().parseTokens()); // now parse them
 	}
 

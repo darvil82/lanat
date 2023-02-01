@@ -3,7 +3,6 @@ import argparser.argumentTypes.TupleArgumentType;
 import org.junit.jupiter.api.BeforeEach;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;

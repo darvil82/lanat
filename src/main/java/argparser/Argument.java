@@ -11,7 +11,7 @@ import java.util.function.Consumer;
 
 public class Argument<Type extends ArgumentType<TInner>, TInner>
 	implements MinimumErrorLevelConfig<CustomError>, ErrorCallbacks<TInner, Argument<Type, TInner>>, Resettable,
-		ParentCommandGetter
+	ParentCommandGetter
 {
 	public final Type argType;
 	private char prefix = '-';

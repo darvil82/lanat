@@ -3,7 +3,6 @@ package argparser.argumentTypes;
 import argparser.ArgumentType;
 
 import java.io.File;
-import java.io.FileReader;
 
 public class FileArgument extends ArgumentType<File> {
 	@Override

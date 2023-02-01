@@ -1,6 +1,5 @@
 package argparser.parsing;
 
-import argparser.Argument;
 import argparser.Command;
 import argparser.Token;
 import argparser.TokenType;
@@ -16,8 +15,9 @@ import java.util.function.BiPredicate;
 public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	protected boolean tupleOpen = false;
 	protected boolean stringOpen = false;
-	protected boolean finishedTokenizing = false;
+	private boolean finishedTokenizing = false;
 	public final Pair<Character, Character> tupleChars;
+	private List<Token> finalTokens;
 
 	public Tokenizer(Command command) {
 		super(command);
@@ -29,7 +29,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	}
 
 
-	public List<Token> tokenize(String content) {
+	public void tokenize(String content) {
 		this.finishedTokenizing = false; // just in case we are tokenizing again for any reason
 
 		final var finalTokens = new ArrayList<Token>();
@@ -164,7 +164,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 		}
 
 		this.finishedTokenizing = true;
-		return Collections.unmodifiableList(finalTokens);
+		this.finalTokens = Collections.unmodifiableList(finalTokens);
 	}
 
 	private Token tokenizeSection(String str) {
@@ -237,7 +237,18 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 		return x.isEmpty() ? null : x.get(0);
 	}
 
-	private Command getTokenizedSubCommand() {
+	public Command getTokenizedSubCommand() {
 		return this.getSubCommands().stream().filter(sb -> sb.getTokenizer().finishedTokenizing).findFirst().orElse(null);
+	}
+
+	public List<Token> getFinalTokens() {
+		if (!this.finishedTokenizing) {
+			throw new IllegalStateException("Cannot get final tokens before tokenizing is finished!");
+		}
+		return this.finalTokens;
+	}
+
+	public boolean isFinishedTokenizing() {
+		return this.finishedTokenizing;
 	}
 }

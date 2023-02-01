@@ -53,7 +53,7 @@ public class ArgumentParser extends Command {
 		this.passPropertiesToChildren();
 		this.tokenize(args); // first. This will tokenize all subCommands recursively
 		var errorHandler = new ErrorHandler(this);
-		this.parseTokens(); // same thing, this parses all the stuff recursively
+		this.parse(); // same thing, this parses all the stuff recursively
 
 		this.invokeCallbacks();
 		errorHandler.handleErrorsPrint();
@@ -89,7 +89,7 @@ public class ArgumentParser extends Command {
 		this.passPropertiesToChildren();
 		this.tokenize(args);
 		var errorHandler = new ErrorHandler(this);
-		this.parseTokens();
+		this.parse();
 		this.invokeCallbacks();
 
 		this.isParsed = true;
@@ -101,7 +101,7 @@ public class ArgumentParser extends Command {
 	ParsedArgumentsRoot getParsedArguments() {
 		return new ParsedArgumentsRoot(
 			this.name,
-			this.parsingState.getParsedArgumentsHashMap(),
+			this.getParser().getParsedArgumentsHashMap(),
 			this.subCommands.stream().map(Command::getParsedArguments).toList(),
 			this.getForwardValue()
 		);

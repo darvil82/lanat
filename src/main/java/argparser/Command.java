@@ -7,7 +7,10 @@ import argparser.parsing.errors.CustomError;
 import argparser.utils.*;
 import argparser.utils.displayFormatter.Color;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
@@ -154,7 +157,7 @@ public class Command
 			|| this.subCommands.stream().anyMatch(Command::uniqueArgumentReceivedValue);
 	}
 
-	boolean isRootCommand() {
+	public boolean isRootCommand() {
 		return this.isRootCommand;
 	}
 
@@ -178,13 +181,13 @@ public class Command
 	 * Get all the tokens of all subcommands (the ones that we can get without errors)
 	 * into one single list. This includes the {@link TokenType#SUB_COMMAND} tokens.
 	 */
-	protected ArrayList<Token> getFullTokenList() {
+	public ArrayList<Token> getFullTokenList() {
 		final ArrayList<Token> list = new ArrayList<>() {{
 			add(new Token(TokenType.SUB_COMMAND, name));
-			addAll(Command.this.parser.tokens);
+			addAll(Command.this.getTokenizer().getFinalTokens());
 		}};
 
-		final Command subCmd = this.getTokenizedSubCommand();
+		final Command subCmd = this.getTokenizer().getTokenizedSubCommand();
 
 		if (subCmd != null) {
 			list.addAll(subCmd.getFullTokenList());
@@ -202,7 +205,11 @@ public class Command
 		this.getMinimumDisplayErrorLevel().setIfNotModified(parent.getMinimumDisplayErrorLevel());
 		this.errorCode.setIfNotModified(parent.errorCode);
 		this.helpFormatter.setIfNotModified(() -> {
-			// NEED TO BE COPIED!! if we don't then all commands will have the same formatter
+			/* NEED TO BE COPIED!! If we don't then all commands will have the same formatter,
+			 * which causes lots of problems.
+			 *
+			 * Stuff like the layout generators closures are capturing the reference to the previous Command
+			 * and will not be updated properly when the parent command is updated. */
 			var fmt = new HelpFormatter(parent.helpFormatter.get());
 			fmt.setParentCmd(this); // we need to update the parent command!
 			return fmt;
@@ -240,7 +247,7 @@ public class Command
 
 	@Override
 	public boolean hasExitErrors() {
-		var tokenizedSubCommand = this.getTokenizedSubCommand();
+		var tokenizedSubCommand = this.getTokenizer().getTokenizedSubCommand();
 
 		return super.hasExitErrors()
 			|| tokenizedSubCommand != null && tokenizedSubCommand.hasExitErrors()
@@ -251,7 +258,7 @@ public class Command
 
 	@Override
 	public boolean hasDisplayErrors() {
-		var tokenizedSubCommand = this.getTokenizedSubCommand();
+		var tokenizedSubCommand = this.getTokenizer().getTokenizedSubCommand();
 
 		return super.hasDisplayErrors()
 			|| tokenizedSubCommand != null && tokenizedSubCommand.hasDisplayErrors()
@@ -262,7 +269,7 @@ public class Command
 
 	public int getErrorCode() {
 		int errCode = this.subCommands.stream()
-			.filter(c -> c.tokenizer.finishedTokenizing)
+			.filter(c -> c.tokenizer.isFinishedTokenizing())
 			.map(sc -> sc.getMinimumExitErrorLevel().get().isInErrorMinimum(this.getMinimumExitErrorLevel().get()) ? sc.getErrorCode() : 0)
 			.reduce(0, (a, b) -> a | b);
 
@@ -293,9 +300,25 @@ public class Command
 		return parser;
 	}
 
+	void tokenize(String input) {
+		// this tokenizes recursively!
+		this.tokenizer.tokenize(input);
+	}
+
+	void parse() {
+		// first we need to set the tokens of all tokenized subcommands
+		Command cmd = this;
+		do {
+			cmd.parser.setTokens(cmd.tokenizer.getFinalTokens());
+		} while ((cmd = cmd.getTokenizer().getTokenizedSubCommand()) != null);
+
+		// this parses recursively!
+		this.parser.parseTokens();
+	}
+
 	@Override
 	public void resetState() {
-		this.tokenizer =  new Tokenizer(this);
+		this.tokenizer = new Tokenizer(this);
 		this.parser = new Parser(this);
 		this.arguments.forEach(Argument::resetState);
 		this.argumentGroups.forEach(ArgumentGroup::resetState);

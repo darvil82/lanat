@@ -36,7 +36,7 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> imple
 		this.setValue(this.initialValue = initialValue);
 	}
 
-	public ArgumentType() { }
+	public ArgumentType() {}
 
 	public void parseAndUpdateValue(String[] args) {
 		this.receivedValueCount = args.length;

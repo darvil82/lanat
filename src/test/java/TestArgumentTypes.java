@@ -14,7 +14,7 @@ public class TestArgumentTypes extends UnitTests {
 
 	@Override
 	public void setParser() {
-		this.parser = new TestingParser("Testing") {{
+		this.parser = new TestingParser("TestArgumentTypes") {{
 			addArgument(new Argument<>("boolean", ArgumentType.BOOLEAN()));
 			addArgument(new Argument<>(ArgumentType.COUNTER(), "counter", "c"));
 			addArgument(new Argument<>("integer", ArgumentType.INTEGER()));

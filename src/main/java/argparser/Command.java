@@ -18,7 +18,7 @@ import java.util.function.Consumer;
  */
 public class Command
 	extends ErrorsContainer<CustomError>
-	implements ErrorCallbacks<Command, Command>, ArgumentAdder, ArgumentGroupAdder, Resettable
+	implements ErrorCallbacks<Command, Command>, ArgumentAdder, ArgumentGroupAdder, Resettable, NamedWithDescription
 {
 	public final String name, description;
 	final ArrayList<Argument<?, ?>> arguments = new ArrayList<>();
@@ -121,6 +121,16 @@ public class Command
 
 	public TupleCharacter getTupleChars() {
 		return tupleChars.get();
+	}
+
+	@Override
+	public String getName() {
+		return this.name;
+	}
+
+	@Override
+	public String getDescription() {
+		return this.description;
 	}
 
 	public void setHelpFormatter(HelpFormatter helpFormatter) {

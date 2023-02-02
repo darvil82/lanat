@@ -11,7 +11,7 @@ import java.util.function.Consumer;
 
 public class Argument<Type extends ArgumentType<TInner>, TInner>
 	implements MinimumErrorLevelConfig<CustomError>, ErrorCallbacks<TInner, Argument<Type, TInner>>, Resettable,
-	ParentCommandGetter
+	ParentCommandGetter, NamedWithDescription
 {
 	public final Type argType;
 	private char prefix = '-';
@@ -51,8 +51,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	/**
 	 * Creates an argument with a {@link BooleanArgument} type.
 	 */
-	public static Argument<BooleanArgument, Boolean> simple(String name) {
-		return new Argument<>(ArgumentType.BOOLEAN(), name);
+	public static Argument<BooleanArgument, Boolean> simple(String... names) {
+		return new Argument<>(ArgumentType.BOOLEAN(), names);
 	}
 
 
@@ -161,6 +161,12 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		return this;
 	}
 
+	@Override
+	public String getName() {
+		return this.getLongestName();
+	}
+
+	@Override
 	public String getDescription() {
 		return description;
 	}

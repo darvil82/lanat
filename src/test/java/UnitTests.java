@@ -66,7 +66,7 @@ public class UnitTests {
 	}
 
 	@BeforeEach
-	public void setup() {
+	public final void setup() {
 		this.setParser();
 	}
 

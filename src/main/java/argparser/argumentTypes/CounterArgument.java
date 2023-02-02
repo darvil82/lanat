@@ -5,7 +5,6 @@ import argparser.ArgumentType;
 import argparser.utils.displayFormatter.TextFormatter;
 
 public class CounterArgument extends ArgumentType<Integer> {
-	// prevent nullptr exceptions
 	public CounterArgument() {
 		super(0);
 	}

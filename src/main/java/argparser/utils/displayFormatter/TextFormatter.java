@@ -17,6 +17,11 @@ public class TextFormatter {
 		this.contents = contents;
 	}
 
+	public TextFormatter(String contents, Color foreground) {
+		this(contents);
+		this.foregroundColor = foreground;
+	}
+
 	public TextFormatter() {
 		this.contents = "";
 	}
@@ -155,14 +160,15 @@ public class TextFormatter {
 		return buffer.toString();
 	}
 
+	/** Returns a template for a {@link TextFormatter} that is used for errors */
 	public static TextFormatter ERROR(String msg) {
 		return new TextFormatter(msg).setColor(Color.BRIGHT_RED).addFormat(FormatOption.REVERSE, FormatOption.BOLD);
 	}
 
 	public static String getSequence(int code) {
-		if (debug)
+		if (TextFormatter.debug)
 			return "ESC[" + code;
-		return ESC + "[" + code + "m";
+		return "" + ESC + '[' + code + 'm';
 	}
 
 	/**

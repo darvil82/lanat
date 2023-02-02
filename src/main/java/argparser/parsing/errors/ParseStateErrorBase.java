@@ -1,5 +1,6 @@
 package argparser.parsing.errors;
 
+import argparser.ErrorFormatter;
 import argparser.ErrorLevel;
 import argparser.Token;
 import argparser.utils.ErrorLevelProvider;

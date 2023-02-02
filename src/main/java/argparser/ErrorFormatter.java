@@ -1,15 +1,14 @@
-package argparser.parsing.errors;
+package argparser;
 
-import argparser.ErrorLevel;
-import argparser.Token;
 import argparser.helpRepresentation.HelpFormatter;
+import argparser.parsing.errors.ErrorHandler;
 import argparser.utils.UtlString;
 import argparser.utils.displayFormatter.FormatOption;
 import argparser.utils.displayFormatter.TextFormatter;
 
 import java.util.ArrayList;
 
-class ErrorFormatter {
+public class ErrorFormatter {
 	private String contents = "";
 	private String tokensView = "";
 	private ErrorLevel errorLevel;
@@ -50,7 +49,7 @@ class ErrorFormatter {
 	}
 
 	public ErrorFormatter displayTokens(int start, int offset, boolean placeArrow) {
-		start += this.mainHandler.cmdAbsoluteTokenIndex;
+		start += this.mainHandler.getAbsoluteCmdTokenIndex();
 		final var arrow = TextFormatter.ERROR("<-").setColor(this.errorLevel.color);
 		var tokensFormatters = new ArrayList<>(this.mainHandler.tokens.stream().map(Token::getFormatter).toList());
 		int tokensLength = this.mainHandler.tokens.size();
@@ -62,7 +61,7 @@ class ErrorFormatter {
 		}
 
 		for (int i = 0; i < tokensLength; i++) {
-			if (i < this.mainHandler.cmdAbsoluteTokenIndex) {
+			if (i < this.mainHandler.getAbsoluteCmdTokenIndex()) {
 				tokensFormatters.get(i).addFormat(FormatOption.DIM);
 			}
 

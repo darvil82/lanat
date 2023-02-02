@@ -9,6 +9,6 @@ public record Token(TokenType type, String contents) {
 		if (contents.contains(" ") && this.type == TokenType.ARGUMENT_VALUE) {
 			contents = UtlString.surround(contents, "'");
 		}
-		return new TextFormatter(contents).setColor(this.type.color);
+		return new TextFormatter(contents, this.type.color);
 	}
 }

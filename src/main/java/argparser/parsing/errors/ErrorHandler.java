@@ -11,14 +11,14 @@ import java.util.List;
 
 
 public class ErrorHandler {
-	final List<Token> tokens;
+	public final List<Token> tokens;
 	private final Command rootCmd;
-	int cmdAbsoluteTokenIndex = 0;
+	private int absoluteCmdTokenIndex = 0;
 
 
 	public ErrorHandler(Command rootCommand) {
 		this.rootCmd = rootCommand;
-		this.tokens = rootCommand.getFullTokenList();
+		this.tokens = Collections.unmodifiableList(rootCommand.getFullTokenList());
 	}
 
 	/**
@@ -29,8 +29,8 @@ public class ErrorHandler {
 		final ArrayList<String> errors = new ArrayList<>();
 
 		for (int i = 0; i < commands.size(); i++) {
-			Command cmd = commands.get(i);
-			this.cmdAbsoluteTokenIndex = this.getCommandTokenIndexByNestingLevel(i);
+			final Command cmd = commands.get(i);
+			this.absoluteCmdTokenIndex = this.getCommandTokenIndexByNestingLevel(i);
 
 			new ArrayList<ParseStateErrorBase<?>>() {{
 				addAll(cmd.getErrorsUnderDisplayLevel());
@@ -52,10 +52,10 @@ public class ErrorHandler {
 	}
 
 	/**
-	 * Returns the token at the specified index, offset by the current command's token index ({@link #cmdAbsoluteTokenIndex}).
+	 * Returns the token at the specified index, offset by the current command's token index ({@link #absoluteCmdTokenIndex}).
 	 */
 	public Token getRelativeToken(int index) {
-		return this.tokens.get(this.cmdAbsoluteTokenIndex + index);
+		return this.tokens.get(this.absoluteCmdTokenIndex + index);
 	}
 
 	/**
@@ -97,5 +97,9 @@ public class ErrorHandler {
 
 	public Command getRootCmd() {
 		return rootCmd;
+	}
+
+	public int getAbsoluteCmdTokenIndex() {
+		return this.absoluteCmdTokenIndex;
 	}
 }

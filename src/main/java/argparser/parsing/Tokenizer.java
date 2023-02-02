@@ -35,15 +35,16 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 		this.tupleChars = command.getTupleChars().getCharPair();
 	}
 
+	// ------------------------------------------------ Error Handling ------------------------------------------------
 	void addError(TokenizeError.TokenizeErrorType type, int index) {
 		this.addError(new TokenizeError(type, index));
 	}
+	// ------------------------------------------------ ////////////// ------------------------------------------------
 
 	private void setInputString(String inputString) {
 		this.inputString = inputString;
 		this.inputChars = inputString.toCharArray();
 	}
-
 
 	public void tokenize(String input) {
 		if (this.finishedTokenizing) {
@@ -171,12 +172,6 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 		this.finalTokens.add(new Token(type, contents));
 	}
 
-	private boolean isCharAtRelativeIndex(int index, char character) {
-		index += this.currentCharIndex;
-		if (index >= this.inputChars.length || index < 0) return false;
-		return this.inputChars[index] == character;
-	}
-
 	private Token tokenizeWord(String str) {
 		final TokenType type;
 
@@ -237,6 +232,25 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 		return false;
 	}
 
+	private boolean isArgumentSpecifier(String str) {
+		return this.isArgName(str) || this.isArgNameList(str);
+	}
+
+	private boolean isSubCommand(String str) {
+		return this.getSubCommands().stream().anyMatch(c -> c.name.equals(str));
+	}
+
+	private boolean isCharAtRelativeIndex(int index, char character) {
+		index += this.currentCharIndex;
+		if (index >= this.inputChars.length || index < 0) return false;
+		return this.inputChars[index] == character;
+	}
+
+	private Command getSubCommandByName(String name) {
+		var x = this.getSubCommands().stream().filter(sc -> sc.name.equals(name)).toList();
+		return x.isEmpty() ? null : x.get(0);
+	}
+
 	public List<Command> getTokenizedSubCommands() {
 		final List<Command> x = new ArrayList<>();
 		final Command subCmd;
@@ -250,19 +264,6 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 
 	public Command getTokenizedSubCommand() {
 		return this.getSubCommands().stream().filter(sb -> sb.getTokenizer().finishedTokenizing).findFirst().orElse(null);
-	}
-
-	private boolean isArgumentSpecifier(String str) {
-		return this.isArgName(str) || this.isArgNameList(str);
-	}
-
-	private boolean isSubCommand(String str) {
-		return this.getSubCommands().stream().anyMatch(c -> c.name.equals(str));
-	}
-
-	private Command getSubCommandByName(String name) {
-		var x = this.getSubCommands().stream().filter(sc -> sc.name.equals(name)).toList();
-		return x.isEmpty() ? null : x.get(0);
 	}
 
 	public List<Token> getFinalTokens() {

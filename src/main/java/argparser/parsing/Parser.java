@@ -23,6 +23,9 @@ public class Parser extends ParsingStateBase<ParseError> {
 	 */
 	private short currentTokenIndex = 0;
 
+	/** The parsed arguments. This is a map of the argument to the value that it parsed.
+	 * The reason this is saved is that we don't want to run {@link Parser#getParsedArgumentsHashMap()}
+	 * multiple times because that can break stuff badly in relation to error handling. */
 	private HashMap<Argument<?, ?>, Object> parsedArguments;
 
 
@@ -30,32 +33,7 @@ public class Parser extends ParsingStateBase<ParseError> {
 		super(command);
 	}
 
-	public HashMap<Argument<?, ?>, Object> getParsedArgumentsHashMap() {
-		if (this.parsedArguments == null) {
-			this.parsedArguments = new HashMap<>() {{
-				Parser.this.getArguments().forEach(arg -> put(arg, arg.finishParsing()));
-			}};
-		}
-		return this.parsedArguments;
-	}
-
-	public short getCurrentTokenIndex() {
-		return currentTokenIndex;
-	}
-
-	public void addError(ParseError.ParseErrorType type, Argument<?, ?> arg, int argValueCount, int currentIndex) {
-		this.addError(new ParseError(type, currentIndex, arg, argValueCount));
-	}
-
-	public void addError(ParseError.ParseErrorType type, Argument<?, ?> arg, int argValueCount) {
-		this.addError(type, arg, argValueCount, this.currentTokenIndex);
-	}
-
-
-	public void addError(CustomError customError) {
-		this.customErrors.add(customError);
-	}
-
+	// ------------------------------------------------ Error Handling ------------------------------------------------
 	@Override
 	public boolean hasExitErrors() {
 		return super.hasExitErrors() || this.anyErrorInMinimum(this.customErrors, false);
@@ -68,6 +46,23 @@ public class Parser extends ParsingStateBase<ParseError> {
 
 	public List<CustomError> getCustomErrors() {
 		return this.getErrorsInLevelMinimum(this.customErrors, true);
+	}
+
+	public void addError(ParseError.ParseErrorType type, Argument<?, ?> arg, int argValueCount, int currentIndex) {
+		this.addError(new ParseError(type, currentIndex, arg, argValueCount));
+	}
+
+	public void addError(ParseError.ParseErrorType type, Argument<?, ?> arg, int argValueCount) {
+		this.addError(type, arg, argValueCount, this.currentTokenIndex);
+	}
+
+	public void addError(CustomError customError) {
+		this.customErrors.add(customError);
+	}
+	// ------------------------------------------------ ////////////// ------------------------------------------------
+
+	public short getCurrentTokenIndex() {
+		return currentTokenIndex;
 	}
 
 	public void setTokens(List<Token> tokens) {
@@ -199,7 +194,6 @@ public class Parser extends ParsingStateBase<ParseError> {
 		arg.parseValues(new String[] { value }, this.currentTokenIndex);
 	}
 
-
 	/**
 	 * Parses the given string as a list of single-char argument names.
 	 */
@@ -239,5 +233,14 @@ public class Parser extends ParsingStateBase<ParseError> {
 			}
 		}
 		return null;
+	}
+
+	public HashMap<Argument<?, ?>, Object> getParsedArgumentsHashMap() {
+		if (this.parsedArguments == null) {
+			this.parsedArguments = new HashMap<>() {{
+				Parser.this.getArguments().forEach(arg -> put(arg, arg.finishParsing()));
+			}};
+		}
+		return this.parsedArguments;
 	}
 }

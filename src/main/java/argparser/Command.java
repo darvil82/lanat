@@ -63,7 +63,7 @@ public class Command
 	public <T extends ArgumentType<TInner>, TInner>
 	void addArgument(Argument<T, TInner> argument) {
 		if (this.arguments.stream().anyMatch(a -> a.equals(argument))) {
-			throw new IllegalArgumentException("duplicate argument identifier '" + argument.getLongestName() + "'");
+			throw new IllegalArgumentException("duplicate argument identifier '" + argument.getName() + "'");
 		}
 		argument.setParentCmd(this);
 		this.arguments.add(argument);

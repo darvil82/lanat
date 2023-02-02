@@ -10,6 +10,8 @@ import java.util.function.Consumer;
 
 public abstract class ParsingStateBase<T extends ErrorLevelProvider> extends ErrorsContainer<T> {
 	protected Command command;
+	/** Whether the parsing/tokenizing has finished. */
+	protected boolean hasFinished = false;
 
 	public ParsingStateBase(Command command) {
 		super(command.getMinimumExitErrorLevel(), command.getMinimumDisplayErrorLevel());
@@ -59,5 +61,9 @@ public abstract class ParsingStateBase<T extends ErrorLevelProvider> extends Err
 
 	protected List<Command> getSubCommands() {
 		return this.command.getSubCommands();
+	}
+
+	public boolean hasFinished() {
+		return this.hasFinished;
 	}
 }

@@ -70,7 +70,7 @@ public class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 		this.fmt()
 			.setContents("Incorrect number of values for argument '%s'.%nExpected %s, but got %d."
 				.formatted(
-					argument.getLongestName(), argument.argType.getNumberOfArgValues().getMessage(),
+					argument.getName(), argument.argType.getNumberOfArgValues().getMessage(),
 					Math.max(this.valueCount - 1, 0)
 				)
 			)
@@ -84,8 +84,8 @@ public class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 		this.fmt()
 			.setContents(
 				argCmd.isRootCommand()
-					? "Obligatory argument '%s' not used.".formatted(argument.getLongestName())
-					: "Obligatory argument '%s' for command '%s' not used.".formatted(argument.getLongestName(), argCmd.name)
+					? "Obligatory argument '%s' not used.".formatted(argument.getName())
+					: "Obligatory argument '%s' for command '%s' not used.".formatted(argument.getName(), argCmd.name)
 			)
 			.displayTokens(this.tokenIndex + 1);
 	}

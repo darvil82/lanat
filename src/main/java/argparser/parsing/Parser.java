@@ -33,6 +33,7 @@ public class Parser extends ParsingStateBase<ParseError> {
 		super(command);
 	}
 
+
 	// ------------------------------------------------ Error Handling ------------------------------------------------
 	@Override
 	public boolean hasExitErrors() {
@@ -61,15 +62,24 @@ public class Parser extends ParsingStateBase<ParseError> {
 	}
 	// ------------------------------------------------ ////////////// ------------------------------------------------
 
+	/** Returns the index of the current token that is being parsed. */
 	public short getCurrentTokenIndex() {
 		return currentTokenIndex;
 	}
 
+	/** Sets the tokens that this parser will parse. */
 	public void setTokens(List<Token> tokens) {
 		this.tokens = tokens;
 	}
 
 	public void parseTokens() {
+		if (this.tokens == null)
+			throw new IllegalStateException("Tokens have not been set yet.");
+
+		if (this.hasFinished)
+			throw new IllegalStateException("This parser has already finished parsing.");
+
+
 		short argumentNameCount = 0;
 		boolean foundNonPositionalArg = false;
 		Argument<?, ?> lastPosArgument; // this will never be null when being used
@@ -98,6 +108,8 @@ public class Parser extends ParsingStateBase<ParseError> {
 					this.addError(ParseError.ParseErrorType.UNMATCHED_TOKEN, null, 0);
 			}
 		}
+
+		this.hasFinished = true;
 
 		// now parse the subcommands
 		this.getSubCommands().stream()
@@ -224,6 +236,7 @@ public class Parser extends ParsingStateBase<ParseError> {
 		this.currentTokenIndex++;
 	}
 
+	/** Returns the positional argument at the given index of declaration. */
 	private Argument<?, ?> getArgumentByPositionalIndex(short index) {
 		final var posArgs = this.command.getPositionalArguments();
 
@@ -235,6 +248,7 @@ public class Parser extends ParsingStateBase<ParseError> {
 		return null;
 	}
 
+	/** Returns a hashmap of Arguments and their corresponding parsed values. */
 	public HashMap<Argument<?, ?>, Object> getParsedArgumentsHashMap() {
 		if (this.parsedArguments == null) {
 			this.parsedArguments = new HashMap<>() {{

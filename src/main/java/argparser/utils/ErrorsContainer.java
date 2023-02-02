@@ -21,6 +21,11 @@ public abstract class ErrorsContainer<T extends ErrorLevelProvider> implements M
 		this.minimumDisplayErrorLevel = minimumDisplayErrorLevelRecord;
 	}
 
+	public ErrorsContainer(ErrorLevel minimumExitErrorLevel, ErrorLevel minimumDisplayErrorLevel) {
+		this.minimumExitErrorLevel.set(minimumExitErrorLevel);
+		this.minimumDisplayErrorLevel.set(minimumDisplayErrorLevel);
+	}
+
 	/**
 	 * Adds an error to the list of errors.
 	 * @param error The error to add.

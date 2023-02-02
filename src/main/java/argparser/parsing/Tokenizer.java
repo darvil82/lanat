@@ -12,23 +12,29 @@ import java.util.List;
 public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	/** Are we currently within a tuple? */
 	protected boolean tupleOpen = false;
+
 	/** Are we currently within a string? */
 	protected boolean stringOpen = false;
-	/** Whether we finished tokenizing the input or not */
-	private boolean finishedTokenizing = false;
+
 	/** The index of the current character in the {@link Tokenizer#inputString} */
 	private int currentCharIndex = 0;
+
 	/** The characters that are used to open and close tuples.
 	 * {@link Pair#first()} is the open character and {@link Pair#second()} is the close character */
 	public final Pair<Character, Character> tupleChars;
+
 	/** The tokens that have been parsed so far */
 	private final List<Token> finalTokens = new ArrayList<>();
+
 	/** The current value of the token that is being parsed */
 	private final StringBuilder currentValue = new StringBuilder();
+
 	/** The input string that is being tokenized */
 	private String inputString;
+
 	/** The input string that is being tokenized, split into characters */
 	private char[] inputChars;
+
 
 	public Tokenizer(Command command) {
 		super(command);
@@ -46,8 +52,12 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 		this.inputChars = inputString.toCharArray();
 	}
 
+	/**
+	 * Tokenizes the input string given.
+	 * When finished, the tokens can be retrieved using {@link Tokenizer#getFinalTokens()}
+	 */
 	public void tokenize(String input) {
-		if (this.finishedTokenizing) {
+		if (this.hasFinished) {
 			throw new IllegalStateException("Tokenizer has already finished tokenizing");
 		}
 
@@ -61,7 +71,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 
 		for (
 			this.currentCharIndex = 0;
-			this.currentCharIndex < this.inputChars.length && !this.finishedTokenizing;
+			this.currentCharIndex < this.inputChars.length && !this.hasFinished;
 			this.currentCharIndex++
 		) {
 			char cChar = this.inputChars[this.currentCharIndex];
@@ -165,13 +175,18 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 			this.addError(values.errorType, finalTokens.size());
 		}
 
-		this.finishedTokenizing = true;
+		this.hasFinished = true;
 	}
 
+	/** Inserts a token into the final tokens list with the given type and contents */
 	private void addToken(TokenType type, String contents) {
 		this.finalTokens.add(new Token(type, contents));
 	}
 
+	/**
+	 * Tokenizes a single word and returns the token matching it. If no match could be found, returns
+	 * {@link TokenType#ARGUMENT_VALUE}
+	 * */
 	private Token tokenizeWord(String str) {
 		final TokenType type;
 
@@ -190,6 +205,12 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 		return new Token(type, str);
 	}
 
+	/**
+	 * Tokenizes the {@link Tokenizer#currentValue} and adds it to the final tokens list.
+	 * <p>
+	 *     If the token is a subcommand, it will forward the rest of the input string to the subcommand's tokenizer.
+	 * </p>
+	 */
 	private void tokenizeCurrentValue() {
 		final Token token = this.tokenizeWord(currentValue.toString());
 		Command subCmd;
@@ -197,13 +218,22 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 		if (token.type() == TokenType.SUB_COMMAND && (subCmd = getSubCommandByName(token.contents())) != null) {
 			// forward the rest of stuff to the subCommand
 			subCmd.getTokenizer().tokenize(inputString.substring(this.currentCharIndex));
-			this.finishedTokenizing = true;
+			this.hasFinished = true;
 		} else {
 			finalTokens.add(token);
 		}
 		currentValue.setLength(0);
 	}
 
+	/**
+	 * Returns true if the given string can be an argument name list, eg: <code>"-fbq"</code>.
+	 * <p>
+	 *     This returns true if at least the first character is a valid argument prefix and at least one of the
+	 *     next characters is a valid argument name.
+	 * <br><br>
+	 *     For a prefix to be valid, it must be a character used as a prefix on the next argument/s specified.
+	 * </p>
+	 */
 	private boolean isArgNameList(String str) {
 		if (str.length() < 2) return false;
 
@@ -218,6 +248,12 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 		return possiblePrefixes.size() >= 1 && possiblePrefixes.contains(str.charAt(0));
 	}
 
+	/**
+	 * Returns true if the given string can be an argument name, eg: <code>"--help"</code>.
+	 * <p>
+	 *     This returns true if the given string is a valid argument name with a double prefix.
+	 * </p>
+	 */
 	private boolean isArgName(String str) {
 		// first try to figure out if the prefix is used, to save time (does it start with '--'? (assuming the prefix is '-'))
 		if (
@@ -232,25 +268,45 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 		return false;
 	}
 
+	/**
+	 * Returns true whether the given string is an argument name {@link Tokenizer#isArgName(String)}
+	 * or an argument name list {@link Tokenizer#isArgNameList(String)}.
+	 * */
 	private boolean isArgumentSpecifier(String str) {
 		return this.isArgName(str) || this.isArgNameList(str);
 	}
 
+	/** Returns true if the given string is a subcommand name */
 	private boolean isSubCommand(String str) {
 		return this.getSubCommands().stream().anyMatch(c -> c.name.equals(str));
 	}
 
+	/**
+	 * Returns true if the character of {@link Tokenizer#inputChars} at a relative index
+	 * from {@link Tokenizer#currentCharIndex} is equal to the specified character.
+	 * <p>
+	 *     If the index is out of bounds, returns false.
+	 * </p>
+	 * */
 	private boolean isCharAtRelativeIndex(int index, char character) {
 		index += this.currentCharIndex;
 		if (index >= this.inputChars.length || index < 0) return false;
 		return this.inputChars[index] == character;
 	}
 
+	/** Returns a command from the subcommands of {@link Tokenizer#command} that matches the given name */
 	private Command getSubCommandByName(String name) {
 		var x = this.getSubCommands().stream().filter(sc -> sc.name.equals(name)).toList();
 		return x.isEmpty() ? null : x.get(0);
 	}
 
+	/**
+	 * Returns a list of all tokenized subcommand children of {@link Tokenizer#command}.
+	 * <p>
+	 *     Note that a Command only has a single tokenized subCommand, so this will
+	 *     have one Command per nesting level.
+	 * </p>
+	 * */
 	public List<Command> getTokenizedSubCommands() {
 		final List<Command> x = new ArrayList<>();
 		final Command subCmd;
@@ -262,18 +318,23 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 		return x;
 	}
 
+	/** Returns the tokenized subcommand of {@link Tokenizer#command}. */
 	public Command getTokenizedSubCommand() {
-		return this.getSubCommands().stream().filter(sb -> sb.getTokenizer().finishedTokenizing).findFirst().orElse(null);
+		return this.getSubCommands().stream()
+			.filter(sb -> sb.getTokenizer().hasFinished)
+			.findFirst()
+			.orElse(null);
 	}
 
+	/** Returns the list of all tokens that have been tokenized. */
 	public List<Token> getFinalTokens() {
-		if (!this.finishedTokenizing) {
+		if (!this.hasFinished) {
 			throw new IllegalStateException("Cannot get final tokens before tokenizing is finished!");
 		}
 		return this.finalTokens;
 	}
 
 	public boolean isFinishedTokenizing() {
-		return this.finishedTokenizing;
+		return this.hasFinished;
 	}
 }

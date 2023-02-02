@@ -150,20 +150,20 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		return Collections.unmodifiableList(this.names);
 	}
 
-	public String getLongestName() {
-		return new ArrayList<>(this.getNames()) {{
-			sort((a, b) -> b.length() - a.length());
-		}}.get(0);
-	}
-
 	public Argument<Type, TInner> description(String description) {
 		this.description = description;
 		return this;
 	}
 
+	/** Returns the name of this argument. If multiple names are defined, the longest name will be returned. */
 	@Override
 	public String getName() {
-		return this.getLongestName();
+		if (this.names.size() == 1)
+			return this.names.get(0);
+
+		return new ArrayList<>(this.getNames()) {{
+			sort((a, b) -> b.length() - a.length());
+		}}.get(0);
 	}
 
 	@Override
@@ -209,7 +209,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 
 	public boolean isHelpArgument() {
-		return this.getLongestName().equals("help") && this.allowsUnique();
+		return this.getName().equals("help") && this.allowsUnique();
 	}
 
 	/**

@@ -53,11 +53,11 @@ public class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 			/* if we are going to show an error about an argument being incorrectly used, and that argument is defined
 			 * as obligatory, we don't need to show the obligatory error since its obvious that the user knows that
 			 * the argument is obligatory */
-			if (err.type == ParseErrorType.ARG_INCORRECT_VALUE_NUMBER) {
+			if (err.errorsEnum == ParseErrorType.ARG_INCORRECT_VALUE_NUMBER) {
 				newList.removeIf(e ->
 					e.argument != null
 						&& e.argument.equals(err.argument)
-						&& e.type == ParseErrorType.OBLIGATORY_ARGUMENT_NOT_USED
+						&& e.errorsEnum == ParseErrorType.OBLIGATORY_ARGUMENT_NOT_USED
 				);
 			}
 		}
@@ -103,7 +103,7 @@ public class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 	protected void handleMultipleArgsInExclusiveGroupUsed() {
 		this.fmt()
 			.setContents("Multiple arguments in exclusive group '%s' used."
-				.formatted(argumentGroup.name)
+				.formatted(this.argumentGroup.name)
 			)
 			.displayTokens(this.tokenIndex, this.valueCount, false);
 	}

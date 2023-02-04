@@ -56,13 +56,13 @@ import java.util.List;
  * @param <T> An enum with the possible error types to handle.
  */
 abstract class ParseStateErrorBase<T extends Enum<T> & ErrorLevelProvider> implements ErrorLevelProvider {
-	public final T type;
+	public final T errorsEnum;
 	public int tokenIndex;
 	private ErrorHandler errorHandler;
 	private ErrorFormatter formatter;
 
-	public ParseStateErrorBase(T type, int tokenIndex) {
-		this.type = type;
+	public ParseStateErrorBase(T errorsEnum, int tokenIndex) {
+		this.errorsEnum = errorsEnum;
 		this.tokenIndex = tokenIndex;
 	}
 
@@ -83,16 +83,16 @@ abstract class ParseStateErrorBase<T extends Enum<T> & ErrorLevelProvider> imple
 	}
 
 	private boolean isHandlerMethod(Method method) {
-		return this.isHandlerMethod(method, this.type.name());
+		return this.isHandlerMethod(method, this.errorsEnum.name());
 	}
 
 	public final String handle(ErrorHandler handler) {
 		this.errorHandler = handler;
-		this.formatter = new ErrorFormatter(handler, type.getErrorLevel());
+		this.formatter = new ErrorFormatter(handler, this.errorsEnum.getErrorLevel());
 
 		List<Method> methods = this.getAnnotatedMethods();
 
-		for (final var handlerName : this.type.getClass().getEnumConstants()) {
+		for (final var handlerName : this.errorsEnum.getClass().getEnumConstants()) {
 			final var handlerNameStr = handlerName.name();
 
 			// throw an exception if there is no method defined for the error type
@@ -116,7 +116,7 @@ abstract class ParseStateErrorBase<T extends Enum<T> & ErrorLevelProvider> imple
 
 	@Override
 	public ErrorLevel getErrorLevel() {
-		return this.type.getErrorLevel();
+		return this.errorsEnum.getErrorLevel();
 	}
 
 	protected Token getCurrentToken() {

@@ -1,7 +1,4 @@
-import argparser.Argument;
-import argparser.ArgumentGroup;
-import argparser.ArgumentType;
-import argparser.Command;
+import argparser.*;
 import argparser.argumentTypes.EnumArgument;
 import argparser.argumentTypes.IntRangeArgument;
 import argparser.helpRepresentation.HelpFormatter;
@@ -10,6 +7,21 @@ public final class ManualTests {
 	public static void main(String[] args) {
 		HelpFormatter.lineWrapMax = 110;
 		HelpFormatter.debugLayout = true;
+
+		ErrorFormatter.generator = new ErrorFormatter.ErrorFormatterGenerator() {
+			@Override
+			public String generate() {
+				final var errorLevel = this.getErrorLevel();
+				return this.getErrorLevelFormatter()
+					.setContents("[" + errorLevel + ", " + this.getTokensViewFormatting() + "]: ")
+					+ this.getContentsSingleLine();
+			}
+
+			@Override
+			protected String generateTokensViewFormatting(ErrorFormatter.DisplayTokensOptions options) {
+				return "(at token " + options.start() + ')';
+			}
+		};
 
 		enum Something {
 			ONE, TWO, THREE
@@ -66,6 +78,6 @@ public final class ManualTests {
 			}});
 		}};
 
-		var parsedArgs = argumentParser.parseArgsExpectErrorPrint("--help");
+		var parsedArgs = argumentParser.parseArgsExpectErrorPrint("--number five cmd --test-arg thing");
 	}
 }

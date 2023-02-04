@@ -74,7 +74,7 @@ public class TextFormatter {
 	public boolean isSimple() {
 		return (
 			this.contents.length() == 0
-				|| formattingNotDefined()
+				|| this.formattingNotDefined()
 				|| !enableSequences
 		) && this.concatList.size() == 0; // we cant skip if we need to concat stuff!
 	}
@@ -88,7 +88,7 @@ public class TextFormatter {
 	}
 
 	private String getStartSequences() {
-		if (formattingNotDefined() || !TextFormatter.enableSequences) return "";
+		if (this.formattingNotDefined() || !TextFormatter.enableSequences) return "";
 		final var buffer = new StringBuilder();
 
 		if (this.foregroundColor != null)
@@ -104,7 +104,7 @@ public class TextFormatter {
 	}
 
 	private String getEndSequences() {
-		if (formattingNotDefined() || !TextFormatter.enableSequences) return "";
+		if (this.formattingNotDefined() || !TextFormatter.enableSequences) return "";
 		final var buffer = new StringBuilder();
 
 		if (this.backgroundColor != null) {

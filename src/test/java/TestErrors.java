@@ -44,17 +44,17 @@ public class TestErrors extends UnitTests {
 
 	@Override
 	public void setParser() {
-		this.parser = addCallbacks(new TestingParser("TestCallbacks") {{
-			setErrorCode(5);
+		this.parser = this.addCallbacks(new TestingParser("TestCallbacks") {{
+			this.setErrorCode(5);
 
-			addArgument(addCallbacks(new Argument<>("bool-arg", ArgumentType.BOOLEAN())));
-			addArgument(addCallbacks(new Argument<>("int-arg", ArgumentType.INTEGER())));
-			addArgument(addCallbacks(new Argument<>("counter", ArgumentType.COUNTER())));
-			addArgument(addCallbacks(new Argument<>("will-work", ArgumentType.FLOAT())));
+			this.addArgument(TestErrors.this.addCallbacks(new Argument<>("bool-arg", ArgumentType.BOOLEAN())));
+			this.addArgument(TestErrors.this.addCallbacks(new Argument<>("int-arg", ArgumentType.INTEGER())));
+			this.addArgument(TestErrors.this.addCallbacks(new Argument<>("counter", ArgumentType.COUNTER())));
+			this.addArgument(TestErrors.this.addCallbacks(new Argument<>("will-work", ArgumentType.FLOAT())));
 
-			addSubCommand(addCallbacks(new Command("sub") {{
-				addArgument(addCallbacks(new Argument<>("will-fail", ArgumentType.FLOAT())));
-				setErrorCode(2);
+			this.addSubCommand(TestErrors.this.addCallbacks(new Command("sub") {{
+				this.addArgument(TestErrors.this.addCallbacks(new Argument<>("will-fail", ArgumentType.FLOAT())));
+				this.setErrorCode(2);
 			}}));
 		}});
 	}
@@ -62,19 +62,19 @@ public class TestErrors extends UnitTests {
 	@Test
 	public void testArgumentCallbacks() {
 		this.parser.parseArgs("--bool-arg --int-arg foo --will-work 55.0 sub --will-fail bar");
-		assertOk("bool-arg", true);
-		assertErr("int-arg");
-		assertNotPresent("counter");
-		assertOk("will-work", 55.0f);
+		this.assertOk("bool-arg", true);
+		this.assertErr("int-arg");
+		this.assertNotPresent("counter");
+		this.assertOk("will-work", 55.0f);
 
-		assertErr("will-fail");
+		this.assertErr("will-fail");
 	}
 
 	@Test
 	public void testCommandCallbacks() {
 		this.parser.parseArgs("sub --will-fail bar");
-		assertErr("will-fail");
-		assertErr(this.parser.getName());
+		this.assertErr("will-fail");
+		this.assertErr(this.parser.getName());
 	}
 
 	@Test

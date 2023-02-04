@@ -89,7 +89,7 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resetta
 
 	@Override
 	public Command getParentCommand() {
-		return parentCommand;
+		return this.parentCommand;
 	}
 
 	private ArgumentGroup checkExclusivity(ArgumentGroup childCallee) {

@@ -62,7 +62,7 @@ public class ModifyRecord<T> {
 	}
 
 	public boolean isModified() {
-		return modified;
+		return this.modified;
 	}
 
 	@Override

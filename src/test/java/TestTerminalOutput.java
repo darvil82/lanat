@@ -19,7 +19,7 @@ public class TestTerminalOutput extends UnitTests {
 
 	@Test
 	public void testFirstObligatoryArgument() {
-		assertErrorOutput("subcommand", """
+		this.assertErrorOutput("subcommand", """
 			ERROR
 			Testing <- subcommand
 			Obligatory argument 'what' not used.""");
@@ -27,7 +27,7 @@ public class TestTerminalOutput extends UnitTests {
 
 	@Test
 	public void testLastObligatoryArgument() {
-		assertErrorOutput("foo subcommand another", """
+		this.assertErrorOutput("foo subcommand another", """
 			ERROR
 			Testing foo subcommand another <-
 			Obligatory argument 'number' for command 'another' not used.""");
@@ -35,7 +35,7 @@ public class TestTerminalOutput extends UnitTests {
 
 	@Test
 	public void testExceedValueCount() {
-		assertErrorOutput("--what [1 2 3 4 5 6 7 8 9 10]", """
+		this.assertErrorOutput("--what [1 2 3 4 5 6 7 8 9 10]", """
 			ERROR
 			Testing --what [ 1 2 3 4 5 6 7 8 9 10 ]
 			Incorrect number of values for argument 'what'.
@@ -45,7 +45,7 @@ public class TestTerminalOutput extends UnitTests {
 
 	@Test
 	public void testMissingValue() {
-		assertErrorOutput("--what", """
+		this.assertErrorOutput("--what", """
 			ERROR
 			Testing --what <-
 			Incorrect number of values for argument 'what'.
@@ -54,7 +54,7 @@ public class TestTerminalOutput extends UnitTests {
 
 	@Test
 	public void testMissingValueBeforeToken() {
-		assertErrorOutput("--what subcommand", """
+		this.assertErrorOutput("--what subcommand", """
 			ERROR
 			Testing --what <- subcommand
 			Incorrect number of values for argument 'what'.
@@ -63,7 +63,7 @@ public class TestTerminalOutput extends UnitTests {
 
 	@Test
 	public void testMissingValueWithTuple() {
-		assertErrorOutput("--what []", """
+		this.assertErrorOutput("--what []", """
 			ERROR
 			Testing --what [ ]
 			Incorrect number of values for argument 'what'.
@@ -72,7 +72,7 @@ public class TestTerminalOutput extends UnitTests {
 
 	@Test
 	public void testInvalidArgumentTypeValue() {
-		assertErrorOutput("foo subcommand another bar", """
+		this.assertErrorOutput("foo subcommand another bar", """
 			ERROR
 			Testing foo subcommand another bar
 			Invalid integer value: 'bar'.""");
@@ -80,7 +80,7 @@ public class TestTerminalOutput extends UnitTests {
 
 	@Test
 	public void testUnmatchedToken() {
-		assertErrorOutput("[foo] --unknown", """
+		this.assertErrorOutput("[foo] --unknown", """
 			WARNING
 			Testing [ foo ] --unknown
 			Token '--unknown' does not correspond with a valid argument, value, or command.""");

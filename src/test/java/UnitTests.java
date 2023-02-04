@@ -49,17 +49,17 @@ public class UnitTests {
 
 	public void setParser() {
 		this.parser = new TestingParser("Testing") {{
-			addArgument(new Argument<>("what", new StringJoiner())
+			this.addArgument(new Argument<>("what", new StringJoiner())
 				.positional()
 				.obligatory()
 			);
-			addArgument(new Argument<>("a", ArgumentType.BOOLEAN()));
-			addSubCommand(new Command("subcommand") {{
-				addArgument(new Argument<>("c", ArgumentType.COUNTER()));
-				addArgument(new Argument<>('s', "more-strings", new StringJoiner()));
-				addSubCommand(new Command("another") {{
-					addArgument(new Argument<>("ball", new StringJoiner()));
-					addArgument(new Argument<>("number", ArgumentType.INTEGER()).positional().obligatory());
+			this.addArgument(new Argument<>("a", ArgumentType.BOOLEAN()));
+			this.addSubCommand(new Command("subcommand") {{
+				this.addArgument(new Argument<>("c", ArgumentType.COUNTER()));
+				this.addArgument(new Argument<>('s', "more-strings", new StringJoiner()));
+				this.addSubCommand(new Command("another") {{
+					this.addArgument(new Argument<>("ball", new StringJoiner()));
+					this.addArgument(new Argument<>("number", ArgumentType.INTEGER()).positional().obligatory());
 				}});
 			}});
 		}};

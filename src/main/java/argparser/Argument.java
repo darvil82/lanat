@@ -66,7 +66,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	public boolean isObligatory() {
-		return obligatory;
+		return this.obligatory;
 	}
 
 	/**
@@ -84,7 +84,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	public boolean isPositional() {
-		return positional;
+		return this.positional;
 	}
 
 	/**
@@ -98,7 +98,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	public char getPrefix() {
-		return prefix;
+		return this.prefix;
 	}
 
 	/**
@@ -112,7 +112,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	public boolean allowsUnique() {
-		return allowUnique;
+		return this.allowUnique;
 	}
 
 	/**
@@ -162,13 +162,13 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 			return this.names.get(0);
 
 		return new ArrayList<>(this.getNames()) {{
-			sort((a, b) -> b.length() - a.length());
+			this.sort((a, b) -> b.length() - a.length());
 		}}.get(0);
 	}
 
 	@Override
 	public String getDescription() {
-		return description;
+		return this.description;
 	}
 
 	void setParentCmd(Command parentCmd) {
@@ -181,7 +181,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 	@Override
 	public Command getParentCommand() {
-		return parentCmd;
+		return this.parentCmd;
 	}
 
 	void setParentGroup(ArgumentGroup parentGroup) {
@@ -192,15 +192,15 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	public ArgumentGroup getParentGroup() {
-		return parentGroup;
+		return this.parentGroup;
 	}
 
 	public short getUsageCount() {
-		return usageCount;
+		return this.usageCount;
 	}
 
 	public Color getRepresentationColor() {
-		return representationColor.get();
+		return this.representationColor.get();
 	}
 
 	public void setRepresentationColor(Color color) {

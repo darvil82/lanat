@@ -33,10 +33,10 @@ public class ErrorHandler {
 			this.absoluteCmdTokenIndex = this.getCommandTokenIndexByNestingLevel(i);
 
 			new ArrayList<ParseStateErrorBase<?>>() {{
-				addAll(cmd.getErrorsUnderDisplayLevel());
-				addAll(cmd.getTokenizer().getErrorsUnderDisplayLevel());
-				addAll(cmd.getParser().getCustomErrors());
-				addAll(ParseError.filter(cmd.getParser().getErrorsUnderDisplayLevel()));
+				this.addAll(cmd.getErrorsUnderDisplayLevel());
+				this.addAll(cmd.getTokenizer().getErrorsUnderDisplayLevel());
+				this.addAll(cmd.getParser().getCustomErrors());
+				this.addAll(ParseError.filter(cmd.getParser().getErrorsUnderDisplayLevel()));
 			}}.stream()
 				.sorted(Comparator.comparingInt(x -> x.tokenIndex))
 				.forEach(e -> errors.add(e.handle(this)));
@@ -96,7 +96,7 @@ public class ErrorHandler {
 	}
 
 	public Command getRootCmd() {
-		return rootCmd;
+		return this.rootCmd;
 	}
 
 	public int getAbsoluteCmdTokenIndex() {

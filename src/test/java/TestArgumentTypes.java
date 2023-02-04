@@ -15,16 +15,16 @@ public class TestArgumentTypes extends UnitTests {
 	@Override
 	public void setParser() {
 		this.parser = new TestingParser("TestArgumentTypes") {{
-			addArgument(new Argument<>("boolean", ArgumentType.BOOLEAN()));
-			addArgument(new Argument<>(ArgumentType.COUNTER(), "counter", "c"));
-			addArgument(new Argument<>("integer", ArgumentType.INTEGER()));
-			addArgument(new Argument<>("float", ArgumentType.FLOAT()));
-			addArgument(new Argument<>("string", ArgumentType.STRING()));
-			addArgument(new Argument<>("multiple-strings", ArgumentType.STRINGS()));
-			addArgument(new Argument<>("file", ArgumentType.FILE()));
-			addArgument(new Argument<>("enum", ArgumentType.ENUM(TestEnum.TWO)));
-			addArgument(new Argument<>("key-value", ArgumentType.KEY_VALUES(ArgumentType.INTEGER())));
-			addArgument(new Argument<>("int-range", ArgumentType.INTEGER_RANGE(3, 10)));
+			this.addArgument(new Argument<>("boolean", ArgumentType.BOOLEAN()));
+			this.addArgument(new Argument<>(ArgumentType.COUNTER(), "counter", "c"));
+			this.addArgument(new Argument<>("integer", ArgumentType.INTEGER()));
+			this.addArgument(new Argument<>("float", ArgumentType.FLOAT()));
+			this.addArgument(new Argument<>("string", ArgumentType.STRING()));
+			this.addArgument(new Argument<>("multiple-strings", ArgumentType.STRINGS()));
+			this.addArgument(new Argument<>("file", ArgumentType.FILE()));
+			this.addArgument(new Argument<>("enum", ArgumentType.ENUM(TestEnum.TWO)));
+			this.addArgument(new Argument<>("key-value", ArgumentType.KEY_VALUES(ArgumentType.INTEGER())));
+			this.addArgument(new Argument<>("int-range", ArgumentType.INTEGER_RANGE(3, 10)));
 		}};
 	}
 
@@ -87,9 +87,9 @@ public class TestArgumentTypes extends UnitTests {
 	@Test
 	public void testKeyValue() {
 		final var hashMap = new HashMap<String, Integer>() {{
-			put("key", 6);
-			put("foo", 2);
-			put("foo2", 1996);
+			this.put("key", 6);
+			this.put("foo", 2);
+			this.put("foo2", 1996);
 		}};
 
 		assertEquals(hashMap, this.parseArg("key-value", "key=6 foo=2 foo2=1996"));

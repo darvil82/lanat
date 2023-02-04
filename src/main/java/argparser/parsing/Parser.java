@@ -64,7 +64,7 @@ public class Parser extends ParsingStateBase<ParseError> {
 
 	/** Returns the index of the current token that is being parsed. */
 	public short getCurrentTokenIndex() {
-		return currentTokenIndex;
+		return this.currentTokenIndex;
 	}
 
 	/** Sets the tokens that this parser will parse. */
@@ -89,18 +89,18 @@ public class Parser extends ParsingStateBase<ParseError> {
 
 			if (currentToken.type() == TokenType.ARGUMENT_NAME) {
 				this.currentTokenIndex++;
-				runForArgument(currentToken.contents(), this::executeArgParse);
+				this.runForArgument(currentToken.contents(), this::executeArgParse);
 				foundNonPositionalArg = true;
 			} else if (currentToken.type() == TokenType.ARGUMENT_NAME_LIST) {
-				parseArgNameList(currentToken.contents().substring(1));
+				this.parseArgNameList(currentToken.contents().substring(1));
 				foundNonPositionalArg = true;
 			} else if (
 				(currentToken.type() == TokenType.ARGUMENT_VALUE || currentToken.type() == TokenType.ARGUMENT_VALUE_TUPLE_START)
 					&& !foundNonPositionalArg
-					&& (lastPosArgument = getArgumentByPositionalIndex(argumentNameCount)) != null
+					&& (lastPosArgument = this.getArgumentByPositionalIndex(argumentNameCount)) != null
 			)
 			{ // this is most likely a positional argument
-				executeArgParse(lastPosArgument);
+				this.executeArgParse(lastPosArgument);
 				argumentNameCount++;
 			} else {
 				this.currentTokenIndex++;
@@ -252,7 +252,7 @@ public class Parser extends ParsingStateBase<ParseError> {
 	public HashMap<Argument<?, ?>, Object> getParsedArgumentsHashMap() {
 		if (this.parsedArguments == null) {
 			this.parsedArguments = new HashMap<>() {{
-				Parser.this.getArguments().forEach(arg -> put(arg, arg.finishParsing()));
+				Parser.this.getArguments().forEach(arg -> this.put(arg, arg.finishParsing()));
 			}};
 		}
 		return this.parsedArguments;

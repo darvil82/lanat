@@ -21,6 +21,6 @@ public class ParsedArgumentsRoot extends ParsedArguments {
 	 * Returns the forward value. An empty {@link String} is returned if no forward value was specified.
 	 */
 	public String getForwardValue() {
-		return forwardValue;
+		return this.forwardValue;
 	}
 }

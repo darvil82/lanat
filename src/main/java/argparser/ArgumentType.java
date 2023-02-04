@@ -87,11 +87,11 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> imple
 	}
 
 	public T getValue() {
-		return currentValue;
+		return this.currentValue;
 	}
 
 	public T getInitialValue() {
-		return initialValue;
+		return this.initialValue;
 	}
 
 	/**
@@ -185,7 +185,7 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> imple
 	}
 
 	protected short getTokenIndex() {
-		return tokenIndex;
+		return this.tokenIndex;
 	}
 
 	void setTokenIndex(short tokenIndex) {

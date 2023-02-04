@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public abstract class ParsingStateBase<T extends ErrorLevelProvider> extends ErrorsContainer<T> {
-	protected Command command;
+	protected final Command command;
 	/** Whether the parsing/tokenizing has finished. */
 	protected boolean hasFinished = false;
 

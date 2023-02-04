@@ -120,7 +120,7 @@ public class Command
 	}
 
 	public TupleCharacter getTupleChars() {
-		return tupleChars.get();
+		return this.tupleChars.get();
 	}
 
 	@Override
@@ -193,8 +193,8 @@ public class Command
 	 */
 	public ArrayList<Token> getFullTokenList() {
 		final ArrayList<Token> list = new ArrayList<>() {{
-			add(new Token(TokenType.SUB_COMMAND, name));
-			addAll(Command.this.getTokenizer().getFinalTokens());
+			this.add(new Token(TokenType.SUB_COMMAND, Command.this.name));
+			this.addAll(Command.this.getTokenizer().getFinalTokens());
 		}};
 
 		final Command subCmd = this.getTokenizer().getTokenizedSubCommand();
@@ -303,11 +303,11 @@ public class Command
 	private Parser parser = new Parser(this);
 
 	public Tokenizer getTokenizer() {
-		return tokenizer;
+		return this.tokenizer;
 	}
 
 	public Parser getParser() {
-		return parser;
+		return this.parser;
 	}
 
 	void tokenize(String input) {

@@ -44,11 +44,11 @@ public class HelpFormatter {
 	}
 
 	public byte getIndentSize() {
-		return indentSize;
+		return this.indentSize;
 	}
 
 	public List<LayoutItem> getLayout() {
-		return layout;
+		return this.layout;
 	}
 
 	protected void initLayout() {

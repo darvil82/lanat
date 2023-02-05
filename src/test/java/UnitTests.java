@@ -26,18 +26,18 @@ class TestingParser extends ArgumentParser {
 	}
 
 	public List<String> parseArgsExpectError(String args) {
-		return this.__parseArgsNoExit(args).second();
+		return this.parseArgsNoExit(args).second();
 	}
 
 	public ParsedArgumentsRoot parseArgsExpectErrorPrint(String args) {
-		final var parsed = this.__parseArgsNoExit(args);
+		final var parsed = this.parseArgsNoExit(args);
 		System.out.println(String.join("\n", parsed.second()));
 		return parsed.first();
 	}
 
 	@Override
 	public ParsedArgumentsRoot parseArgs(String args) {
-		var res = this.__parseArgsNoExit(args).first();
+		var res = this.parseArgsNoExit(args).first();
 		assertNotNull(res, "The result of the parsing was null (Arguments have failed)");
 		return res;
 	}

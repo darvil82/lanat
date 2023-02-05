@@ -12,15 +12,6 @@ public class ArgumentParser extends Command {
 	private String license;
 
 
-	public String getLicense() {
-		return this.license;
-	}
-
-	public void setLicense(String license) {
-		this.license = license;
-	}
-
-
 	public ArgumentParser(String programName, String description) {
 		super(programName, description, true);
 	}
@@ -44,28 +35,18 @@ public class ArgumentParser extends Command {
 	 * @param args The command line arguments to parse.
 	 */
 	public ParsedArgumentsRoot parseArgs(String args) {
-		if (this.isParsed) {
-			// reset all parsing related things to the initial state
-			this.resetState();
+		final var res = this.parseArgsNoExit(args);
+		final var errorCode = this.getErrorCode();
+
+		for (var msg : res.second()) {
+			System.err.println(msg);
 		}
-
-		// pass the properties of this subcommand to its children recursively (most of the time this is what the user will want)
-		this.passPropertiesToChildren();
-		this.tokenize(args); // first. This will tokenize all subCommands recursively
-		var errorHandler = new ErrorHandler(this);
-		this.parse(); // same thing, this parses all the stuff recursively
-
-		this.invokeCallbacks();
-		errorHandler.handleErrorsPrint();
-		int errorCode = errorHandler.getErrorCode();
 
 		if (errorCode != 0) {
 			System.exit(errorCode);
 		}
 
-		this.isParsed = true;
-
-		return this.getParsedArguments();
+		return res.first();
 	}
 
 	/**
@@ -77,19 +58,18 @@ public class ArgumentParser extends Command {
 	}
 
 
-	/**
-	 * <b>DO NOT USE.</b> This is only used for testing purposes.
-	 */
-	protected Pair<ParsedArgumentsRoot, List<String>> __parseArgsNoExit(String args) {
+	protected Pair<ParsedArgumentsRoot, List<String>> parseArgsNoExit(String args) {
 		if (this.isParsed) {
 			// reset all parsing related things to the initial state
 			this.resetState();
 		}
 
+		// pass the properties of this subcommand to its children recursively (most of the time this is what the user will want)
 		this.passPropertiesToChildren();
-		this.tokenize(args);
+		this.tokenize(args); // first. This will tokenize all subCommands recursively
 		var errorHandler = new ErrorHandler(this);
-		this.parse();
+		this.parse(); // same thing, this parses all the stuff recursively
+
 		this.invokeCallbacks();
 
 		this.isParsed = true;
@@ -112,5 +92,13 @@ public class ArgumentParser extends Command {
 			if (token.type() == TokenType.FORWARD_VALUE) return token.contents();
 		}
 		return "";
+	}
+
+	public String getLicense() {
+		return this.license;
+	}
+
+	public void setLicense(String license) {
+		this.license = license;
 	}
 }

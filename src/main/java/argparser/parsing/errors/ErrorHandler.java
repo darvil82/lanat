@@ -22,7 +22,7 @@ public class ErrorHandler {
 	}
 
 	/**
-	 * Handles all errors and displays them to the user.
+	 * Handles all errors and returns a list of them.
 	 */
 	public List<String> handleErrorsGetMessages() {
 		final List<Command> commands = this.rootCmd.getTokenizer().getTokenizedSubCommands();
@@ -43,12 +43,6 @@ public class ErrorHandler {
 		}
 
 		return Collections.unmodifiableList(errors);
-	}
-
-	public void handleErrorsPrint() {
-		for (String error : this.handleErrorsGetMessages()) {
-			System.out.println(error);
-		}
 	}
 
 	/**

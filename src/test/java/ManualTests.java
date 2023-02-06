@@ -75,9 +75,10 @@ public final class ManualTests {
 			}});
 			this.addSubCommand(new Command("cmd") {{
 				this.addArgument(Argument.create("test-arg"));
+				this.addArgument(Argument.create("input-reader", ArgumentType.STDIN()).description("test"));
 			}});
 		}};
 
-		var parsedArgs = argumentParser.parseArgsExpectErrorPrint("--number five cmd --test-arg thing");
+		var parsedArgs = argumentParser.parseArgsExpectErrorPrint("--number five cmd --help");
 	}
 }

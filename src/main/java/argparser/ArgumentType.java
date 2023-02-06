@@ -38,7 +38,7 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> imple
 
 	public ArgumentType() {}
 
-	public void parseAndUpdateValue(String[] args) {
+	public final void parseAndUpdateValue(String[] args) {
 		this.receivedValueCount = args.length;
 		this.setValue(this.parseValues(args));
 	}
@@ -59,7 +59,7 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> imple
 	 * By registering a subtype, this allows you to listen for errors that occurred in this subtype during
 	 * parsing. The {@link ArgumentType#onSubTypeError(CustomError)} method will be called when an error occurs.
 	 */
-	protected void registerSubType(ArgumentType<?> subType) {
+	protected final void registerSubType(ArgumentType<?> subType) {
 		if (subType.parentArgType == this) {
 			throw new IllegalArgumentException("The sub type is already registered to this argument type.");
 		}
@@ -113,7 +113,7 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> imple
 		return new TextFormatter(this.getClass().getSimpleName());
 	}
 
-	public T getFinalValue() {
+	public final T getFinalValue() {
 		return this.currentValue;
 	}
 
@@ -199,7 +199,7 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> imple
 	 * @param args The values that this argument received when being parsed.
 	 * @param consumer The consumer that will be called for each value.
 	 */
-	protected void forEachArgValue(String[] args, Consumer<String> consumer) {
+	protected final void forEachArgValue(String[] args, Consumer<String> consumer) {
 		for (int i = 0; i < args.length; i++) {
 			this.currentArgValueIndex = i;
 			consumer.accept(args[i]);
@@ -248,13 +248,15 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> imple
 		return new MultipleStringsArgument();
 	}
 
-	public static <T extends ArgumentType<Ts>, Ts> KeyValuesArgument<T, Ts>
-	KEY_VALUES(T valueType)
-	{
+	public static <T extends ArgumentType<Ts>, Ts> KeyValuesArgument<T, Ts> KEY_VALUES(T valueType) {
 		return new KeyValuesArgument<>(valueType);
 	}
 
 	public static <T extends Enum<T>> EnumArgument<T> ENUM(T enumDefault) {
 		return new EnumArgument<>(enumDefault);
+	}
+
+	public static StdinArgument STDIN() {
+		return new StdinArgument();
 	}
 }

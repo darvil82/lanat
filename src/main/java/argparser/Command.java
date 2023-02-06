@@ -164,7 +164,7 @@ public class Command
 	 * Returns true if an argument with {@link Argument#allowUnique()} in the command was used.
 	 */
 	public boolean uniqueArgumentReceivedValue() {
-		return this.arguments.stream().anyMatch(a -> a.getUsageCount() >= 1 && a.allowsUnique())
+		return this.arguments.stream().anyMatch(a -> a.getUsageCount() >= 1 && a.isUniqueAllowed())
 			|| this.subCommands.stream().anyMatch(Command::uniqueArgumentReceivedValue);
 	}
 

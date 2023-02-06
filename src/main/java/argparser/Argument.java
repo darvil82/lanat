@@ -43,21 +43,25 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		return new Argument<>(ArgumentType.BOOLEAN(), names);
 	}
 
+	/** Creates an argument with the specified name and type. */
 	public static <Type extends ArgumentType<TInner>, TInner>
 	Argument<Type, TInner> create(String name, Type argType) {
 		return new Argument<>(argType, name);
 	}
 
+	/** Creates an argument with the specified type and names. */
 	public static <Type extends ArgumentType<TInner>, TInner>
 	Argument<Type, TInner> create(Type argType, String... names) {
 		return new Argument<>(argType, names);
 	}
 
+	/** Creates an argument with the specified single character name and type. */
 	public static <Type extends ArgumentType<TInner>, TInner>
 	Argument<Type, TInner> create(char name, Type argType) {
 		return new Argument<>(argType, String.valueOf(name));
 	}
 
+	/** Creates an argument with the specified single character name, full name and type. */
 	public static <Type extends ArgumentType<TInner>, TInner>
 	Argument<Type, TInner> create(char charName, String fullName, Type argType) {
 		return new Argument<>(argType, String.valueOf(charName), fullName);
@@ -119,7 +123,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		return this;
 	}
 
-	public boolean allowsUnique() {
+	public boolean isUniqueAllowed() {
 		return this.allowUnique;
 	}
 
@@ -158,6 +162,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		return Collections.unmodifiableList(this.names);
 	}
 
+	/** Sets the description of this argument. This description will be shown in the help message. */
 	public Argument<Type, TInner> description(String description) {
 		this.description = description;
 		return this;
@@ -217,7 +222,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 
 	public boolean isHelpArgument() {
-		return this.getName().equals("help") && this.allowsUnique();
+		return this.getName().equals("help") && this.isUniqueAllowed();
 	}
 
 	/**

@@ -15,16 +15,16 @@ public class TestArgumentTypes extends UnitTests {
 	@Override
 	public void setParser() {
 		this.parser = new TestingParser("TestArgumentTypes") {{
-			this.addArgument(new Argument<>("boolean", ArgumentType.BOOLEAN()));
-			this.addArgument(new Argument<>(ArgumentType.COUNTER(), "counter", "c"));
-			this.addArgument(new Argument<>("integer", ArgumentType.INTEGER()));
-			this.addArgument(new Argument<>("float", ArgumentType.FLOAT()));
-			this.addArgument(new Argument<>("string", ArgumentType.STRING()));
-			this.addArgument(new Argument<>("multiple-strings", ArgumentType.STRINGS()));
-			this.addArgument(new Argument<>("file", ArgumentType.FILE()));
-			this.addArgument(new Argument<>("enum", ArgumentType.ENUM(TestEnum.TWO)));
-			this.addArgument(new Argument<>("key-value", ArgumentType.KEY_VALUES(ArgumentType.INTEGER())));
-			this.addArgument(new Argument<>("int-range", ArgumentType.INTEGER_RANGE(3, 10)));
+			this.addArgument(Argument.create("boolean", ArgumentType.BOOLEAN()));
+			this.addArgument(Argument.create(ArgumentType.COUNTER(), "counter", "c"));
+			this.addArgument(Argument.create("integer", ArgumentType.INTEGER()));
+			this.addArgument(Argument.create("float", ArgumentType.FLOAT()));
+			this.addArgument(Argument.create("string", ArgumentType.STRING()));
+			this.addArgument(Argument.create("multiple-strings", ArgumentType.STRINGS()));
+			this.addArgument(Argument.create("file", ArgumentType.FILE()));
+			this.addArgument(Argument.create("enum", ArgumentType.ENUM(TestEnum.TWO)));
+			this.addArgument(Argument.create("key-value", ArgumentType.KEY_VALUES(ArgumentType.INTEGER())));
+			this.addArgument(Argument.create("int-range", ArgumentType.INTEGER_RANGE(3, 10)));
 		}};
 	}
 

@@ -18,7 +18,7 @@ import java.util.function.Consumer;
  */
 public class Command
 	extends ErrorsContainer<CustomError>
-	implements ErrorCallbacks<Command, Command>, ArgumentAdder, ArgumentGroupAdder, Resettable, NamedWithDescription
+	implements ErrorCallbacks<ParsedArguments, Command>, ArgumentAdder, ArgumentGroupAdder, Resettable, NamedWithDescription
 {
 	public final String name, description;
 	final ArrayList<Argument<?, ?>> arguments = new ArrayList<>();
@@ -27,7 +27,7 @@ public class Command
 	private final ModifyRecord<TupleCharacter> tupleChars = new ModifyRecord<>(TupleCharacter.SQUARE_BRACKETS);
 	private final ModifyRecord<Integer> errorCode = new ModifyRecord<>(1);
 	private Consumer<Command> onErrorCallback;
-	private Consumer<Command> onCorrectCallback;
+	private Consumer<ParsedArguments> onCorrectCallback;
 	private boolean isRootCommand = false;
 	private final ModifyRecord<HelpFormatter> helpFormatter = new ModifyRecord<>(new HelpFormatter(this));
 
@@ -43,7 +43,7 @@ public class Command
 		}
 		this.name = UtlString.sanitizeName(name);
 		this.description = description;
-		this.addArgument(Argument.simple("help")
+		this.addArgument(Argument.create("help")
 			.onOk(t -> System.out.println(this.getHelp()))
 			.description("Shows this message.")
 			.allowUnique()
@@ -112,6 +112,7 @@ public class Command
 	 * Both commands failed, so in this case the resultant return value would be 7 <code>(0b111)</code>.
 	 */
 	public void setErrorCode(int errorCode) {
+		if (errorCode <= 0) throw new IllegalArgumentException("error code cannot be 0 or below");
 		this.errorCode.set(errorCode);
 	}
 
@@ -240,7 +241,7 @@ public class Command
 	}
 
 	@Override
-	public void setOnCorrectCallback(Consumer<Command> callback) {
+	public void setOnCorrectCallback(Consumer<ParsedArguments> callback) {
 		this.onCorrectCallback = callback;
 	}
 
@@ -249,7 +250,7 @@ public class Command
 		if (this.hasExitErrors()) {
 			if (this.onErrorCallback != null) this.onErrorCallback.accept(this);
 		} else {
-			if (this.onCorrectCallback != null) this.onCorrectCallback.accept(this);
+			if (this.onCorrectCallback != null) this.onCorrectCallback.accept(this.getParsedArguments());
 		}
 		this.parser.getParsedArgumentsHashMap().forEach(Argument::invokeCallbacks);
 		this.subCommands.forEach(Command::invokeCallbacks);

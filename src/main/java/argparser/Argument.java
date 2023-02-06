@@ -36,23 +36,31 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		this(argType, name);
 	}
 
-	public Argument(String[] name, Type argType) {
-		this(argType, name);
-	}
-
-	public Argument(char name, Type argType) {
-		this(argType, String.valueOf(name));
-	}
-
-	public Argument(char charName, String fullName, Type argType) {
-		this(argType, String.valueOf(charName), fullName);
-	}
-
 	/**
 	 * Creates an argument with a {@link BooleanArgument} type.
 	 */
-	public static Argument<BooleanArgument, Boolean> simple(String... names) {
+	public static Argument<BooleanArgument, Boolean> create(String... names) {
 		return new Argument<>(ArgumentType.BOOLEAN(), names);
+	}
+
+	public static <Type extends ArgumentType<TInner>, TInner>
+	Argument<Type, TInner> create(String name, Type argType) {
+		return new Argument<>(argType, name);
+	}
+
+	public static <Type extends ArgumentType<TInner>, TInner>
+	Argument<Type, TInner> create(Type argType, String... names) {
+		return new Argument<>(argType, names);
+	}
+
+	public static <Type extends ArgumentType<TInner>, TInner>
+	Argument<Type, TInner> create(char name, Type argType) {
+		return new Argument<>(argType, String.valueOf(name));
+	}
+
+	public static <Type extends ArgumentType<TInner>, TInner>
+	Argument<Type, TInner> create(char charName, String fullName, Type argType) {
+		return new Argument<>(argType, String.valueOf(charName), fullName);
 	}
 
 

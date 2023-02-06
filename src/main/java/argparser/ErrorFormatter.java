@@ -65,14 +65,13 @@ public class ErrorFormatter {
 			final var formatter = this.getErrorLevelFormatter();
 			final String tokensFormatting = this.getTokensViewFormatting();
 
-			return
-				formatter.setContents(" ┌─%s%s".formatted(this.getErrorLevel(), !tokensFormatting.isEmpty() ? "\n" : "")).toString()
-					+ tokensFormatting
-					// first insert a vertical bar at the start of each line
-					+ this.getContentsWrapped().replaceAll("^|\\n", formatter.setContents("\n │ ").toString())
-					// then insert a horizontal bar at the end, with the length of the longest line approximately
-					+ formatter.setContents("\n └" + "─".repeat(Math.max(maxLength - 5, 0)) + " ───── ── ─")
-					+ "\n";
+			return formatter.setContents(" ┌─%s%s".formatted(this.getErrorLevel(), !tokensFormatting.isEmpty() ? "\n" : "")).toString()
+				+ tokensFormatting
+				// first insert a vertical bar at the start of each line
+				+ this.getContentsWrapped().replaceAll("^|\\n", formatter.setContents("\n │ ").toString())
+				// then insert a horizontal bar at the end, with the length of the longest line approximately
+				+ formatter.setContents("\n └" + "─".repeat(Math.max(maxLength - 5, 0)) + " ───── ── ─")
+				+ '\n';
 		}
 
 		protected String generateTokensViewFormatting(DisplayTokensOptions options) {

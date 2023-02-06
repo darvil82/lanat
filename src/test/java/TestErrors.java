@@ -47,13 +47,13 @@ public class TestErrors extends UnitTests {
 		this.parser = this.addCallbacks(new TestingParser("TestCallbacks") {{
 			this.setErrorCode(5);
 
-			this.addArgument(TestErrors.this.addCallbacks(new Argument<>("bool-arg", ArgumentType.BOOLEAN())));
-			this.addArgument(TestErrors.this.addCallbacks(new Argument<>("int-arg", ArgumentType.INTEGER())));
-			this.addArgument(TestErrors.this.addCallbacks(new Argument<>("counter", ArgumentType.COUNTER())));
-			this.addArgument(TestErrors.this.addCallbacks(new Argument<>("will-work", ArgumentType.FLOAT())));
+			this.addArgument(TestErrors.this.addCallbacks(Argument.create("bool-arg", ArgumentType.BOOLEAN())));
+			this.addArgument(TestErrors.this.addCallbacks(Argument.create("int-arg", ArgumentType.INTEGER())));
+			this.addArgument(TestErrors.this.addCallbacks(Argument.create("counter", ArgumentType.COUNTER())));
+			this.addArgument(TestErrors.this.addCallbacks(Argument.create("will-work", ArgumentType.FLOAT())));
 
 			this.addSubCommand(TestErrors.this.addCallbacks(new Command("sub") {{
-				this.addArgument(TestErrors.this.addCallbacks(new Argument<>("will-fail", ArgumentType.FLOAT())));
+				this.addArgument(TestErrors.this.addCallbacks(Argument.create("will-fail", ArgumentType.FLOAT())));
 				this.setErrorCode(2);
 			}}));
 		}});

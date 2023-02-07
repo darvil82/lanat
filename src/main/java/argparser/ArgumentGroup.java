@@ -2,6 +2,7 @@ package argparser;
 
 import argparser.utils.Resettable;
 import argparser.utils.UtlString;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,7 +32,7 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resetta
 
 	@Override
 	public <T extends ArgumentType<TInner>, TInner>
-	void addArgument(Argument<T, TInner> argument) {
+	void addArgument(@NotNull Argument<T, TInner> argument) {
 		this.arguments.add(argument);
 		argument.setParentGroup(this);
 	}
@@ -47,7 +48,7 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resetta
 	}
 
 	@Override
-	public void addGroup(ArgumentGroup group) {
+	public void addGroup(@NotNull ArgumentGroup group) {
 		if (group.parentGroup != null) {
 			throw new IllegalArgumentException("Group already has a parent.");
 		}
@@ -138,7 +139,7 @@ interface ArgumentGroupAdder {
 	/**
 	 * Adds an argument group to this element.
 	 */
-	void addGroup(ArgumentGroup group);
+	void addGroup(@NotNull ArgumentGroup group);
 
 	List<ArgumentGroup> getSubGroups();
 }

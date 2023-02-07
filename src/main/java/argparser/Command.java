@@ -6,6 +6,7 @@ import argparser.parsing.Tokenizer;
 import argparser.parsing.errors.CustomError;
 import argparser.utils.*;
 import argparser.utils.displayFormatter.Color;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -61,7 +62,7 @@ public class Command
 
 	@Override
 	public <T extends ArgumentType<TInner>, TInner>
-	void addArgument(Argument<T, TInner> argument) {
+	void addArgument(@NotNull Argument<T, TInner> argument) {
 		if (this.arguments.stream().anyMatch(a -> a.equals(argument))) {
 			throw new IllegalArgumentException("duplicate argument identifier '" + argument.getName() + "'");
 		}
@@ -70,7 +71,7 @@ public class Command
 	}
 
 	@Override
-	public void addGroup(ArgumentGroup group) {
+	public void addGroup(@NotNull ArgumentGroup group) {
 		if (this.argumentGroups.stream().anyMatch(g -> g.name.equals(group.name))) {
 			throw new IllegalArgumentException("duplicate group identifier '" + group.name + "'");
 		}
@@ -210,7 +211,7 @@ public class Command
 	/**
 	 * Inherits certain properties from another command, only if they are not already set to something.
 	 */
-	private void inheritProperties(Command parent) {
+	private void inheritProperties(@NotNull Command parent) {
 		this.tupleChars.setIfNotModified(parent.tupleChars);
 		this.getMinimumExitErrorLevel().setIfNotModified(parent.getMinimumExitErrorLevel());
 		this.getMinimumDisplayErrorLevel().setIfNotModified(parent.getMinimumDisplayErrorLevel());
@@ -236,12 +237,12 @@ public class Command
 	// ------------------------------------------------ Error Handling ------------------------------------------------
 
 	@Override
-	public void setOnErrorCallback(Consumer<Command> callback) {
+	public void setOnErrorCallback(@NotNull Consumer<Command> callback) {
 		this.onErrorCallback = callback;
 	}
 
 	@Override
-	public void setOnCorrectCallback(Consumer<ParsedArguments> callback) {
+	public void setOnCorrectCallback(@NotNull Consumer<ParsedArguments> callback) {
 		this.onCorrectCallback = callback;
 	}
 

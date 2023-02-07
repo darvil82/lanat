@@ -1,6 +1,7 @@
 package argparser.utils;
 
 import argparser.ErrorLevel;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -14,11 +15,11 @@ public interface MinimumErrorLevelConfig<T extends ErrorLevelProvider> {
 	boolean hasDisplayErrors();
 
 
-	void setMinimumExitErrorLevel(ErrorLevel level);
+	void setMinimumExitErrorLevel(@NotNull ErrorLevel level);
 
 	ModifyRecord<ErrorLevel> getMinimumExitErrorLevel();
 
-	void setMinimumDisplayErrorLevel(ErrorLevel level);
+	void setMinimumDisplayErrorLevel(@NotNull ErrorLevel level);
 
 	ModifyRecord<ErrorLevel> getMinimumDisplayErrorLevel();
 }

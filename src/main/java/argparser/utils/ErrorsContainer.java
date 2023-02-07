@@ -1,6 +1,7 @@
 package argparser.utils;
 
 import argparser.ErrorLevel;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,7 +81,7 @@ public abstract class ErrorsContainer<T extends ErrorLevelProvider> implements M
 	 * or {@link ErrorLevel#ERROR} will cause the program to exit.
 	 */
 	@Override
-	public void setMinimumExitErrorLevel(ErrorLevel level) {
+	public void setMinimumExitErrorLevel(@NotNull ErrorLevel level) {
 		this.minimumExitErrorLevel.set(level);
 	}
 
@@ -97,7 +98,7 @@ public abstract class ErrorsContainer<T extends ErrorLevelProvider> implements M
 	 * but {@link ErrorLevel#DEBUG} will not.
 	 */
 	@Override
-	public void setMinimumDisplayErrorLevel(ErrorLevel level) {
+	public void setMinimumDisplayErrorLevel(@NotNull ErrorLevel level) {
 		this.minimumDisplayErrorLevel.set(level);
 	}
 

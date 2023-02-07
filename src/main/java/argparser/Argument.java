@@ -5,6 +5,7 @@ import argparser.parsing.errors.CustomError;
 import argparser.parsing.errors.ParseError;
 import argparser.utils.*;
 import argparser.utils.displayFormatter.Color;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -411,7 +412,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	@Override
-	public void setMinimumDisplayErrorLevel(ErrorLevel level) {
+	public void setMinimumDisplayErrorLevel(@NotNull ErrorLevel level) {
 		this.argType.setMinimumDisplayErrorLevel(level);
 	}
 
@@ -421,7 +422,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	@Override
-	public void setMinimumExitErrorLevel(ErrorLevel level) {
+	public void setMinimumExitErrorLevel(@NotNull ErrorLevel level) {
 		this.argType.setMinimumExitErrorLevel(level);
 	}
 
@@ -431,12 +432,12 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	@Override
-	public void setOnErrorCallback(Consumer<Argument<Type, TInner>> callback) {
+	public void setOnErrorCallback(@NotNull Consumer<Argument<Type, TInner>> callback) {
 		this.onErrorCallback = callback;
 	}
 
 	@Override
-	public void setOnCorrectCallback(Consumer<TInner> callback) {
+	public void setOnCorrectCallback(@NotNull Consumer<TInner> callback) {
 		this.onCorrectCallback = callback;
 	}
 
@@ -459,7 +460,7 @@ interface ArgumentAdder {
 	 * @param <T> the ArgumentType subclass that will parse the value passed to the argument
 	 * @param <TInner> the actual type of the value passed to the argument
 	 */
-	<T extends ArgumentType<TInner>, TInner> void addArgument(Argument<T, TInner> argument);
+	<T extends ArgumentType<TInner>, TInner> void addArgument(@NotNull Argument<T, TInner> argument);
 
 	List<Argument<?, ?>> getArguments();
 }

@@ -5,6 +5,8 @@ import lanat.Token;
 import lanat.TokenType;
 import lanat.parsing.errors.TokenizeError;
 import lanat.utils.Pair;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,13 +23,13 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 
 	/** The characters that are used to open and close tuples.
 	 * {@link Pair#first()} is the open character and {@link Pair#second()} is the close character */
-	public final Pair<Character, Character> tupleChars;
+	public final @NotNull Pair<@NotNull Character, @NotNull Character> tupleChars;
 
 	/** The tokens that have been parsed so far */
-	private final List<Token> finalTokens = new ArrayList<>();
+	private final @NotNull List<@NotNull Token> finalTokens = new ArrayList<>();
 
 	/** The current value of the token that is being parsed */
-	private final StringBuilder currentValue = new StringBuilder();
+	private final @NotNull StringBuilder currentValue = new StringBuilder();
 
 	/** The input string that is being tokenized */
 	private String inputString;
@@ -36,18 +38,18 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	private char[] inputChars;
 
 
-	public Tokenizer(Command command) {
+	public Tokenizer(@NotNull Command command) {
 		super(command);
 		this.tupleChars = command.getTupleChars().getCharPair();
 	}
 
 	// ------------------------------------------------ Error Handling ------------------------------------------------
-	void addError(TokenizeError.TokenizeErrorType type, int index) {
+	void addError(@NotNull TokenizeError.TokenizeErrorType type, int index) {
 		this.addError(new TokenizeError(type, index));
 	}
 	// ------------------------------------------------ ////////////// ------------------------------------------------
 
-	private void setInputString(String inputString) {
+	private void setInputString(@NotNull String inputString) {
 		this.inputString = inputString;
 		this.inputChars = inputString.toCharArray();
 	}
@@ -56,7 +58,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	 * Tokenizes the input string given.
 	 * When finished, the tokens can be retrieved using {@link Tokenizer#getFinalTokens()}
 	 */
-	public void tokenize(String input) {
+	public void tokenize(@NotNull String input) {
 		if (this.hasFinished) {
 			throw new IllegalStateException("Tokenizer has already finished tokenizing");
 		}
@@ -179,7 +181,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	}
 
 	/** Inserts a token into the final tokens list with the given type and contents */
-	private void addToken(TokenType type, String contents) {
+	private void addToken(@NotNull TokenType type, @NotNull String contents) {
 		this.finalTokens.add(new Token(type, contents));
 	}
 
@@ -187,7 +189,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	 * Tokenizes a single word and returns the token matching it. If no match could be found, returns
 	 * {@link TokenType#ARGUMENT_VALUE}
 	 * */
-	private Token tokenizeWord(String str) {
+	private @NotNull Token tokenizeWord(@NotNull String str) {
 		final TokenType type;
 
 		if (this.tupleOpen || this.stringOpen) {
@@ -234,7 +236,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	 *     For a prefix to be valid, it must be a character used as a prefix on the next argument/s specified.
 	 * </p>
 	 */
-	private boolean isArgNameList(String str) {
+	private boolean isArgNameList(@NotNull String str) {
 		if (str.length() < 2) return false;
 
 		final var possiblePrefixes = new ArrayList<Character>();
@@ -254,7 +256,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	 *     This returns true if the given string is a valid argument name with a double prefix.
 	 * </p>
 	 */
-	private boolean isArgName(String str) {
+	private boolean isArgName(@NotNull String str) {
 		// first try to figure out if the prefix is used, to save time (does it start with '--'? (assuming the prefix is '-'))
 		if (
 			str.length() > 1 // make sure we are working with long enough strings
@@ -272,12 +274,12 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	 * Returns true whether the given string is an argument name {@link Tokenizer#isArgName(String)}
 	 * or an argument name list {@link Tokenizer#isArgNameList(String)}.
 	 * */
-	private boolean isArgumentSpecifier(String str) {
+	private boolean isArgumentSpecifier(@NotNull String str) {
 		return this.isArgName(str) || this.isArgNameList(str);
 	}
 
 	/** Returns true if the given string is a subcommand name */
-	private boolean isSubCommand(String str) {
+	private boolean isSubCommand(@NotNull String str) {
 		return this.getSubCommands().stream().anyMatch(c -> c.name.equals(str));
 	}
 
@@ -295,7 +297,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	}
 
 	/** Returns a command from the subcommands of {@link Tokenizer#command} that matches the given name */
-	private Command getSubCommandByName(String name) {
+	private Command getSubCommandByName(@NotNull String name) {
 		var x = this.getSubCommands().stream().filter(sc -> sc.name.equals(name)).toList();
 		return x.isEmpty() ? null : x.get(0);
 	}
@@ -307,7 +309,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	 *     have one Command per nesting level.
 	 * </p>
 	 * */
-	public List<Command> getTokenizedSubCommands() {
+	public @NotNull List<@NotNull Command> getTokenizedSubCommands() {
 		final List<Command> x = new ArrayList<>();
 		final Command subCmd;
 
@@ -319,7 +321,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	}
 
 	/** Returns the tokenized subcommand of {@link Tokenizer#command}. */
-	public Command getTokenizedSubCommand() {
+	public @Nullable Command getTokenizedSubCommand() {
 		return this.getSubCommands().stream()
 			.filter(sb -> sb.getTokenizer().hasFinished)
 			.findFirst()
@@ -327,7 +329,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	}
 
 	/** Returns the list of all tokens that have been tokenized. */
-	public List<Token> getFinalTokens() {
+	public @NotNull List<@NotNull Token> getFinalTokens() {
 		if (!this.hasFinished) {
 			throw new IllegalStateException("Cannot get final tokens before tokenizing is finished!");
 		}

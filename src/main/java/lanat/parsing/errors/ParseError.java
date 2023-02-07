@@ -5,6 +5,7 @@ import lanat.ArgumentGroup;
 import lanat.ErrorLevel;
 import lanat.utils.ErrorLevelProvider;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,13 +22,13 @@ public class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 		ARG_INCORRECT_VALUE_NUMBER,
 		MULTIPLE_ARGS_IN_EXCLUSIVE_GROUP_USED;
 
-		public final ErrorLevel level;
+		public final @NotNull ErrorLevel level;
 
 		ParseErrorType() {
 			this.level = ErrorLevel.ERROR;
 		}
 
-		ParseErrorType(ErrorLevel level) {
+		ParseErrorType(@NotNull ErrorLevel level) {
 			this.level = level;
 		}
 
@@ -37,17 +38,17 @@ public class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 		}
 	}
 
-	public ParseError(ParseErrorType type, int index, Argument<?, ?> argument, int valueCount) {
+	public ParseError(@NotNull ParseErrorType type, int index, @Nullable Argument<?, ?> argument, int valueCount) {
 		super(type, index);
 		this.argument = argument;
 		this.valueCount = valueCount;
 	}
 
-	public void setArgumentGroup(ArgumentGroup argumentGroup) {
+	public void setArgumentGroup(@NotNull ArgumentGroup argumentGroup) {
 		this.argumentGroup = argumentGroup;
 	}
 
-	public static List<ParseError> filter(List<ParseError> errors) {
+	public static @NotNull List<@NotNull ParseError> filter(@NotNull List<@NotNull ParseError> errors) {
 		final var newList = new ArrayList<>(errors);
 
 		for (final var err : errors) {
@@ -68,6 +69,8 @@ public class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 
 	@Handler("ARG_INCORRECT_VALUE_NUMBER")
 	protected void handleIncorrectValueNumber() {
+		assert this.argument != null;
+
 		this.fmt()
 			.setContents("Incorrect number of values for argument '%s'.%nExpected %s, but got %d."
 				.formatted(
@@ -80,6 +83,7 @@ public class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 
 	@Handler("OBLIGATORY_ARGUMENT_NOT_USED")
 	protected void handleObligatoryArgumentNotUsed() {
+		assert this.argument != null;
 		final var argCmd = this.argument.getParentCommand();
 
 		this.fmt()

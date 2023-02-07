@@ -3,6 +3,8 @@ package lanat.parsing;
 import lanat.*;
 import lanat.parsing.errors.CustomError;
 import lanat.parsing.errors.ParseError;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,12 +13,12 @@ import java.util.List;
 public class Parser extends ParsingStateBase<ParseError> {
 	/** List of all the custom errors that have been added to this parser.
 	 * Custom errors are thrown by {@link ArgumentType}s */
-	private final ArrayList<CustomError> customErrors = new ArrayList<>();
+	private final @NotNull ArrayList<@NotNull CustomError> customErrors = new ArrayList<>();
 
 	/**
 	 * Array of all the tokens that we have tokenized from the CLI arguments.
 	 */
-	private List<Token> tokens;
+	private List<@NotNull Token> tokens;
 
 	/**
 	 * The index of the current token that we are parsing.
@@ -26,10 +28,10 @@ public class Parser extends ParsingStateBase<ParseError> {
 	/** The parsed arguments. This is a map of the argument to the value that it parsed.
 	 * The reason this is saved is that we don't want to run {@link Parser#getParsedArgumentsHashMap()}
 	 * multiple times because that can break stuff badly in relation to error handling. */
-	private HashMap<Argument<?, ?>, Object> parsedArguments;
+	private HashMap<@NotNull Argument<?, ?>, @Nullable Object> parsedArguments;
 
 
-	public Parser(Command command) {
+	public Parser(@NotNull Command command) {
 		super(command);
 	}
 
@@ -45,19 +47,19 @@ public class Parser extends ParsingStateBase<ParseError> {
 		return super.hasDisplayErrors() || this.anyErrorInMinimum(this.customErrors, true);
 	}
 
-	public List<CustomError> getCustomErrors() {
+	public @NotNull List<@NotNull CustomError> getCustomErrors() {
 		return this.getErrorsInLevelMinimum(this.customErrors, true);
 	}
 
-	public void addError(ParseError.ParseErrorType type, Argument<?, ?> arg, int argValueCount, int currentIndex) {
+	public void addError(@NotNull ParseError.ParseErrorType type, @Nullable Argument<?, ?> arg, int argValueCount, int currentIndex) {
 		this.addError(new ParseError(type, currentIndex, arg, argValueCount));
 	}
 
-	public void addError(ParseError.ParseErrorType type, Argument<?, ?> arg, int argValueCount) {
+	public void addError(@NotNull ParseError.ParseErrorType type, @Nullable Argument<?, ?> arg, int argValueCount) {
 		this.addError(type, arg, argValueCount, this.currentTokenIndex);
 	}
 
-	public void addError(CustomError customError) {
+	public void addError(@NotNull CustomError customError) {
 		this.customErrors.add(customError);
 	}
 	// ------------------------------------------------ ////////////// ------------------------------------------------
@@ -68,7 +70,7 @@ public class Parser extends ParsingStateBase<ParseError> {
 	}
 
 	/** Sets the tokens that this parser will parse. */
-	public void setTokens(List<Token> tokens) {
+	public void setTokens(@NotNull List<@NotNull Token> tokens) {
 		this.tokens = tokens;
 	}
 
@@ -124,7 +126,7 @@ public class Parser extends ParsingStateBase<ParseError> {
 	 * reaches the max number of values, or if the end of a tuple is reached.
 	 * </p>
 	 */
-	private void executeArgParse(Argument<?, ?> arg) {
+	private void executeArgParse(@NotNull Argument<?, ?> arg) {
 		final ArgValueCount argumentValuesRange = arg.argType.getNumberOfArgValues();
 
 		// just skip the whole thing if it doesn't need any values
@@ -183,7 +185,7 @@ public class Parser extends ParsingStateBase<ParseError> {
 	 * If the value passed in is present (not empty or null), the argument should only require 0 or 1 values.
 	 * </p>
 	 */
-	private void executeArgParse(Argument<?, ?> arg, String value) {
+	private void executeArgParse(@NotNull Argument<?, ?> arg, @Nullable String value) {
 		final ArgValueCount argumentValuesRange = arg.argType.getNumberOfArgValues();
 
 		if (value == null || value.isEmpty()) {
@@ -209,7 +211,7 @@ public class Parser extends ParsingStateBase<ParseError> {
 	/**
 	 * Parses the given string as a list of single-char argument names.
 	 */
-	private void parseArgNameList(String args) {
+	private void parseArgNameList(@NotNull String args) {
 		// its multiple of them. We can only do this with arguments that accept 0 values.
 		for (short i = 0; i < args.length(); i++) {
 			final short constIndex = i; // this is because the lambda requires the variable to be final
@@ -237,7 +239,7 @@ public class Parser extends ParsingStateBase<ParseError> {
 	}
 
 	/** Returns the positional argument at the given index of declaration. */
-	private Argument<?, ?> getArgumentByPositionalIndex(short index) {
+	private @Nullable Argument<?, ?> getArgumentByPositionalIndex(short index) {
 		final var posArgs = this.command.getPositionalArguments();
 
 		for (short i = 0; i < posArgs.size(); i++) {
@@ -249,7 +251,7 @@ public class Parser extends ParsingStateBase<ParseError> {
 	}
 
 	/** Returns a hashmap of Arguments and their corresponding parsed values. */
-	public HashMap<Argument<?, ?>, Object> getParsedArgumentsHashMap() {
+	public @NotNull HashMap<@NotNull Argument<?, ?>, @Nullable Object> getParsedArgumentsHashMap() {
 		if (this.parsedArguments == null) {
 			this.parsedArguments = new HashMap<>() {{
 				Parser.this.getArguments().forEach(arg -> this.put(arg, arg.finishParsing()));

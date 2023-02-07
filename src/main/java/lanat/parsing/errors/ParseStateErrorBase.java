@@ -57,17 +57,17 @@ import java.util.List;
  * @param <T> An enum with the possible error types to handle.
  */
 abstract class ParseStateErrorBase<T extends Enum<T> & ErrorLevelProvider> implements ErrorLevelProvider {
-	public final T errorsEnum;
+	public final @NotNull T errorsEnum;
 	public int tokenIndex;
 	private ErrorHandler errorHandler;
 	private ErrorFormatter formatter;
 
-	public ParseStateErrorBase(T errorsEnum, int tokenIndex) {
+	public ParseStateErrorBase(@NotNull T errorsEnum, int tokenIndex) {
 		this.errorsEnum = errorsEnum;
 		this.tokenIndex = tokenIndex;
 	}
 
-	private List<Method> getAnnotatedMethods() {
+	private @NotNull List<@NotNull Method> getAnnotatedMethods() {
 		Method[] methods;
 		Class<?> currentClass = this.getClass();
 
@@ -79,15 +79,15 @@ abstract class ParseStateErrorBase<T extends Enum<T> & ErrorLevelProvider> imple
 		return Arrays.stream(methods).filter(m -> m.isAnnotationPresent(Handler.class)).toList();
 	}
 
-	private boolean isHandlerMethod(Method method, String handlerName) {
+	private boolean isHandlerMethod(@NotNull Method method, @NotNull String handlerName) {
 		return method.getAnnotation(Handler.class).value().equals(handlerName);
 	}
 
-	private boolean isHandlerMethod(Method method) {
+	private boolean isHandlerMethod(@NotNull Method method) {
 		return this.isHandlerMethod(method, this.errorsEnum.name());
 	}
 
-	public final String handle(ErrorHandler handler) {
+	public final @NotNull String handle(@NotNull ErrorHandler handler) {
 		this.errorHandler = handler;
 		this.formatter = new ErrorFormatter(handler, this.errorsEnum.getErrorLevel());
 
@@ -120,19 +120,19 @@ abstract class ParseStateErrorBase<T extends Enum<T> & ErrorLevelProvider> imple
 		return this.errorsEnum.getErrorLevel();
 	}
 
-	protected Token getCurrentToken() {
+	protected @NotNull Token getCurrentToken() {
 		return this.errorHandler.getRelativeToken(this.tokenIndex);
 	}
 
 	/**
 	 * Returns the current {@link ErrorFormatter} instance that can be configured to display the error.
 	 */
-	protected ErrorFormatter fmt() {
+	protected @NotNull ErrorFormatter fmt() {
 		return this.formatter;
 	}
 
 	@Retention(RetentionPolicy.RUNTIME)
 	public @interface Handler {
-		String value();
+		@NotNull String value();
 	}
 }

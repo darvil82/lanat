@@ -4,16 +4,17 @@ import lanat.Argument;
 import lanat.Command;
 import lanat.utils.ErrorLevelProvider;
 import lanat.utils.ErrorsContainer;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.function.Consumer;
 
 public abstract class ParsingStateBase<T extends ErrorLevelProvider> extends ErrorsContainer<T> {
-	protected final Command command;
+	protected final @NotNull Command command;
 	/** Whether the parsing/tokenizing has finished. */
 	protected boolean hasFinished = false;
 
-	public ParsingStateBase(Command command) {
+	public ParsingStateBase(@NotNull Command command) {
 		super(command.getMinimumExitErrorLevel(), command.getMinimumDisplayErrorLevel());
 		this.command = command;
 	}
@@ -23,7 +24,7 @@ public abstract class ParsingStateBase<T extends ErrorLevelProvider> extends Err
 	 *
 	 * @return <a>ParseErrorType.ArgumentNotFound</a> if an argument was found
 	 */
-	protected boolean runForArgument(String argName, Consumer<Argument<?, ?>> f) {
+	protected boolean runForArgument(@NotNull String argName, @NotNull Consumer<@NotNull Argument<?, ?>> f) {
 		for (final var argument : this.getArguments()) {
 			if (argument.checkMatch(argName)) {
 				f.accept(argument);
@@ -45,7 +46,7 @@ public abstract class ParsingStateBase<T extends ErrorLevelProvider> extends Err
 	 * It can't. "checkMatch" has also a char overload. The former would always return false.
 	 * I don't really want to make "checkMatch" have different behavior depending on the length of the string, so
 	 * an overload seems better. */
-	protected boolean runForArgument(char argName, Consumer<Argument<?, ?>> f) {
+	protected boolean runForArgument(char argName, @NotNull Consumer<@NotNull Argument<?, ?>> f) {
 		for (final var argument : this.getArguments()) {
 			if (argument.checkMatch(argName)) {
 				f.accept(argument);
@@ -55,11 +56,11 @@ public abstract class ParsingStateBase<T extends ErrorLevelProvider> extends Err
 		return false;
 	}
 
-	protected List<Argument<?, ?>> getArguments() {
+	protected @NotNull List<@NotNull Argument<?, ?>> getArguments() {
 		return this.command.getArguments();
 	}
 
-	protected List<Command> getSubCommands() {
+	protected @NotNull List<@NotNull Command> getSubCommands() {
 		return this.command.getSubCommands();
 	}
 

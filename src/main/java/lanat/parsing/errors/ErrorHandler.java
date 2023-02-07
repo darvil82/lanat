@@ -3,6 +3,7 @@ package lanat.parsing.errors;
 import lanat.Command;
 import lanat.Token;
 import lanat.TokenType;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,12 +12,12 @@ import java.util.List;
 
 
 public class ErrorHandler {
-	public final List<Token> tokens;
-	private final Command rootCmd;
+	public final @NotNull List<@NotNull Token> tokens;
+	private final @NotNull Command rootCmd;
 	private int absoluteCmdTokenIndex = 0;
 
 
-	public ErrorHandler(Command rootCommand) {
+	public ErrorHandler(@NotNull Command rootCommand) {
 		this.rootCmd = rootCommand;
 		this.tokens = Collections.unmodifiableList(rootCommand.getFullTokenList());
 	}
@@ -24,7 +25,7 @@ public class ErrorHandler {
 	/**
 	 * Handles all errors and returns a list of them.
 	 */
-	public List<String> handleErrorsGetMessages() {
+	public @NotNull List<@NotNull String> handleErrorsGetMessages() {
 		final List<Command> commands = this.rootCmd.getTokenizer().getTokenizedSubCommands();
 		final ArrayList<String> errors = new ArrayList<>();
 
@@ -48,7 +49,7 @@ public class ErrorHandler {
 	/**
 	 * Returns the token at the specified index, offset by the current command's token index ({@link #absoluteCmdTokenIndex}).
 	 */
-	public Token getRelativeToken(int index) {
+	public @NotNull Token getRelativeToken(int index) {
 		return this.tokens.get(this.absoluteCmdTokenIndex + index);
 	}
 
@@ -89,7 +90,7 @@ public class ErrorHandler {
 		return this.rootCmd.getErrorCode();
 	}
 
-	public Command getRootCmd() {
+	public @NotNull Command getRootCmd() {
 		return this.rootCmd;
 	}
 

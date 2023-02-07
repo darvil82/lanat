@@ -6,8 +6,8 @@ import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("unused")
 public class CustomError extends ParseStateErrorBase<CustomError.CustomParseErrorType> {
-	private final String message;
-	private final ErrorLevel level;
+	private final @NotNull String message;
+	private final @NotNull ErrorLevel level;
 	private boolean showTokens = true;
 
 	enum CustomParseErrorType implements ErrorLevelProvider {
@@ -19,13 +19,13 @@ public class CustomError extends ParseStateErrorBase<CustomError.CustomParseErro
 		}
 	}
 
-	public CustomError(String message, int index, ErrorLevel level) {
+	public CustomError(@NotNull String message, int index, @NotNull ErrorLevel level) {
 		super(CustomParseErrorType.DEFAULT, index);
 		this.message = message;
 		this.level = level;
 	}
 
-	public CustomError(String message, ErrorLevel level) {
+	public CustomError(@NotNull String message, @NotNull ErrorLevel level) {
 		this(message, -1, level);
 		this.showTokens = false;
 	}

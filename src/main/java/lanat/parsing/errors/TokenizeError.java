@@ -18,7 +18,7 @@ public class TokenizeError extends ParseStateErrorBase<TokenizeError.TokenizeErr
 		}
 	}
 
-	public TokenizeError(TokenizeErrorType type, int index) {
+	public TokenizeError(@NotNull TokenizeErrorType type, int index) {
 		super(type, index);
 	}
 

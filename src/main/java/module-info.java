@@ -1,6 +1,6 @@
-module argparser {
-	exports argparser;
-	exports argparser.argumentTypes;
-	exports argparser.utils.displayFormatter;
-	exports argparser.helpRepresentation;
+module lanat {
+	exports lanat;
+	exports lanat.argumentTypes;
+	exports lanat.utils.displayFormatter;
+	exports lanat.helpRepresentation;
 }

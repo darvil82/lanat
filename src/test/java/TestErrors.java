@@ -1,8 +1,8 @@
-import argparser.Argument;
-import argparser.ArgumentType;
-import argparser.Command;
-import argparser.NamedWithDescription;
-import argparser.utils.ErrorCallbacks;
+import lanat.Argument;
+import lanat.ArgumentType;
+import lanat.Command;
+import lanat.NamedWithDescription;
+import lanat.utils.ErrorCallbacks;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

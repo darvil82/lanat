@@ -1,5 +1,5 @@
-import argparser.Argument;
-import argparser.ArgumentType;
+import lanat.Argument;
+import lanat.ArgumentType;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;

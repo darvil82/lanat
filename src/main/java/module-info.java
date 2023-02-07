@@ -1,7 +1,7 @@
-module argparser {
+module lanat {
 	requires org.jetbrains.annotations;
-	exports argparser;
-	exports argparser.argumentTypes;
-	exports argparser.utils.displayFormatter;
-	exports argparser.helpRepresentation;
+	exports lanat;
+	exports lanat.argumentTypes;
+	exports lanat.utils.displayFormatter;
+	exports lanat.helpRepresentation;
 }

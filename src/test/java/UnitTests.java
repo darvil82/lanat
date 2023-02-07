@@ -1,5 +1,5 @@
-import argparser.*;
-import argparser.argumentTypes.TupleArgumentType;
+import lanat.*;
+import lanat.argumentTypes.TupleArgumentType;
 import org.junit.jupiter.api.BeforeEach;
 
 import java.util.List;

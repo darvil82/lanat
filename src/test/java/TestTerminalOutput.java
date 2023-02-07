@@ -1,4 +1,4 @@
-import argparser.utils.UtlString;
+import lanat.utils.UtlString;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

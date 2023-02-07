@@ -1,7 +1,7 @@
-import argparser.*;
-import argparser.argumentTypes.EnumArgument;
-import argparser.argumentTypes.IntRangeArgument;
-import argparser.helpRepresentation.HelpFormatter;
+import lanat.*;
+import lanat.argumentTypes.EnumArgument;
+import lanat.argumentTypes.IntRangeArgument;
+import lanat.helpRepresentation.HelpFormatter;
 
 public final class ManualTests {
 	public static void main(String[] args) {

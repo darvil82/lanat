@@ -15,11 +15,11 @@ class Test {
 				.positional() // doesn't need the name to be specified
 				.description("The name of the user.")
 			);
-			
+
 			this.addArgument(Argument.create("surname", ArgumentType.STRING())
 				.description("The surname of the user.")
 			);
-			
+
 			this.addArgument(Argument.create("age", ArgumentType.INTEGER())
 				.defaultValue(18)
 				.description("The age of the user.")
@@ -30,16 +30,16 @@ class Test {
 
 		// example: david +a20
 		final var parsedArguments = myParser.parseArgs(args);
-		
+
 		System.out.println("Welcome %s! You are %d years old.".formatted(
-			parsedArguments.get("name"),
-			parsedArguments.get("age"),
+			parsedArguments.get("name").get(),
+			parsedArguments.<Integer>get("age").get()
 		));
-		
+
 		// if no surname was specified, we'll assume it is "Lewis". (Don't ask why)
 		System.out.println(
 			"The surname of the user is "
-			+ parsedArguments.get("surname").undefined("Lewis")
+				+ parsedArguments.get("surname").undefined("Lewis")
 		);
 	}
 }

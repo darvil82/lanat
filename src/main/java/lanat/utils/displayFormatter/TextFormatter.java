@@ -1,23 +1,26 @@
 package lanat.utils.displayFormatter;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class TextFormatter {
 	public static boolean enableSequences = true, debug = false;
-	private final ArrayList<FormatOption> formatOptions = new ArrayList<>();
-	private final List<TextFormatter> concatList = new ArrayList<>();
-	private TextFormatter parent;
-	private Color foregroundColor;
-	private Color backgroundColor;
-	private String contents;
+	private final @NotNull ArrayList<FormatOption> formatOptions = new ArrayList<>();
+	private final @NotNull List<TextFormatter> concatList = new ArrayList<>();
+	private @Nullable TextFormatter parent;
+	private @Nullable Color foregroundColor;
+	private @Nullable Color backgroundColor;
+	private @NotNull String contents;
 
-	public TextFormatter(String contents) {
+	public TextFormatter(@NotNull String contents) {
 		this.contents = contents;
 	}
 
-	public TextFormatter(String contents, Color foreground) {
+	public TextFormatter(@NotNull String contents, @Nullable Color foreground) {
 		this(contents);
 		this.foregroundColor = foreground;
 	}
@@ -26,33 +29,33 @@ public class TextFormatter {
 		this.contents = "";
 	}
 
-	public TextFormatter addFormat(FormatOption... options) {
+	public TextFormatter addFormat(@NotNull FormatOption @NotNull... options) {
 		this.formatOptions.addAll(Arrays.asList(options));
 		return this;
 	}
 
-	public TextFormatter setColor(Color foreground) {
+	public TextFormatter setColor(@Nullable Color foreground) {
 		this.foregroundColor = foreground;
 		return this;
 	}
 
-	public TextFormatter setColor(Color foreground, Color background) {
+	public TextFormatter setColor(@Nullable Color foreground, @Nullable Color background) {
 		this.foregroundColor = foreground;
 		this.backgroundColor = background;
 		return this;
 	}
 
-	public TextFormatter setBackgroundColor(Color background) {
+	public TextFormatter setBackgroundColor(@Nullable Color background) {
 		this.backgroundColor = background;
 		return this;
 	}
 
-	public TextFormatter setContents(String contents) {
+	public TextFormatter setContents(@NotNull String contents) {
 		this.contents = contents;
 		return this;
 	}
 
-	public TextFormatter concat(TextFormatter... formatters) {
+	public TextFormatter concat(@NotNull TextFormatter @NotNull ... formatters) {
 		for (TextFormatter formatter : formatters) {
 			// if it was already added to another formatter, remove it from there
 			if (formatter.parent != null) {
@@ -64,7 +67,7 @@ public class TextFormatter {
 		return this;
 	}
 
-	public TextFormatter concat(String... strings) {
+	public TextFormatter concat(@NotNull String @NotNull ... strings) {
 		for (var str : strings) {
 			this.concatList.add(new TextFormatter(str));
 		}
@@ -87,7 +90,7 @@ public class TextFormatter {
 		);
 	}
 
-	private String getStartSequences() {
+	private @NotNull String getStartSequences() {
 		if (this.formattingNotDefined() || !TextFormatter.enableSequences) return "";
 		final var buffer = new StringBuilder();
 
@@ -103,7 +106,7 @@ public class TextFormatter {
 		return buffer.toString();
 	}
 
-	private String getEndSequences() {
+	private @NotNull String getEndSequences() {
 		if (this.formattingNotDefined() || !TextFormatter.enableSequences) return "";
 		final var buffer = new StringBuilder();
 
@@ -126,7 +129,7 @@ public class TextFormatter {
 	 * This is determined by looking at the parent formatters.
 	 * If no parent formatter has a foreground color, then {@link Color#BRIGHT_WHITE} is returned.
 	 */
-	private Color getResetColor() {
+	private @NotNull Color getResetColor() {
 		var parent = this.parent;
 		while (parent != null) {
 			if (parent.foregroundColor != null) {
@@ -141,7 +144,7 @@ public class TextFormatter {
 	 * Creates a new {@link String} with the contents and all the formatting applied.
 	 */
 	@Override
-	public String toString() {
+	public @NotNull String toString() {
 		if (this.isSimple()) {
 			return this.contents;
 		}
@@ -161,11 +164,11 @@ public class TextFormatter {
 	}
 
 	/** Returns a template for a {@link TextFormatter} that is used for errors */
-	public static TextFormatter ERROR(String msg) {
+	public static @NotNull TextFormatter ERROR(@NotNull String msg) {
 		return new TextFormatter(msg).setColor(Color.BRIGHT_RED).addFormat(FormatOption.REVERSE, FormatOption.BOLD);
 	}
 
-	public static String getSequence(int code) {
+	public static @NotNull String getSequence(int code) {
 		if (TextFormatter.debug)
 			return "ESC[" + code;
 		return "" + ESC + '[' + code + 'm';

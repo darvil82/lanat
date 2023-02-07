@@ -1,17 +1,20 @@
 package lanat.utils;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 public class LoopPool<T> {
-	private final T[] pool;
+	private final @Nullable T @NotNull [] pool;
 	private int index;
 
 	@SafeVarargs
-	public LoopPool(int startAt, T... pool) {
+	public LoopPool(int startAt, T @NotNull ... pool) {
 		this.pool = pool;
 		this.index = startAt < 0 ? Random.randInt(pool.length) : startAt % pool.length;
 	}
 
 	@SafeVarargs
-	public LoopPool(T... pool) {
+	public LoopPool(T @NotNull... pool) {
 		this(0, pool);
 	}
 

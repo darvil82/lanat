@@ -25,18 +25,18 @@ public final class UtlString {
 	/**
 	 * Wrap a string in two strings at both sides.
 	 */
-	public static String surround(@NotNull String str, @NotNull String wrapper) {
+	public static @NotNull String surround(@NotNull String str, @NotNull String wrapper) {
 		return wrapper + str + wrapper;
 	}
 
 	/**
 	 * Get the longest line from the contents of a string. Lines are separated by newlines.
 	 */
-	public static String getLongestLine(@NotNull String str) {
+	public static @NotNull String getLongestLine(@NotNull String str) {
 		return Arrays.stream(str.split("\n")).min((a, b) -> b.length() - a.length()).orElse("");
 	}
 
-	public static String sanitizeName(@NotNull String name) {
+	public static @NotNull String sanitizeName(@NotNull String name) {
 		Objects.requireNonNull(name);
 		// remove all non-alphanumeric characters
 		final var sanitized = UtlString.trim(name.replaceAll("[^a-zA-Z0-9 -]", ""), "[^a-zA-Z0-9]")
@@ -56,7 +56,7 @@ public final class UtlString {
 	 * @param maxWidth The maximum width that the text should never exceed.
 	 * @return The wrapped text.
 	 */
-	public static String wrap(@NotNull String str, int maxWidth) {
+	public static @NotNull String wrap(@NotNull String str, int maxWidth) {
 		if (maxWidth <= 0)
 			throw new IllegalArgumentException("maxWidth must be greater than 0");
 
@@ -131,7 +131,7 @@ public final class UtlString {
 	 * @param padChar The character to use for padding.
 	 * @return The padded string.
 	 */
-	public static String indent(@NotNull String str, int padCount, char padChar) {
+	public static @NotNull String indent(@NotNull String str, int padCount, char padChar) {
 		final var padString = String.valueOf(padChar).repeat(padCount);
 		final var endBuffer = new StringBuilder(padString);
 
@@ -153,11 +153,11 @@ public final class UtlString {
 	 * @param padCount The amount of spaces to add.
 	 * @return The padded string.
 	 */
-	public static String indent(@NotNull String str, int padCount) {
+	public static @NotNull String indent(@NotNull String str, int padCount) {
 		return UtlString.indent(str, padCount, ' ');
 	}
 
-	public static String center(@NotNull String str, int width, char padChar) {
+	public static @NotNull String center(@NotNull String str, int width, char padChar) {
 		final var buffer = new StringBuilder();
 		final var paddingString = String.valueOf(padChar).repeat((width / 2) - (str.length() / 2) - 1);
 
@@ -168,16 +168,16 @@ public final class UtlString {
 		return buffer.toString();
 	}
 
-	public static String center(@NotNull String str, int width) {
+	public static @NotNull String center(@NotNull String str, int width) {
 		return UtlString.center(str, width, '─');
 	}
 
-	public static String trim(@NotNull String str, @NotNull String pattern) {
+	public static @NotNull String trim(@NotNull String str, @NotNull String pattern) {
 		return str.replaceAll("^" + pattern + "+", "")
 			.replaceAll(pattern + "+$", "");
 	}
 
-	public static String trim(@NotNull String str) {
+	public static @NotNull String trim(@NotNull String str) {
 		return UtlString.trim(str, "[ \n\r\t]");
 	}
 
@@ -185,7 +185,7 @@ public final class UtlString {
 	/**
 	 * Remove all formatting colors or format from the string
 	 */
-	public static String removeSequences(@NotNull String str) {
+	public static @NotNull String removeSequences(@NotNull String str) {
 		return str.replaceAll("\033\\[[\\d;]*m", "");
 	}
 }

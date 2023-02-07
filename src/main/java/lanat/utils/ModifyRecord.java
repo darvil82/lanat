@@ -1,5 +1,8 @@
 package lanat.utils;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.function.Supplier;
 
 /**
@@ -8,12 +11,13 @@ import java.util.function.Supplier;
  * @param <T> The type of the inner value.
  */
 public class ModifyRecord<T> {
-	private T value;
+	private @Nullable T value;
 	private boolean modified;
 
-	public ModifyRecord(T value) {
+	public ModifyRecord(@Nullable T value) {
 		this.value = value;
 	}
+	public ModifyRecord() {}
 
 	public T get() {
 		return this.value;
@@ -24,7 +28,7 @@ public class ModifyRecord<T> {
 		this.modified = true;
 	}
 
-	public void set(ModifyRecord<T> value) {
+	public void set(@NotNull ModifyRecord<T> value) {
 		this.set(value.value);
 	}
 
@@ -44,7 +48,7 @@ public class ModifyRecord<T> {
 	 *
 	 * @param value The value to set.
 	 */
-	public void setIfNotModified(ModifyRecord<T> value) {
+	public void setIfNotModified(@NotNull ModifyRecord<T> value) {
 		if (!this.modified) {
 			this.set(value);
 		}
@@ -55,7 +59,7 @@ public class ModifyRecord<T> {
 	 *
 	 * @param cb The callback that supplies the value to set.
 	 */
-	public void setIfNotModified(Supplier<T> cb) {
+	public void setIfNotModified(@NotNull Supplier<T> cb) {
 		if (!this.modified) {
 			this.set(cb.get());
 		}
@@ -67,6 +71,6 @@ public class ModifyRecord<T> {
 
 	@Override
 	public String toString() {
-		return "[" + (this.modified ? "modified" : "clean") + "] " + this.value.toString();
+		return "[" + (this.modified ? "modified" : "clean") + "] " + (this.value == null ? "" : this.value.toString());
 	}
 }

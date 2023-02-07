@@ -7,22 +7,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class ErrorsContainer<T extends ErrorLevelProvider> implements MinimumErrorLevelConfig<T> {
-	private ModifyRecord<ErrorLevel> minimumExitErrorLevel = new ModifyRecord<>(ErrorLevel.ERROR);
-	private ModifyRecord<ErrorLevel> minimumDisplayErrorLevel = new ModifyRecord<>(ErrorLevel.INFO);
-	private final List<T> errors = new ArrayList<>();
+	private @NotNull ModifyRecord<ErrorLevel> minimumExitErrorLevel = new ModifyRecord<>(ErrorLevel.ERROR);
+	private @NotNull ModifyRecord<ErrorLevel> minimumDisplayErrorLevel = new ModifyRecord<>(ErrorLevel.INFO);
+	private final @NotNull List<T> errors = new ArrayList<>();
 
 	public ErrorsContainer() {}
 
 	public ErrorsContainer(
-		ModifyRecord<ErrorLevel> minimumExitErrorLevelRecord,
-		ModifyRecord<ErrorLevel> minimumDisplayErrorLevelRecord
+		@NotNull ModifyRecord<ErrorLevel> minimumExitErrorLevelRecord,
+		@NotNull ModifyRecord<ErrorLevel> minimumDisplayErrorLevelRecord
 	)
 	{
 		this.minimumExitErrorLevel = minimumExitErrorLevelRecord;
 		this.minimumDisplayErrorLevel = minimumDisplayErrorLevelRecord;
 	}
 
-	public ErrorsContainer(ErrorLevel minimumExitErrorLevel, ErrorLevel minimumDisplayErrorLevel) {
+	public ErrorsContainer(@NotNull ErrorLevel minimumExitErrorLevel, @NotNull ErrorLevel minimumDisplayErrorLevel) {
 		this.minimumExitErrorLevel.set(minimumExitErrorLevel);
 		this.minimumDisplayErrorLevel.set(minimumDisplayErrorLevel);
 	}
@@ -31,7 +31,7 @@ public abstract class ErrorsContainer<T extends ErrorLevelProvider> implements M
 	 * Adds an error to the list of errors.
 	 * @param error The error to add.
 	 */
-	public void addError(T error) {
+	public void addError(@NotNull T error) {
 		this.errors.add(error);
 	}
 
@@ -46,21 +46,21 @@ public abstract class ErrorsContainer<T extends ErrorLevelProvider> implements M
 	}
 
 	@Override
-	public List<T> getErrorsUnderExitLevel() {
+	public @NotNull List<T> getErrorsUnderExitLevel() {
 		return this.getErrorsInLevelMinimum(this.errors, false);
 	}
 
 	@Override
-	public List<T> getErrorsUnderDisplayLevel() {
+	public @NotNull List<T> getErrorsUnderDisplayLevel() {
 		return this.getErrorsInLevelMinimum(this.errors, true);
 	}
 
 	protected <TErr extends ErrorLevelProvider>
-	List<TErr> getErrorsInLevelMinimum(List<TErr> errors, boolean isDisplayError) {
+	@NotNull List<TErr> getErrorsInLevelMinimum(@NotNull List<TErr> errors, boolean isDisplayError) {
 		return errors.stream().filter(e -> this.errorIsInMinimumLevel(e, isDisplayError)).toList();
 	}
 
-	private <TErr extends ErrorLevelProvider> boolean errorIsInMinimumLevel(TErr error, boolean isDisplayError) {
+	private <TErr extends ErrorLevelProvider> boolean errorIsInMinimumLevel(@NotNull TErr error, boolean isDisplayError) {
 		return error.getErrorLevel().isInErrorMinimum((
 			isDisplayError
 				? this.minimumDisplayErrorLevel
@@ -68,7 +68,7 @@ public abstract class ErrorsContainer<T extends ErrorLevelProvider> implements M
 		).get());
 	}
 
-	protected <TErr extends ErrorLevelProvider> boolean anyErrorInMinimum(List<TErr> errors, boolean isDisplayError) {
+	protected <TErr extends ErrorLevelProvider> boolean anyErrorInMinimum(@NotNull List<TErr> errors, boolean isDisplayError) {
 		return errors.stream().anyMatch(e -> this.errorIsInMinimumLevel(e, isDisplayError));
 	}
 
@@ -86,7 +86,7 @@ public abstract class ErrorsContainer<T extends ErrorLevelProvider> implements M
 	}
 
 	@Override
-	public ModifyRecord<ErrorLevel> getMinimumExitErrorLevel() {
+	public @NotNull ModifyRecord<ErrorLevel> getMinimumExitErrorLevel() {
 		return this.minimumExitErrorLevel;
 	}
 
@@ -103,7 +103,7 @@ public abstract class ErrorsContainer<T extends ErrorLevelProvider> implements M
 	}
 
 	@Override
-	public ModifyRecord<ErrorLevel> getMinimumDisplayErrorLevel() {
+	public @NotNull ModifyRecord<ErrorLevel> getMinimumDisplayErrorLevel() {
 		return this.minimumDisplayErrorLevel;
 	}
 }

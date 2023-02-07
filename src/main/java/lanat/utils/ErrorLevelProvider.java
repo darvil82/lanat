@@ -1,7 +1,8 @@
 package lanat.utils;
 
 import lanat.ErrorLevel;
+import org.jetbrains.annotations.NotNull;
 
 public interface ErrorLevelProvider {
-	ErrorLevel getErrorLevel();
+	@NotNull ErrorLevel getErrorLevel();
 }

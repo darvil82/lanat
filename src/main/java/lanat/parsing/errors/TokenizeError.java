@@ -2,6 +2,7 @@ package lanat.parsing.errors;
 
 import lanat.ErrorLevel;
 import lanat.utils.ErrorLevelProvider;
+import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("unused")
 public class TokenizeError extends ParseStateErrorBase<TokenizeError.TokenizeErrorType> {
@@ -12,7 +13,7 @@ public class TokenizeError extends ParseStateErrorBase<TokenizeError.TokenizeErr
 		STRING_NOT_CLOSED;
 
 		@Override
-		public ErrorLevel getErrorLevel() {
+		public @NotNull ErrorLevel getErrorLevel() {
 			return ErrorLevel.ERROR;
 		}
 	}

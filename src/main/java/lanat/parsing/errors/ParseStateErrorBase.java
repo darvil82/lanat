@@ -4,6 +4,7 @@ import lanat.ErrorFormatter;
 import lanat.ErrorLevel;
 import lanat.Token;
 import lanat.utils.ErrorLevelProvider;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -115,7 +116,7 @@ abstract class ParseStateErrorBase<T extends Enum<T> & ErrorLevelProvider> imple
 	}
 
 	@Override
-	public ErrorLevel getErrorLevel() {
+	public @NotNull ErrorLevel getErrorLevel() {
 		return this.errorsEnum.getErrorLevel();
 	}
 

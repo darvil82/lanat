@@ -2,6 +2,7 @@ package lanat.parsing.errors;
 
 import lanat.ErrorLevel;
 import lanat.utils.ErrorLevelProvider;
+import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("unused")
 public class CustomError extends ParseStateErrorBase<CustomError.CustomParseErrorType> {
@@ -13,7 +14,7 @@ public class CustomError extends ParseStateErrorBase<CustomError.CustomParseErro
 		DEFAULT;
 
 		@Override
-		public ErrorLevel getErrorLevel() {
+		public @NotNull ErrorLevel getErrorLevel() {
 			return ErrorLevel.ERROR;
 		}
 	}
@@ -30,7 +31,7 @@ public class CustomError extends ParseStateErrorBase<CustomError.CustomParseErro
 	}
 
 	@Override
-	public ErrorLevel getErrorLevel() {
+	public @NotNull ErrorLevel getErrorLevel() {
 		return this.level;
 	}
 

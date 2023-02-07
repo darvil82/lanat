@@ -1,5 +1,7 @@
 package lanat.utils.displayFormatter;
 
+import org.jetbrains.annotations.NotNull;
+
 public enum FormatOption {
 	RESET_ALL(0),
 	BOLD(1),
@@ -11,18 +13,18 @@ public enum FormatOption {
 	HIDDEN(8),
 	STRIKE_THROUGH(9);
 
-	private final Byte value;
+	private final @NotNull Byte value;
 
 	FormatOption(int value) {
 		this.value = (byte)value;
 	}
 
 	@Override
-	public String toString() {
+	public @NotNull String toString() {
 		return TextFormatter.getSequence(this.value);
 	}
 
-	public String toStringReset() {
+	public @NotNull String toStringReset() {
 		return TextFormatter.getSequence(this.value + 20 + (this == BOLD ? 1 : 0));
 	}
 }

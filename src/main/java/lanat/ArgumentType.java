@@ -5,6 +5,7 @@ import lanat.parsing.errors.CustomError;
 import lanat.utils.ErrorsContainer;
 import lanat.utils.Resettable;
 import lanat.utils.displayFormatter.TextFormatter;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.function.Consumer;
@@ -173,7 +174,7 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> imple
 	}
 
 	@Override
-	public void addError(CustomError error) {
+	public void addError(@NotNull CustomError error) {
 		if (!this.getNumberOfArgValues().isInRange(error.tokenIndex, true)) {
 			throw new IndexOutOfBoundsException("Index " + error.tokenIndex + " is out of range for " + this.getClass().getName());
 		}

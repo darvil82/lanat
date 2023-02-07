@@ -4,6 +4,7 @@ import lanat.Argument;
 import lanat.ArgumentGroup;
 import lanat.ErrorLevel;
 import lanat.utils.ErrorLevelProvider;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +32,7 @@ public class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 		}
 
 		@Override
-		public ErrorLevel getErrorLevel() {
+		public @NotNull ErrorLevel getErrorLevel() {
 			return this.level;
 		}
 	}

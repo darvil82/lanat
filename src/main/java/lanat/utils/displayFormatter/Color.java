@@ -1,5 +1,7 @@
 package lanat.utils.displayFormatter;
 
+import org.jetbrains.annotations.NotNull;
+
 public enum Color {
 	BLACK(30),
 	RED(31),
@@ -18,22 +20,22 @@ public enum Color {
 	BRIGHT_CYAN(96),
 	BRIGHT_WHITE(97);
 
-	private final Byte value;
+	private final @NotNull Byte value;
 
 	Color(int value) {
 		this.value = (byte)value;
 	}
 
 	@Override
-	public String toString() {
+	public @NotNull String toString() {
 		return TextFormatter.getSequence(this.value);
 	}
 
-	public String toStringBackground() {
+	public @NotNull String toStringBackground() {
 		return TextFormatter.getSequence(this.value + 10);
 	}
 
-	public static Color[] getBrightColors() {
+	public static @NotNull Color @NotNull [] getBrightColors() {
 		return new Color[] {
 			BRIGHT_RED,
 			BRIGHT_GREEN,
@@ -45,7 +47,7 @@ public enum Color {
 		};
 	}
 
-	public static Color[] getDarkColors() {
+	public static @NotNull Color @NotNull [] getDarkColors() {
 		return new Color[] {
 			RED,
 			GREEN,

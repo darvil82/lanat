@@ -6,9 +6,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 public interface MinimumErrorLevelConfig<T extends ErrorLevelProvider> {
-	List<T> getErrorsUnderExitLevel();
+	@NotNull List<@NotNull T> getErrorsUnderExitLevel();
 
-	List<T> getErrorsUnderDisplayLevel();
+	@NotNull List<@NotNull T> getErrorsUnderDisplayLevel();
 
 	boolean hasExitErrors();
 
@@ -17,9 +17,9 @@ public interface MinimumErrorLevelConfig<T extends ErrorLevelProvider> {
 
 	void setMinimumExitErrorLevel(@NotNull ErrorLevel level);
 
-	ModifyRecord<ErrorLevel> getMinimumExitErrorLevel();
+	@NotNull ModifyRecord<@NotNull ErrorLevel> getMinimumExitErrorLevel();
 
 	void setMinimumDisplayErrorLevel(@NotNull ErrorLevel level);
 
-	ModifyRecord<ErrorLevel> getMinimumDisplayErrorLevel();
+	@NotNull ModifyRecord<@NotNull ErrorLevel> getMinimumDisplayErrorLevel();
 }

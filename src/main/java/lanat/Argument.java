@@ -397,12 +397,12 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	// just act as a proxy to the type error handling
 
 	@Override
-	public List<CustomError> getErrorsUnderExitLevel() {
+	public @NotNull List<CustomError> getErrorsUnderExitLevel() {
 		return this.argType.getErrorsUnderExitLevel();
 	}
 
 	@Override
-	public List<CustomError> getErrorsUnderDisplayLevel() {
+	public @NotNull List<CustomError> getErrorsUnderDisplayLevel() {
 		return this.argType.getErrorsUnderDisplayLevel();
 	}
 
@@ -422,7 +422,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	@Override
-	public ModifyRecord<ErrorLevel> getMinimumDisplayErrorLevel() {
+	public @NotNull ModifyRecord<ErrorLevel> getMinimumDisplayErrorLevel() {
 		return this.argType.getMinimumDisplayErrorLevel();
 	}
 
@@ -432,7 +432,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	@Override
-	public ModifyRecord<ErrorLevel> getMinimumExitErrorLevel() {
+	public @NotNull ModifyRecord<ErrorLevel> getMinimumExitErrorLevel() {
 		return this.argType.getMinimumExitErrorLevel();
 	}
 

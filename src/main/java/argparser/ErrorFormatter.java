@@ -77,7 +77,7 @@ public class ErrorFormatter {
 		protected String generateTokensViewFormatting(DisplayTokensOptions options) {
 			final var arrow = TextFormatter.ERROR("<-").setColor(this.getErrorLevel().color);
 			final var tokensFormatters = new ArrayList<>(this.getTokensFormatters());
-			int tokensLength = tokensFormatters.size();
+			final int tokensLength = tokensFormatters.size();
 
 			if (options.start < 0) {
 				tokensFormatters.add(0, arrow);

@@ -4,13 +4,14 @@ package lanat;
 import lanat.parsing.errors.ErrorHandler;
 import lanat.utils.Pair;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
 
 public class ArgumentParser extends Command {
 	private boolean isParsed = false;
-	private String license;
+	private @Nullable String license;
 
 
 	public ArgumentParser(String programName, String description) {
@@ -59,7 +60,8 @@ public class ArgumentParser extends Command {
 	}
 
 
-	protected Pair<ParsedArgumentsRoot, List<String>> parseArgsNoExit(String args) {
+	protected @NotNull Pair<@NotNull ParsedArgumentsRoot, @NotNull List<@NotNull String>>
+	parseArgsNoExit(@NotNull String args) {
 		if (this.isParsed) {
 			// reset all parsing related things to the initial state
 			this.resetState();
@@ -89,18 +91,18 @@ public class ArgumentParser extends Command {
 		);
 	}
 
-	private String getForwardValue() {
+	private @NotNull String getForwardValue() {
 		for (var token : this.getFullTokenList()) {
 			if (token.type() == TokenType.FORWARD_VALUE) return token.contents();
 		}
 		return "";
 	}
 
-	public String getLicense() {
+	public @Nullable String getLicense() {
 		return this.license;
 	}
 
-	public void setLicense(String license) {
+	public void setLicense(@NotNull String license) {
 		this.license = license;
 	}
 }

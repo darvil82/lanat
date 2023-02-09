@@ -145,8 +145,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * The value that should be used if the user does not specify a value for this argument. If the argument
 	 * does not accept values, this value will be ignored.
 	 */
-	public Argument<Type, TInner> defaultValue(TInner value) {
-		this.defaultValue = Objects.requireNonNull(value);
+	public Argument<Type, TInner> defaultValue(@NotNull TInner value) {
+		this.defaultValue = value;
 		return this;
 	}
 

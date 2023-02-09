@@ -156,7 +156,7 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> imple
 	 * @param level The level of the error.
 	 */
 	protected void addError(@NotNull String message, int index, @NotNull ErrorLevel level) {
-		if (!this.getNumberOfArgValues().isInRange(index, true)) {
+		if (!this.getNumberOfArgValues().isIndexInRange(index)) {
 			throw new IndexOutOfBoundsException("Index " + index + " is out of range for " + this.getClass().getName());
 		}
 
@@ -176,7 +176,7 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> imple
 
 	@Override
 	public void addError(@NotNull CustomError error) {
-		if (!this.getNumberOfArgValues().isInRange(error.tokenIndex, true)) {
+		if (!this.getNumberOfArgValues().isIndexInRange(error.tokenIndex)) {
 			throw new IndexOutOfBoundsException("Index " + error.tokenIndex + " is out of range for " + this.getClass().getName());
 		}
 

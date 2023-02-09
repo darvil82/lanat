@@ -3,7 +3,6 @@ package lanat.utils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.function.Predicate;
 
 public final class UtlString {
@@ -37,7 +36,6 @@ public final class UtlString {
 	}
 
 	public static @NotNull String sanitizeName(@NotNull String name) {
-		Objects.requireNonNull(name);
 		// remove all non-alphanumeric characters
 		final var sanitized = UtlString.trim(name.replaceAll("[^a-zA-Z0-9 -]", ""), "[^a-zA-Z0-9]")
 			.replaceAll(" ", "-");

@@ -108,6 +108,9 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * Specify the prefix of this argument. By default, this is <code>'-'</code>. If this argument is used in an
 	 * argument name list (-abc), the prefix that will be valid is any against all the arguments specified
 	 * in that name list.
+	 * <p></p>
+	 * <h3>Allowed Characters:</h3>
+	 * <code>'-', '+', '/', '@', '$', '%', '^', '&', '*', '!', '~', '#', '?', '<', '>', '|', '=', ':'</code>
 	 */
 	public Argument<Type, TInner> prefix(char prefix) {
 		for (char validPrefix : Argument.VALID_PREFIXES) {

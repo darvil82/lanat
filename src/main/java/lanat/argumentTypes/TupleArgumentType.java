@@ -4,23 +4,24 @@ import lanat.ArgValueCount;
 import lanat.ArgumentType;
 import lanat.utils.displayFormatter.Color;
 import lanat.utils.displayFormatter.TextFormatter;
+import org.jetbrains.annotations.NotNull;
 
 
 public abstract class TupleArgumentType<T> extends ArgumentType<T> {
-	private final ArgValueCount argCount;
+	private final @NotNull ArgValueCount argCount;
 
-	public TupleArgumentType(ArgValueCount argValueCount, T initialValue) {
+	public TupleArgumentType(@NotNull ArgValueCount argValueCount, @NotNull T initialValue) {
+		super(initialValue);
 		this.argCount = argValueCount;
-		this.setValue(initialValue);
 	}
 
 	@Override
-	public ArgValueCount getNumberOfArgValues() {
+	public @NotNull ArgValueCount getNumberOfArgValues() {
 		return this.argCount;
 	}
 
 	@Override
-	public TextFormatter getRepresentation() {
+	public @NotNull TextFormatter getRepresentation() {
 		return new TextFormatter(this.getValue().getClass().getSimpleName())
 			.concat(new TextFormatter(this.argCount.getRegexRange()).setColor(Color.BRIGHT_YELLOW));
 	}

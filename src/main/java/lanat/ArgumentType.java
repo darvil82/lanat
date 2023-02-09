@@ -6,6 +6,7 @@ import lanat.utils.ErrorsContainer;
 import lanat.utils.Resettable;
 import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.function.Consumer;
@@ -30,37 +31,37 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> imple
 	 * The parent argument type is the one that wants to listen for errors that occur in this argument type.
 	 * This value is set by the parent argument type when it runs {@link ArgumentType#registerSubType(ArgumentType)}.
 	 */
-	private ArgumentType<?> parentArgType;
-	private final ArrayList<ArgumentType<?>> subTypes = new ArrayList<>();
+	private @Nullable ArgumentType<?> parentArgType;
+	private final @NotNull ArrayList<@NotNull ArgumentType<?>> subTypes = new ArrayList<>();
 
-	public ArgumentType(T initialValue) {
+	public ArgumentType(@NotNull T initialValue) {
 		this.setValue(this.initialValue = initialValue);
 	}
 
 	public ArgumentType() {}
 
-	public final void parseAndUpdateValue(String[] args) {
+	public final void parseAndUpdateValue(@NotNull String @NotNull [] args) {
 		this.receivedValueCount = args.length;
-		this.setValue(this.parseValues(args));
+		this.currentValue = this.parseValues(args);
 	}
 
-	public final void parseAndUpdateValue(String arg) {
+	public final void parseAndUpdateValue(@NotNull String arg) {
 		this.receivedValueCount = 1;
 		this.setValue(this.parseValues(arg));
 	}
 
-	public final T parseValues(String arg) {
+	public final T parseValues(@NotNull String arg) {
 		return this.parseValues(new String[] { arg });
 	}
 
-	public abstract T parseValues(String[] args);
+	public abstract @Nullable T parseValues(@NotNull String @NotNull [] args);
 
 
 	/**
 	 * By registering a subtype, this allows you to listen for errors that occurred in this subtype during
 	 * parsing. The {@link ArgumentType#onSubTypeError(CustomError)} method will be called when an error occurs.
 	 */
-	protected final void registerSubType(ArgumentType<?> subType) {
+	protected final void registerSubType(@NotNull ArgumentType<?> subType) {
 		if (subType.parentArgType == this) {
 			throw new IllegalArgumentException("The sub type is already registered to this argument type.");
 		}
@@ -76,12 +77,12 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> imple
 	 *
 	 * @param error The error that occurred in the subtype.
 	 */
-	protected void onSubTypeError(CustomError error) {
+	protected void onSubTypeError(@NotNull CustomError error) {
 		error.tokenIndex += this.currentArgValueIndex;
 		this.addError(error);
 	}
 
-	private void dispatchErrorToParent(CustomError error) {
+	private void dispatchErrorToParent(@NotNull CustomError error) {
 		if (this.parentArgType != null) {
 			this.parentArgType.onSubTypeError(error);
 		}
@@ -91,30 +92,30 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> imple
 		return this.currentValue;
 	}
 
-	public T getInitialValue() {
-		return this.initialValue;
-	}
-
 	/**
 	 * Sets the current value of this argument type.
 	 */
-	public void setValue(T value) {
-		if (value == null) return;
+	public void setValue(@NotNull T value) {
 		this.currentValue = value;
 	}
+	
+	public @Nullable T getInitialValue() {
+		return this.initialValue;
+	}
+
 
 	/**
 	 * Specifies the number of values that this argument should receive when being parsed.
 	 */
-	public ArgValueCount getNumberOfArgValues() {
+	public @NotNull ArgValueCount getNumberOfArgValues() {
 		return ArgValueCount.ONE;
 	}
 
-	public TextFormatter getRepresentation() {
+	public @Nullable TextFormatter getRepresentation() {
 		return new TextFormatter(this.getClass().getSimpleName());
 	}
 
-	public final T getFinalValue() {
+	public final @Nullable T getFinalValue() {
 		return this.currentValue;
 	}
 
@@ -123,7 +124,7 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> imple
 	 *
 	 * @param message The message to display related to the error.
 	 */
-	protected void addError(String message) {
+	protected void addError(@NotNull String message) {
 		this.addError(message, this.currentArgValueIndex, ErrorLevel.ERROR);
 	}
 
@@ -133,7 +134,7 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> imple
 	 * @param message The message to display related to the error.
 	 * @param index The index of the value that caused the error.
 	 */
-	protected void addError(String message, int index) {
+	protected void addError(@NotNull String message, int index) {
 		this.addError(message, index, ErrorLevel.ERROR);
 	}
 
@@ -143,7 +144,7 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> imple
 	 * @param message The message to display related to the error.
 	 * @param level The level of the error.
 	 */
-	protected void addError(String message, ErrorLevel level) {
+	protected void addError(@NotNull String message, @NotNull ErrorLevel level) {
 		this.addError(message, this.currentArgValueIndex, level);
 	}
 
@@ -154,7 +155,7 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> imple
 	 * @param index The index of the value that caused the error.
 	 * @param level The level of the error.
 	 */
-	protected void addError(String message, int index, ErrorLevel level) {
+	protected void addError(@NotNull String message, int index, @NotNull ErrorLevel level) {
 		if (!this.getNumberOfArgValues().isInRange(index, true)) {
 			throw new IndexOutOfBoundsException("Index " + index + " is out of range for " + this.getClass().getName());
 		}
@@ -200,7 +201,7 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> imple
 	 * @param args The values that this argument received when being parsed.
 	 * @param consumer The consumer that will be called for each value.
 	 */
-	protected final void forEachArgValue(String[] args, Consumer<String> consumer) {
+	protected final void forEachArgValue(@NotNull String @NotNull [] args, @NotNull Consumer<@NotNull String> consumer) {
 		for (int i = 0; i < args.length; i++) {
 			this.currentArgValueIndex = i;
 			consumer.accept(args[i]);

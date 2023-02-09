@@ -3,30 +3,35 @@ package lanat.argumentTypes;
 import lanat.ArgValueCount;
 import lanat.ArgumentType;
 import lanat.utils.displayFormatter.TextFormatter;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
+import java.util.Objects;
 
 public class KeyValuesArgument<T extends ArgumentType<Ts>, Ts> extends ArgumentType<HashMap<String, Ts>> {
-	private final ArgumentType<Ts> valueType;
+	private final @NotNull ArgumentType<Ts> valueType;
 	private final char separator;
 
-	public KeyValuesArgument(T type, char separator) {
+	public KeyValuesArgument(@NotNull T type, char separator) {
+		if (type.getNumberOfArgValues().min != 1)
+			throw new IllegalArgumentException("The value type must at least accept one value.");
+
 		this.valueType = type;
 		this.separator = separator;
 		this.registerSubType(type);
 	}
 
-	public KeyValuesArgument(T type) {
+	public KeyValuesArgument(@NotNull T type) {
 		this(type, '=');
 	}
 
 	@Override
-	public ArgValueCount getNumberOfArgValues() {
+	public @NotNull ArgValueCount getNumberOfArgValues() {
 		return new ArgValueCount(1, -1);
 	}
 
 	@Override
-	public HashMap<String, Ts> parseValues(String[] args) {
+	public HashMap<@NotNull String, @NotNull Ts> parseValues(String @NotNull [] args) {
 		HashMap<String, Ts> tempHashMap = new HashMap<>();
 
 		this.forEachArgValue(args, arg -> {
@@ -61,8 +66,10 @@ public class KeyValuesArgument<T extends ArgumentType<Ts>, Ts> extends ArgumentT
 	}
 
 	@Override
-	public TextFormatter getRepresentation() {
-		return new TextFormatter("(key=").concat(this.valueType.getRepresentation()).concat(", ...)");
+	public @NotNull TextFormatter getRepresentation() {
+		return new TextFormatter("(key=")
+			.concat(Objects.requireNonNull(this.valueType.getRepresentation()))
+			.concat(", ...)");
 	}
 
 	public static <T extends ArgumentType<Ts>, Ts> KeyValuesArgument<T, Ts> create(T type, char separator) {

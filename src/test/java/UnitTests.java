@@ -1,5 +1,6 @@
 import lanat.*;
 import lanat.argumentTypes.TupleArgumentType;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 
 import java.util.List;
@@ -14,7 +15,7 @@ class StringJoiner extends TupleArgumentType<String> {
 	}
 
 	@Override
-	public String parseValues(String[] args) {
+	public String parseValues(String @NotNull [] args) {
 		return "(" + String.join("), (", args) + ")";
 	}
 }

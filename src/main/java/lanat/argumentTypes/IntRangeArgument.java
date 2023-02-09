@@ -2,6 +2,7 @@ package lanat.argumentTypes;
 
 import lanat.utils.displayFormatter.Color;
 import lanat.utils.displayFormatter.TextFormatter;
+import org.jetbrains.annotations.NotNull;
 
 public class IntRangeArgument extends IntArgument {
 	private final int min, max;
@@ -16,7 +17,7 @@ public class IntRangeArgument extends IntArgument {
 	}
 
 	@Override
-	public Integer parseValues(String[] args) {
+	public Integer parseValues(String @NotNull [] args) {
 		var result = super.parseValues(args);
 
 		if (result == null) return null;
@@ -30,7 +31,7 @@ public class IntRangeArgument extends IntArgument {
 	}
 
 	@Override
-	public TextFormatter getRepresentation() {
+	public @NotNull TextFormatter getRepresentation() {
 		return super.getRepresentation()
 			.concat(new TextFormatter("[%d-%d]".formatted(this.min, this.max)).setColor(Color.YELLOW));
 	}

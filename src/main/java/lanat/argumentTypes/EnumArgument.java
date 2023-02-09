@@ -4,9 +4,10 @@ import lanat.ArgumentType;
 import lanat.utils.displayFormatter.Color;
 import lanat.utils.displayFormatter.FormatOption;
 import lanat.utils.displayFormatter.TextFormatter;
+import org.jetbrains.annotations.NotNull;
 
 public class EnumArgument<T extends Enum<T>> extends ArgumentType<T> {
-	private final T[] values;
+	private final @NotNull T @NotNull [] values;
 
 	public EnumArgument(T defaultValue) {
 		super(defaultValue);
@@ -14,7 +15,7 @@ public class EnumArgument<T extends Enum<T>> extends ArgumentType<T> {
 	}
 
 	@Override
-	public T parseValues(String[] args) {
+	public T parseValues(@NotNull String @NotNull [] args) {
 		for (var enumValue : this.values) {
 			if (enumValue.name().equalsIgnoreCase(args[0])) {
 				return enumValue;
@@ -25,7 +26,7 @@ public class EnumArgument<T extends Enum<T>> extends ArgumentType<T> {
 	}
 
 	@Override
-	public TextFormatter getRepresentation() {
+	public @NotNull TextFormatter getRepresentation() {
 		final var fmt = new TextFormatter("(");
 		for (var i = 0; i < this.values.length; i++) {
 			final var value = this.values[i];

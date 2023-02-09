@@ -3,6 +3,7 @@ package lanat.argumentTypes;
 import lanat.ArgValueCount;
 import lanat.ArgumentType;
 import lanat.utils.displayFormatter.TextFormatter;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,7 +15,7 @@ public class StdinArgument extends ArgumentType<String> {
 	private final BufferedReader systemIn = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
 
 	@Override
-	public ArgValueCount getNumberOfArgValues() {
+	public @NotNull ArgValueCount getNumberOfArgValues() {
 		return ArgValueCount.NONE;
 	}
 
@@ -24,7 +25,7 @@ public class StdinArgument extends ArgumentType<String> {
 	}
 
 	@Override
-	public String parseValues(String[] args) {
+	public String parseValues(@NotNull String @NotNull [] args) {
 		ArrayList<String> input = new ArrayList<>();
 
 		try {

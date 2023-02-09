@@ -2,10 +2,11 @@ package lanat.argumentTypes;
 
 import lanat.ArgumentType;
 import lanat.utils.displayFormatter.TextFormatter;
+import org.jetbrains.annotations.NotNull;
 
 public class IntArgument extends ArgumentType<Integer> {
 	@Override
-	public Integer parseValues(String[] args) {
+	public Integer parseValues(String @NotNull [] args) {
 		try {
 			return Integer.parseInt(args[0]);
 		} catch (NumberFormatException e) {
@@ -15,7 +16,7 @@ public class IntArgument extends ArgumentType<Integer> {
 	}
 
 	@Override
-	public TextFormatter getRepresentation() {
+	public @NotNull TextFormatter getRepresentation() {
 		return new TextFormatter("int");
 	}
 }

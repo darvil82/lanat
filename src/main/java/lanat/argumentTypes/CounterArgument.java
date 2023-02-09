@@ -3,6 +3,7 @@ package lanat.argumentTypes;
 import lanat.ArgValueCount;
 import lanat.ArgumentType;
 import lanat.utils.displayFormatter.TextFormatter;
+import org.jetbrains.annotations.NotNull;
 
 public class CounterArgument extends ArgumentType<Integer> {
 	public CounterArgument() {
@@ -10,7 +11,7 @@ public class CounterArgument extends ArgumentType<Integer> {
 	}
 
 	@Override
-	public ArgValueCount getNumberOfArgValues() {
+	public @NotNull ArgValueCount getNumberOfArgValues() {
 		return ArgValueCount.NONE;
 	}
 
@@ -20,7 +21,7 @@ public class CounterArgument extends ArgumentType<Integer> {
 	}
 
 	@Override
-	public Integer parseValues(String[] args) {
+	public Integer parseValues(String @NotNull [] args) {
 		return this.getValue() + 1;
 	}
 }

@@ -26,6 +26,11 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	private Consumer<TInner> onCorrectCallback;
 	private final ModifyRecord<Color> representationColor = new ModifyRecord<>(null);
 
+	/** The list of prefixes that can be used. */
+	private static final char[] VALID_PREFIXES = {
+		'-', '+', '/', '@', '$', '%', '^', '&', '*', '!', '~', '#', '?', '<', '>', '|', '=', ':'
+	};
+
 
 	public Argument(Type argType, String... names) {
 		this.addNames(names);
@@ -105,8 +110,13 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * in that name list.
 	 */
 	public Argument<Type, TInner> prefix(char prefix) {
-		this.prefix = prefix;
-		return this;
+		for (char validPrefix : Argument.VALID_PREFIXES) {
+			if (prefix == validPrefix) {
+				this.prefix = prefix;
+				return this;
+			}
+		}
+		throw new IllegalArgumentException("Invalid prefix: '" + prefix + "'");
 	}
 
 	public char getPrefix() {

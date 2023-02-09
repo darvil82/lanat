@@ -4,6 +4,7 @@ import lanat.Command;
 import lanat.NamedWithDescription;
 import lanat.utils.ErrorCallbacks;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
@@ -60,6 +61,7 @@ public class TestErrors extends UnitTests {
 	}
 
 	@Test
+	@DisplayName("Test the argument callbacks (onOk and onErr)")
 	public void testArgumentCallbacks() {
 		this.parser.parseArgs("--bool-arg --int-arg foo --will-work 55.0 sub --will-fail bar");
 		this.assertOk("bool-arg", true);
@@ -71,6 +73,7 @@ public class TestErrors extends UnitTests {
 	}
 
 	@Test
+	@DisplayName("Test the command callbacks (onOk and onErr)")
 	public void testCommandCallbacks() {
 		this.parser.parseArgs("sub --will-fail bar");
 		this.assertErr("will-fail");
@@ -78,6 +81,7 @@ public class TestErrors extends UnitTests {
 	}
 
 	@Test
+	@DisplayName("The error code must be the result of 5 | 2 = 7")
 	public void testCommandsErrorCode() {
 		this.parser.parseArgs("sub --will-fail bar");
 		assertEquals(this.parser.getErrorCode(), 7);

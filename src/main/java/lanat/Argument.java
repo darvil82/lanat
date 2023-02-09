@@ -184,7 +184,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 	/** Returns the name of this argument. If multiple names are defined, the longest name will be returned. */
 	@Override
-	public String getName() {
+	public @NotNull String getName() {
 		if (this.names.size() == 1)
 			return this.names.get(0);
 

@@ -5,29 +5,30 @@ import lanat.parsing.errors.ErrorHandler;
 import lanat.utils.UtlString;
 import lanat.utils.displayFormatter.FormatOption;
 import lanat.utils.displayFormatter.TextFormatter;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ErrorFormatter {
-	private String contents = "";
+	private @NotNull String contents = "";
 	private DisplayTokensOptions tokensViewOptions;
-	private ErrorLevel errorLevel;
-	private final ErrorHandler mainErrorHandler;
-	public static ErrorFormatterGenerator generator = new ErrorFormatterGenerator();
+	private @NotNull ErrorLevel errorLevel;
+	private final @NotNull ErrorHandler mainErrorHandler;
+	public static @NotNull ErrorFormatterGenerator generator = new ErrorFormatterGenerator();
 
-	public ErrorFormatter(ErrorHandler mainErrorHandler, ErrorLevel level) {
+	public ErrorFormatter(@NotNull ErrorHandler mainErrorHandler, @NotNull ErrorLevel level) {
 		this.errorLevel = level;
 		this.mainErrorHandler = mainErrorHandler;
 		ErrorFormatter.generator.setErrorFormatter(this);
 	}
 
-	public ErrorFormatter setContents(String contents) {
+	public ErrorFormatter setContents(@NotNull String contents) {
 		this.contents = contents;
 		return this;
 	}
 
-	public ErrorFormatter setErrorLevel(ErrorLevel errorLevel) {
+	public ErrorFormatter setErrorLevel(@NotNull ErrorLevel errorLevel) {
 		this.errorLevel = errorLevel;
 		return this;
 	}
@@ -55,11 +56,11 @@ public class ErrorFormatter {
 	public static class ErrorFormatterGenerator {
 		private ErrorFormatter errorFormatter;
 
-		private void setErrorFormatter(ErrorFormatter errorFormatter) {
+		private void setErrorFormatter(@NotNull ErrorFormatter errorFormatter) {
 			this.errorFormatter = errorFormatter;
 		}
 
-		public String generate() {
+		public @NotNull String generate() {
 			// first figure out the length of the longest line
 			final var maxLength = UtlString.getLongestLine(this.getContents()).length();
 			final var formatter = this.getErrorLevelFormatter();
@@ -74,7 +75,7 @@ public class ErrorFormatter {
 				+ '\n';
 		}
 
-		protected String generateTokensViewFormatting(DisplayTokensOptions options) {
+		protected @NotNull String generateTokensViewFormatting(DisplayTokensOptions options) {
 			final var arrow = TextFormatter.ERROR("<-").setColor(this.getErrorLevel().color);
 			final var tokensFormatters = new ArrayList<>(this.getTokensFormatters());
 			final int tokensLength = tokensFormatters.size();
@@ -104,50 +105,47 @@ public class ErrorFormatter {
 			return String.join(" ", tokensFormatters.stream().map(TextFormatter::toString).toList());
 		}
 
-		protected final String getTokensViewFormatting() {
+		protected final @NotNull String getTokensViewFormatting() {
 			final var options = this.errorFormatter.tokensViewOptions;
 			if (options == null) return "";
 
-			final var fmt = this.generateTokensViewFormatting(options);
-			if (fmt == null) return "";
-
-			return fmt;
+			return this.generateTokensViewFormatting(options);
 		}
 
 		protected final int getAbsoluteCmdTokenIndex() {
 			return this.errorFormatter.mainErrorHandler.getAbsoluteCmdTokenIndex();
 		}
 
-		protected final ErrorLevel getErrorLevel() {
+		protected final @NotNull ErrorLevel getErrorLevel() {
 			return this.errorFormatter.errorLevel;
 		}
 
-		protected final TextFormatter getErrorLevelFormatter() {
+		protected final @NotNull TextFormatter getErrorLevelFormatter() {
 			final var formatter = this.getErrorLevel();
 			return new TextFormatter(formatter.toString(), formatter.color).addFormat(FormatOption.BOLD);
 		}
 
-		protected final List<Token> getTokens() {
+		protected final @NotNull List<@NotNull Token> getTokens() {
 			return this.errorFormatter.mainErrorHandler.tokens;
 		}
 
-		protected final List<TextFormatter> getTokensFormatters() {
+		protected final @NotNull List<@NotNull TextFormatter> getTokensFormatters() {
 			return this.getTokens().stream().map(Token::getFormatter).toList();
 		}
 
-		protected final String getContents() {
+		protected final @NotNull String getContents() {
 			return this.errorFormatter.contents;
 		}
 
-		protected final String getContentsWrapped() {
+		protected final @NotNull String getContentsWrapped() {
 			return UtlString.wrap(this.getContents(), HelpFormatter.lineWrapMax);
 		}
 
-		protected final String getContentsSingleLine() {
+		protected final @NotNull String getContentsSingleLine() {
 			return this.getContents().replaceAll("\n", " ");
 		}
 
-		protected final Command getRootCommand() {
+		protected final @NotNull Command getRootCommand() {
 			return this.errorFormatter.mainErrorHandler.getRootCmd();
 		}
 	}

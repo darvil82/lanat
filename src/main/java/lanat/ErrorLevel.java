@@ -1,6 +1,7 @@
 package lanat;
 
 import lanat.utils.displayFormatter.Color;
+import org.jetbrains.annotations.NotNull;
 
 public enum ErrorLevel {
 	ERROR(Color.BRIGHT_RED),
@@ -8,13 +9,13 @@ public enum ErrorLevel {
 	INFO(Color.BRIGHT_BLUE),
 	DEBUG(Color.BRIGHT_GREEN);
 
-	public final Color color;
+	public final @NotNull Color color;
 
-	ErrorLevel(Color color) {
+	ErrorLevel(@NotNull Color color) {
 		this.color = color;
 	}
 
-	public boolean isInErrorMinimum(ErrorLevel minimum) {
+	public boolean isInErrorMinimum(@NotNull ErrorLevel minimum) {
 		return this.ordinal() <= minimum.ordinal();
 	}
 }

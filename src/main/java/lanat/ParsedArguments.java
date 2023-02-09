@@ -1,5 +1,8 @@
 package lanat;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -10,12 +13,16 @@ import java.util.regex.Pattern;
  * Container for all the parsed arguments and their respective values.
  */
 public class ParsedArguments {
-	private final HashMap<Argument<?, ?>, Object> parsedArgs;
-	private final String name;
-	private final List<ParsedArguments> subParsedArguments;
-	private static String separator = ".";
+	private final @NotNull HashMap<@NotNull Argument<?, ?>, @Nullable Object> parsedArgs;
+	private final @NotNull String name;
+	private final @NotNull List<@NotNull ParsedArguments> subParsedArguments;
+	private static @NotNull String separator = ".";
 
-	ParsedArguments(String name, HashMap<Argument<?, ?>, Object> parsedArgs, List<ParsedArguments> subParsedArguments) {
+	ParsedArguments(
+		@NotNull String name,
+		@NotNull HashMap<Argument<?, ?>, Object> parsedArgs,
+		@NotNull List<ParsedArguments> subParsedArguments
+	) {
 		this.parsedArgs = parsedArgs;
 		this.name = name;
 		this.subParsedArguments = subParsedArguments;
@@ -25,7 +32,7 @@ public class ParsedArguments {
 	 * Specifies the separator to use when using the {@link #get(String)} method.
 	 * By default, this is set to <code>.</code>
 	 */
-	public static void setSeparator(String separator) {
+	public static void setSeparator(@NotNull String separator) {
 		if (Objects.requireNonNull(separator).isEmpty()) {
 			throw new IllegalArgumentException("separator cannot be empty");
 		}
@@ -36,7 +43,7 @@ public class ParsedArguments {
 	 * Returns the parsed value of the argument with the given name.
 	 */
 	@SuppressWarnings("unchecked") // we'll just have to trust the user
-	public <T> ParsedArgument<T> get(Argument<?, T> arg) {
+	public <T> ParsedArgument<T> get(@NotNull Argument<?, T> arg) {
 		Objects.requireNonNull(arg);
 
 		if (!this.parsedArgs.containsKey(arg)) {
@@ -60,7 +67,7 @@ public class ParsedArguments {
 	 * @param argRoute The route to the argument, separated by a separator set by {@link #setSeparator(String)}
 	 * (default is <code>.</code>)
 	 */
-	public <T> ParsedArgument<T> get(String argRoute) {
+	public <T> ParsedArgument<T> get(@NotNull String argRoute) {
 		return this.get(argRoute.split(" *" + Pattern.quote(ParsedArguments.separator) + " *"));
 	}
 
@@ -88,7 +95,7 @@ public class ParsedArguments {
 	 * </ul>
 	 */
 	@SuppressWarnings("unchecked") // we'll just have to trust the user
-	public <T> ParsedArgument<T> get(String... argRoute) {
+	public <T> ParsedArgument<T> get(@NotNull String... argRoute) {
 		if (argRoute.length == 0) {
 			throw new IllegalArgumentException("argument route must not be empty");
 		}
@@ -107,7 +114,7 @@ public class ParsedArguments {
 	/**
 	 * Returns the argument in {@link #parsedArgs} with the given name.
 	 */
-	private Argument<?, ?> getArgument(String name) {
+	private @NotNull Argument<?, ?> getArgument(@NotNull String name) {
 		for (var arg : this.parsedArgs.keySet()) {
 			if (arg.hasName(name)) {
 				return arg;
@@ -120,7 +127,7 @@ public class ParsedArguments {
 	 * Returns the sub {@link ParsedArguments} with the given name. If none is found with
 	 * the given name, returns <code>null</code>.
 	 */
-	public ParsedArguments getSubParsedArgs(String name) {
+	public ParsedArguments getSubParsedArgs(@NotNull String name) {
 		for (var sub : this.subParsedArguments)
 			if (sub.name.equals(name)) return sub;
 		return null;
@@ -131,16 +138,16 @@ public class ParsedArguments {
 	 * Manager for a parsed argument value.
 	 */
 	public static class ParsedArgument<T> {
-		private final T value;
+		private final @Nullable T value;
 
-		ParsedArgument(T value) {
+		ParsedArgument(@Nullable T value) {
 			this.value = value;
 		}
 
 		/**
 		 * Returns the parsed value of the argument. If the argument was not parsed, this will return <code>null</code>.
 		 */
-		public T get() {
+		public @Nullable T get() {
 			return this.value;
 		}
 
@@ -156,7 +163,7 @@ public class ParsedArguments {
 		 *
 		 * @param onDefined The function to run if the argument was parsed. This function will receive the parsed value.
 		 */
-		public ParsedArgument<T> defined(Consumer<T> onDefined) {
+		public @NotNull ParsedArgument<T> defined(@NotNull Consumer<T> onDefined) {
 			if (this.defined()) onDefined.accept(this.value);
 			return this;
 		}
@@ -165,7 +172,7 @@ public class ParsedArguments {
 		 * Returns true if the argument was not parsed, false otherwise. If a single value array is passed,
 		 * and the argument was parsed, this will set the first value of the array to the parsed value.
 		 */
-		public boolean defined(T[] value) {
+		public boolean defined(@Nullable T @NotNull [] value) {
 			if (Objects.requireNonNull(value).length != 1) {
 				throw new IllegalArgumentException("value must be an array of length 1");
 			}
@@ -190,7 +197,7 @@ public class ParsedArguments {
 		 *
 		 * @param fallbackValue The fallback value to return if the argument was not parsed.
 		 */
-		public T undefined(T fallbackValue) {
+		public T undefined(@NotNull T fallbackValue) {
 			return this.defined() ? this.value : fallbackValue;
 		}
 
@@ -200,14 +207,14 @@ public class ParsedArguments {
 		 *
 		 * @param fallbackCb The supplier function to call if the argument was not parsed.
 		 */
-		public T undefined(Supplier<T> fallbackCb) {
+		public T undefined(@NotNull Supplier<@NotNull T> fallbackCb) {
 			return this.defined() ? this.value : fallbackCb.get();
 		}
 
 		/**
 		 * Specifies a function to run if the argument was not parsed.
 		 */
-		public ParsedArgument<T> undefined(Runnable onUndefined) {
+		public @NotNull ParsedArgument<T> undefined(@NotNull Runnable onUndefined) {
 			if (this.undefined()) onUndefined.run();
 			return this;
 		}
@@ -218,7 +225,7 @@ public class ParsedArguments {
 		 * @param predicate The predicate to test the value against (if the argument was parsed). This predicate will
 		 * never receive a <code>null</code> value.
 		 */
-		public boolean matches(Predicate<T> predicate) {
+		public boolean matches(@NotNull Predicate<@Nullable T> predicate) {
 			return this.defined() && predicate.test(this.value);
 		}
 

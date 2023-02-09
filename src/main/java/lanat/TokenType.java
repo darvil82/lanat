@@ -1,6 +1,7 @@
 package lanat;
 
 import lanat.utils.displayFormatter.Color;
+import org.jetbrains.annotations.NotNull;
 
 public enum TokenType {
 	ARGUMENT_NAME(Color.BRIGHT_GREEN),
@@ -11,9 +12,9 @@ public enum TokenType {
 	SUB_COMMAND(Color.BRIGHT_CYAN),
 	FORWARD_VALUE(Color.GRAY);
 
-	public final Color color;
+	public final @NotNull Color color;
 
-	TokenType(Color color) {
+	TokenType(@NotNull Color color) {
 		this.color = color;
 	}
 

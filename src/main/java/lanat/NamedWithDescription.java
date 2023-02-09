@@ -1,6 +1,9 @@
 package lanat;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 public interface NamedWithDescription {
-	String getName();
-	String getDescription();
+	@NotNull String getName();
+	@Nullable String getDescription();
 }

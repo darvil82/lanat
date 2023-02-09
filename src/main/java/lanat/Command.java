@@ -126,7 +126,7 @@ public class Command
 	}
 
 	@Override
-	public String getName() {
+	public @NotNull String getName() {
 		return this.name;
 	}
 

@@ -1,5 +1,7 @@
 package lanat;
 
+import org.jetbrains.annotations.Nullable;
+
 public interface ParentCommandGetter {
-	Command getParentCommand();
+	@Nullable Command getParentCommand();
 }

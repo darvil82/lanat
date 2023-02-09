@@ -2,6 +2,7 @@ import lanat.*;
 import lanat.argumentTypes.EnumArgument;
 import lanat.argumentTypes.IntRangeArgument;
 import lanat.helpRepresentation.HelpFormatter;
+import org.jetbrains.annotations.NotNull;
 
 public final class ManualTests {
 	public static void main(String[] args) {
@@ -10,7 +11,7 @@ public final class ManualTests {
 
 		ErrorFormatter.generator = new ErrorFormatter.ErrorFormatterGenerator() {
 			@Override
-			public String generate() {
+			public @NotNull String generate() {
 				final var errorLevel = this.getErrorLevel();
 				return this.getErrorLevelFormatter()
 					.setContents("[" + errorLevel + ", " + this.getTokensViewFormatting() + "]: ")
@@ -18,7 +19,7 @@ public final class ManualTests {
 			}
 
 			@Override
-			protected String generateTokensViewFormatting(ErrorFormatter.DisplayTokensOptions options) {
+			protected @NotNull String generateTokensViewFormatting(ErrorFormatter.DisplayTokensOptions options) {
 				return "(at token " + options.start() + ')';
 			}
 		};

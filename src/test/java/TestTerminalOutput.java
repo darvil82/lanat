@@ -1,4 +1,5 @@
 import lanat.utils.UtlString;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -18,6 +19,7 @@ public class TestTerminalOutput extends UnitTests {
 	}
 
 	@Test
+	@DisplayName("Arrow points to the root command name on first obligatory argument missing")
 	public void testFirstObligatoryArgument() {
 		this.assertErrorOutput("subcommand", """
 			ERROR
@@ -26,6 +28,7 @@ public class TestTerminalOutput extends UnitTests {
 	}
 
 	@Test
+	@DisplayName("Arrow points to the last token on last obligatory argument missing")
 	public void testLastObligatoryArgument() {
 		this.assertErrorOutput("foo subcommand another", """
 			ERROR
@@ -34,6 +37,7 @@ public class TestTerminalOutput extends UnitTests {
 	}
 
 	@Test
+	@DisplayName("Tuple is highlighted correctly")
 	public void testExceedValueCount() {
 		this.assertErrorOutput("--what [1 2 3 4 5 6 7 8 9 10]", """
 			ERROR
@@ -44,6 +48,7 @@ public class TestTerminalOutput extends UnitTests {
 
 
 	@Test
+	@DisplayName("Arrow points to the last token on last argument missing value")
 	public void testMissingValue() {
 		this.assertErrorOutput("--what", """
 			ERROR
@@ -53,6 +58,7 @@ public class TestTerminalOutput extends UnitTests {
 	}
 
 	@Test
+	@DisplayName("Arrow points to correct token on missing value before token")
 	public void testMissingValueBeforeToken() {
 		this.assertErrorOutput("--what subcommand", """
 			ERROR
@@ -62,6 +68,7 @@ public class TestTerminalOutput extends UnitTests {
 	}
 
 	@Test
+	@DisplayName("Empty tuple highlighted correctly when values are missing")
 	public void testMissingValueWithTuple() {
 		this.assertErrorOutput("--what []", """
 			ERROR
@@ -71,6 +78,7 @@ public class TestTerminalOutput extends UnitTests {
 	}
 
 	@Test
+	@DisplayName("Test invalid argument type value")
 	public void testInvalidArgumentTypeValue() {
 		this.assertErrorOutput("foo subcommand another bar", """
 			ERROR
@@ -79,6 +87,7 @@ public class TestTerminalOutput extends UnitTests {
 	}
 
 	@Test
+	@DisplayName("Test unmatched token")
 	public void testUnmatchedToken() {
 		this.assertErrorOutput("[foo] --unknown", """
 			WARNING

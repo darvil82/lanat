@@ -1,4 +1,5 @@
 import lanat.ParsedArguments;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -9,11 +10,13 @@ public class TestParsedValues extends UnitTests {
 	}
 
 	@Test
+	@DisplayName("Test the get() method")
 	public void testGetSimple() {
 		assertEquals("(hello), (world)", this.parseArgs("--what hello world").<String>get("what").get());
 	}
 
 	@Test
+	@DisplayName("Exception thrown when querying an invalid argument")
 	public void testUnknownArg() {
 		assertThrows(
 			IllegalArgumentException.class,
@@ -22,6 +25,7 @@ public class TestParsedValues extends UnitTests {
 	}
 
 	@Test
+	@DisplayName("Test querying parsed values from arguments in subCommands")
 	public void testNestedArguments() {
 		var parsedArgs = this.parseArgs("smth subcommand -cccc another 56");
 		assertEquals(4, parsedArgs.<Integer>get("subcommand.c").get());
@@ -32,6 +36,7 @@ public class TestParsedValues extends UnitTests {
 	}
 
 	@Test
+	@DisplayName("Test the defined() callbacks")
 	public void testDefinedCallbacks() {
 		var parsedArgs = this.parseArgs("smth subcommand -cccc");
 		final byte[] called = { 0 };
@@ -47,6 +52,7 @@ public class TestParsedValues extends UnitTests {
 	}
 
 	@Test
+	@DisplayName("Test the toOptional() method")
 	public void testToOptional() {
 		var parsedArgs = this.parseArgs("smth subcommand -cccc");
 		parsedArgs.get("subcommand.c").asOptional().ifPresent(v -> assertEquals(4, v));
@@ -55,6 +61,7 @@ public class TestParsedValues extends UnitTests {
 	}
 
 	@Test
+	@DisplayName("Test the defined() overload for single-value arrays")
 	public void testArrayDefinedMethod() {
 		var parsedArgs = this.parseArgs("foo bar qux");
 

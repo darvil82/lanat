@@ -3,6 +3,7 @@ package lanat;
 
 import lanat.parsing.errors.ErrorHandler;
 import lanat.utils.Pair;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
@@ -78,6 +79,7 @@ public class ArgumentParser extends Command {
 	}
 
 	@Override
+	@NotNull
 	ParsedArgumentsRoot getParsedArguments() {
 		return new ParsedArgumentsRoot(
 			this.name,

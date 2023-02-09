@@ -7,11 +7,11 @@ import lanat.parsing.errors.CustomError;
 import lanat.utils.*;
 import lanat.utils.displayFormatter.Color;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
@@ -21,24 +21,25 @@ public class Command
 	extends ErrorsContainer<CustomError>
 	implements ErrorCallbacks<ParsedArguments, Command>, ArgumentAdder, ArgumentGroupAdder, Resettable, NamedWithDescription
 {
-	public final String name, description;
-	final ArrayList<Argument<?, ?>> arguments = new ArrayList<>();
-	final ArrayList<Command> subCommands = new ArrayList<>();
-	final ArrayList<ArgumentGroup> argumentGroups = new ArrayList<>();
-	private final ModifyRecord<TupleCharacter> tupleChars = new ModifyRecord<>(TupleCharacter.SQUARE_BRACKETS);
-	private final ModifyRecord<Integer> errorCode = new ModifyRecord<>(1);
-	private Consumer<Command> onErrorCallback;
-	private Consumer<ParsedArguments> onCorrectCallback;
+	public final @NotNull String name;
+	public final @Nullable String description;
+	final @NotNull ArrayList<@NotNull Argument<?, ?>> arguments = new ArrayList<>();
+	final @NotNull ArrayList<@NotNull Command> subCommands = new ArrayList<>();
+	final @NotNull ArrayList<@NotNull ArgumentGroup> argumentGroups = new ArrayList<>();
+	private final @NotNull ModifyRecord<@NotNull TupleCharacter> tupleChars = new ModifyRecord<>(TupleCharacter.SQUARE_BRACKETS);
+	private final @NotNull ModifyRecord<@NotNull Integer> errorCode = new ModifyRecord<>(1);
+	private @Nullable Consumer<Command> onErrorCallback;
+	private @Nullable Consumer<ParsedArguments> onCorrectCallback;
 	private boolean isRootCommand = false;
-	private final ModifyRecord<HelpFormatter> helpFormatter = new ModifyRecord<>(new HelpFormatter(this));
+	private final @NotNull ModifyRecord<HelpFormatter> helpFormatter = new ModifyRecord<>(new HelpFormatter(this));
 
 	/**
 	 * A pool of the colors that an argument will have when being represented on the help
 	 */
-	final LoopPool<Color> colorsPool = new LoopPool<>(-1, Color.getBrightColors());
+	final @NotNull LoopPool<@NotNull Color> colorsPool = new LoopPool<>(-1, Color.getBrightColors());
 
 
-	public Command(String name, String description) {
+	public Command(@NotNull String name, @Nullable String description) {
 		if (!UtlString.matchCharacters(name, Character::isAlphabetic)) {
 			throw new IllegalArgumentException("name must be alphabetic");
 		}
@@ -51,11 +52,11 @@ public class Command
 		);
 	}
 
-	public Command(String name) {
+	public Command(@NotNull String name) {
 		this(name, null);
 	}
 
-	Command(String name, String description, boolean isRootCommand) {
+	Command(@NotNull String name, @Nullable String description, boolean isRootCommand) {
 		this(name, description);
 		this.isRootCommand = isRootCommand;
 	}
@@ -80,13 +81,11 @@ public class Command
 	}
 
 	@Override
-	public List<ArgumentGroup> getSubGroups() {
+	public @NotNull List<@NotNull ArgumentGroup> getSubGroups() {
 		return Collections.unmodifiableList(this.argumentGroups);
 	}
 
-	public void addSubCommand(Command cmd) {
-		Objects.requireNonNull(cmd);
-
+	public void addSubCommand(@NotNull Command cmd) {
 		if (this.subCommands.stream().anyMatch(a -> a.name.equals(cmd.name))) {
 			throw new IllegalArgumentException("cannot create two sub commands with the same name");
 		}
@@ -98,7 +97,7 @@ public class Command
 		this.subCommands.add(cmd);
 	}
 
-	public List<Command> getSubCommands() {
+	public @NotNull List<@NotNull Command> getSubCommands() {
 		return Collections.unmodifiableList(this.subCommands);
 	}
 
@@ -117,11 +116,11 @@ public class Command
 		this.errorCode.set(errorCode);
 	}
 
-	public void setTupleChars(TupleCharacter tupleChars) {
+	public void setTupleChars(@NotNull TupleCharacter tupleChars) {
 		this.tupleChars.set(tupleChars);
 	}
 
-	public TupleCharacter getTupleChars() {
+	public @NotNull TupleCharacter getTupleChars() {
 		return this.tupleChars.get();
 	}
 
@@ -131,33 +130,33 @@ public class Command
 	}
 
 	@Override
-	public String getDescription() {
+	public @Nullable String getDescription() {
 		return this.description;
 	}
 
-	public void setHelpFormatter(HelpFormatter helpFormatter) {
+	public void setHelpFormatter(@NotNull HelpFormatter helpFormatter) {
 		helpFormatter.setParentCmd(this);
 		this.helpFormatter.set(helpFormatter);
 	}
 
-	public void addError(String message, ErrorLevel level) {
+	public void addError(@NotNull String message, @NotNull ErrorLevel level) {
 		this.addError(new CustomError(message, level));
 	}
 
-	public String getHelp() {
+	public @NotNull String getHelp() {
 		return this.helpFormatter.get().toString();
 	}
 
-	public HelpFormatter getHelpFormatter() {
+	public @NotNull HelpFormatter getHelpFormatter() {
 		return this.helpFormatter.get();
 	}
 
 	@Override
-	public List<Argument<?, ?>> getArguments() {
+	public @NotNull List<Argument<?, ?>> getArguments() {
 		return Collections.unmodifiableList(this.arguments);
 	}
 
-	public List<Argument<?, ?>> getPositionalArguments() {
+	public @NotNull List<@NotNull Argument<?, ?>> getPositionalArguments() {
 		return this.getArguments().stream().filter(Argument::isPositional).toList();
 	}
 
@@ -174,14 +173,14 @@ public class Command
 	}
 
 	@Override
-	public String toString() {
+	public @NotNull String toString() {
 		return "Command[name='%s', description='%s', arguments=%s, subCommands=%s]"
 			.formatted(
 				this.name, this.description, this.arguments, this.subCommands
 			);
 	}
 
-	ParsedArguments getParsedArguments() {
+	@NotNull ParsedArguments getParsedArguments() {
 		return new ParsedArguments(
 			this.name,
 			this.parser.getParsedArgumentsHashMap(),
@@ -193,7 +192,7 @@ public class Command
 	 * Get all the tokens of all subcommands (the ones that we can get without errors)
 	 * into one single list. This includes the {@link TokenType#SUB_COMMAND} tokens.
 	 */
-	public ArrayList<Token> getFullTokenList() {
+	public @NotNull ArrayList<@NotNull Token> getFullTokenList() {
 		final ArrayList<Token> list = new ArrayList<>() {{
 			this.add(new Token(TokenType.SUB_COMMAND, Command.this.name));
 			this.addAll(Command.this.getTokenizer().getFinalTokens());
@@ -237,12 +236,12 @@ public class Command
 	// ------------------------------------------------ Error Handling ------------------------------------------------
 
 	@Override
-	public void setOnErrorCallback(@NotNull Consumer<Command> callback) {
+	public void setOnErrorCallback(@NotNull Consumer<@NotNull Command> callback) {
 		this.onErrorCallback = callback;
 	}
 
 	@Override
-	public void setOnCorrectCallback(@NotNull Consumer<ParsedArguments> callback) {
+	public void setOnCorrectCallback(@NotNull Consumer<@NotNull ParsedArguments> callback) {
 		this.onCorrectCallback = callback;
 	}
 
@@ -301,18 +300,18 @@ public class Command
 	//                                         Argument tokenization and parsing    							      //
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	private Tokenizer tokenizer = new Tokenizer(this);
-	private Parser parser = new Parser(this);
+	private @NotNull Tokenizer tokenizer = new Tokenizer(this);
+	private @NotNull Parser parser = new Parser(this);
 
-	public Tokenizer getTokenizer() {
+	public @NotNull Tokenizer getTokenizer() {
 		return this.tokenizer;
 	}
 
-	public Parser getParser() {
+	public @NotNull Parser getParser() {
 		return this.parser;
 	}
 
-	void tokenize(String input) {
+	void tokenize(@NotNull String input) {
 		// this tokenizes recursively!
 		this.tokenizer.tokenize(input);
 	}

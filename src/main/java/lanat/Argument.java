@@ -480,5 +480,5 @@ interface ArgumentAdder {
 	 */
 	<T extends ArgumentType<TInner>, TInner> void addArgument(@NotNull Argument<T, TInner> argument);
 
-	List<Argument<?, ?>> getArguments();
+	@NotNull List<@NotNull Argument<?, ?>> getArguments();
 }

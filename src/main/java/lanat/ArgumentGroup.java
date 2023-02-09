@@ -38,12 +38,12 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resetta
 	}
 
 	@Override
-	public List<Argument<?, ?>> getArguments() {
+	public @NotNull List<Argument<?, ?>> getArguments() {
 		return Collections.unmodifiableList(this.arguments);
 	}
 
 	@Override
-	public List<ArgumentGroup> getSubGroups() {
+	public @NotNull List<ArgumentGroup> getSubGroups() {
 		return Collections.unmodifiableList(this.subGroups);
 	}
 
@@ -141,5 +141,5 @@ interface ArgumentGroupAdder {
 	 */
 	void addGroup(@NotNull ArgumentGroup group);
 
-	List<ArgumentGroup> getSubGroups();
+	@NotNull List<@NotNull ArgumentGroup> getSubGroups();
 }

@@ -4,13 +4,14 @@ import lanat.Argument;
 import lanat.ArgumentGroup;
 import lanat.utils.displayFormatter.FormatOption;
 import lanat.utils.displayFormatter.TextFormatter;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 public final class ArgumentGroupRepr {
 	private ArgumentGroupRepr() {}
 
-	public static String getArgumentDescriptions(lanat.ArgumentGroup group) {
+	public static @NotNull String getArgumentDescriptions(@NotNull ArgumentGroup group) {
 		final var arguments = Argument.sortByPriority(group.getArguments()).stream().filter(arg ->
 			arg.getDescription() != null
 		).toList();
@@ -33,7 +34,7 @@ public final class ArgumentGroupRepr {
 	/**
 	 * Appends the representation of this group tree to the given string builder.
 	 */
-	public static void getRepresentation(lanat.ArgumentGroup group, StringBuilder sb) {
+	public static void getRepresentation(@NotNull ArgumentGroup group, @NotNull StringBuilder sb) {
 		// its empty, nothing to append
 		if (group.isEmpty()) return;
 

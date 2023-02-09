@@ -2,25 +2,27 @@ package lanat.helpRepresentation;
 
 import lanat.Command;
 import lanat.utils.UtlString;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class LayoutItem {
 	private byte indentCount = 0;
-	private String title;
+	private @Nullable String title;
 	private int marginTop, marginBottom;
-	private final Function<Command, String> layoutGenerator;
+	private final @NotNull Function<@NotNull Command, @Nullable String> layoutGenerator;
 
-	public LayoutItem(Function<Command, String> layoutGenerator) {
+	public LayoutItem(@NotNull Function<@NotNull Command, @Nullable String> layoutGenerator) {
 		this.layoutGenerator = layoutGenerator;
 	}
 
-	public LayoutItem(Supplier<String> layoutGenerator) {
+	public LayoutItem(@NotNull Supplier<@Nullable String> layoutGenerator) {
 		this((c) -> layoutGenerator.get());
 	}
 
-	public LayoutItem(String content) {
+	public LayoutItem(@NotNull String content) {
 		this((c) -> content);
 	}
 
@@ -49,7 +51,7 @@ public class LayoutItem {
 		return this;
 	}
 
-	public String generate(HelpFormatter helpFormatter) {
+	public @Nullable String generate(HelpFormatter helpFormatter) {
 		final var content = this.layoutGenerator.apply(helpFormatter.parentCmd);
 		return content == null ? null : (
 			"\n".repeat(this.marginTop)

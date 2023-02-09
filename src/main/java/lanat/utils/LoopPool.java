@@ -14,7 +14,7 @@ public class LoopPool<T> {
 	}
 
 	@SafeVarargs
-	public LoopPool(T @NotNull... pool) {
+	public LoopPool(T... pool) {
 		this(0, pool);
 	}
 

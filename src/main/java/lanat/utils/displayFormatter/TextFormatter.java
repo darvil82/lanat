@@ -29,7 +29,7 @@ public class TextFormatter {
 		this.contents = "";
 	}
 
-	public TextFormatter addFormat(@NotNull FormatOption @NotNull... options) {
+	public TextFormatter addFormat(@NotNull FormatOption... options) {
 		this.formatOptions.addAll(Arrays.asList(options));
 		return this;
 	}
@@ -55,7 +55,7 @@ public class TextFormatter {
 		return this;
 	}
 
-	public TextFormatter concat(@NotNull TextFormatter @NotNull ... formatters) {
+	public TextFormatter concat(@NotNull TextFormatter... formatters) {
 		for (TextFormatter formatter : formatters) {
 			// if it was already added to another formatter, remove it from there
 			if (formatter.parent != null) {
@@ -67,7 +67,7 @@ public class TextFormatter {
 		return this;
 	}
 
-	public TextFormatter concat(@NotNull String @NotNull ... strings) {
+	public TextFormatter concat(@NotNull String... strings) {
 		for (var str : strings) {
 			this.concatList.add(new TextFormatter(str));
 		}

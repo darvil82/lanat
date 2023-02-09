@@ -3,13 +3,15 @@ package lanat.helpRepresentation;
 import lanat.Argument;
 import lanat.utils.displayFormatter.FormatOption;
 import lanat.utils.displayFormatter.TextFormatter;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
 public final class ArgumentRepr {
 	private ArgumentRepr() {}
 
-	public static String getSynopsisRepresentation(lanat.Argument<?, ?> arg) {
+	public static @NotNull String getSynopsisRepresentation(@NotNull Argument<?, ?> arg) {
 		final var repr = arg.argType.getRepresentation();
 
 		final var outText = new TextFormatter();
@@ -34,7 +36,7 @@ public final class ArgumentRepr {
 		return outText.toString();
 	}
 
-	public static String getDescriptionRepresentation(lanat.Argument<?, ?> arg) {
+	public static @Nullable String getDescriptionRepresentation(@NotNull Argument<?, ?> arg) {
 		String desc = arg.getDescription();
 		if (desc == null)
 			return null;
@@ -42,7 +44,7 @@ public final class ArgumentRepr {
 		return ArgumentRepr.getSynopsisRepresentation(arg) + ":\n" + HelpFormatter.indent(desc, arg);
 	}
 
-	static void appendArgumentDescriptions(StringBuilder buff, List<Argument<?, ?>> arguments) {
+	static void appendArgumentDescriptions(@NotNull StringBuilder buff, @NotNull List<@NotNull Argument<?, ?>> arguments) {
 		for (int i = 0; i < arguments.size(); i++) {
 			Argument<?, ?> arg = arguments.get(i);
 

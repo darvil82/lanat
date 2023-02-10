@@ -11,7 +11,7 @@ public class CounterArgument extends ArgumentType<Integer> {
 	}
 
 	@Override
-	public @NotNull ArgValueCount getNumberOfArgValues() {
+	public @NotNull ArgValueCount getArgValueCount() {
 		return ArgValueCount.NONE;
 	}
 

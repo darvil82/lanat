@@ -15,7 +15,7 @@ public class StdinArgument extends ArgumentType<String> {
 	private final BufferedReader systemIn = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
 
 	@Override
-	public @NotNull ArgValueCount getNumberOfArgValues() {
+	public @NotNull ArgValueCount getArgValueCount() {
 		return ArgValueCount.NONE;
 	}
 

@@ -74,7 +74,7 @@ public class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 		this.fmt()
 			.setContents("Incorrect number of values for argument '%s'.%nExpected %s, but got %d."
 				.formatted(
-					this.argument.getName(), this.argument.argType.getNumberOfArgValues().getMessage(),
+					this.argument.getName(), this.argument.argType.getArgValueCount().getMessage(),
 					Math.max(this.valueCount - 1, 0)
 				)
 			)

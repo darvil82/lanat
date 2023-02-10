@@ -13,7 +13,7 @@ public class KeyValuesArgument<T extends ArgumentType<Ts>, Ts> extends ArgumentT
 	private final char separator;
 
 	public KeyValuesArgument(@NotNull T type, char separator) {
-		if (type.getNumberOfArgValues().min != 1)
+		if (type.getArgValueCount().min != 1)
 			throw new IllegalArgumentException("The value type must at least accept one value.");
 
 		this.valueType = type;
@@ -26,7 +26,7 @@ public class KeyValuesArgument<T extends ArgumentType<Ts>, Ts> extends ArgumentT
 	}
 
 	@Override
-	public @NotNull ArgValueCount getNumberOfArgValues() {
+	public @NotNull ArgValueCount getArgValueCount() {
 		return new ArgValueCount(1, -1);
 	}
 

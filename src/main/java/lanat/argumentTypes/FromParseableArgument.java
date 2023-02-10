@@ -19,8 +19,8 @@ public class FromParseableArgument<T extends Parseable<TInner>, TInner> extends 
 	}
 
 	@Override
-	public @NotNull ArgValueCount getNumberOfArgValues() {
-		return this.parseable.getNumberOfArgValues();
+	public @NotNull ArgValueCount getArgValueCount() {
+		return this.parseable.getArgValueCount();
 	}
 
 	@Override

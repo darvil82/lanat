@@ -131,7 +131,7 @@ public class Parser extends ParsingStateBase<ParseError> {
 	 * </p>
 	 */
 	private void executeArgParse(@NotNull Argument<?, ?> arg) {
-		final ArgValueCount argumentValuesRange = arg.argType.getNumberOfArgValues();
+		final ArgValueCount argumentValuesRange = arg.argType.getArgValueCount();
 
 		// just skip the whole thing if it doesn't need any values
 		if (argumentValuesRange.isZero()) {
@@ -190,7 +190,7 @@ public class Parser extends ParsingStateBase<ParseError> {
 	 * </p>
 	 */
 	private void executeArgParse(@NotNull Argument<?, ?> arg, @Nullable String value) {
-		final ArgValueCount argumentValuesRange = arg.argType.getNumberOfArgValues();
+		final ArgValueCount argumentValuesRange = arg.argType.getArgValueCount();
 
 		if (value == null || value.isEmpty()) {
 			this.executeArgParse(arg); // value is not present in the suffix of the argList. Continue parsing values.
@@ -222,7 +222,7 @@ public class Parser extends ParsingStateBase<ParseError> {
 
 			if (!this.runForArgument(args.charAt(i), a -> {
 				// if the argument accepts 0 values, then we can just parse it like normal
-				if (a.argType.getNumberOfArgValues().isZero()) {
+				if (a.argType.getArgValueCount().isZero()) {
 					this.executeArgParse(a);
 
 					// -- arguments now may accept 1 or more values from now on:

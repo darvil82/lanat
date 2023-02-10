@@ -98,7 +98,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * <li>Note that an argument marked as positional can still be used by specifying a name.
 	 */
 	public Argument<Type, TInner> positional() {
-		if (this.argType.getNumberOfArgValues().max == 0) {
+		if (this.argType.getArgValueCount().max == 0) {
 			throw new IllegalArgumentException("An argument that does not accept values cannot be positional");
 		}
 		this.positional = true;

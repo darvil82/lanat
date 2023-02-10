@@ -20,7 +20,7 @@ public class BooleanArgument extends ArgumentType<Boolean> {
 
 	@Override
 	// this is a boolean type. if the arg is present, that's enough.
-	public @NotNull ArgValueCount getNumberOfArgValues() {
+	public @NotNull ArgValueCount getArgValueCount() {
 		return ArgValueCount.NONE;
 	}
 }

@@ -16,7 +16,7 @@ public abstract class TupleArgumentType<T> extends ArgumentType<T> {
 	}
 
 	@Override
-	public @NotNull ArgValueCount getNumberOfArgValues() {
+	public @NotNull ArgValueCount getArgValueCount() {
 		return this.argCount;
 	}
 

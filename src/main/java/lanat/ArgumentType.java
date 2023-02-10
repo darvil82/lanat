@@ -109,7 +109,7 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> imple
 	 * Specifies the number of values that this argument should receive when being parsed.
 	 */
 	@Override
-	public @NotNull ArgValueCount getNumberOfArgValues() {
+	public @NotNull ArgValueCount getArgValueCount() {
 		return ArgValueCount.ONE;
 	}
 
@@ -159,7 +159,7 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> imple
 	 * @param level The level of the error.
 	 */
 	protected void addError(@NotNull String message, int index, @NotNull ErrorLevel level) {
-		if (!this.getNumberOfArgValues().isIndexInRange(index)) {
+		if (!this.getArgValueCount().isIndexInRange(index)) {
 			throw new IndexOutOfBoundsException("Index " + index + " is out of range for " + this.getClass().getName());
 		}
 
@@ -179,7 +179,7 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> imple
 
 	@Override
 	public void addError(@NotNull CustomError error) {
-		if (!this.getNumberOfArgValues().isIndexInRange(error.tokenIndex)) {
+		if (!this.getArgValueCount().isIndexInRange(error.tokenIndex)) {
 			throw new IndexOutOfBoundsException("Index " + error.tokenIndex + " is out of range for " + this.getClass().getName());
 		}
 

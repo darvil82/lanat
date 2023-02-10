@@ -1,8 +1,15 @@
-import lanat.*;
-import lanat.argumentTypes.EnumArgument;
-import lanat.argumentTypes.IntRangeArgument;
+import lanat.ArgValueCount;
+import lanat.Argument;
+import lanat.ArgumentType;
+import lanat.ErrorFormatter;
+import lanat.argumentTypes.Parseable;
+import lanat.argumentTypes.TryParseArgument;
 import lanat.helpRepresentation.HelpFormatter;
+import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Date;
 
 public final class ManualTests {
 	public static void main(String[] args) {
@@ -29,57 +36,35 @@ public final class ManualTests {
 		}
 
 		final var argumentParser = new TestingParser("Testing") {{
-			this.addArgument(Argument.create("testing", ArgumentType.STRING())
+			this.addArgument(Argument.create("testing", ArgumentType.FROM_PARSEABLE(new TestClass()))
+				.description("some description")
+			);
+			this.addArgument(Argument.create("hola", new TryParseArgument<>(Date.class))
 				.description("some description")
 				.obligatory()
+				.onOk(value -> System.out.println("ok: " + value))
 			);
-
-			this.addGroup(new ArgumentGroup("a group") {{
-				this.addArgument(Argument.create("this is just a bool arg"));
-
-				this.addArgument(Argument.create("range", new IntRangeArgument(1, 10))
-					.onOk((value) -> System.out.println("Range: " + value))
-					.description("word ".repeat(50))
-				);
-				this.addArgument(Argument.create("number", new EnumArgument<>(Something.ONE))
-					.positional()
-					.description("Pick a number")
-				);
-				this.addGroup(new ArgumentGroup("a subgroup") {{
-					this.exclusive();
-					this.addArgument(Argument.create("string", ArgumentType.STRING())
-						.description("a string")
-					);
-					this.addArgument(Argument.create("bool", ArgumentType.BOOLEAN())
-						.description("a bool")
-					);
-				}});
-			}});
-			this.addGroup(new ArgumentGroup("another group") {{
-				this.exclusive();
-				this.addArgument(Argument.create("string2", ArgumentType.STRING())
-					.description("a string")
-					.onOk((value) -> System.out.println("String: " + value))
-				);
-				this.addArgument(Argument.create("bool2", ArgumentType.BOOLEAN())
-					.description("a bool")
-				);
-				this.addGroup(new ArgumentGroup("another subgroup") {{
-					this.exclusive();
-					this.addArgument(Argument.create("string3", ArgumentType.STRING())
-						.description("a string")
-					);
-					this.addArgument(Argument.create("bool3", ArgumentType.BOOLEAN())
-						.description("a bool")
-					);
-				}});
-			}});
-			this.addSubCommand(new Command("cmd") {{
-				this.addArgument(Argument.create("test-arg"));
-				this.addArgument(Argument.create("input-reader", ArgumentType.STDIN()).description("test"));
-			}});
 		}};
 
-		var parsedArgs = argumentParser.parseArgsExpectErrorPrint("--number five cmd --help");
+		var parsedArgs = argumentParser.parseArgsExpectErrorPrint("--hola 14:12");
+	}
+}
+
+
+class TestClass implements Parseable<Integer> {
+
+	@Override
+	public @NotNull ArgValueCount getArgValueCount() {
+		return ArgValueCount.ONE;
+	}
+
+	@Override
+	public @Nullable Integer parseValues(@NotNull String @NotNull [] args) {
+		return Integer.parseInt(args[0]);
+	}
+
+	@Override
+	public @Nullable TextFormatter getRepresentation() {
+		return null;
 	}
 }

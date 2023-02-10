@@ -30,7 +30,7 @@ public class StdinArgument extends ArgumentType<String> {
 
 		try {
 			String line;
-			while((line = this.systemIn.readLine()) != null)
+			while ((line = this.systemIn.readLine()) != null)
 				input.add(line);
 		} catch (IOException ignored) {}
 

@@ -37,7 +37,7 @@ class TestingParser extends ArgumentParser {
 	}
 
 	@Override
-	public ParsedArgumentsRoot parseArgs(String args) {
+	public @NotNull ParsedArgumentsRoot parseArgs(@NotNull String args) {
 		var res = this.parseArgsNoExit(args).first();
 		assertNotNull(res, "The result of the parsing was null (Arguments have failed)");
 		return res;

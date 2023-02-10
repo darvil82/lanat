@@ -21,8 +21,10 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	/** The index of the current character in the {@link Tokenizer#inputString} */
 	private int currentCharIndex = 0;
 
-	/** The characters that are used to open and close tuples.
-	 * {@link Pair#first()} is the open character and {@link Pair#second()} is the close character */
+	/**
+	 * The characters that are used to open and close tuples.
+	 * {@link Pair#first()} is the open character and {@link Pair#second()} is the close character
+	 */
 	public final @NotNull Pair<@NotNull Character, @NotNull Character> tupleChars;
 
 	/** The tokens that have been parsed so far */
@@ -142,7 +144,8 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 				cChar == '-'
 					&& this.isCharAtRelativeIndex(1, '-')
 					&& this.isCharAtRelativeIndex(2, ' ')
-			) {
+			)
+			{
 				this.addToken(TokenType.FORWARD_VALUE, this.inputString.substring(this.currentCharIndex + 3));
 				break;
 
@@ -188,7 +191,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	/**
 	 * Tokenizes a single word and returns the token matching it. If no match could be found, returns
 	 * {@link TokenType#ARGUMENT_VALUE}
-	 * */
+	 */
 	private @NotNull Token tokenizeWord(@NotNull String str) {
 		final TokenType type;
 
@@ -210,7 +213,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	/**
 	 * Tokenizes the {@link Tokenizer#currentValue} and adds it to the final tokens list.
 	 * <p>
-	 *     If the token is a subcommand, it will forward the rest of the input string to the subcommand's tokenizer.
+	 * If the token is a subcommand, it will forward the rest of the input string to the subcommand's tokenizer.
 	 * </p>
 	 */
 	private void tokenizeCurrentValue() {
@@ -230,10 +233,10 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	/**
 	 * Returns true if the given string can be an argument name list, eg: <code>"-fbq"</code>.
 	 * <p>
-	 *     This returns true if at least the first character is a valid argument prefix and at least one of the
-	 *     next characters is a valid argument name.
+	 * This returns true if at least the first character is a valid argument prefix and at least one of the
+	 * next characters is a valid argument name.
 	 * <br><br>
-	 *     For a prefix to be valid, it must be a character used as a prefix on the next argument/s specified.
+	 * For a prefix to be valid, it must be a character used as a prefix on the next argument/s specified.
 	 * </p>
 	 */
 	private boolean isArgNameList(@NotNull String str) {
@@ -253,7 +256,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	/**
 	 * Returns true if the given string can be an argument name, eg: <code>"--help"</code>.
 	 * <p>
-	 *     This returns true if the given string is a valid argument name with a double prefix.
+	 * This returns true if the given string is a valid argument name with a double prefix.
 	 * </p>
 	 */
 	private boolean isArgName(@NotNull String str) {
@@ -273,7 +276,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	/**
 	 * Returns true whether the given string is an argument name {@link Tokenizer#isArgName(String)}
 	 * or an argument name list {@link Tokenizer#isArgNameList(String)}.
-	 * */
+	 */
 	private boolean isArgumentSpecifier(@NotNull String str) {
 		return this.isArgName(str) || this.isArgNameList(str);
 	}
@@ -287,9 +290,9 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	 * Returns true if the character of {@link Tokenizer#inputChars} at a relative index
 	 * from {@link Tokenizer#currentCharIndex} is equal to the specified character.
 	 * <p>
-	 *     If the index is out of bounds, returns false.
+	 * If the index is out of bounds, returns false.
 	 * </p>
-	 * */
+	 */
 	private boolean isCharAtRelativeIndex(int index, char character) {
 		index += this.currentCharIndex;
 		if (index >= this.inputChars.length || index < 0) return false;
@@ -305,10 +308,10 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	/**
 	 * Returns a list of all tokenized subcommand children of {@link Tokenizer#command}.
 	 * <p>
-	 *     Note that a Command only has a single tokenized subCommand, so this will
-	 *     have one Command per nesting level.
+	 * Note that a Command only has a single tokenized subCommand, so this will
+	 * have one Command per nesting level.
 	 * </p>
-	 * */
+	 */
 	public @NotNull List<@NotNull Command> getTokenizedSubCommands() {
 		final List<Command> x = new ArrayList<>();
 		final Command subCmd;

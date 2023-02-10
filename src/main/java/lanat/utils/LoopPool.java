@@ -1,10 +1,9 @@
 package lanat.utils;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public class LoopPool<T> {
-	private final @Nullable T @NotNull [] pool;
+	private final T @NotNull [] pool;
 	private int index;
 
 	@SafeVarargs

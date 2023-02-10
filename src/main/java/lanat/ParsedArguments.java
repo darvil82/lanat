@@ -3,7 +3,10 @@ package lanat;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -22,7 +25,8 @@ public class ParsedArguments {
 		@NotNull String name,
 		@NotNull HashMap<Argument<?, ?>, Object> parsedArgs,
 		@NotNull List<ParsedArguments> subParsedArguments
-	) {
+	)
+	{
 		this.parsedArgs = parsedArgs;
 		this.name = name;
 		this.subParsedArguments = subParsedArguments;
@@ -33,7 +37,7 @@ public class ParsedArguments {
 	 * By default, this is set to <code>.</code>
 	 */
 	public static void setSeparator(@NotNull String separator) {
-		if (Objects.requireNonNull(separator).isEmpty()) {
+		if (separator.isEmpty()) {
 			throw new IllegalArgumentException("separator cannot be empty");
 		}
 		ParsedArguments.separator = separator;
@@ -44,8 +48,6 @@ public class ParsedArguments {
 	 */
 	@SuppressWarnings("unchecked") // we'll just have to trust the user
 	public <T> ParsedArgument<T> get(@NotNull Argument<?, T> arg) {
-		Objects.requireNonNull(arg);
-
 		if (!this.parsedArgs.containsKey(arg)) {
 			throw new IllegalArgumentException("argument '" + arg.getName() + "' not found");
 		}
@@ -173,7 +175,7 @@ public class ParsedArguments {
 		 * and the argument was parsed, this will set the first value of the array to the parsed value.
 		 */
 		public boolean defined(@Nullable T @NotNull [] value) {
-			if (Objects.requireNonNull(value).length != 1) {
+			if (value.length != 1) {
 				throw new IllegalArgumentException("value must be an array of length 1");
 			}
 

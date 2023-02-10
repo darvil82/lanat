@@ -14,11 +14,11 @@ public class ArgumentParser extends Command {
 	private @Nullable String license;
 
 
-	public ArgumentParser(String programName, String description) {
+	public ArgumentParser(@NotNull String programName, @Nullable String description) {
 		super(programName, description, true);
 	}
 
-	public ArgumentParser(String programName) {
+	public ArgumentParser(@NotNull String programName) {
 		this(programName, null);
 	}
 
@@ -26,7 +26,7 @@ public class ArgumentParser extends Command {
 	/**
 	 * {@link ArgumentParser#parseArgs(String)}
 	 */
-	public ParsedArgumentsRoot parseArgs(String[] args) {
+	public @NotNull ParsedArgumentsRoot parseArgs(@NotNull String @NotNull [] args) {
 		// if we receive the classic args array, just join it back
 		return this.parseArgs(String.join(" ", args));
 	}
@@ -36,7 +36,7 @@ public class ArgumentParser extends Command {
 	 *
 	 * @param args The command line arguments to parse.
 	 */
-	public ParsedArgumentsRoot parseArgs(String args) {
+	public @NotNull ParsedArgumentsRoot parseArgs(@NotNull String args) {
 		final var res = this.parseArgsNoExit(args);
 		final var errorCode = this.getErrorCode();
 
@@ -54,14 +54,15 @@ public class ArgumentParser extends Command {
 	/**
 	 * Parses the arguments from the <code>sun.java.command</code> system property.
 	 */
-	public ParsedArguments parseArgs() {
+	public @NotNull ParsedArguments parseArgs() {
 		var args = System.getProperty("sun.java.command").split(" ");
 		return this.parseArgs(Arrays.copyOfRange(args, 1, args.length));
 	}
 
 
 	protected @NotNull Pair<@NotNull ParsedArgumentsRoot, @NotNull List<@NotNull String>>
-	parseArgsNoExit(@NotNull String args) {
+	parseArgsNoExit(@NotNull String args)
+	{
 		if (this.isParsed) {
 			// reset all parsing related things to the initial state
 			this.resetState();

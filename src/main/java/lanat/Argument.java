@@ -6,26 +6,30 @@ import lanat.parsing.errors.ParseError;
 import lanat.utils.*;
 import lanat.utils.displayFormatter.Color;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.Consumer;
 
 public class Argument<Type extends ArgumentType<TInner>, TInner>
 	implements MinimumErrorLevelConfig<CustomError>, ErrorCallbacks<TInner, Argument<Type, TInner>>, Resettable,
 	ParentCommandGetter, NamedWithDescription
 {
-	public final Type argType;
+	public final @NotNull Type argType;
 	private char prefix = '-';
-	private final List<String> names = new ArrayList<>();
-	private String description;
+	private final @NotNull List<@NotNull String> names = new ArrayList<>();
+	private @Nullable String description;
 	private short usageCount = 0;
 	private boolean obligatory = false, positional = false, allowUnique = false;
-	private TInner defaultValue;
+	private @Nullable TInner defaultValue;
 	private Command parentCmd;
-	private ArgumentGroup parentGroup;
-	private Consumer<Argument<Type, TInner>> onErrorCallback;
-	private Consumer<TInner> onCorrectCallback;
-	private final ModifyRecord<Color> representationColor = new ModifyRecord<>(null);
+	private @Nullable ArgumentGroup parentGroup;
+	private @Nullable Consumer<@NotNull Argument<Type, TInner>> onErrorCallback;
+	private @Nullable Consumer<@NotNull TInner> onCorrectCallback;
+	private final @NotNull ModifyRecord<Color> representationColor = new ModifyRecord<>(null);
 
 	/** The list of prefixes that can be used. */
 	private static final char[] VALID_PREFIXES = {
@@ -33,43 +37,43 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	};
 
 
-	public Argument(Type argType, String... names) {
+	public Argument(@NotNull Type argType, @NotNull String... names) {
 		this.addNames(names);
 		this.argType = argType;
 	}
 
-	public Argument(String name, Type argType) {
+	public Argument(@NotNull String name, @NotNull Type argType) {
 		this(argType, name);
 	}
 
 	/**
 	 * Creates an argument with a {@link BooleanArgument} type.
 	 */
-	public static Argument<BooleanArgument, Boolean> create(String... names) {
+	public static Argument<BooleanArgument, Boolean> create(@NotNull String... names) {
 		return new Argument<>(ArgumentType.BOOLEAN(), names);
 	}
 
 	/** Creates an argument with the specified name and type. */
 	public static <Type extends ArgumentType<TInner>, TInner>
-	Argument<Type, TInner> create(String name, Type argType) {
+	Argument<Type, TInner> create(@NotNull String name, @NotNull Type argType) {
 		return new Argument<>(argType, name);
 	}
 
 	/** Creates an argument with the specified type and names. */
 	public static <Type extends ArgumentType<TInner>, TInner>
-	Argument<Type, TInner> create(Type argType, String... names) {
+	Argument<Type, TInner> create(@NotNull Type argType, @NotNull String... names) {
 		return new Argument<>(argType, names);
 	}
 
 	/** Creates an argument with the specified single character name and type. */
 	public static <Type extends ArgumentType<TInner>, TInner>
-	Argument<Type, TInner> create(char name, Type argType) {
+	Argument<Type, TInner> create(char name, @NotNull Type argType) {
 		return new Argument<>(argType, String.valueOf(name));
 	}
 
 	/** Creates an argument with the specified single character name, full name and type. */
 	public static <Type extends ArgumentType<TInner>, TInner>
-	Argument<Type, TInner> create(char charName, String fullName, Type argType) {
+	Argument<Type, TInner> create(char charName, @NotNull String fullName, @NotNull Type argType) {
 		return new Argument<>(argType, String.valueOf(charName), fullName);
 	}
 
@@ -154,9 +158,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * Add more names to this argument. This is useful if you want the same argument to be used with multiple
 	 * different names.
 	 */
-	public Argument<Type, TInner> addNames(String... names) {
-		Objects.requireNonNull(names);
-
+	public Argument<Type, TInner> addNames(@NotNull String... names) {
 		Arrays.stream(names)
 			.map(UtlString::sanitizeName)
 			.forEach(newName -> {
@@ -172,12 +174,12 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		return this.names.contains(name);
 	}
 
-	public List<String> getNames() {
+	public @NotNull List<@NotNull String> getNames() {
 		return Collections.unmodifiableList(this.names);
 	}
 
 	/** Sets the description of this argument. This description will be shown in the help message. */
-	public Argument<Type, TInner> description(String description) {
+	public Argument<Type, TInner> description(@NotNull String description) {
 		this.description = description;
 		return this;
 	}
@@ -194,11 +196,11 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	@Override
-	public String getDescription() {
+	public @Nullable String getDescription() {
 		return this.description;
 	}
 
-	void setParentCmd(Command parentCmd) {
+	void setParentCmd(@NotNull Command parentCmd) {
 		if (this.parentCmd != null) {
 			throw new IllegalStateException("Argument already added to a command");
 		}
@@ -207,18 +209,18 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	@Override
-	public Command getParentCommand() {
+	public @NotNull Command getParentCommand() {
 		return this.parentCmd;
 	}
 
-	void setParentGroup(ArgumentGroup parentGroup) {
+	void setParentGroup(@NotNull ArgumentGroup parentGroup) {
 		if (this.parentGroup != null) {
 			throw new IllegalStateException("Argument already added to a group");
 		}
 		this.parentGroup = parentGroup;
 	}
 
-	public ArgumentGroup getParentGroup() {
+	public @Nullable ArgumentGroup getParentGroup() {
 		return this.parentGroup;
 	}
 
@@ -226,11 +228,11 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		return this.usageCount;
 	}
 
-	public Color getRepresentationColor() {
+	public @NotNull Color getRepresentationColor() {
 		return this.representationColor.get();
 	}
 
-	public void setRepresentationColor(Color color) {
+	public void setRepresentationColor(@NotNull Color color) {
 		this.representationColor.set(color);
 	}
 
@@ -242,7 +244,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	/**
 	 * Specify a function that will be called with the value introduced by the user.
 	 */
-	public Argument<Type, TInner> onOk(Consumer<TInner> callback) {
+	public Argument<Type, TInner> onOk(@NotNull Consumer<@NotNull TInner> callback) {
 		this.setOnCorrectCallback(callback);
 		return this;
 	}
@@ -250,7 +252,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	/**
 	 * Specify a function that will be called if an error occurs when parsing this argument.
 	 */
-	public Argument<Type, TInner> onErr(Consumer<Argument<Type, TInner>> callback) {
+	public Argument<Type, TInner> onErr(@NotNull Consumer<@NotNull Argument<Type, TInner>> callback) {
 		this.setOnErrorCallback(callback);
 		return this;
 	}
@@ -261,7 +263,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * @param tokenIndex This is the global index of the token that is currently being parsed. Used when
 	 * dispatching errors.
 	 */
-	public void parseValues(String[] values, short tokenIndex) {
+	public void parseValues(@NotNull String @NotNull [] values, short tokenIndex) {
 		// check if the parent group of this argument is exclusive, and if so, check if any other argument in it has been used
 		if (this.parentGroup != null) {
 			var exclusivityResult = this.parentGroup.checkExclusivity();
@@ -298,7 +300,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	/**
 	 * Returns the final parsed value of this argument.
 	 */
-	public TInner finishParsing() {
+	public @Nullable TInner finishParsing() {
 		if (this.usageCount == 0) {
 			if (this.obligatory && !this.parentCmd.uniqueArgumentReceivedValue()) {
 				this.parentCmd.getParser().addError(ParseError.ParseErrorType.OBLIGATORY_ARGUMENT_NOT_USED, this, 0);
@@ -317,7 +319,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	/**
 	 * Checks if this argument matches the given name, including the prefix.
 	 */
-	public boolean checkMatch(String name) {
+	public boolean checkMatch(@NotNull String name) {
 		return this.names.stream().anyMatch(a -> name.equals(Character.toString(this.prefix).repeat(2) + a));
 	}
 
@@ -330,7 +332,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 	// no worries about casting here, it will always receive the correct type
 	@SuppressWarnings("unchecked")
-	void invokeCallbacks(Object okValue) {
+	void invokeCallbacks(@NotNull Object okValue) {
 		if (this.hasExitErrors()) {
 			this.invokeCallbacks();
 			return;
@@ -342,10 +344,10 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 				|| (!this.allowUnique && this.parentCmd.uniqueArgumentReceivedValue())
 		) return;
 
-		this.onCorrectCallback.accept((TInner)okValue);
+		this.onCorrectCallback.accept((@NotNull TInner)okValue);
 	}
 
-	public boolean equals(Argument<?, ?> obj) {
+	public boolean equals(@NotNull Argument<?, ?> obj) {
 		// we just want to check if there's a difference between identifiers and both are part of the same command
 		return this.parentCmd == obj.parentCmd || (
 			this.getNames().stream().anyMatch(name -> {
@@ -367,7 +369,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * @return 0 if both arguments are equal, -1 if the first argument
 	 * goes before the second, 1 if the second goes before the first.
 	 */
-	public static int compareByPriority(Argument<?, ?> first, Argument<?, ?> second) {
+	public static int compareByPriority(@NotNull Argument<?, ?> first, @NotNull Argument<?, ?> second) {
 		if (first.isPositional() && !second.isPositional()) {
 			return -1;
 		} else if (!first.isPositional() && second.isPositional()) {
@@ -384,7 +386,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	/**
 	 * Sorts the given array of arguments by the synopsis view priority order.
 	 */
-	public static List<Argument<?, ?>> sortByPriority(List<Argument<?, ?>> args) {
+	public static List<Argument<?, ?>> sortByPriority(@NotNull List<@NotNull Argument<?, ?>> args) {
 		return new ArrayList<>(args) {{
 			this.sort(Argument::compareByPriority);
 		}};
@@ -397,7 +399,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	@Override
-	public String toString() {
+	public @NotNull String toString() {
 		return "Argument<%s>[names=%s, prefix='%c', obligatory=%b, positional=%b, allowUnique=%b, defaultValue=%s]"
 			.formatted(
 				this.argType.getClass().getSimpleName(), this.names, this.prefix, this.obligatory,
@@ -410,12 +412,12 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	// just act as a proxy to the type error handling
 
 	@Override
-	public @NotNull List<CustomError> getErrorsUnderExitLevel() {
+	public @NotNull List<@NotNull CustomError> getErrorsUnderExitLevel() {
 		return this.argType.getErrorsUnderExitLevel();
 	}
 
 	@Override
-	public @NotNull List<CustomError> getErrorsUnderDisplayLevel() {
+	public @NotNull List<@NotNull CustomError> getErrorsUnderDisplayLevel() {
 		return this.argType.getErrorsUnderDisplayLevel();
 	}
 
@@ -435,7 +437,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	@Override
-	public @NotNull ModifyRecord<ErrorLevel> getMinimumDisplayErrorLevel() {
+	public @NotNull ModifyRecord<@NotNull ErrorLevel> getMinimumDisplayErrorLevel() {
 		return this.argType.getMinimumDisplayErrorLevel();
 	}
 
@@ -445,17 +447,17 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	@Override
-	public @NotNull ModifyRecord<ErrorLevel> getMinimumExitErrorLevel() {
+	public @NotNull ModifyRecord<@NotNull ErrorLevel> getMinimumExitErrorLevel() {
 		return this.argType.getMinimumExitErrorLevel();
 	}
 
 	@Override
-	public void setOnErrorCallback(@NotNull Consumer<Argument<Type, TInner>> callback) {
+	public void setOnErrorCallback(@NotNull Consumer<@NotNull Argument<Type, TInner>> callback) {
 		this.onErrorCallback = callback;
 	}
 
 	@Override
-	public void setOnCorrectCallback(@NotNull Consumer<TInner> callback) {
+	public void setOnCorrectCallback(@NotNull Consumer<@NotNull TInner> callback) {
 		this.onCorrectCallback = callback;
 	}
 

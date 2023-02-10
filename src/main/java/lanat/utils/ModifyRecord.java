@@ -1,7 +1,6 @@
 package lanat.utils;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
 
@@ -11,12 +10,13 @@ import java.util.function.Supplier;
  * @param <T> The type of the inner value.
  */
 public class ModifyRecord<T> {
-	private @Nullable T value;
+	private T value;
 	private boolean modified;
 
-	public ModifyRecord(@Nullable T value) {
+	public ModifyRecord(T value) {
 		this.value = value;
 	}
+
 	public ModifyRecord() {}
 
 	public T get() {

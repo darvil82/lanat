@@ -3,30 +3,31 @@ package lanat;
 import lanat.utils.Resettable;
 import lanat.utils.UtlString;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resettable, ParentCommandGetter {
-	public final String name;
-	public final String description;
+public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resettable, ParentCommandGetter, NamedWithDescription {
+	public final @NotNull String name;
+	public final @Nullable String description;
 	private Command parentCommand;
-	private ArgumentGroup parentGroup;
-	private final List<Argument<?, ?>> arguments = new ArrayList<>();
-	private final List<ArgumentGroup> subGroups = new ArrayList<>();
+	private @Nullable ArgumentGroup parentGroup;
+	private final @NotNull List<@NotNull Argument<?, ?>> arguments = new ArrayList<>();
+	private final @NotNull List<@NotNull ArgumentGroup> subGroups = new ArrayList<>();
 	private boolean isExclusive = false;
 	/**
 	 * When set to true, indicates that one argument in this group has been used.
 	 */
 	private boolean argumentUsed = false;
 
-	public ArgumentGroup(String name, String description) {
+	public ArgumentGroup(@NotNull String name, @Nullable String description) {
 		this.name = UtlString.sanitizeName(name);
 		this.description = description;
 	}
 
-	public ArgumentGroup(String name) {
+	public ArgumentGroup(@NotNull String name) {
 		this(name, null);
 	}
 
@@ -76,7 +77,7 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resetta
 	/**
 	 * Sets this group's parent command, and also passes all its arguments to the command.
 	 */
-	void registerGroup(Command parentCommand) {
+	void registerGroup(@NotNull Command parentCommand) {
 		if (this.parentCommand != null) {
 			throw new IllegalStateException("This group is already registered to a command.");
 		}
@@ -93,7 +94,7 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resetta
 		return this.parentCommand;
 	}
 
-	private ArgumentGroup checkExclusivity(ArgumentGroup childCallee) {
+	private @Nullable ArgumentGroup checkExclusivity(@Nullable ArgumentGroup childCallee) {
 		if (
 			this.isExclusive && (
 				this.subGroups.stream().filter(g -> g != childCallee).anyMatch(g -> g.argumentUsed)
@@ -114,7 +115,7 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resetta
 		return this.arguments.isEmpty() && this.subGroups.isEmpty();
 	}
 
-	ArgumentGroup checkExclusivity() {
+	@Nullable ArgumentGroup checkExclusivity() {
 		return this.checkExclusivity(null);
 	}
 
@@ -131,6 +132,16 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resetta
 	public void resetState() {
 		this.argumentUsed = false;
 		this.arguments.forEach(Resettable::resetState);
+	}
+
+	@Override
+	public @NotNull String getName() {
+		return this.name;
+	}
+
+	@Override
+	public @Nullable String getDescription() {
+		return this.description;
 	}
 }
 

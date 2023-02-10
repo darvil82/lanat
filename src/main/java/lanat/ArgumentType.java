@@ -98,7 +98,7 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> imple
 	public void setValue(@NotNull T value) {
 		this.currentValue = value;
 	}
-	
+
 	public @Nullable T getInitialValue() {
 		return this.initialValue;
 	}

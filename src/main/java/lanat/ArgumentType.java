@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
-public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> implements Resettable {
+public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> implements Resettable, Parseable<T> {
 	private T currentValue;
 	private T initialValue;
 	/**
@@ -47,13 +47,14 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> imple
 
 	public final void parseAndUpdateValue(@NotNull String arg) {
 		this.receivedValueCount = 1;
-		this.setValue(this.parseValues(arg));
+		this.currentValue = this.parseValues(arg);
 	}
 
-	public final T parseValues(@NotNull String arg) {
+	public final @Nullable T parseValues(@NotNull String arg) {
 		return this.parseValues(new String[] { arg });
 	}
 
+	@Override
 	public abstract @Nullable T parseValues(@NotNull String @NotNull [] args);
 
 
@@ -107,10 +108,12 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> imple
 	/**
 	 * Specifies the number of values that this argument should receive when being parsed.
 	 */
+	@Override
 	public @NotNull ArgValueCount getNumberOfArgValues() {
 		return ArgValueCount.ONE;
 	}
 
+	@Override
 	public @Nullable TextFormatter getRepresentation() {
 		return new TextFormatter(this.getClass().getSimpleName());
 	}
@@ -250,7 +253,7 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> imple
 		return new MultipleStringsArgument();
 	}
 
-	public static <T extends ArgumentType<Ts>, Ts> KeyValuesArgument<T, Ts> KEY_VALUES(T valueType) {
+	public static <T extends ArgumentType<Ti>, Ti> KeyValuesArgument<T, Ti> KEY_VALUES(T valueType) {
 		return new KeyValuesArgument<>(valueType);
 	}
 
@@ -260,5 +263,8 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> imple
 
 	public static StdinArgument STDIN() {
 		return new StdinArgument();
+	}
+	public static <T extends Parseable<Ti>, Ti> FromParseableArgument<T, Ti> FROM_PARSEABLE(T parseable) {
+		return new FromParseableArgument<>(parseable);
 	}
 }

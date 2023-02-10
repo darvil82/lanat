@@ -12,21 +12,34 @@ import java.util.ArrayList;
 import java.util.function.Consumer;
 
 public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> implements Resettable, Parseable<T> {
+	/** This is the value that this argument type current has while being parsed. */
 	private T currentValue;
+
+	/**
+	 * This is the value that this argument type had before being parsed.
+	 * This is used for resetting the {@link ArgumentType#currentValue} to its initial value.
+	 */
 	private T initialValue;
+
 	/**
 	 * This is the current index of the value that is being parsed.
 	 */
 	private int currentArgValueIndex = 0;
+
 	/**
 	 * This is used for storing errors that occur during parsing. We need to keep track of the index of
 	 * the token that caused the error. -1 means that this was still not parsed.
 	 */
 	private short tokenIndex = -1;
+
 	/**
 	 * This specifies the number of values that this argument received when being parsed.
 	 */
 	private int receivedValueCount = 0;
+
+	/** This specifies the number of times this argument type has been used during parsing. */
+	short usageCount = 0;
+
 	/**
 	 * The parent argument type is the one that wants to listen for errors that occur in this argument type.
 	 * This value is set by the parent argument type when it runs {@link ArgumentType#registerSubType(ArgumentType)}.
@@ -217,6 +230,7 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> imple
 		this.tokenIndex = -1;
 		this.currentArgValueIndex = 0;
 		this.receivedValueCount = 0;
+		this.usageCount = 0;
 		this.subTypes.forEach(ArgumentType::resetState);
 	}
 

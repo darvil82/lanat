@@ -22,7 +22,6 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	private char prefix = '-';
 	private final @NotNull List<@NotNull String> names = new ArrayList<>();
 	private @Nullable String description;
-	private short usageCount = 0;
 	private boolean obligatory = false, positional = false, allowUnique = false;
 	private @Nullable TInner defaultValue;
 	private Command parentCmd;
@@ -225,7 +224,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	public short getUsageCount() {
-		return this.usageCount;
+		return this.argType.usageCount;
 	}
 
 	public @NotNull Color getRepresentationColor() {
@@ -284,7 +283,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 		this.argType.setTokenIndex(tokenIndex);
 		this.argType.parseAndUpdateValue(values);
-		this.usageCount++;
+		this.argType.usageCount++;
 		if (this.parentGroup != null) {
 			this.parentGroup.setArgUsed();
 		}
@@ -301,7 +300,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * Returns the final parsed value of this argument.
 	 */
 	public @Nullable TInner finishParsing() {
-		if (this.usageCount == 0) {
+		if (this.getUsageCount() == 0) {
 			if (this.obligatory && !this.parentCmd.uniqueArgumentReceivedValue()) {
 				this.parentCmd.getParser().addError(ParseError.ParseErrorType.OBLIGATORY_ARGUMENT_NOT_USED, this, 0);
 				return null;
@@ -340,7 +339,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 		if (
 			this.onCorrectCallback == null
-				|| this.usageCount == 0
+				|| this.getUsageCount() == 0
 				|| (!this.allowUnique && this.parentCmd.uniqueArgumentReceivedValue())
 		) return;
 
@@ -394,7 +393,6 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 	@Override
 	public void resetState() {
-		this.usageCount = 0;
 		this.argType.resetState();
 	}
 

@@ -36,7 +36,7 @@ public class TryParseArgument<T> extends ArgumentType<T> {
 
 	private @Nullable Function<String, Object> getParseMethod() {
 		// Get a static valueOf(String), a parse(String), or a from(String) method.
-		final var method = Arrays.stream(type.getMethods())
+		final var method = Arrays.stream(this.type.getMethods())
 			.filter(m -> Modifier.isStatic(m.getModifiers()))
 			.filter(this::isValidMethod)
 			.filter(m -> (m.getName().equals("valueOf") || m.getName().equals("from") || m.getName().equals("parse")))
@@ -44,7 +44,7 @@ public class TryParseArgument<T> extends ArgumentType<T> {
 
 		// if we found a method, return that.
 		if (method.isPresent()) {
-			return (s) -> {
+			return s -> {
 				try {
 					return method.get().invoke(null, s);
 				} catch (IllegalAccessException | InvocationTargetException e) {
@@ -54,10 +54,10 @@ public class TryParseArgument<T> extends ArgumentType<T> {
 		}
 
 		// Otherwise, try to find a constructor that takes a string.
-		return Arrays.stream(type.getConstructors())
+		return Arrays.stream(this.type.getConstructors())
 			.filter(this::isValidMethod)
 			.findFirst()
-			.<Function<String, Object>>map(constructor -> (s) -> {
+			.<Function<String, Object>>map(constructor -> s -> {
 				try {
 					return constructor.newInstance(s);
 				} catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {

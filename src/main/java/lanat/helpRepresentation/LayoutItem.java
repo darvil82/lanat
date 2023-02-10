@@ -19,11 +19,11 @@ public class LayoutItem {
 	}
 
 	public LayoutItem(@NotNull Supplier<@Nullable String> layoutGenerator) {
-		this((c) -> layoutGenerator.get());
+		this(c -> layoutGenerator.get());
 	}
 
 	public LayoutItem(@NotNull String content) {
-		this((c) -> content);
+		this(c -> content);
 	}
 
 	public LayoutItem indent(int indent) {

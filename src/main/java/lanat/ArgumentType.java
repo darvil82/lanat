@@ -264,7 +264,12 @@ public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> imple
 	public static StdinArgument STDIN() {
 		return new StdinArgument();
 	}
+
 	public static <T extends Parseable<Ti>, Ti> FromParseableArgument<T, Ti> FROM_PARSEABLE(T parseable) {
 		return new FromParseableArgument<>(parseable);
+	}
+
+	public static <T> TryParseArgument<T> TRY_PARSE(Class<T> type) {
+		return new TryParseArgument<>(type);
 	}
 }

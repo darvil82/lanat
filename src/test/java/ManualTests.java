@@ -3,14 +3,10 @@ import lanat.Argument;
 import lanat.ArgumentType;
 import lanat.ErrorFormatter;
 import lanat.argumentTypes.Parseable;
-import lanat.argumentTypes.TryParseArgument;
 import lanat.helpRepresentation.HelpFormatter;
 import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.sql.Time;
-import java.util.Date;
 
 public final class ManualTests {
 	public static void main(String[] args) {
@@ -40,14 +36,14 @@ public final class ManualTests {
 			this.addArgument(Argument.create("testing", ArgumentType.FROM_PARSEABLE(new TestClass()))
 				.description("some description")
 			);
-			this.addArgument(Argument.create("hola", new TryParseArgument<>(Double.class))
+			this.addArgument(Argument.create("double", ArgumentType.TRY_PARSE(Double.class))
 				.description("some description")
 				.obligatory()
 				.onOk(value -> System.out.println("ok: " + value))
 			);
 		}};
 
-		var parsedArgs = argumentParser.parseArgsExpectErrorPrint("--hola 56.123");
+		var parsedArgs = argumentParser.parseArgsExpectErrorPrint("--double 56.123");
 	}
 }
 

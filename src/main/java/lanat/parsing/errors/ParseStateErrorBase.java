@@ -6,8 +6,10 @@ import lanat.Token;
 import lanat.utils.ErrorLevelProvider;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
@@ -132,6 +134,7 @@ abstract class ParseStateErrorBase<T extends Enum<T> & ErrorLevelProvider> imple
 	}
 
 	@Retention(RetentionPolicy.RUNTIME)
+	@Target({ ElementType.METHOD })
 	public @interface Handler {
 		@NotNull String value();
 	}

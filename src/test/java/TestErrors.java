@@ -3,6 +3,7 @@ import lanat.ArgumentType;
 import lanat.Command;
 import lanat.NamedWithDescription;
 import lanat.utils.ErrorCallbacks;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,8 +13,8 @@ import java.util.HashMap;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TestErrors extends UnitTests {
-	private final HashMap<String, Object> correct = new HashMap<>();
-	private final HashMap<String, Object> invalid = new HashMap<>();
+	private final @NotNull HashMap<String, Object> correct = new HashMap<>();
+	private final @NotNull HashMap<String, Object> invalid = new HashMap<>();
 
 	@BeforeEach
 	public void clear() {
@@ -21,24 +22,24 @@ public class TestErrors extends UnitTests {
 		this.invalid.clear();
 	}
 
-	private <T extends ErrorCallbacks<?, ?> & NamedWithDescription> T addCallbacks(T obj) {
+	private <T extends ErrorCallbacks<?, ?> & NamedWithDescription> @NotNull T addCallbacks(@NotNull T obj) {
 		obj.setOnCorrectCallback((v) -> this.correct.put(obj.getName(), v));
 		obj.setOnErrorCallback((a) -> this.invalid.put(obj.getName(), a));
 		return obj;
 	}
 
-	private void assertOk(String name, Object correct) {
+	private void assertOk(@NotNull String name, @NotNull Object correct) {
 		assertEquals(this.correct.get(name), correct);
 		assertNull(this.invalid.get(name));
 	}
 
-	private void assertErr(String name) {
+	private void assertErr(@NotNull String name) {
 		assertNull(this.correct.get(name));
 		assertNotNull(this.invalid.get(name));
 	}
 
 	@Override
-	protected void assertNotPresent(String name) {
+	protected void assertNotPresent(@NotNull String name) {
 		assertNull(this.correct.get(name));
 		assertNull(this.invalid.get(name));
 	}

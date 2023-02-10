@@ -78,7 +78,7 @@ public class UnitTests {
 	 * {@code this.parser.parseArgs("--%s %s".formatted(arg, values)).<T>get(arg).get();}
 	 * </pre>
 	 */
-	protected <T> T parseArg(String arg, String values) {
+	protected <T> T parseArg(@NotNull String arg, @NotNull String values) {
 		return this.parser.parseArgs("--%s %s".formatted(arg.trim(), values)).<T>get(arg).get();
 	}
 
@@ -89,7 +89,7 @@ public class UnitTests {
 	 * {@code assertNull(this.parser.parseArgs("").get(arg).get());}
 	 * </pre>
 	 */
-	protected void assertNotPresent(String arg) {
+	protected void assertNotPresent(@NotNull String arg) {
 		assertNull(this.parser.parseArgs("").get(arg).get());
 	}
 }

@@ -30,7 +30,7 @@ public class TestArgumentTypes extends UnitTests {
 
 	@Test
 	public void testBoolean() {
-		assertTrue(this.parser.parseArgs("--boolean").<Boolean>get("boolean").get());
+		assertEquals(Boolean.TRUE, this.parser.parseArgs("--boolean").<Boolean>get("boolean").get());
 		assertFalse(this.parser.parseArgs("").<Boolean>get("boolean").defined());
 	}
 

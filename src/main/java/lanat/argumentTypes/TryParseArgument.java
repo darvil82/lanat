@@ -4,7 +4,9 @@ import lanat.ArgumentType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Executable;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.function.Function;
@@ -16,21 +18,29 @@ public class TryParseArgument<T> extends ArgumentType<T> {
 
 	public TryParseArgument(@NotNull Class<T> type) {
 		this.type = type;
-		if ((this.parseMethod = this.getParseMethod()) == null) {
+
+		if ((this.parseMethod = this.getParseMethod()) == null)
 			throw new IllegalArgumentException(
-				"Type " + type.getName() + " must have a static valueOf(String), parse(String), or from(String) method, or a constructor that takes a string."
+				"Type " + type.getName() + " must have a static valueOf(String), parse(String), "
+					+ "or from(String) method, or a constructor that takes a string."
 			);
-		}
+	}
+
+	private boolean isValidMethod(Executable executable) {
+		return executable.getParameterCount() == 1 && executable.getParameterTypes()[0].equals(String.class);
+	}
+
+	private boolean isValidMethod(Method method) {
+		return this.isValidMethod((Executable)method) && method.getReturnType() == this.type;
 	}
 
 	private @Nullable Function<String, Object> getParseMethod() {
 		// Get a static valueOf(String), a parse(String), or a from(String) method.
 		final var method = Arrays.stream(type.getMethods())
-			.filter(m -> Modifier.isStatic(m.getModifiers())
-				&& (m.getName().equals("valueOf") || m.getName().equals("from") || m.getName().equals("parse"))
-				&& m.getParameterCount() == 1
-				&& m.getParameterTypes()[0].equals(String.class)
-			).findFirst();
+			.filter(m -> Modifier.isStatic(m.getModifiers()))
+			.filter(this::isValidMethod)
+			.filter(m -> (m.getName().equals("valueOf") || m.getName().equals("from") || m.getName().equals("parse")))
+			.findFirst();
 
 		// if we found a method, return that.
 		if (method.isPresent()) {
@@ -45,7 +55,7 @@ public class TryParseArgument<T> extends ArgumentType<T> {
 
 		// Otherwise, try to find a constructor that takes a string.
 		return Arrays.stream(type.getConstructors())
-			.filter(c -> c.getParameterCount() == 1 && c.getParameterTypes()[0].equals(String.class))
+			.filter(this::isValidMethod)
 			.findFirst()
 			.<Function<String, Object>>map(constructor -> (s) -> {
 				try {

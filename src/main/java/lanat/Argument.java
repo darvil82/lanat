@@ -14,10 +14,20 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
+/**
+ * <h2>Argument</h2>
+ *
+ * @see Command#addArgument(Argument)
+ * @see ArgumentGroup
+ *
+ * @param <Type> the ArgumentType subclass that will parse the value passed to the argument
+ * @param <TInner> the actual type of the value passed to the argument
+ */
 public class Argument<Type extends ArgumentType<TInner>, TInner>
 	implements MinimumErrorLevelConfig<CustomError>, ErrorCallbacks<TInner, Argument<Type, TInner>>, Resettable,
 	ParentCommandGetter, NamedWithDescription
 {
+	/** The type of this argument. This is the subParser that will be used to parse the value this argument should receive. */
 	public final @NotNull Type argType;
 	private PrefixChar prefixChar = PrefixChar.MINUS;
 	private final @NotNull List<@NotNull String> names = new ArrayList<>();
@@ -110,7 +120,9 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * Marks the argument as positional. This means that the value of this argument may be specified directly
 	 * without indicating a name of this argument. The positional place where it should be placed is
 	 * defined by the order of creation of the argument definitions.
-	 * <li>Note that an argument marked as positional can still be used by specifying a name.
+	 * <ul>
+	 *    <li>Note that an argument marked as positional can still be used by specifying a name.
+	 * </ul>
 	 */
 	public Argument<Type, TInner> positional() {
 		if (this.argType.getArgValueCount().max == 0) {
@@ -129,7 +141,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * argument name list (-abc), the prefix that will be valid is any against all the arguments specified
 	 * in that name list.
 	 * <p></p>
-	 * <h3>Allowed Characters:</h3>
+	 * <p>Allowed Characters:</p>
 	 * <code>'-', '+', '/', '@', '%', '^', '!', '~', '?', '=', ':'</code>
 	 */
 	public Argument<Type, TInner> prefix(PrefixChar prefixChar) {
@@ -488,8 +500,6 @@ interface ArgumentAdder {
 	 * Inserts an argument for this command to be parsed.
 	 *
 	 * @param argument the argument to be inserted
-	 * @param <T> the ArgumentType subclass that will parse the value passed to the argument
-	 * @param <TInner> the actual type of the value passed to the argument
 	 */
 	<T extends ArgumentType<TInner>, TInner> void addArgument(@NotNull Argument<T, TInner> argument);
 

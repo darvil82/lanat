@@ -18,6 +18,8 @@ import java.util.function.Consumer;
 
 /**
  * A command is a container for {@link Argument}s and other Sub{@link Command}s.
+ * @see ArgumentGroup
+ * @see Argument
  */
 public class Command
 	extends ErrorsContainer<CustomError>

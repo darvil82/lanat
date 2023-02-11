@@ -4,6 +4,7 @@ plugins {
 
 group 'darvil'
 version 'INDEV'
+java.sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
 	mavenCentral()
@@ -15,6 +16,11 @@ dependencies {
 	testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
 }
 
+java {
+	withJavadocJar()
+	withSourcesJar()
+}
+
 test {
 	useJUnitPlatform()
 
@@ -24,6 +30,10 @@ test {
 }
 
 tasks.withType(JavaCompile).configureEach {
+	options.encoding = "UTF-8"
+}
+
+tasks.withType(Javadoc).configureEach {
 	options.encoding = "UTF-8"
 }
 

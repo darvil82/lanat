@@ -256,7 +256,7 @@ public class Command
 		}
 
 		// invoke callbacks for all arguments if they have a value
-		this.parser.getParsedArgumentsHashMap().forEach((a, v) -> { if (v != null) a.invokeCallbacks(v); });
+		this.parser.getParsedArgumentsHashMap().forEach(Argument::invokeCallbacks);
 
 		this.subCommands.forEach(Command::invokeCallbacks);
 	}

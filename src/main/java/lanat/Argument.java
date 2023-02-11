@@ -331,16 +331,17 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 	// no worries about casting here, it will always receive the correct type
 	@SuppressWarnings("unchecked")
-	void invokeCallbacks(@NotNull Object okValue) {
+	void invokeCallbacks(@Nullable Object okValue) {
 		if (this.hasExitErrors()) {
+			// invoke the error callback
 			this.invokeCallbacks();
 			return;
 		}
 
-		if (
-			this.onCorrectCallback == null
-				|| this.getUsageCount() == 0
-				|| (!this.allowUnique && this.parentCmd.uniqueArgumentReceivedValue())
+		if (okValue == null
+			|| this.onCorrectCallback == null
+			|| this.getUsageCount() == 0
+			|| (!this.allowUnique && this.parentCmd.uniqueArgumentReceivedValue())
 		) return;
 
 		this.onCorrectCallback.accept((@NotNull TInner)okValue);

@@ -24,22 +24,21 @@ class Test {
 				.defaultValue(18)
 				.description("The age of the user.")
 				.addNames("a")
-				.prefix('+')
+				.prefixChar(Argument.PrefixChar.PLUS)
 			);
 		}};
 
 		// example: david +a20
 		final var parsedArguments = myParser.parseArgs(args);
 
-		System.out.println("Welcome %s! You are %d years old.".formatted(
-			parsedArguments.get("name").get(),
-			parsedArguments.<Integer>get("age").get()
-		));
+		System.out.printf(
+			"Welcome %s! You are %d years old.%n",
+			parsedArguments.get("name").get(), parsedArguments.<Integer>get("age").get()
+		);
 
 		// if no surname was specified, we'll assume it is "Lewis". (Don't ask why)
 		System.out.println(
-			"The surname of the user is "
-				+ parsedArguments.get("surname").undefined("Lewis")
+			"The surname of the user is " + parsedArguments.get("surname").undefined("Lewis")
 		);
 	}
 }

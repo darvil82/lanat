@@ -35,6 +35,7 @@ public final class ManualTests {
 		final var argumentParser = new TestingParser("Testing") {{
 			this.addArgument(Argument.create("testing", ArgumentType.FROM_PARSEABLE(new TestClass()))
 				.description("some description")
+				.prefix(Argument.PrefixChar.PLUS)
 			);
 
 			this.addArgument(Argument.create("double", ArgumentType.TRY_PARSE(Double.class))

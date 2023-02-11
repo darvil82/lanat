@@ -19,7 +19,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	ParentCommandGetter, NamedWithDescription
 {
 	public final @NotNull Type argType;
-	private char prefix = '-';
+	private PrefixChar prefixChar = PrefixChar.MINUS;
 	private final @NotNull List<@NotNull String> names = new ArrayList<>();
 	private @Nullable String description;
 	private boolean obligatory = false, positional = false, allowUnique = false;
@@ -31,9 +31,25 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	private final @NotNull ModifyRecord<Color> representationColor = new ModifyRecord<>(null);
 
 	/** The list of prefixes that can be used. */
-	private static final char[] VALID_PREFIXES = {
-		'-', '+', '/', '@', '$', '%', '^', '&', '*', '!', '~', '#', '?', '<', '>', '|', '=', ':'
-	};
+	public enum PrefixChar {
+		MINUS('-'),
+		PLUS('+'),
+		SLASH('/'),
+		AT('@'),
+		PERCENT('%'),
+		CARET('^'),
+		EXCLAMATION('!'),
+		TILDE('~'),
+		QUESTION('?'),
+		EQUALS('='),
+		COLON(':');
+
+		public final char character;
+
+		PrefixChar(char character) {
+			this.character = character;
+		}
+	}
 
 
 	public Argument(@NotNull Type argType, @NotNull String... names) {
@@ -114,20 +130,15 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * in that name list.
 	 * <p></p>
 	 * <h3>Allowed Characters:</h3>
-	 * <code>'-', '+', '/', '@', '$', '%', '^', '&', '*', '!', '~', '#', '?', '<', '>', '|', '=', ':'</code>
+	 * <code>'-', '+', '/', '@', '%', '^', '!', '~', '?', '=', ':'</code>
 	 */
-	public Argument<Type, TInner> prefix(char prefix) {
-		for (char validPrefix : Argument.VALID_PREFIXES) {
-			if (prefix == validPrefix) {
-				this.prefix = prefix;
-				return this;
-			}
-		}
-		throw new IllegalArgumentException("Invalid prefix: '" + prefix + "'");
+	public Argument<Type, TInner> prefix(PrefixChar prefixChar) {
+		this.prefixChar = prefixChar;
+		return this;
 	}
 
-	public char getPrefix() {
-		return this.prefix;
+	public PrefixChar getPrefix() {
+		return this.prefixChar;
 	}
 
 	/**
@@ -319,7 +330,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * Checks if this argument matches the given name, including the prefix.
 	 */
 	public boolean checkMatch(@NotNull String name) {
-		return this.names.stream().anyMatch(a -> name.equals(Character.toString(this.prefix).repeat(2) + a));
+		return this.names.stream()
+			.anyMatch(a -> name.equals(Character.toString(this.prefixChar.character).repeat(2) + a));
 	}
 
 	/**
@@ -401,7 +413,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	public @NotNull String toString() {
 		return "Argument<%s>[names=%s, prefix='%c', obligatory=%b, positional=%b, allowUnique=%b, defaultValue=%s]"
 			.formatted(
-				this.argType.getClass().getSimpleName(), this.names, this.prefix, this.obligatory,
+				this.argType.getClass().getSimpleName(), this.names, this.prefixChar.character, this.obligatory,
 				this.positional, this.allowUnique, this.defaultValue
 			);
 	}

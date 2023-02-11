@@ -16,7 +16,7 @@ public final class ArgumentRepr {
 
 		final var outText = new TextFormatter();
 		final String names = String.join("/", arg.getNames());
-		final char argPrefix = arg.getPrefix();
+		final char argPrefix = arg.getPrefix().character;
 
 		if (arg.isObligatory()) {
 			outText.addFormat(FormatOption.BOLD, FormatOption.UNDERLINE);

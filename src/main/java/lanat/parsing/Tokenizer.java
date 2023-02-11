@@ -244,7 +244,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 		final var charArray = str.substring(1).toCharArray();
 
 		for (final char argName : charArray) {
-			if (!this.runForArgument(argName, a -> possiblePrefixes.add(a.getPrefix())))
+			if (!this.runForArgument(argName, a -> possiblePrefixes.add(a.getPrefix().character)))
 				break;
 		}
 

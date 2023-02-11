@@ -36,14 +36,14 @@ public final class ManualTests {
 			this.addArgument(Argument.create("testing", ArgumentType.FROM_PARSEABLE(new TestClass()))
 				.description("some description")
 			);
+
 			this.addArgument(Argument.create("double", ArgumentType.TRY_PARSE(Double.class))
 				.description("some description")
-				.obligatory()
 				.onOk(value -> System.out.println("ok: " + value))
 			);
 		}};
 
-		var parsedArgs = argumentParser.parseArgsExpectErrorPrint("--double 56.123");
+		var parsedArgs = argumentParser.parseArgsExpectErrorPrint("--help");
 	}
 }
 

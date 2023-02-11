@@ -1,4 +1,4 @@
-package lanat;
+package lanat.parsing;
 
 import lanat.utils.displayFormatter.Color;
 import org.jetbrains.annotations.NotNull;

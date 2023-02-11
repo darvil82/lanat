@@ -1,8 +1,6 @@
 package lanat.parsing;
 
 import lanat.Command;
-import lanat.Token;
-import lanat.TokenType;
 import lanat.parsing.errors.TokenizeError;
 import lanat.utils.Pair;
 import org.jetbrains.annotations.NotNull;

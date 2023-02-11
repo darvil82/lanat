@@ -2,6 +2,8 @@ package lanat;
 
 import lanat.helpRepresentation.HelpFormatter;
 import lanat.parsing.Parser;
+import lanat.parsing.Token;
+import lanat.parsing.TokenType;
 import lanat.parsing.Tokenizer;
 import lanat.parsing.errors.CustomError;
 import lanat.utils.*;
@@ -252,7 +254,10 @@ public class Command
 		} else {
 			if (this.onCorrectCallback != null) this.onCorrectCallback.accept(this.getParsedArguments());
 		}
-		this.parser.getParsedArgumentsHashMap().forEach(Argument::invokeCallbacks);
+
+		// invoke callbacks for all arguments if they have a value
+		this.parser.getParsedArgumentsHashMap().forEach((a, v) -> { if (v != null) a.invokeCallbacks(v); });
+
 		this.subCommands.forEach(Command::invokeCallbacks);
 	}
 

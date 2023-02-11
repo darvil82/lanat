@@ -1,6 +1,7 @@
 package lanat;
 
 import lanat.helpRepresentation.HelpFormatter;
+import lanat.parsing.Token;
 import lanat.parsing.errors.ErrorHandler;
 import lanat.utils.UtlString;
 import lanat.utils.displayFormatter.FormatOption;

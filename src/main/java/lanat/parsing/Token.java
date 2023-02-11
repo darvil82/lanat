@@ -1,4 +1,4 @@
-package lanat;
+package lanat.parsing;
 
 import lanat.utils.UtlString;
 import lanat.utils.displayFormatter.TextFormatter;

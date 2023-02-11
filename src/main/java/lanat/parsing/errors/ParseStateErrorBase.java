@@ -2,7 +2,7 @@ package lanat.parsing.errors;
 
 import lanat.ErrorFormatter;
 import lanat.ErrorLevel;
-import lanat.Token;
+import lanat.parsing.Token;
 import lanat.utils.ErrorLevelProvider;
 import org.jetbrains.annotations.NotNull;
 

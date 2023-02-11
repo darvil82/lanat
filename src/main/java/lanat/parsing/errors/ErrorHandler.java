@@ -1,8 +1,8 @@
 package lanat.parsing.errors;
 
 import lanat.Command;
-import lanat.Token;
-import lanat.TokenType;
+import lanat.parsing.Token;
+import lanat.parsing.TokenType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;

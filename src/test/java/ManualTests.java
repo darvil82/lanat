@@ -44,7 +44,7 @@ public final class ManualTests {
 			);
 		}};
 
-		var parsedArgs = argumentParser.parseArgsExpectErrorPrint("--help");
+		var parsedArgs = argumentParser.parseArgsExpectErrorPrint("--double aw");
 	}
 }
 

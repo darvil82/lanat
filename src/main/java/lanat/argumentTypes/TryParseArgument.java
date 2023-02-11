@@ -34,6 +34,11 @@ public class TryParseArgument<T> extends ArgumentType<T> {
 		return this.isValidMethod((Executable)method) && method.getReturnType() == this.type;
 	}
 
+	@Override
+	protected void addError(@NotNull String value) {
+		super.addError("Unable to parse value '" + value + "' as type " + this.type.getSimpleName() + ".");
+	}
+
 	private @Nullable Function<String, Object> getParseMethod() {
 		// Get a static valueOf(String), a parse(String), or a from(String) method.
 		final var method = Arrays.stream(this.type.getMethods())
@@ -48,8 +53,9 @@ public class TryParseArgument<T> extends ArgumentType<T> {
 				try {
 					return method.get().invoke(null, s);
 				} catch (IllegalAccessException | InvocationTargetException e) {
-					throw new RuntimeException(e);
+					this.addError(s);
 				}
+				return null;
 			};
 		}
 
@@ -61,8 +67,9 @@ public class TryParseArgument<T> extends ArgumentType<T> {
 				try {
 					return constructor.newInstance(s);
 				} catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-					throw new RuntimeException(e);
+					this.addError(s);
 				}
+				return null;
 			}).orElse(null);
 	}
 

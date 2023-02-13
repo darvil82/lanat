@@ -27,18 +27,31 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	implements MinimumErrorLevelConfig<CustomError>, ErrorCallbacks<TInner, Argument<Type, TInner>>, Resettable,
 	ParentCommandGetter, NamedWithDescription
 {
-	/** The type of this argument. This is the subParser that will be used to parse the value this argument should receive. */
+	/** The type of this argument. This is the subParser that will be used to
+	 * parse the value/s this argument should receive. */
 	public final @NotNull Type argType;
 	private PrefixChar prefixChar = PrefixChar.MINUS;
 	private final @NotNull List<@NotNull String> names = new ArrayList<>();
 	private @Nullable String description;
 	private boolean obligatory = false, positional = false, allowUnique = false;
 	private @Nullable TInner defaultValue;
+
+	/** The Command that this Argument belongs to. This should never be null after initialization. */
 	private Command parentCmd;
+
+	/** The ArgumentGroup that this Argument belongs to. If this Argument does not belong to any group, this
+	 * may be null. */
 	private @Nullable ArgumentGroup parentGroup;
+
+	// callbacks for error handling
 	private @Nullable Consumer<@NotNull Argument<Type, TInner>> onErrorCallback;
 	private @Nullable Consumer<@NotNull TInner> onCorrectCallback;
+
+	/** The color that this Argument will have in places where it is displayed, such as the help message.
+	 * By default, the color will be picked from the {@link Command#colorsPool} of the parent command at
+	 * {@link Argument#setParentCmd(Command)}. */
 	private final @NotNull ModifyRecord<Color> representationColor = new ModifyRecord<>(null);
+
 
 	/** The list of prefixes that can be used. */
 	public enum PrefixChar {
@@ -62,11 +75,13 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 
+	/** Creates an argument with the specified type and names. */
 	public Argument(@NotNull Type argType, @NotNull String... names) {
 		this.addNames(names);
 		this.argType = argType;
 	}
 
+	/** Creates an argument with the specified name and type. */
 	public Argument(@NotNull String name, @NotNull Type argType) {
 		this(argType, name);
 	}
@@ -137,12 +152,10 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	/**
-	 * Specify the prefix of this argument. By default, this is <code>'-'</code>. If this argument is used in an
+	 * Specify the prefix of this argument. By default, this is {@link PrefixChar#MINUS}. If this argument is used in an
 	 * argument name list (-abc), the prefix that will be valid is any against all the arguments specified
 	 * in that name list.
-	 * <p></p>
-	 * <p>Allowed Characters:</p>
-	 * <code>'-', '+', '/', '@', '%', '^', '!', '~', '?', '=', ':'</code>
+	 * @see PrefixChar
 	 */
 	public Argument<Type, TInner> prefix(PrefixChar prefixChar) {
 		this.prefixChar = prefixChar;
@@ -179,6 +192,11 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	/**
 	 * Add more names to this argument. This is useful if you want the same argument to be used with multiple
 	 * different names.
+	 * <hr><hr>
+	 * <p>
+	 *     Single character names can be used in argument name lists (e.g. <code>-abc</code>), each alphabetic
+	 * 	   character being an argument name, that is, <code>-a -b -c</code>.
+	 * </p>
 	 */
 	public Argument<Type, TInner> addNames(@NotNull String... names) {
 		Arrays.stream(names)
@@ -222,6 +240,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		return this.description;
 	}
 
+	/** Sets the parent command of this argument. This is called when adding the Argument to a command at
+	 * {@link Command#addArgument(Argument)} */
 	void setParentCmd(@NotNull Command parentCmd) {
 		if (this.parentCmd != null) {
 			throw new IllegalStateException("Argument already added to a command");
@@ -235,6 +255,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		return this.parentCmd;
 	}
 
+	/** Sets the parent group of this argument. This is called when adding the Argument to a group at
+	 * {@link ArgumentGroup#addArgument(Argument)} */
 	void setParentGroup(@NotNull ArgumentGroup parentGroup) {
 		if (this.parentGroup != null) {
 			throw new IllegalStateException("Argument already added to a group");

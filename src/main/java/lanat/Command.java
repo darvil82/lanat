@@ -37,9 +37,7 @@ public class Command
 	private boolean isRootCommand = false;
 	private final @NotNull ModifyRecord<HelpFormatter> helpFormatter = new ModifyRecord<>(new HelpFormatter(this));
 
-	/**
-	 * A pool of the colors that an argument will have when being represented on the help
-	 */
+	/** A pool of the colors that an argument may have when being represented on the help */
 	final @NotNull LoopPool<@NotNull Color> colorsPool = new LoopPool<>(-1, Color.getBrightColors());
 
 

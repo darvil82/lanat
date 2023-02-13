@@ -2,7 +2,7 @@ package lanat;
 
 import lanat.argumentTypes.*;
 import lanat.parsing.errors.CustomError;
-import lanat.utils.ErrorsContainer;
+import lanat.utils.ErrorsContainerImpl;
 import lanat.utils.Resettable;
 import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
-public abstract class ArgumentType<T> extends ErrorsContainer<CustomError> implements Resettable, Parseable<T> {
+public abstract class ArgumentType<T> extends ErrorsContainerImpl<CustomError> implements Resettable, Parseable<T> {
 	/** This is the value that this argument type current has while being parsed. */
 	private T currentValue;
 

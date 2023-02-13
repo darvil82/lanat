@@ -3,13 +3,13 @@ package lanat.parsing;
 import lanat.Argument;
 import lanat.Command;
 import lanat.utils.ErrorLevelProvider;
-import lanat.utils.ErrorsContainer;
+import lanat.utils.ErrorsContainerImpl;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.function.Consumer;
 
-public abstract class ParsingStateBase<T extends ErrorLevelProvider> extends ErrorsContainer<T> {
+public abstract class ParsingStateBase<T extends ErrorLevelProvider> extends ErrorsContainerImpl<T> {
 	protected final @NotNull Command command;
 	/** Whether the parsing/tokenizing has finished. */
 	protected boolean hasFinished = false;

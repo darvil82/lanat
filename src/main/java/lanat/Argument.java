@@ -17,18 +17,26 @@ import java.util.function.Consumer;
 /**
  * <h2>Argument</h2>
  *
+ * An Argument specifies a value that the user can introduce to the command. This value will be parsed by the specified
+ * {@link ArgumentType} each time the Argument is used. Once finished parsing, the value may be retrieved by using
+ * {@link ParsedArguments#get(String)} on the {@link ParsedArguments} object returned by
+ * {@link ArgumentParser#parseArgs(String[])}.
+ *
  * @see Command#addArgument(Argument)
  * @see ArgumentGroup
+ * @see ArgumentParser
  *
- * @param <Type> the ArgumentType subclass that will parse the value passed to the argument
+ * @param <Type> the {@link ArgumentType} subclass that will parse the value passed to the argument
  * @param <TInner> the actual type of the value passed to the argument
  */
 public class Argument<Type extends ArgumentType<TInner>, TInner>
-	implements MinimumErrorLevelConfig<CustomError>, ErrorCallbacks<TInner, Argument<Type, TInner>>, Resettable,
+	implements ErrorsContainer<CustomError>, ErrorCallbacks<TInner, Argument<Type, TInner>>, Resettable,
 	ParentCommandGetter, NamedWithDescription
 {
-	/** The type of this argument. This is the subParser that will be used to
-	 * parse the value/s this argument should receive. */
+	/**
+	 * The type of this argument. This is the subParser that will be used to
+	 * parse the value/s this argument should receive.
+	 */
 	public final @NotNull Type argType;
 	private PrefixChar prefixChar = PrefixChar.MINUS;
 	private final @NotNull List<@NotNull String> names = new ArrayList<>();
@@ -39,17 +47,21 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	/** The Command that this Argument belongs to. This should never be null after initialization. */
 	private Command parentCmd;
 
-	/** The ArgumentGroup that this Argument belongs to. If this Argument does not belong to any group, this
-	 * may be null. */
+	/**
+	 * The ArgumentGroup that this Argument belongs to. If this Argument does not belong to any group, this
+	 * may be null.
+	 */
 	private @Nullable ArgumentGroup parentGroup;
 
 	// callbacks for error handling
 	private @Nullable Consumer<@NotNull Argument<Type, TInner>> onErrorCallback;
 	private @Nullable Consumer<@NotNull TInner> onCorrectCallback;
 
-	/** The color that this Argument will have in places where it is displayed, such as the help message.
+	/**
+	 * The color that this Argument will have in places where it is displayed, such as the help message.
 	 * By default, the color will be picked from the {@link Command#colorsPool} of the parent command at
-	 * {@link Argument#setParentCmd(Command)}. */
+	 * {@link Argument#setParentCmd(Command)}.
+	 */
 	private final @NotNull ModifyRecord<Color> representationColor = new ModifyRecord<>(null);
 
 
@@ -155,6 +167,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * Specify the prefix of this argument. By default, this is {@link PrefixChar#MINUS}. If this argument is used in an
 	 * argument name list (-abc), the prefix that will be valid is any against all the arguments specified
 	 * in that name list.
+	 *
 	 * @see PrefixChar
 	 */
 	public Argument<Type, TInner> prefix(PrefixChar prefixChar) {
@@ -192,10 +205,10 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	/**
 	 * Add more names to this argument. This is useful if you want the same argument to be used with multiple
 	 * different names.
-	 * <hr><hr>
+	 * <br><br>
 	 * <p>
-	 *     Single character names can be used in argument name lists (e.g. <code>-abc</code>), each alphabetic
-	 * 	   character being an argument name, that is, <code>-a -b -c</code>.
+	 * Single character names can be used in argument name lists (e.g. <code>-abc</code>), each alphabetic
+	 * character being an argument name, that is, <code>-a -b -c</code>.
 	 * </p>
 	 */
 	public Argument<Type, TInner> addNames(@NotNull String... names) {
@@ -240,8 +253,10 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		return this.description;
 	}
 
-	/** Sets the parent command of this argument. This is called when adding the Argument to a command at
-	 * {@link Command#addArgument(Argument)} */
+	/**
+	 * Sets the parent command of this argument. This is called when adding the Argument to a command at
+	 * {@link Command#addArgument(Argument)}
+	 */
 	void setParentCmd(@NotNull Command parentCmd) {
 		if (this.parentCmd != null) {
 			throw new IllegalStateException("Argument already added to a command");
@@ -255,8 +270,10 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		return this.parentCmd;
 	}
 
-	/** Sets the parent group of this argument. This is called when adding the Argument to a group at
-	 * {@link ArgumentGroup#addArgument(Argument)} */
+	/**
+	 * Sets the parent group of this argument. This is called when adding the Argument to a group at
+	 * {@link ArgumentGroup#addArgument(Argument)}
+	 */
 	void setParentGroup(@NotNull ArgumentGroup parentGroup) {
 		if (this.parentGroup != null) {
 			throw new IllegalStateException("Argument already added to a group");

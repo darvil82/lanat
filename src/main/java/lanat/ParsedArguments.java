@@ -59,7 +59,7 @@ public class ParsedArguments {
 	 * Returns the parsed value of the argument with the given name. In order to access arguments in
 	 * sub-commands, use the separator specified by {@link #setSeparator(String)}. (By default, this is <code>.</code>)
 	 *
-	 * <hr><hr>
+	 * <br><br>
 	 *
 	 * <strong>Example:</strong>
 	 * <pre>
@@ -81,7 +81,7 @@ public class ParsedArguments {
 	 * This method will return an {@link Object} that can be cast to the desired type. However, it is recommended
 	 * to use the type parameter instead, to avoid casting.
 	 *
-	 * <hr><hr>
+	 * <br><br>
 	 *
 	 * <strong>Example:</strong>
 	 * <pre>

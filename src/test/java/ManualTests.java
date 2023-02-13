@@ -1,7 +1,4 @@
-import lanat.ArgValueCount;
-import lanat.Argument;
-import lanat.ArgumentType;
-import lanat.ErrorFormatter;
+import lanat.*;
 import lanat.argumentTypes.Parseable;
 import lanat.helpRepresentation.HelpFormatter;
 import lanat.utils.displayFormatter.TextFormatter;
@@ -36,15 +33,24 @@ public final class ManualTests {
 			this.addArgument(Argument.create("testing", ArgumentType.FROM_PARSEABLE(new TestClass()))
 				.description("some description")
 				.prefix(Argument.PrefixChar.PLUS)
+				.onOk(value -> System.out.println("ok: " + value))
 			);
 
 			this.addArgument(Argument.create("double", ArgumentType.TRY_PARSE(Double.class))
 				.description("some description")
 				.onOk(value -> System.out.println("ok: " + value))
 			);
+
+			this.addSubCommand(new Command("hello") {{
+				this.addArgument(Argument.create("world", ArgumentType.INTEGER_RANGE(5, 10))
+					.description("a range between 5 and 10")
+					.obligatory()
+					.onOk(value -> System.out.println("ok: " + value))
+				);
+			}});
 		}};
 
-		var parsedArgs = argumentParser.parseArgsExpectErrorPrint("--double aw");
+		argumentParser.parseArgsExpectErrorPrint("++testing 23 hello");
 	}
 }
 

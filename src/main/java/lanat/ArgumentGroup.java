@@ -15,22 +15,27 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resetta
 	private Command parentCommand;
 	private @Nullable ArgumentGroup parentGroup;
 
-	/** The reason we keep references to the Arguments instead of just calling {@link Command#addArgument(Argument)} for
+	/**
+	 * The reason we keep references to the Arguments instead of just calling {@link Command#addArgument(Argument)} for
 	 * each one added to this group is because at parsing, we might need to know which arguments were used in this group.
 	 * <br><br>
 	 * Sure, we could just use {@link Command#arguments}, but that would mean that we would have to iterate through
 	 * all the arguments in there for filtering ours, which is probably worse.
-	 * */
+	 */
 	private final @NotNull List<@NotNull Argument<?, ?>> arguments = new ArrayList<>();
 
-	/** We need to later set the parent command of all group children after initialization, so we keep a
-	 * reference to them. */
+	/**
+	 * We need to later set the parent command of all group children after initialization, so we keep a
+	 * reference to them.
+	 */
 	private final @NotNull List<@NotNull ArgumentGroup> subGroups = new ArrayList<>();
 	private boolean isExclusive = false;
 
-	/** When set to true, indicates that one argument in this group has been used.
+	/**
+	 * When set to true, indicates that one argument in this group has been used.
 	 * This is used when later checking for exclusivity in the groups tree at
-	 * {@link ArgumentGroup#checkExclusivity(ArgumentGroup)} */
+	 * {@link ArgumentGroup#checkExclusivity(ArgumentGroup)}
+	 */
 	private boolean argumentUsed = false;
 
 

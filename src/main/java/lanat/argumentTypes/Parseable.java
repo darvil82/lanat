@@ -7,6 +7,8 @@ import org.jetbrains.annotations.Nullable;
 
 public interface Parseable<T> {
 	@NotNull ArgValueCount getArgValueCount();
+
 	@Nullable T parseValues(@NotNull String @NotNull [] args);
+
 	@Nullable TextFormatter getRepresentation();
 }

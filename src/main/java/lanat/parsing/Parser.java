@@ -1,6 +1,9 @@
 package lanat.parsing;
 
-import lanat.*;
+import lanat.ArgValueCount;
+import lanat.Argument;
+import lanat.ArgumentType;
+import lanat.Command;
 import lanat.parsing.errors.CustomError;
 import lanat.parsing.errors.ParseError;
 import org.jetbrains.annotations.NotNull;

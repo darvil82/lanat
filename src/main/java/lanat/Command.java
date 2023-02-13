@@ -17,12 +17,16 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * A command is a container for {@link Argument}s and other Sub{@link Command}s.
+ * <h2>Command</h2>
+ *
+ * A command is a container for {@link Argument}s, other Sub{@link Command}s and {@link ArgumentGroup}s.
+ *
+ *
  * @see ArgumentGroup
  * @see Argument
  */
 public class Command
-	extends ErrorsContainer<CustomError>
+	extends ErrorsContainerImpl<CustomError>
 	implements ErrorCallbacks<ParsedArguments, Command>, ArgumentAdder, ArgumentGroupAdder, Resettable, NamedWithDescription
 {
 	public final @NotNull String name;

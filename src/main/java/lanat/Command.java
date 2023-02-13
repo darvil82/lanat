@@ -21,7 +21,6 @@ import java.util.function.Consumer;
  *
  * A command is a container for {@link Argument}s, other Sub{@link Command}s and {@link ArgumentGroup}s.
  *
- *
  * @see ArgumentGroup
  * @see Argument
  */

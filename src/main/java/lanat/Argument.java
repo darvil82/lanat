@@ -22,6 +22,34 @@ import java.util.function.Consumer;
  * {@link ParsedArguments#get(String)} on the {@link ParsedArguments} object returned by
  * {@link ArgumentParser#parseArgs(String[])}.
  *
+ * <p>
+ * An Argument can be created using the factory methods available, like {@link Argument#create(String...)}.
+ * </p>
+ * <br><br>
+ * <h3>Example:</h3>
+ *
+ * <p>
+ * An Argument with the names "name" and "n" that will parse an integer value. There are several ways to
+ * create this argument.
+ * <p>
+ *     <strong>Using the factory methods:</strong>
+ *     <pre>{@code
+ *     Argument.create(ArgumentType.INTEGER(), "name", "n");
+ *     Argument.create("name", ArgumentType.INTEGER())
+ *         .addNames("n");
+ *     }</pre>
+ * </p>
+ * <p>
+ *     <strong>Using the constructors:</strong>
+ *     <pre>{@code
+ *     new Argument<>(ArgumentType.INTEGER(), "name", "n");
+ *     new Argument<>("name", ArgumentType.INTEGER())
+ *         .addNames("n");
+ *     }</pre>
+ * </p>
+ *
+ * </p>
+ *
  * @see Command#addArgument(Argument)
  * @see ArgumentGroup
  * @see ArgumentParser

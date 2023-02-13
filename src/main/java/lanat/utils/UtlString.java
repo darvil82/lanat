@@ -170,9 +170,9 @@ public final class UtlString {
 		return UtlString.center(str, width, '─');
 	}
 
-	public static @NotNull String trim(@NotNull String str, @NotNull String pattern) {
-		return str.replaceAll("^" + pattern + "+", "")
-			.replaceAll(pattern + "+$", "");
+	public static @NotNull String trim(@NotNull String str, @NotNull String regex) {
+		return str.replaceAll("^" + regex + "+", "")
+			.replaceAll(regex + "+$", "");
 	}
 
 	public static @NotNull String trim(@NotNull String str) {

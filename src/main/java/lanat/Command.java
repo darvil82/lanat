@@ -36,13 +36,15 @@ public class Command
 	final @NotNull ArrayList<@NotNull ArgumentGroup> argumentGroups = new ArrayList<>();
 	private final @NotNull ModifyRecord<@NotNull TupleCharacter> tupleChars = new ModifyRecord<>(TupleCharacter.SQUARE_BRACKETS);
 	private final @NotNull ModifyRecord<@NotNull Integer> errorCode = new ModifyRecord<>(1);
+
+	// error handling callbacks
 	private @Nullable Consumer<Command> onErrorCallback;
 	private @Nullable Consumer<ParsedArguments> onCorrectCallback;
-	private boolean isRootCommand = false;
+
 	private final @NotNull ModifyRecord<HelpFormatter> helpFormatter = new ModifyRecord<>(new HelpFormatter(this));
 
-	/** A pool of the colors that an argument may have when being represented on the help */
-	final @NotNull LoopPool<@NotNull Color> colorsPool = new LoopPool<>(-1, Color.getBrightColors());
+	/** A pool of the colors that an argument may have when being represented on the help. */
+	final @NotNull LoopPool<@NotNull Color> colorsPool = LoopPool.atRandomIndex(Color.getBrightColors());
 
 
 	public Command(@NotNull String name, @Nullable String description) {
@@ -60,11 +62,6 @@ public class Command
 
 	public Command(@NotNull String name) {
 		this(name, null);
-	}
-
-	Command(@NotNull String name, @Nullable String description, boolean isRootCommand) {
-		this(name, description);
-		this.isRootCommand = isRootCommand;
 	}
 
 	@Override
@@ -96,7 +93,7 @@ public class Command
 			throw new IllegalArgumentException("cannot create two sub commands with the same name");
 		}
 
-		if (cmd.isRootCommand) {
+		if (cmd instanceof ArgumentParser) {
 			throw new IllegalArgumentException("cannot add root command as sub command");
 		}
 
@@ -174,9 +171,6 @@ public class Command
 			|| this.subCommands.stream().anyMatch(Command::uniqueArgumentReceivedValue);
 	}
 
-	public boolean isRootCommand() {
-		return this.isRootCommand;
-	}
 
 	@Override
 	public @NotNull String toString() {
@@ -295,9 +289,7 @@ public class Command
 
 		/* If we have errors, or the subcommands had errors, do OR with our own error level.
 		 * By doing this, the error code of a subcommand will be OR'd with the error codes of all its parents. */
-		if (
-			this.hasExitErrors() || errCode != 0
-		) {
+		if (this.hasExitErrors() || errCode != 0) {
 			errCode |= this.errorCode.get();
 		}
 

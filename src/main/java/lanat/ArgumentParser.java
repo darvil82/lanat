@@ -16,7 +16,7 @@ public class ArgumentParser extends Command {
 
 
 	public ArgumentParser(@NotNull String programName, @Nullable String description) {
-		super(programName, description, true);
+		super(programName, description);
 	}
 
 	public ArgumentParser(@NotNull String programName) {

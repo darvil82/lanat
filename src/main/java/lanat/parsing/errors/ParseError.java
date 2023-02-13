@@ -2,6 +2,7 @@ package lanat.parsing.errors;
 
 import lanat.Argument;
 import lanat.ArgumentGroup;
+import lanat.ArgumentParser;
 import lanat.ErrorLevel;
 import lanat.utils.ErrorLevelProvider;
 import org.jetbrains.annotations.NotNull;
@@ -88,7 +89,7 @@ public class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 
 		this.fmt()
 			.setContents(
-				argCmd.isRootCommand()
+				argCmd instanceof ArgumentParser
 					? "Obligatory argument '%s' not used.".formatted(this.argument.getName())
 					: "Obligatory argument '%s' for command '%s' not used.".formatted(this.argument.getName(), argCmd.name)
 			)

@@ -7,14 +7,24 @@ public class LoopPool<T> {
 	private int index;
 
 	@SafeVarargs
-	public LoopPool(int startAt, T @NotNull ... pool) {
+	private LoopPool(int startAt, T @NotNull ... pool) {
 		this.pool = pool;
-		this.index = startAt < 0 ? Random.randInt(pool.length) : startAt % pool.length;
+		this.setIndex(startAt);
 	}
 
 	@SafeVarargs
-	public LoopPool(T... pool) {
-		this(0, pool);
+	public static <T> LoopPool<T> of(T @NotNull ... pool) {
+		return new LoopPool<>(0, pool);
+	}
+
+	@SafeVarargs
+	public static <T> LoopPool<T> of(int startAt, T @NotNull ... pool) {
+		return new LoopPool<>(startAt, pool);
+	}
+
+	@SafeVarargs
+	public static <T> LoopPool<T> atRandomIndex(T @NotNull ... pool) {
+		return new LoopPool<>(Random.randInt(pool.length), pool);
 	}
 
 	private int getValidIndex(int index) {

@@ -435,7 +435,23 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 			|| (!this.allowUnique && this.parentCmd.uniqueArgumentReceivedValue())
 		) return;
 
-		this.onCorrectCallback.accept((@NotNull TInner)okValue);
+		final var invocationOption = this.parentCmd.getArgumentCallbackInvocationOption();
+
+		if (
+			(
+				invocationOption == ArgumentCallbacksOption.NO_ERROR_IN_COMMAND
+				&& !this.parentCmd.hasExitErrorsNotIncludingSubCommands()
+			) || (
+				invocationOption == ArgumentCallbacksOption.NO_ERROR_IN_COMMAND_AND_SUBCOMMANDS
+				&& !this.parentCmd.hasExitErrors()
+			) || (
+				invocationOption == ArgumentCallbacksOption.NO_ERROR_IN_ALL_COMMANDS
+				&& !this.parentCmd.getRootCommand().hasExitErrors()
+			)
+		) {
+			this.onCorrectCallback.accept((@NotNull TInner)okValue);
+		}
+
 	}
 
 	public boolean equals(@NotNull Argument<?, ?> obj) {

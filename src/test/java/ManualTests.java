@@ -30,9 +30,9 @@ public final class ManualTests {
 		}
 
 		final var argumentParser = new TestingParser("Testing") {{
+			this.setArgumentCallbackInvocationOption(ArgumentCallbacksOption.NO_ERROR_IN_ALL_COMMANDS);
 			this.addArgument(Argument.create("testing", ArgumentType.FROM_PARSEABLE(new TestClass()))
 				.description("some description")
-				.prefix(Argument.PrefixChar.PLUS)
 				.onOk(value -> System.out.println("ok: " + value))
 			);
 
@@ -50,7 +50,7 @@ public final class ManualTests {
 			}});
 		}};
 
-		argumentParser.parseArgsExpectErrorPrint("++testing 23 hello");
+		argumentParser.parseArgsExpectErrorPrint("--testing 23 --double 5.21 hello");
 	}
 }
 

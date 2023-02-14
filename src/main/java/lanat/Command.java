@@ -26,12 +26,13 @@ import java.util.function.Consumer;
  */
 public class Command
 	extends ErrorsContainerImpl<CustomError>
-	implements ErrorCallbacks<ParsedArguments, Command>, ArgumentAdder, ArgumentGroupAdder, Resettable, NamedWithDescription
+	implements ErrorCallbacks<ParsedArguments, Command>, ArgumentAdder, ArgumentGroupAdder, Resettable, NamedWithDescription, ParentCommandGetter
 {
 	public final @NotNull String name;
 	public final @Nullable String description;
 	final @NotNull ArrayList<@NotNull Argument<?, ?>> arguments = new ArrayList<>();
 	final @NotNull ArrayList<@NotNull Command> subCommands = new ArrayList<>();
+	private Command parentCommand;
 	final @NotNull ArrayList<@NotNull ArgumentGroup> argumentGroups = new ArrayList<>();
 	private final @NotNull ModifyRecord<@NotNull TupleCharacter> tupleChars = new ModifyRecord<>(TupleCharacter.SQUARE_BRACKETS);
 	private final @NotNull ModifyRecord<@NotNull Integer> errorCode = new ModifyRecord<>(1);
@@ -41,6 +42,8 @@ public class Command
 	private @Nullable Consumer<ParsedArguments> onCorrectCallback;
 
 	private final @NotNull ModifyRecord<HelpFormatter> helpFormatter = new ModifyRecord<>(new HelpFormatter(this));
+	private final @NotNull ModifyRecord<@NotNull ArgumentCallbacksOption> argumentCallbackInvocationOption =
+		new ModifyRecord<>(ArgumentCallbacksOption.NO_ERROR_IN_ALL_COMMANDS);
 
 	/** A pool of the colors that an argument may have when being represented on the help. */
 	final @NotNull LoopPool<@NotNull Color> colorsPool = LoopPool.atRandomIndex(Color.getBrightColors());
@@ -103,6 +106,13 @@ public class Command
 		return Collections.unmodifiableList(this.subCommands);
 	}
 
+	public @NotNull Command getRootCommand() {
+		Command root = this;
+		while (root.parentCommand != null)
+			root = root.parentCommand;
+		return root;
+	}
+
 	/**
 	 * Specifies the error code that the program should return when this command failed to parse.
 	 * When multiple commands fail, the program will return the result of the OR bit operation that will be
@@ -141,16 +151,24 @@ public class Command
 		this.helpFormatter.set(helpFormatter);
 	}
 
+	public @NotNull HelpFormatter getHelpFormatter() {
+		return this.helpFormatter.get();
+	}
+
+	public void setArgumentCallbackInvocationOption(@NotNull ArgumentCallbacksOption option) {
+		this.argumentCallbackInvocationOption.set(option);
+	}
+
+	public @NotNull ArgumentCallbacksOption getArgumentCallbackInvocationOption() {
+		return this.argumentCallbackInvocationOption.get();
+	}
+
 	public void addError(@NotNull String message, @NotNull ErrorLevel level) {
 		this.addError(new CustomError(message, level));
 	}
 
 	public @NotNull String getHelp() {
 		return this.helpFormatter.get().toString();
-	}
-
-	public @NotNull HelpFormatter getHelpFormatter() {
-		return this.helpFormatter.get();
 	}
 
 	@Override
@@ -224,6 +242,7 @@ public class Command
 			fmt.setParentCmd(this); // we need to update the parent command!
 			return fmt;
 		});
+		this.argumentCallbackInvocationOption.setIfNotModified(parent.argumentCallbackInvocationOption);
 
 		this.passPropertiesToChildren();
 	}
@@ -258,26 +277,34 @@ public class Command
 		this.subCommands.forEach(Command::invokeCallbacks);
 	}
 
-	@Override
-	public boolean hasExitErrors() {
-		var tokenizedSubCommand = this.getTokenizer().getTokenizedSubCommand();
-
+	boolean hasExitErrorsNotIncludingSubCommands() {
 		return super.hasExitErrors()
-			|| tokenizedSubCommand != null && tokenizedSubCommand.hasExitErrors()
 			|| this.arguments.stream().anyMatch(Argument::hasExitErrors)
 			|| this.parser.hasExitErrors()
 			|| this.tokenizer.hasExitErrors();
 	}
 
 	@Override
-	public boolean hasDisplayErrors() {
+	public boolean hasExitErrors() {
 		var tokenizedSubCommand = this.getTokenizer().getTokenizedSubCommand();
 
+		return this.hasExitErrorsNotIncludingSubCommands()
+			|| tokenizedSubCommand != null && tokenizedSubCommand.hasExitErrors();
+	}
+
+	boolean hasDisplayErrorsNotIncludingSubCommands() {
 		return super.hasDisplayErrors()
-			|| tokenizedSubCommand != null && tokenizedSubCommand.hasDisplayErrors()
 			|| this.arguments.stream().anyMatch(Argument::hasDisplayErrors)
 			|| this.parser.hasDisplayErrors()
 			|| this.tokenizer.hasDisplayErrors();
+	}
+
+	@Override
+	public boolean hasDisplayErrors() {
+		var tokenizedSubCommand = this.getTokenizer().getTokenizedSubCommand();
+
+		return this.hasDisplayErrorsNotIncludingSubCommands()
+			|| tokenizedSubCommand != null && tokenizedSubCommand.hasDisplayErrors();
 	}
 
 	public int getErrorCode() {
@@ -335,6 +362,11 @@ public class Command
 		this.argumentGroups.forEach(ArgumentGroup::resetState);
 
 		this.subCommands.forEach(Command::resetState);
+	}
+
+	@Override
+	public @Nullable Command getParentCommand() {
+		return this.parentCommand;
 	}
 }
 

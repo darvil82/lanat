@@ -1,0 +1,8 @@
+package lanat;
+
+public enum ArgumentCallbacksOption {
+	NO_ERROR_IN_ARGUMENT,
+	NO_ERROR_IN_COMMAND,
+	NO_ERROR_IN_COMMAND_AND_SUBCOMMANDS,
+	NO_ERROR_IN_ALL_COMMANDS,
+}

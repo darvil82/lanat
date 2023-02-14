@@ -30,7 +30,8 @@ public final class ManualTests {
 		}
 
 		final var argumentParser = new TestingParser("Testing") {{
-			this.setArgumentCallbackInvocationOption(ArgumentCallbacksOption.NO_ERROR_IN_ARGUMENT);
+			this.invokeArgumentCallbackWhen(ArgumentCallbacksOption.NO_ERROR_IN_ALL_COMMANDS);
+
 			this.addArgument(Argument.create("testing", ArgumentType.FROM_PARSEABLE(new TestClass()))
 				.description("some description")
 				.onOk(value -> System.out.println("ok: " + value))
@@ -44,13 +45,12 @@ public final class ManualTests {
 			this.addSubCommand(new Command("hello") {{
 				this.addArgument(Argument.create("world", ArgumentType.INTEGER_RANGE(5, 10))
 					.description("a range between 5 and 10")
-					.obligatory()
 					.onOk(value -> System.out.println("ok: " + value))
 				);
 			}});
 		}};
 
-		argumentParser.parseArgsExpectErrorPrint("--testing 23 --double 5.21 hello");
+		argumentParser.parseArgsExpectErrorPrint("--testing 23 --double foo hello --world 7");
 	}
 }
 

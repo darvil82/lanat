@@ -125,9 +125,8 @@ public class TextFormatter {
 	}
 
 	/**
-	 * Returns the {@link Color} that should properly reset the foreground color.
-	 * This is determined by looking at the parent formatters.
-	 * If no parent formatter has a foreground color, then {@link Color#BRIGHT_WHITE} is returned.
+	 * Returns the {@link Color} that should properly reset the foreground color. This is determined by looking at the
+	 * parent formatters. If no parent formatter has a foreground color, then {@link Color#BRIGHT_WHITE} is returned.
 	 */
 	private @NotNull Color getResetColor() {
 		var parent = this.parent;

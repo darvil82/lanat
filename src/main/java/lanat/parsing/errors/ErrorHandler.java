@@ -47,15 +47,16 @@ public class ErrorHandler {
 	}
 
 	/**
-	 * Returns the token at the specified index, offset by the current command's token index ({@link #absoluteCmdTokenIndex}).
+	 * Returns the token at the specified index, offset by the current command's token index
+	 * ({@link #absoluteCmdTokenIndex}).
 	 */
 	public @NotNull Token getRelativeToken(int index) {
 		return this.tokens.get(this.absoluteCmdTokenIndex + index);
 	}
 
 	/**
-	 * Returns the index of a command in the token list by its nesting level by order of appearance.
-	 * For example, in a token list like this:<br>
+	 * Returns the index of a command in the token list by its nesting level by order of appearance. For example, in a
+	 * token list like this:<br>
 	 * <pre>{@code
 	 * {
 	 *   SUB_COMMAND,
@@ -66,8 +67,8 @@ public class ErrorHandler {
 	 *   SUB_COMMAND,
 	 *   ARGUMENT_NAME
 	 * }}</pre>
-	 * The nesting level of the second subcommand is <strong>1</strong> (starting at 0),
-	 * and its index in the token list is <strong>3</strong>.
+	 * The nesting level of the second subcommand is <strong>1</strong> (starting at 0), and its index in the token list
+	 * is <strong>3</strong>.
 	 *
 	 * @return <code>-1</code> if the command is not found.
 	 */

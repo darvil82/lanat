@@ -72,8 +72,7 @@ public class UnitTests {
 	}
 
 	/**
-	 * Shorthand for parsing arguments and getting the value of an argument.
-	 * Same as
+	 * Shorthand for parsing arguments and getting the value of an argument. Same as
 	 * <pre>
 	 * {@code this.parser.parseArgs("--%s %s".formatted(arg, values)).<T>get(arg).get();}
 	 * </pre>
@@ -83,8 +82,7 @@ public class UnitTests {
 	}
 
 	/**
-	 * Shorthand for checking if an argument value is not present.
-	 * Same as
+	 * Shorthand for checking if an argument value is not present. Same as
 	 * <pre>
 	 * {@code assertNull(this.parser.parseArgs("").get(arg).get());}
 	 * </pre>

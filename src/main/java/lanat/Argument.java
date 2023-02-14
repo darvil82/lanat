@@ -16,7 +16,7 @@ import java.util.function.Consumer;
 
 /**
  * <h2>Argument</h2>
- *
+ * <p>
  * An Argument specifies a value that the user can introduce to the command. This value will be parsed by the specified
  * {@link ArgumentType} each time the Argument is used. Once finished parsing, the value may be retrieved by using
  * {@link ParsedArguments#get(String)} on the {@link ParsedArguments} object returned by
@@ -29,19 +29,19 @@ import java.util.function.Consumer;
  * <h3>Example:</h3>
  *
  * <p>
- * An Argument with the names "name" and "n" that will parse an integer value. There are several ways to
- * create this argument.
+ * An Argument with the names "name" and "n" that will parse an integer value. There are several ways to create this
+ * argument.
  * <p>
- *     <strong>Using the factory methods:</strong>
- *     <pre>{@code
+ * <strong>Using the factory methods:</strong>
+ * <pre>{@code
  *     Argument.create(ArgumentType.INTEGER(), "name", "n");
  *     Argument.create("name", ArgumentType.INTEGER())
  *         .addNames("n");
  *     }</pre>
  * </p>
  * <p>
- *     <strong>Using the constructors:</strong>
- *     <pre>{@code
+ * <strong>Using the constructors:</strong>
+ * <pre>{@code
  *     new Argument<>(ArgumentType.INTEGER(), "name", "n");
  *     new Argument<>("name", ArgumentType.INTEGER())
  *         .addNames("n");
@@ -50,20 +50,19 @@ import java.util.function.Consumer;
  *
  * </p>
  *
+ * @param <Type> the {@link ArgumentType} subclass that will parse the value passed to the argument
+ * @param <TInner> the actual type of the value passed to the argument
  * @see Command#addArgument(Argument)
  * @see ArgumentGroup
  * @see ArgumentParser
- *
- * @param <Type> the {@link ArgumentType} subclass that will parse the value passed to the argument
- * @param <TInner> the actual type of the value passed to the argument
  */
 public class Argument<Type extends ArgumentType<TInner>, TInner>
 	implements ErrorsContainer<CustomError>, ErrorCallbacks<TInner, Argument<Type, TInner>>, Resettable,
 	ParentCommandGetter, NamedWithDescription
 {
 	/**
-	 * The type of this argument. This is the subParser that will be used to
-	 * parse the value/s this argument should receive.
+	 * The type of this argument. This is the subParser that will be used to parse the value/s this argument should
+	 * receive.
 	 */
 	public final @NotNull Type argType;
 	private PrefixChar prefixChar = PrefixChar.MINUS;
@@ -76,8 +75,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	private Command parentCommand;
 
 	/**
-	 * The ArgumentGroup that this Argument belongs to. If this Argument does not belong to any group, this
-	 * may be null.
+	 * The ArgumentGroup that this Argument belongs to. If this Argument does not belong to any group, this may be
+	 * null.
 	 */
 	private @Nullable ArgumentGroup parentGroup;
 
@@ -86,8 +85,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	private @Nullable Consumer<@NotNull TInner> onCorrectCallback;
 
 	/**
-	 * The color that this Argument will have in places where it is displayed, such as the help message.
-	 * By default, the color will be picked from the {@link Command#colorsPool} of the parent command at
+	 * The color that this Argument will have in places where it is displayed, such as the help message. By default, the
+	 * color will be picked from the {@link Command#colorsPool} of the parent command at
 	 * {@link Argument#setParentCommand(Command)}.
 	 */
 	private final @NotNull ModifyRecord<Color> representationColor = new ModifyRecord<>(null);
@@ -159,8 +158,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 
 	/**
-	 * Marks the argument as obligatory. This means that this argument should <b>always</b> be used
-	 * by the user.
+	 * Marks the argument as obligatory. This means that this argument should <b>always</b> be used by the user.
 	 */
 	public Argument<Type, TInner> obligatory() {
 		this.obligatory = true;
@@ -172,9 +170,9 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	/**
-	 * Marks the argument as positional. This means that the value of this argument may be specified directly
-	 * without indicating a name of this argument. The positional place where it should be placed is
-	 * defined by the order of creation of the argument definitions.
+	 * Marks the argument as positional. This means that the value of this argument may be specified directly without
+	 * indicating a name of this argument. The positional place where it should be placed is defined by the order of
+	 * creation of the argument definitions.
 	 * <ul>
 	 *    <li>Note that an argument marked as positional can still be used by specifying a name.
 	 * </ul>
@@ -193,8 +191,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 	/**
 	 * Specify the prefix of this argument. By default, this is {@link PrefixChar#MINUS}. If this argument is used in an
-	 * argument name list (-abc), the prefix that will be valid is any against all the arguments specified
-	 * in that name list.
+	 * argument name list (-abc), the prefix that will be valid is any against all the arguments specified in that name
+	 * list.
 	 *
 	 * @see PrefixChar
 	 */
@@ -208,9 +206,9 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	/**
-	 * Specifies that this argument has priority over other arguments, even if they are obligatory.
-	 * This means that if an argument in a command is set as obligatory, but one argument with {@link #allowUnique}
-	 * was used, then the unused obligatory argument will not throw an error.
+	 * Specifies that this argument has priority over other arguments, even if they are obligatory. This means that if
+	 * an argument in a command is set as obligatory, but one argument with {@link #allowUnique} was used, then the
+	 * unused obligatory argument will not throw an error.
 	 */
 	public Argument<Type, TInner> allowUnique() {
 		this.allowUnique = true;
@@ -222,8 +220,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	/**
-	 * The value that should be used if the user does not specify a value for this argument. If the argument
-	 * does not accept values, this value will be ignored.
+	 * The value that should be used if the user does not specify a value for this argument. If the argument does not
+	 * accept values, this value will be ignored.
 	 */
 	public Argument<Type, TInner> defaultValue(@NotNull TInner value) {
 		this.defaultValue = value;
@@ -231,12 +229,12 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	/**
-	 * Add more names to this argument. This is useful if you want the same argument to be used with multiple
-	 * different names.
+	 * Add more names to this argument. This is useful if you want the same argument to be used with multiple different
+	 * names.
 	 * <br><br>
 	 * <p>
-	 * Single character names can be used in argument name lists (e.g. <code>-abc</code>), each alphabetic
-	 * character being an argument name, that is, <code>-a -b -c</code>.
+	 * Single character names can be used in argument name lists (e.g. <code>-abc</code>), each alphabetic character
+	 * being an argument name, that is, <code>-a -b -c</code>.
 	 * </p>
 	 */
 	public Argument<Type, TInner> addNames(@NotNull String... names) {
@@ -349,8 +347,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	/**
 	 * Pass the specified values array to the argument type to parse it.
 	 *
-	 * @param tokenIndex This is the global index of the token that is currently being parsed. Used when
-	 * dispatching errors.
+	 * @param tokenIndex This is the global index of the token that is currently being parsed. Used when dispatching
+	 * 	errors.
 	 */
 	public void parseValues(@NotNull String @NotNull [] values, short tokenIndex) {
 		// check if the parent group of this argument is exclusive, and if so, check if any other argument in it has been used
@@ -433,21 +431,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 			|| this.onCorrectCallback == null
 			|| this.getUsageCount() == 0
 			|| (!this.allowUnique && this.parentCommand.uniqueArgumentReceivedValue())
-		) return;
-
-		final var invocationOption = this.parentCommand.getArgumentCallbackInvocationOption();
-
-		if (
-			(
-				invocationOption == ArgumentCallbacksOption.NO_ERROR_IN_COMMAND
-				&& !this.parentCommand.hasExitErrorsNotIncludingSubCommands()
-			) || (
-				invocationOption == ArgumentCallbacksOption.NO_ERROR_IN_COMMAND_AND_SUBCOMMANDS
-				&& !this.parentCommand.hasExitErrors()
-			) || (
-				invocationOption == ArgumentCallbacksOption.NO_ERROR_IN_ALL_COMMANDS
-				&& !this.parentCommand.getRootCommand().hasExitErrors()
-			)
+			|| !this.parentCommand.shouldExecuteCallback()
 		) return;
 
 		this.onCorrectCallback.accept((@NotNull TInner)okValue);
@@ -473,8 +457,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * Positional > Obligatory > Optional.
 	 * </p>
 	 *
-	 * @return 0 if both arguments are equal, -1 if the first argument
-	 * goes before the second, 1 if the second goes before the first.
+	 * @return 0 if both arguments are equal, -1 if the first argument goes before the second, 1 if the second goes
+	 * 	before the first.
 	 */
 	public static int compareByPriority(@NotNull Argument<?, ?> first, @NotNull Argument<?, ?> second) {
 		if (first.isPositional() && !second.isPositional()) {

@@ -20,8 +20,8 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	private int currentCharIndex = 0;
 
 	/**
-	 * The characters that are used to open and close tuples.
-	 * {@link Pair#first()} is the open character and {@link Pair#second()} is the close character
+	 * The characters that are used to open and close tuples. {@link Pair#first()} is the open character and
+	 * {@link Pair#second()} is the close character
 	 */
 	public final @NotNull Pair<@NotNull Character, @NotNull Character> tupleChars;
 
@@ -55,8 +55,8 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	}
 
 	/**
-	 * Tokenizes the input string given.
-	 * When finished, the tokens can be retrieved using {@link Tokenizer#getFinalTokens()}
+	 * Tokenizes the input string given. When finished, the tokens can be retrieved using
+	 * {@link Tokenizer#getFinalTokens()}
 	 */
 	public void tokenize(@NotNull String input) {
 		if (this.hasFinished) {
@@ -231,8 +231,8 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	/**
 	 * Returns true if the given string can be an argument name list, eg: <code>"-fbq"</code>.
 	 * <p>
-	 * This returns true if at least the first character is a valid argument prefix and at least one of the
-	 * next characters is a valid argument name.
+	 * This returns true if at least the first character is a valid argument prefix and at least one of the next
+	 * characters is a valid argument name.
 	 * <br><br>
 	 * For a prefix to be valid, it must be a character used as a prefix on the next argument/s specified.
 	 * </p>
@@ -272,8 +272,8 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	}
 
 	/**
-	 * Returns true whether the given string is an argument name {@link Tokenizer#isArgName(String)}
-	 * or an argument name list {@link Tokenizer#isArgNameList(String)}.
+	 * Returns true whether the given string is an argument name {@link Tokenizer#isArgName(String)} or an argument name
+	 * list {@link Tokenizer#isArgNameList(String)}.
 	 */
 	private boolean isArgumentSpecifier(@NotNull String str) {
 		return this.isArgName(str) || this.isArgNameList(str);
@@ -285,8 +285,8 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	}
 
 	/**
-	 * Returns true if the character of {@link Tokenizer#inputChars} at a relative index
-	 * from {@link Tokenizer#currentCharIndex} is equal to the specified character.
+	 * Returns true if the character of {@link Tokenizer#inputChars} at a relative index from
+	 * {@link Tokenizer#currentCharIndex} is equal to the specified character.
 	 * <p>
 	 * If the index is out of bounds, returns false.
 	 * </p>
@@ -306,8 +306,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	/**
 	 * Returns a list of all tokenized subcommand children of {@link Tokenizer#command}.
 	 * <p>
-	 * Note that a Command only has a single tokenized subCommand, so this will
-	 * have one Command per nesting level.
+	 * Note that a Command only has a single tokenized subCommand, so this will have one Command per nesting level.
 	 * </p>
 	 */
 	public @NotNull List<@NotNull Command> getTokenizedSubCommands() {

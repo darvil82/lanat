@@ -33,8 +33,8 @@ public class ParsedArguments {
 	}
 
 	/**
-	 * Specifies the separator to use when using the {@link #get(String)} method.
-	 * By default, this is set to <code>.</code>
+	 * Specifies the separator to use when using the {@link #get(String)} method. By default, this is set to
+	 * <code>.</code>
 	 */
 	public static void setSeparator(@NotNull String separator) {
 		if (separator.isEmpty()) {
@@ -56,8 +56,8 @@ public class ParsedArguments {
 	}
 
 	/**
-	 * Returns the parsed value of the argument with the given name. In order to access arguments in
-	 * sub-commands, use the separator specified by {@link #setSeparator(String)}. (By default, this is <code>.</code>)
+	 * Returns the parsed value of the argument with the given name. In order to access arguments in sub-commands, use
+	 * the separator specified by {@link #setSeparator(String)}. (By default, this is <code>.</code>)
 	 *
 	 * <br><br>
 	 *
@@ -69,7 +69,7 @@ public class ParsedArguments {
 	 * More info at {@link #get(String...)}
 	 *
 	 * @param argRoute The route to the argument, separated by a separator set by {@link #setSeparator(String)}
-	 * (default is <code>.</code>)
+	 * 	(default is <code>.</code>)
 	 */
 	public <T> ParsedArgument<T> get(@NotNull String argRoute) {
 		return this.get(argRoute.split(" *" + Pattern.quote(ParsedArguments.separator) + " *"));
@@ -77,9 +77,9 @@ public class ParsedArguments {
 
 
 	/**
-	 * Specify the route of subcommands for reaching the argument desired.
-	 * This method will return an {@link Object} that can be cast to the desired type. However, it is recommended
-	 * to use the type parameter instead, to avoid casting.
+	 * Specify the route of subcommands for reaching the argument desired. This method will return an {@link Object}
+	 * that can be cast to the desired type. However, it is recommended to use the type parameter instead, to avoid
+	 * casting.
 	 *
 	 * <br><br>
 	 *
@@ -128,8 +128,8 @@ public class ParsedArguments {
 	}
 
 	/**
-	 * Returns the sub {@link ParsedArguments} with the given name. If none is found with
-	 * the given name, returns <code>null</code>.
+	 * Returns the sub {@link ParsedArguments} with the given name. If none is found with the given name, returns
+	 * <code>null</code>.
 	 */
 	public ParsedArguments getSubParsedArgs(@NotNull String name) {
 		for (var sub : this.subParsedArguments)
@@ -149,7 +149,8 @@ public class ParsedArguments {
 		}
 
 		/**
-		 * Returns the parsed value of the argument. If the argument was not parsed, this will return <code>null</code>.
+		 * Returns the parsed value of the argument. If the argument was not parsed, this will return
+		 * <code>null</code>.
 		 */
 		public @Nullable T get() {
 			return this.value;
@@ -165,7 +166,8 @@ public class ParsedArguments {
 		/**
 		 * Specifies a function to run if the argument was parsed.
 		 *
-		 * @param onDefined The function to run if the argument was parsed. This function will receive the parsed value.
+		 * @param onDefined The function to run if the argument was parsed. This function will receive the parsed
+		 * 	value.
 		 */
 		public @NotNull ParsedArgument<T> defined(@NotNull Consumer<T> onDefined) {
 			if (this.defined()) onDefined.accept(this.value);
@@ -173,8 +175,8 @@ public class ParsedArguments {
 		}
 
 		/**
-		 * Returns true if the argument was not parsed, false otherwise. If a single value array is passed,
-		 * and the argument was parsed, this will set the first value of the array to the parsed value.
+		 * Returns true if the argument was not parsed, false otherwise. If a single value array is passed, and the
+		 * argument was parsed, this will set the first value of the array to the parsed value.
 		 */
 		public boolean defined(@Nullable T @NotNull [] value) {
 			if (value.length != 1) {
@@ -206,8 +208,8 @@ public class ParsedArguments {
 		}
 
 		/**
-		 * Specifies a supplier function that will be called when the argument is not parsed.
-		 * The supplier will be called and its return value will be returned if so.
+		 * Specifies a supplier function that will be called when the argument is not parsed. The supplier will be
+		 * called and its return value will be returned if so.
 		 *
 		 * @param fallbackCb The supplier function to call if the argument was not parsed.
 		 */
@@ -224,10 +226,11 @@ public class ParsedArguments {
 		}
 
 		/**
-		 * Returns <code>true</code> if the argument was parsed and the value matches the given predicate, false otherwise.
+		 * Returns <code>true</code> if the argument was parsed and the value matches the given predicate, false
+		 * otherwise.
 		 *
 		 * @param predicate The predicate to test the value against (if the argument was parsed). This predicate will
-		 * never receive a <code>null</code> value.
+		 * 	never receive a <code>null</code> value.
 		 */
 		public boolean matches(@NotNull Predicate<@Nullable T> predicate) {
 			return this.defined() && predicate.test(this.value);

@@ -16,8 +16,8 @@ public abstract class ArgumentType<T> extends ErrorsContainerImpl<CustomError> i
 	private T currentValue;
 
 	/**
-	 * This is the value that this argument type had before being parsed.
-	 * This is used for resetting the {@link ArgumentType#currentValue} to its initial value.
+	 * This is the value that this argument type had before being parsed. This is used for resetting the
+	 * {@link ArgumentType#currentValue} to its initial value.
 	 */
 	private T initialValue;
 
@@ -27,8 +27,8 @@ public abstract class ArgumentType<T> extends ErrorsContainerImpl<CustomError> i
 	private int currentArgValueIndex = 0;
 
 	/**
-	 * This is used for storing errors that occur during parsing. We need to keep track of the index of
-	 * the token that caused the error. -1 means that this was still not parsed.
+	 * This is used for storing errors that occur during parsing. We need to keep track of the index of the token that
+	 * caused the error. -1 means that this was still not parsed.
 	 */
 	private short tokenIndex = -1;
 
@@ -41,8 +41,8 @@ public abstract class ArgumentType<T> extends ErrorsContainerImpl<CustomError> i
 	short usageCount = 0;
 
 	/**
-	 * The parent argument type is the one that wants to listen for errors that occur in this argument type.
-	 * This value is set by the parent argument type when it runs {@link ArgumentType#registerSubType(ArgumentType)}.
+	 * The parent argument type is the one that wants to listen for errors that occur in this argument type. This value
+	 * is set by the parent argument type when it runs {@link ArgumentType#registerSubType(ArgumentType)}.
 	 */
 	private @Nullable ArgumentType<?> parentArgType;
 	private final @NotNull ArrayList<@NotNull ArgumentType<?>> subTypes = new ArrayList<>();
@@ -72,8 +72,8 @@ public abstract class ArgumentType<T> extends ErrorsContainerImpl<CustomError> i
 
 
 	/**
-	 * By registering a subtype, this allows you to listen for errors that occurred in this subtype during
-	 * parsing. The {@link ArgumentType#onSubTypeError(CustomError)} method will be called when an error occurs.
+	 * By registering a subtype, this allows you to listen for errors that occurred in this subtype during parsing. The
+	 * {@link ArgumentType#onSubTypeError(CustomError)} method will be called when an error occurs.
 	 */
 	protected final void registerSubType(@NotNull ArgumentType<?> subType) {
 		if (subType.parentArgType == this) {
@@ -85,9 +85,8 @@ public abstract class ArgumentType<T> extends ErrorsContainerImpl<CustomError> i
 	}
 
 	/**
-	 * This is called when a subtype of this argument type has an error.
-	 * By default, this adds the error to the list of errors, while also adding
-	 * the {@link ArgumentType#currentArgValueIndex}.
+	 * This is called when a subtype of this argument type has an error. By default, this adds the error to the list of
+	 * errors, while also adding the {@link ArgumentType#currentArgValueIndex}.
 	 *
 	 * @param error The error that occurred in the subtype.
 	 */

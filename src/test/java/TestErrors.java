@@ -1,7 +1,4 @@
-import lanat.Argument;
-import lanat.ArgumentType;
-import lanat.Command;
-import lanat.NamedWithDescription;
+import lanat.*;
 import lanat.utils.ErrorCallbacks;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,39 +49,51 @@ public class TestErrors extends UnitTests {
 			this.addArgument(TestErrors.this.addCallbacks(Argument.create("bool-arg", ArgumentType.BOOLEAN())));
 			this.addArgument(TestErrors.this.addCallbacks(Argument.create("int-arg", ArgumentType.INTEGER())));
 			this.addArgument(TestErrors.this.addCallbacks(Argument.create("counter", ArgumentType.COUNTER())));
-			this.addArgument(TestErrors.this.addCallbacks(Argument.create("will-work", ArgumentType.FLOAT())));
+			this.addArgument(TestErrors.this.addCallbacks(Argument.create("float", ArgumentType.FLOAT())));
 
 			this.addSubCommand(TestErrors.this.addCallbacks(new Command("sub") {{
-				this.addArgument(TestErrors.this.addCallbacks(Argument.create("will-fail", ArgumentType.FLOAT())));
+				this.addArgument(TestErrors.this.addCallbacks(Argument.create("sub-float", ArgumentType.FLOAT())));
 				this.setErrorCode(2);
 			}}));
 		}});
 	}
 
 	@Test
-	@DisplayName("Test the argument callbacks (onOk and onErr)")
-	public void testArgumentCallbacks() {
-		this.parser.parseArgs("--bool-arg --int-arg foo --will-work 55.0 sub --will-fail bar");
+	@DisplayName("Test the argument callbacks (onOk and onErr) (ArgumentCallbacksOption.NO_ERROR_IN_ARGUMENT)")
+	public void testArgumentCallbacks__NoErrorInArg() {
+		this.parser.invokeArgumentCallbackWhen(ArgumentCallbacksOption.NO_ERROR_IN_ARGUMENT);
+		this.parser.parseArgs("--bool-arg --int-arg foo --float 55.0 sub --sub-float bar");
+
 		this.assertOk("bool-arg", true);
 		this.assertErr("int-arg");
 		this.assertNotPresent("counter");
-		this.assertOk("will-work", 55.0f);
+		this.assertOk("float", 55.0f);
+		this.assertErr("sub-float");
+	}
 
-		this.assertErr("will-fail");
+	@Test
+	@DisplayName("Test the argument callbacks (onOk and onErr) (ArgumentCallbacksOption.(DEFAULT)))")
+	public void testArgumentCallbacks() {
+		this.parser.parseArgs("--bool-arg --float foo sub --sub-float 5.23");
+
+		this.assertNotPresent("bool-arg");
+		this.assertNotPresent("counter");
+		this.assertErr("float");
+		this.assertNotPresent("sub-float");
 	}
 
 	@Test
 	@DisplayName("Test the command callbacks (onOk and onErr)")
 	public void testCommandCallbacks() {
-		this.parser.parseArgs("sub --will-fail bar");
-		this.assertErr("will-fail");
+		this.parser.parseArgs("sub --sub-float bar");
+		this.assertErr("sub-float");
 		this.assertErr(this.parser.getName());
 	}
 
 	@Test
 	@DisplayName("The error code must be the result of 5 | 2 = 7")
 	public void testCommandsErrorCode() {
-		this.parser.parseArgs("sub --will-fail bar");
+		this.parser.parseArgs("sub --sub-float bar");
 		assertEquals(this.parser.getErrorCode(), 7);
 	}
 }

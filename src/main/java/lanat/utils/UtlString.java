@@ -47,8 +47,8 @@ public final class UtlString {
 	}
 
 	/**
-	 * Wraps a string into multiple lines in order to fit in the given maximum width.
-	 * Wrapping respects words, so no word will be split in two lines.
+	 * Wraps a string into multiple lines in order to fit in the given maximum width. Wrapping respects words, so no
+	 * word will be split in two lines.
 	 *
 	 * @param str The text to wrap.
 	 * @param maxWidth The maximum width that the text should never exceed.
@@ -121,8 +121,8 @@ public final class UtlString {
 	}
 
 	/**
-	 * Adds <code>padCount</code> characters (specified with <code>padChar</code>) at the left of the string.
-	 * If the string has multiple lines, the padding is added on all of them.
+	 * Adds <code>padCount</code> characters (specified with <code>padChar</code>) at the left of the string. If the
+	 * string has multiple lines, the padding is added on all of them.
 	 *
 	 * @param str The string to pad.
 	 * @param padCount The amount of characters to add.
@@ -144,8 +144,8 @@ public final class UtlString {
 	}
 
 	/**
-	 * Adds <code>padCount</code> space characters at the left of the string.
-	 * If the string has multiple lines, the padding is added on all of them.
+	 * Adds <code>padCount</code> space characters at the left of the string. If the string has multiple lines, the
+	 * padding is added on all of them.
 	 *
 	 * @param str The string to pad.
 	 * @param padCount The amount of spaces to add.

@@ -76,10 +76,9 @@ public abstract class ErrorsContainerImpl<T extends ErrorLevelProvider> implemen
 	// --------------------------------------------- Getters and Setters -----------------------------------------------
 
 	/**
-	 * The minimum error level that will cause the program to exit.
-	 * All errors with a level equal to or higher than this will cause the program to exit.
-	 * For example, if this is set to {@link ErrorLevel#WARNING}, then all errors with a level of {@link ErrorLevel#WARNING}
-	 * or {@link ErrorLevel#ERROR} will cause the program to exit.
+	 * The minimum error level that will cause the program to exit. All errors with a level equal to or higher than this
+	 * will cause the program to exit. For example, if this is set to {@link ErrorLevel#WARNING}, then all errors with a
+	 * level of {@link ErrorLevel#WARNING} or {@link ErrorLevel#ERROR} will cause the program to exit.
 	 */
 	@Override
 	public void setMinimumExitErrorLevel(@NotNull ErrorLevel level) {
@@ -92,11 +91,10 @@ public abstract class ErrorsContainerImpl<T extends ErrorLevelProvider> implemen
 	}
 
 	/**
-	 * The minimum error level that will be displayed to the user.
-	 * All errors with a level lower than this will be ignored.
-	 * For example: If this is set to {@link ErrorLevel#INFO}, then all errors
-	 * (including {@link ErrorLevel#INFO}, {@link ErrorLevel#WARNING}, and {@link ErrorLevel#ERROR}) will be displayed,
-	 * but {@link ErrorLevel#DEBUG} will not.
+	 * The minimum error level that will be displayed to the user. All errors with a level lower than this will be
+	 * ignored. For example: If this is set to {@link ErrorLevel#INFO}, then all errors (including
+	 * {@link ErrorLevel#INFO}, {@link ErrorLevel#WARNING}, and {@link ErrorLevel#ERROR}) will be displayed, but
+	 * {@link ErrorLevel#DEBUG} will not.
 	 */
 	@Override
 	public void setMinimumDisplayErrorLevel(@NotNull ErrorLevel level) {

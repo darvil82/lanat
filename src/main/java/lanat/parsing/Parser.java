@@ -15,8 +15,8 @@ import java.util.List;
 
 public class Parser extends ParsingStateBase<ParseError> {
 	/**
-	 * List of all the custom errors that have been added to this parser.
-	 * Custom errors are thrown by {@link ArgumentType}s
+	 * List of all the custom errors that have been added to this parser. Custom errors are thrown by
+	 * {@link ArgumentType}s
 	 */
 	private final @NotNull ArrayList<@NotNull CustomError> customErrors = new ArrayList<>();
 
@@ -31,9 +31,9 @@ public class Parser extends ParsingStateBase<ParseError> {
 	private short currentTokenIndex = 0;
 
 	/**
-	 * The parsed arguments. This is a map of the argument to the value that it parsed.
-	 * The reason this is saved is that we don't want to run {@link Parser#getParsedArgumentsHashMap()}
-	 * multiple times because that can break stuff badly in relation to error handling.
+	 * The parsed arguments. This is a map of the argument to the value that it parsed. The reason this is saved is that
+	 * we don't want to run {@link Parser#getParsedArgumentsHashMap()} multiple times because that can break stuff badly
+	 * in relation to error handling.
 	 */
 	private HashMap<@NotNull Argument<?, ?>, @Nullable Object> parsedArguments;
 
@@ -129,8 +129,8 @@ public class Parser extends ParsingStateBase<ParseError> {
 	/**
 	 * Reads the next tokens and parses them as values for the given argument.
 	 * <p>
-	 * This keeps in mind the type of the argument, and will stop reading tokens when it
-	 * reaches the max number of values, or if the end of a tuple is reached.
+	 * This keeps in mind the type of the argument, and will stop reading tokens when it reaches the max number of
+	 * values, or if the end of a tuple is reached.
 	 * </p>
 	 */
 	private void executeArgParse(@NotNull Argument<?, ?> arg) {

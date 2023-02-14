@@ -8,10 +8,7 @@ import lanat.utils.displayFormatter.FormatOption;
 import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class HelpFormatter {
 	Command parentCmd;
@@ -121,14 +118,17 @@ public class HelpFormatter {
 	}
 
 	/**
-	 * Indents a string by the indent size specified in the {@link HelpFormatter}
-	 * instance of the {@link Command} this object belongs to.
+	 * Indents a string by the indent size specified in the {@link HelpFormatter} instance of the {@link Command} this
+	 * object belongs to.
 	 *
 	 * @param str the string to indent
 	 * @param obj the object that belongs to the {@link Command} that has the {@link HelpFormatter}
 	 * @return the indented string
 	 */
 	public static <T extends ParentCommandGetter> @NotNull String indent(@NotNull String str, @NotNull T obj) {
-		return HelpFormatter.indent(str, obj.getParentCommand());
+		return HelpFormatter.indent(
+			// if obj is a Command, use it, otherwise get the parent command
+			str, obj instanceof Command cmd ? cmd : Objects.requireNonNull(obj.getParentCommand())
+		);
 	}
 }

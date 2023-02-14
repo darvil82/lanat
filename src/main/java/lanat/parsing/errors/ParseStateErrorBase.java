@@ -16,8 +16,8 @@ import java.util.List;
 
 /**
  * Provides a {@link ParseStateErrorBase#handle(ErrorHandler)} method that when called, automatically invokes the
- * appropriate defined method with the {@link Handler} annotation value that matches the value passed to the constructor.
- * This is used to display the errors on screen.
+ * appropriate defined method with the {@link Handler} annotation value that matches the value passed to the
+ * constructor. This is used to display the errors on screen.
  *
  * <p>
  * Example class that inherits from this:

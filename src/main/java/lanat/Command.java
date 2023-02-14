@@ -18,7 +18,7 @@ import java.util.function.Consumer;
 
 /**
  * <h2>Command</h2>
- *
+ * <p>
  * A command is a container for {@link Argument}s, other Sub{@link Command}s and {@link ArgumentGroup}s.
  *
  * @see ArgumentGroup
@@ -100,6 +100,7 @@ public class Command
 		}
 
 		this.subCommands.add(cmd);
+		cmd.parentCommand = this;
 	}
 
 	public @NotNull List<@NotNull Command> getSubCommands() {
@@ -114,9 +115,9 @@ public class Command
 	}
 
 	/**
-	 * Specifies the error code that the program should return when this command failed to parse.
-	 * When multiple commands fail, the program will return the result of the OR bit operation that will be
-	 * applied to all other command results. For example:
+	 * Specifies the error code that the program should return when this command failed to parse. When multiple commands
+	 * fail, the program will return the result of the OR bit operation that will be applied to all other command
+	 * results. For example:
 	 * <ul>
 	 *     <li>Command 'foo' has a return value of 2. <code>(0b010)</code></li>
 	 *     <li>Command 'bar' has a return value of 5. <code>(0b101)</code></li>
@@ -155,7 +156,13 @@ public class Command
 		return this.helpFormatter.get();
 	}
 
-	public void setArgumentCallbackInvocationOption(@NotNull ArgumentCallbacksOption option) {
+	/**
+	 * Specifies in which cases the {@link Argument#setOnCorrectCallback(Consumer)} should be invoked.
+	 * <p>By default, this is set to {@link ArgumentCallbacksOption#NO_ERROR_IN_ALL_COMMANDS}.</p>
+	 *
+	 * @see ArgumentCallbacksOption
+	 */
+	public void invokeArgumentCallbackWhen(@NotNull ArgumentCallbacksOption option) {
 		this.argumentCallbackInvocationOption.set(option);
 	}
 
@@ -206,8 +213,8 @@ public class Command
 	}
 
 	/**
-	 * Get all the tokens of all subcommands (the ones that we can get without errors)
-	 * into one single list. This includes the {@link TokenType#SUB_COMMAND} tokens.
+	 * Get all the tokens of all subcommands (the ones that we can get without errors) into one single list. This
+	 * includes the {@link TokenType#SUB_COMMAND} tokens.
 	 */
 	public @NotNull ArrayList<@NotNull Token> getFullTokenList() {
 		final ArrayList<Token> list = new ArrayList<>() {{
@@ -265,6 +272,7 @@ public class Command
 
 	@Override
 	public void invokeCallbacks() {
+		final var parsedArgs = this.parser.getParsedArgumentsHashMap();
 		this.subCommands.forEach(Command::invokeCallbacks);
 
 		if (this.hasExitErrors()) {
@@ -273,23 +281,16 @@ public class Command
 			if (this.onCorrectCallback != null) this.onCorrectCallback.accept(this.getParsedArguments());
 		}
 
-		// invoke callbacks for all arguments if they have a value
-		this.parser.getParsedArgumentsHashMap().forEach(Argument::invokeCallbacks);
+		parsedArgs.forEach(Argument::invokeCallbacks);
 	}
 
 	boolean shouldExecuteCallback() {
-		final var invocationOption = this.getArgumentCallbackInvocationOption();
-
-		return (
-			invocationOption == ArgumentCallbacksOption.NO_ERROR_IN_COMMAND
-				&& !this.hasExitErrorsNotIncludingSubCommands()
-		) || (
-			invocationOption == ArgumentCallbacksOption.NO_ERROR_IN_COMMAND_AND_SUBCOMMANDS
-				&& !this.hasExitErrors()
-		) || (
-			invocationOption == ArgumentCallbacksOption.NO_ERROR_IN_ALL_COMMANDS
-				&& !this.getRootCommand().hasExitErrors()
-		);
+		return switch (this.getArgumentCallbackInvocationOption()) {
+			case NO_ERROR_IN_COMMAND -> !this.hasExitErrorsNotIncludingSubCommands();
+			case NO_ERROR_IN_COMMAND_AND_SUBCOMMANDS -> !this.hasExitErrors();
+			case NO_ERROR_IN_ALL_COMMANDS -> !this.getRootCommand().hasExitErrors();
+			case NO_ERROR_IN_ARGUMENT -> true;
+		};
 	}
 
 	boolean hasExitErrorsNotIncludingSubCommands() {

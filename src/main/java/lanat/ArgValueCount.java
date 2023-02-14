@@ -4,8 +4,8 @@ package lanat;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Used to specify the number values an argument may accept. This is essentially a classic range,
- * but if only one value is specified, both min and max will have that value.
+ * Used to specify the number values an argument may accept. This is essentially a classic range, but if only one value
+ * is specified, both min and max will have that value.
  */
 public class ArgValueCount {
 	public static final ArgValueCount ANY = new ArgValueCount(0, -1);

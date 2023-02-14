@@ -35,9 +35,3 @@ tasks.withType<JavaCompile>().configureEach {
 tasks.withType<Javadoc>().configureEach {
 	options.encoding = "UTF-8"
 }
-
-tasks.configureEach {
-	if (name != "clean") {
-		dependsOn("clean")
-	}
-}

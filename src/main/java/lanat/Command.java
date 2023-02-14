@@ -293,7 +293,7 @@ public class Command
 		};
 	}
 
-	boolean hasExitErrorsNotIncludingSubCommands() {
+	private boolean hasExitErrorsNotIncludingSubCommands() {
 		return super.hasExitErrors()
 			|| this.arguments.stream().anyMatch(Argument::hasExitErrors)
 			|| this.parser.hasExitErrors()
@@ -308,7 +308,7 @@ public class Command
 			|| tokenizedSubCommand != null && tokenizedSubCommand.hasExitErrors();
 	}
 
-	boolean hasDisplayErrorsNotIncludingSubCommands() {
+	private boolean hasDisplayErrorsNotIncludingSubCommands() {
 		return super.hasDisplayErrors()
 			|| this.arguments.stream().anyMatch(Argument::hasDisplayErrors)
 			|| this.parser.hasDisplayErrors()

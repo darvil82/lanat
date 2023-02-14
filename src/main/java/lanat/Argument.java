@@ -31,24 +31,26 @@ import java.util.function.Consumer;
  * <p>
  * An Argument with the names "name" and "n" that will parse an integer value. There are several ways to create this
  * argument.
- * <p>
+ * </p>
  * <strong>Using the factory methods:</strong>
- * <pre>{@code
+ * <pre>
+ * {@code
  *     Argument.create(ArgumentType.INTEGER(), "name", "n");
  *     Argument.create("name", ArgumentType.INTEGER())
  *         .addNames("n");
- *     }</pre>
- * </p>
+ * }
+ * </pre>
+ *
  * <p>
  * <strong>Using the constructors:</strong>
- * <pre>{@code
+ * <pre>
+ * {@code
  *     new Argument<>(ArgumentType.INTEGER(), "name", "n");
  *     new Argument<>("name", ArgumentType.INTEGER())
  *         .addNames("n");
- *     }</pre>
- * </p>
+ * }
+ * </pre>
  *
- * </p>
  *
  * @param <Type> the {@link ArgumentType} subclass that will parse the value passed to the argument
  * @param <TInner> the actual type of the value passed to the argument

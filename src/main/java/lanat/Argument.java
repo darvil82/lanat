@@ -73,7 +73,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	private @Nullable TInner defaultValue;
 
 	/** The Command that this Argument belongs to. This should never be null after initialization. */
-	private Command parentCmd;
+	private Command parentCommand;
 
 	/**
 	 * The ArgumentGroup that this Argument belongs to. If this Argument does not belong to any group, this
@@ -88,7 +88,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	/**
 	 * The color that this Argument will have in places where it is displayed, such as the help message.
 	 * By default, the color will be picked from the {@link Command#colorsPool} of the parent command at
-	 * {@link Argument#setParentCmd(Command)}.
+	 * {@link Argument#setParentCommand(Command)}.
 	 */
 	private final @NotNull ModifyRecord<Color> representationColor = new ModifyRecord<>(null);
 
@@ -285,17 +285,17 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * Sets the parent command of this argument. This is called when adding the Argument to a command at
 	 * {@link Command#addArgument(Argument)}
 	 */
-	void setParentCmd(@NotNull Command parentCmd) {
-		if (this.parentCmd != null) {
+	void setParentCommand(@NotNull Command parentCommand) {
+		if (this.parentCommand != null) {
 			throw new IllegalStateException("Argument already added to a command");
 		}
-		this.parentCmd = parentCmd;
-		this.representationColor.setIfNotModified(parentCmd.colorsPool.next());
+		this.parentCommand = parentCommand;
+		this.representationColor.setIfNotModified(parentCommand.colorsPool.next());
 	}
 
 	@Override
 	public @NotNull Command getParentCommand() {
-		return this.parentCmd;
+		return this.parentCommand;
 	}
 
 	/**
@@ -357,10 +357,10 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		if (this.parentGroup != null) {
 			var exclusivityResult = this.parentGroup.checkExclusivity();
 			if (exclusivityResult != null) {
-				this.parentCmd.getParser().addError(
+				this.parentCommand.getParser().addError(
 					new ParseError(
 						ParseError.ParseErrorType.MULTIPLE_ARGS_IN_EXCLUSIVE_GROUP_USED,
-						this.parentCmd.getParser().getCurrentTokenIndex(),
+						this.parentCommand.getParser().getCurrentTokenIndex(),
 						this, values.length
 					)
 					{{
@@ -391,8 +391,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 */
 	public @Nullable TInner finishParsing() {
 		if (this.getUsageCount() == 0) {
-			if (this.obligatory && !this.parentCmd.uniqueArgumentReceivedValue()) {
-				this.parentCmd.getParser().addError(ParseError.ParseErrorType.OBLIGATORY_ARGUMENT_NOT_USED, this, 0);
+			if (this.obligatory && !this.parentCommand.uniqueArgumentReceivedValue()) {
+				this.parentCommand.getParser().addError(ParseError.ParseErrorType.OBLIGATORY_ARGUMENT_NOT_USED, this, 0);
 				return null;
 			}
 
@@ -401,7 +401,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 			return value == null ? this.defaultValue : value;
 		}
 
-		this.argType.getErrorsUnderDisplayLevel().forEach(this.parentCmd.getParser()::addError);
+		this.argType.getErrorsUnderDisplayLevel().forEach(this.parentCommand.getParser()::addError);
 		return this.argType.getFinalValue();
 	}
 
@@ -432,31 +432,31 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		if (okValue == null
 			|| this.onCorrectCallback == null
 			|| this.getUsageCount() == 0
-			|| (!this.allowUnique && this.parentCmd.uniqueArgumentReceivedValue())
+			|| (!this.allowUnique && this.parentCommand.uniqueArgumentReceivedValue())
 		) return;
 
-		final var invocationOption = this.parentCmd.getArgumentCallbackInvocationOption();
+		final var invocationOption = this.parentCommand.getArgumentCallbackInvocationOption();
 
 		if (
 			(
 				invocationOption == ArgumentCallbacksOption.NO_ERROR_IN_COMMAND
-				&& !this.parentCmd.hasExitErrorsNotIncludingSubCommands()
+				&& !this.parentCommand.hasExitErrorsNotIncludingSubCommands()
 			) || (
 				invocationOption == ArgumentCallbacksOption.NO_ERROR_IN_COMMAND_AND_SUBCOMMANDS
-				&& !this.parentCmd.hasExitErrors()
+				&& !this.parentCommand.hasExitErrors()
 			) || (
 				invocationOption == ArgumentCallbacksOption.NO_ERROR_IN_ALL_COMMANDS
-				&& !this.parentCmd.getRootCommand().hasExitErrors()
+				&& !this.parentCommand.getRootCommand().hasExitErrors()
 			)
-		) {
-			this.onCorrectCallback.accept((@NotNull TInner)okValue);
-		}
+		) return;
+
+		this.onCorrectCallback.accept((@NotNull TInner)okValue);
 
 	}
 
 	public boolean equals(@NotNull Argument<?, ?> obj) {
 		// we just want to check if there's a difference between identifiers and both are part of the same command
-		return this.parentCmd == obj.parentCmd || (
+		return this.parentCommand == obj.parentCommand || (
 			this.getNames().stream().anyMatch(name -> {
 				for (var otherName : obj.getNames()) {
 					if (name.equals(otherName)) return true;

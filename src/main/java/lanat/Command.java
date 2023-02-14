@@ -72,7 +72,7 @@ public class Command
 		if (this.arguments.stream().anyMatch(a -> a.equals(argument))) {
 			throw new IllegalArgumentException("duplicate argument identifier '" + argument.getName() + "'");
 		}
-		argument.setParentCmd(this);
+		argument.setParentCommand(this);
 		this.arguments.add(argument);
 	}
 
@@ -265,6 +265,8 @@ public class Command
 
 	@Override
 	public void invokeCallbacks() {
+		this.subCommands.forEach(Command::invokeCallbacks);
+
 		if (this.hasExitErrors()) {
 			if (this.onErrorCallback != null) this.onErrorCallback.accept(this);
 		} else {
@@ -273,8 +275,21 @@ public class Command
 
 		// invoke callbacks for all arguments if they have a value
 		this.parser.getParsedArgumentsHashMap().forEach(Argument::invokeCallbacks);
+	}
 
-		this.subCommands.forEach(Command::invokeCallbacks);
+	boolean shouldExecuteCallback() {
+		final var invocationOption = this.getArgumentCallbackInvocationOption();
+
+		return (
+			invocationOption == ArgumentCallbacksOption.NO_ERROR_IN_COMMAND
+				&& !this.hasExitErrorsNotIncludingSubCommands()
+		) || (
+			invocationOption == ArgumentCallbacksOption.NO_ERROR_IN_COMMAND_AND_SUBCOMMANDS
+				&& !this.hasExitErrors()
+		) || (
+			invocationOption == ArgumentCallbacksOption.NO_ERROR_IN_ALL_COMMANDS
+				&& !this.getRootCommand().hasExitErrors()
+		);
 	}
 
 	boolean hasExitErrorsNotIncludingSubCommands() {

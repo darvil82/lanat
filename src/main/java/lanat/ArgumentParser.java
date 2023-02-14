@@ -94,9 +94,12 @@ public class ArgumentParser extends Command {
 	}
 
 	private @NotNull String getForwardValue() {
-		for (var token : this.getFullTokenList()) {
-			if (token.type() == TokenType.FORWARD_VALUE) return token.contents();
-		}
+		final var tokens = this.getFullTokenList();
+		final var lastToken = tokens.get(tokens.size() - 1);
+
+		if (lastToken.type() == TokenType.FORWARD_VALUE)
+			return lastToken.contents();
+
 		return "";
 	}
 

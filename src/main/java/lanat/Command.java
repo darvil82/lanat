@@ -157,7 +157,7 @@ public class Command
 	}
 
 	/**
-	 * Specifies in which cases the {@link Argument#setOnCorrectCallback(Consumer)} should be invoked.
+	 * Specifies in which cases the {@link Argument#onOk(Consumer)} should be invoked.
 	 * <p>By default, this is set to {@link ArgumentCallbacksOption#NO_ERROR_IN_ALL_COMMANDS}.</p>
 	 *
 	 * @see ArgumentCallbacksOption

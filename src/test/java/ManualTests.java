@@ -29,9 +29,7 @@ public final class ManualTests {
 			ONE, TWO, THREE
 		}
 
-		final var argumentParser = new TestingParser("Testing") {{
-			this.invokeCallbacksWhen(CallbacksInvocationOption.NO_ERROR_IN_ARGUMENT);
-
+		new TestingParser("Testing") {{
 			this.addArgument(Argument.create("testing", ArgumentType.FROM_PARSEABLE(new TestClass()))
 				.description("some description")
 				.onOk(value -> System.out.println("ok: " + value))
@@ -48,9 +46,7 @@ public final class ManualTests {
 					.onOk(value -> System.out.println("ok: " + value))
 				);
 			}});
-		}};
-
-		argumentParser.parseArgsExpectErrorPrint("--testing 23 --double foo hello --world 7");
+		}}.parseArgsExpectErrorPrint("--double ball");
 	}
 }
 

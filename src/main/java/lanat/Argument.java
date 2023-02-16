@@ -344,6 +344,11 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 	/**
 	 * Specify a function that will be called if an error occurs when parsing this argument.
+	 * <p>
+	 * <strong>Note</strong> that this callback is only called if the error was dispatched by this argument's type. That is,
+	 * if the argument, for example, is obligatory, and the user does not specify a value, an error will be thrown,
+	 * but this callback will not be called, as the error was not dispatched by this argument's type.
+	 * </p>
 	 */
 	public Argument<Type, TInner> onErr(@NotNull Consumer<@NotNull Argument<Type, TInner>> callback) {
 		this.setOnErrorCallback(callback);

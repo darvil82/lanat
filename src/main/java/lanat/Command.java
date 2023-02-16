@@ -265,6 +265,13 @@ public class Command
 		this.onErrorCallback = callback;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * By default this callback is called only if all commands succeed, but you can change this behavior with
+	 * {@link Command#invokeCallbacksWhen(CallbacksInvocationOption)}
+	 * </p>
+	 */
 	@Override
 	public void setOnCorrectCallback(@NotNull Consumer<@NotNull ParsedArguments> callback) {
 		this.onCorrectCallback = callback;
@@ -325,7 +332,9 @@ public class Command
 	public int getErrorCode() {
 		int errCode = this.subCommands.stream()
 			.filter(c -> c.tokenizer.isFinishedTokenizing())
-			.map(sc -> sc.getMinimumExitErrorLevel().get().isInErrorMinimum(this.getMinimumExitErrorLevel().get()) ? sc.getErrorCode() : 0)
+			.map(sc -> sc.getMinimumExitErrorLevel().get()
+				.isInErrorMinimum(this.getMinimumExitErrorLevel().get()) ? sc.getErrorCode() : 0
+			)
 			.reduce(0, (a, b) -> a | b);
 
 		/* If we have errors, or the subcommands had errors, do OR with our own error level.

@@ -22,15 +22,23 @@ java {
 	withSourcesJar()
 }
 
+
 publishing {
 	repositories {
 		maven {
-			name = "GitHubPackages"
+			name = "github"
 			url = uri("https://maven.pkg.github.com/darvil82/Lanat")
 			credentials {
-				username = System.getenv("GITHUB_ACTOR")
-				password = System.getenv("GITHUB_TOKEN")
+				username = System.getenv("CI_GITHUB_USERNAME")
+				password = System.getenv("CI_GITHUB_PASSWORD")
 			}
+		}
+	}
+
+	publications {
+		register<MavenPublication>("gpr") {
+			from(components["java"])
+			artifactId = rootProject.name
 		}
 	}
 }

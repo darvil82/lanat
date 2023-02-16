@@ -334,7 +334,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * Specify a function that will be called with the value introduced by the user.
 	 * <p>
 	 * By default this callback is called only if all commands succeed, but you can change this behavior with
-	 * {@link Command#invokeArgumentCallbackWhen(ArgumentCallbacksOption)}
+	 * {@link Command#invokeCallbacksWhen(ArgumentCallbacksOption)}
 	 * </p>
 	 */
 	public Argument<Type, TInner> onOk(@NotNull Consumer<@NotNull TInner> callback) {
@@ -437,7 +437,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 			|| this.onCorrectCallback == null
 			|| this.getUsageCount() == 0
 			|| (!this.allowUnique && this.parentCommand.uniqueArgumentReceivedValue())
-			|| !this.parentCommand.shouldExecuteCallback()
+			|| !this.parentCommand.shouldExecuteCorrectCallback()
 		) return;
 
 		this.onCorrectCallback.accept((@NotNull TInner)okValue);

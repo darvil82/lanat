@@ -30,7 +30,7 @@ public final class ManualTests {
 		}
 
 		final var argumentParser = new TestingParser("Testing") {{
-			this.invokeArgumentCallbackWhen(ArgumentCallbacksOption.NO_ERROR_IN_ALL_COMMANDS);
+			this.invokeCallbacksWhen(ArgumentCallbacksOption.NO_ERROR_IN_ARGUMENT);
 
 			this.addArgument(Argument.create("testing", ArgumentType.FROM_PARSEABLE(new TestClass()))
 				.description("some description")

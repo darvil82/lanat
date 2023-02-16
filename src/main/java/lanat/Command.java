@@ -42,7 +42,7 @@ public class Command
 	private @Nullable Consumer<ParsedArguments> onCorrectCallback;
 
 	private final @NotNull ModifyRecord<HelpFormatter> helpFormatter = new ModifyRecord<>(new HelpFormatter(this));
-	private final @NotNull ModifyRecord<@NotNull ArgumentCallbacksOption> argumentCallbackInvocationOption =
+	private final @NotNull ModifyRecord<@NotNull ArgumentCallbacksOption> callbackInvocationOption =
 		new ModifyRecord<>(ArgumentCallbacksOption.NO_ERROR_IN_ALL_COMMANDS);
 
 	/** A pool of the colors that an argument may have when being represented on the help. */
@@ -162,12 +162,12 @@ public class Command
 	 *
 	 * @see ArgumentCallbacksOption
 	 */
-	public void invokeArgumentCallbackWhen(@NotNull ArgumentCallbacksOption option) {
-		this.argumentCallbackInvocationOption.set(option);
+	public void invokeCallbacksWhen(@NotNull ArgumentCallbacksOption option) {
+		this.callbackInvocationOption.set(option);
 	}
 
-	public @NotNull ArgumentCallbacksOption getArgumentCallbackInvocationOption() {
-		return this.argumentCallbackInvocationOption.get();
+	public @NotNull ArgumentCallbacksOption getCallbackInvocationOption() {
+		return this.callbackInvocationOption.get();
 	}
 
 	public void addError(@NotNull String message, @NotNull ErrorLevel level) {
@@ -249,7 +249,7 @@ public class Command
 			fmt.setParentCmd(this); // we need to update the parent command!
 			return fmt;
 		});
-		this.argumentCallbackInvocationOption.setIfNotModified(parent.argumentCallbackInvocationOption);
+		this.callbackInvocationOption.setIfNotModified(parent.callbackInvocationOption);
 
 		this.passPropertiesToChildren();
 	}
@@ -272,20 +272,19 @@ public class Command
 
 	@Override
 	public void invokeCallbacks() {
-		final var parsedArgs = this.parser.getParsedArgumentsHashMap();
 		this.subCommands.forEach(Command::invokeCallbacks);
 
-		if (this.hasExitErrors()) {
-			if (this.onErrorCallback != null) this.onErrorCallback.accept(this);
-		} else {
+		if (this.shouldExecuteCorrectCallback()) {
 			if (this.onCorrectCallback != null) this.onCorrectCallback.accept(this.getParsedArguments());
+		} else {
+			if (this.onErrorCallback != null) this.onErrorCallback.accept(this);
 		}
 
-		parsedArgs.forEach(Argument::invokeCallbacks);
+		this.parser.getParsedArgumentsHashMap().forEach(Argument::invokeCallbacks);
 	}
 
-	boolean shouldExecuteCallback() {
-		return switch (this.getArgumentCallbackInvocationOption()) {
+	boolean shouldExecuteCorrectCallback() {
+		return switch (this.getCallbackInvocationOption()) {
 			case NO_ERROR_IN_COMMAND -> !this.hasExitErrorsNotIncludingSubCommands();
 			case NO_ERROR_IN_COMMAND_AND_SUBCOMMANDS -> !this.hasExitErrors();
 			case NO_ERROR_IN_ALL_COMMANDS -> !this.getRootCommand().hasExitErrors();

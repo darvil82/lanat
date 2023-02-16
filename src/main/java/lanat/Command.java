@@ -42,8 +42,8 @@ public class Command
 	private @Nullable Consumer<ParsedArguments> onCorrectCallback;
 
 	private final @NotNull ModifyRecord<HelpFormatter> helpFormatter = new ModifyRecord<>(new HelpFormatter(this));
-	private final @NotNull ModifyRecord<@NotNull ArgumentCallbacksOption> callbackInvocationOption =
-		new ModifyRecord<>(ArgumentCallbacksOption.NO_ERROR_IN_ALL_COMMANDS);
+	private final @NotNull ModifyRecord<@NotNull CallbacksInvocationOption> callbackInvocationOption =
+		new ModifyRecord<>(CallbacksInvocationOption.NO_ERROR_IN_ALL_COMMANDS);
 
 	/** A pool of the colors that an argument may have when being represented on the help. */
 	final @NotNull LoopPool<@NotNull Color> colorsPool = LoopPool.atRandomIndex(Color.getBrightColors());
@@ -158,15 +158,15 @@ public class Command
 
 	/**
 	 * Specifies in which cases the {@link Argument#onOk(Consumer)} should be invoked.
-	 * <p>By default, this is set to {@link ArgumentCallbacksOption#NO_ERROR_IN_ALL_COMMANDS}.</p>
+	 * <p>By default, this is set to {@link CallbacksInvocationOption#NO_ERROR_IN_ALL_COMMANDS}.</p>
 	 *
-	 * @see ArgumentCallbacksOption
+	 * @see CallbacksInvocationOption
 	 */
-	public void invokeCallbacksWhen(@NotNull ArgumentCallbacksOption option) {
+	public void invokeCallbacksWhen(@NotNull CallbacksInvocationOption option) {
 		this.callbackInvocationOption.set(option);
 	}
 
-	public @NotNull ArgumentCallbacksOption getCallbackInvocationOption() {
+	public @NotNull CallbacksInvocationOption getCallbackInvocationOption() {
 		return this.callbackInvocationOption.get();
 	}
 

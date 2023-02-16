@@ -1,6 +1,6 @@
 package lanat;
 
-public enum ArgumentCallbacksOption {
+public enum CallbacksInvocationOption {
 	/** The callback will only be invoked when there are no errors in the argument. */
 	NO_ERROR_IN_ARGUMENT,
 

@@ -1,5 +1,6 @@
 plugins {
 	java
+	`maven-publish`
 }
 
 group = "darvil"
@@ -19,6 +20,19 @@ dependencies {
 java {
 	withJavadocJar()
 	withSourcesJar()
+}
+
+publishing {
+	repositories {
+		maven {
+			name = "GitHubPackages"
+			url = uri("https://maven.pkg.github.com/darvil82/Lanat")
+			credentials {
+				username = System.getenv("GITHUB_ACTOR")
+				password = System.getenv("GITHUB_TOKEN")
+			}
+		}
+	}
 }
 
 tasks.named<Test>("test") {

@@ -51,7 +51,6 @@ import java.util.function.Consumer;
  * }
  * </pre>
  *
- *
  * @param <Type> the {@link ArgumentType} subclass that will parse the value passed to the argument
  * @param <TInner> the actual type of the value passed to the argument
  * @see Command#addArgument(Argument)
@@ -116,43 +115,73 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 
-	/** Creates an argument with the specified type and names. */
+	/**
+	 * Creates an argument with the specified type and names.
+	 *
+	 * @param argType the type of the argument. This is the subParser that will be used to parse the value/s this
+	 * 	argument should receive.
+	 * @param names the names of the argument. See {@link Argument#addNames(String...)} for more information.
+	 */
 	public Argument(@NotNull Type argType, @NotNull String... names) {
 		this.addNames(names);
 		this.argType = argType;
 	}
 
-	/** Creates an argument with the specified name and type. */
+	/**
+	 * Creates an argument with the specified name and type.
+	 * @param name the name of the argument. See {@link Argument#addNames(String...)} for more information.
+	 * @param argType the type of the argument. This is the subParser that will be used to parse the value/s this
+	 * 	argument should receive.
+	 * */
 	public Argument(@NotNull String name, @NotNull Type argType) {
 		this(argType, name);
 	}
 
 	/**
 	 * Creates an argument with a {@link BooleanArgument} type.
+	 * @param names the names of the argument. See {@link Argument#addNames(String...)} for more information.
 	 */
 	public static Argument<BooleanArgument, Boolean> create(@NotNull String... names) {
 		return new Argument<>(ArgumentType.BOOLEAN(), names);
 	}
 
-	/** Creates an argument with the specified name and type. */
+	/** Creates an argument with the specified name and type.
+	 * @param name the name of the argument. See {@link Argument#addNames(String...)} for more information.
+	 * @param argType the type of the argument. This is the subParser that will be used to parse the value/s this
+	 * 	argument should receive.
+	 * */
 	public static <Type extends ArgumentType<TInner>, TInner>
 	Argument<Type, TInner> create(@NotNull String name, @NotNull Type argType) {
 		return new Argument<>(argType, name);
 	}
 
-	/** Creates an argument with the specified type and names. */
+	/** Creates an argument with the specified type and names.
+	 *  @param argType the type of the argument. This is the subParser that will be used to parse the value/s this
+	 *  argument should receive.
+	 *  @param names the names of the argument. See {@link Argument#addNames(String...)} for more information.
+	 * */
 	public static <Type extends ArgumentType<TInner>, TInner>
 	Argument<Type, TInner> create(@NotNull Type argType, @NotNull String... names) {
 		return new Argument<>(argType, names);
 	}
 
-	/** Creates an argument with the specified single character name and type. */
+	/** Creates an argument with the specified single character name and type.
+	 * @param name the name of the argument. See {@link Argument#addNames(String...)} for more information.
+	 * @param argType the type of the argument. This is the subParser that will be used to parse the value/s this
+	 * */
 	public static <Type extends ArgumentType<TInner>, TInner>
 	Argument<Type, TInner> create(char name, @NotNull Type argType) {
 		return new Argument<>(argType, String.valueOf(name));
 	}
 
-	/** Creates an argument with the specified single character name, full name and type. */
+	/** Creates an argument with the specified single character name, full name and type.
+	 * <p>
+	 * This is equivalent to calling <pre>{@code Argument.create(charName, argType).addNames(fullName)}</pre>
+	 *
+	 * @param charName the single character name of the argument.
+	 * @param fullName the full name of the argument.
+	 * @param argType the type of the argument. This is the subParser that will be used to parse the value/s this
+	 * */
 	public static <Type extends ArgumentType<TInner>, TInner>
 	Argument<Type, TInner> create(char charName, @NotNull String fullName, @NotNull Type argType) {
 		return new Argument<>(argType, String.valueOf(charName), fullName);
@@ -196,6 +225,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * argument name list (-abc), the prefix that will be valid is any against all the arguments specified in that name
 	 * list.
 	 *
+	 * @param prefixChar the prefix that should be used for this argument.
 	 * @see PrefixChar
 	 */
 	public Argument<Type, TInner> prefix(PrefixChar prefixChar) {
@@ -224,6 +254,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	/**
 	 * The value that should be used if the user does not specify a value for this argument. If the argument does not
 	 * accept values, this value will be ignored.
+	 *
+	 * @param value the value that should be used if the user does not specify a value for this argument.
 	 */
 	public Argument<Type, TInner> defaultValue(@NotNull TInner value) {
 		this.defaultValue = value;
@@ -238,6 +270,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * Single character names can be used in argument name lists (e.g. <code>-abc</code>), each alphabetic character
 	 * being an argument name, that is, <code>-a -b -c</code>.
 	 * </p>
+	 *
+	 * @param names the names that should be added to this argument.
 	 */
 	public Argument<Type, TInner> addNames(@NotNull String... names) {
 		Arrays.stream(names)
@@ -259,7 +293,9 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		return Collections.unmodifiableList(this.names);
 	}
 
-	/** Sets the description of this argument. This description will be shown in the help message. */
+	/** Sets the description of this argument. This description will be shown in the help message.
+	 * @param description the description of this argument.
+	 * */
 	public Argument<Type, TInner> description(@NotNull String description) {
 		this.description = description;
 		return this;
@@ -336,6 +372,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * By default this callback is called only if all commands succeed, but you can change this behavior with
 	 * {@link Command#invokeCallbacksWhen(CallbacksInvocationOption)}
 	 * </p>
+	 * @param callback the function that will be called with the value introduced by the user.
 	 */
 	public Argument<Type, TInner> onOk(@NotNull Consumer<@NotNull TInner> callback) {
 		this.setOnCorrectCallback(callback);
@@ -345,10 +382,12 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	/**
 	 * Specify a function that will be called if an error occurs when parsing this argument.
 	 * <p>
-	 * <strong>Note</strong> that this callback is only called if the error was dispatched by this argument's type. That is,
-	 * if the argument, for example, is obligatory, and the user does not specify a value, an error will be thrown,
-	 * but this callback will not be called, as the error was not dispatched by this argument's type.
+	 * <strong>Note</strong> that this callback is only called if the error was dispatched by this argument's type. That
+	 * is,
+	 * if the argument, for example, is obligatory, and the user does not specify a value, an error will be thrown, but
+	 * this callback will not be called, as the error was not dispatched by this argument's type.
 	 * </p>
+	 * @param callback the function that will be called if an error occurs when parsing this argument.
 	 */
 	public Argument<Type, TInner> onErr(@NotNull Consumer<@NotNull Argument<Type, TInner>> callback) {
 		this.setOnErrorCallback(callback);
@@ -358,6 +397,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	/**
 	 * Pass the specified values array to the argument type to parse it.
 	 *
+	 * @param values The values array that should be parsed.
 	 * @param tokenIndex This is the global index of the token that is currently being parsed. Used when dispatching
 	 * 	errors.
 	 */
@@ -396,7 +436,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	/**
-	 * Returns the final parsed value of this argument.
+	 * @return the final value parsed by the argument type, or the default value if the argument was not used.
 	 */
 	public @Nullable TInner finishParsing() {
 		if (this.getUsageCount() == 0) {
@@ -416,6 +456,11 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 	/**
 	 * Checks if this argument matches the given name, including the prefix.
+	 * <p>
+	 * For example, if the prefix is <code>'-'</code> and the argument has the name <code>"help"</code>, this method will
+	 * return <code>true</code> if the name is <code>"--help"</code>.
+	 * </p>
+	 * @param name the name to check
 	 */
 	public boolean checkMatch(@NotNull String name) {
 		return this.names.stream()
@@ -424,6 +469,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 	/**
 	 * Checks if this argument matches the given single character name.
+	 * @see #checkMatch(String)
+	 * @param name the name to check
 	 */
 	public boolean checkMatch(char name) {
 		return this.hasName(Character.toString(name));
@@ -472,17 +519,10 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * 	before the first.
 	 */
 	public static int compareByPriority(@NotNull Argument<?, ?> first, @NotNull Argument<?, ?> second) {
-		if (first.isPositional() && !second.isPositional()) {
-			return -1;
-		} else if (!first.isPositional() && second.isPositional()) {
-			return 1;
-		} else if (first.isObligatory() && !second.isObligatory()) {
-			return -1;
-		} else if (!first.isObligatory() && second.isObligatory()) {
-			return 1;
-		} else {
-			return 0;
-		}
+		return Comparator.of(first, second)
+			.addPredicate(Argument::isPositional, 1)
+			.addPredicate(Argument::isObligatory)
+			.compare();
 	}
 
 	/**

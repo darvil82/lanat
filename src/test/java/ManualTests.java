@@ -46,7 +46,7 @@ public final class ManualTests {
 					.onOk(value -> System.out.println("ok: " + value))
 				);
 			}});
-		}}.parseArgsExpectErrorPrint("--double ball");
+		}}.parseArgsExpectErrorPrint("--help");
 	}
 }
 

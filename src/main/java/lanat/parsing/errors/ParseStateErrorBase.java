@@ -59,14 +59,26 @@ import java.util.List;
  * @param <T> An enum with the possible error types to handle.
  */
 abstract class ParseStateErrorBase<T extends Enum<T> & ErrorLevelProvider> implements ErrorLevelProvider {
-	public final @NotNull T errorsEnum;
+	public final @NotNull T errorType;
 	public int tokenIndex;
 	private ErrorHandler errorHandler;
 	private ErrorFormatter formatter;
+	private final List<Method> methods;
 
-	public ParseStateErrorBase(@NotNull T errorsEnum, int tokenIndex) {
-		this.errorsEnum = errorsEnum;
+	public ParseStateErrorBase(@NotNull T errorType, int tokenIndex) {
+		this.errorType = errorType;
 		this.tokenIndex = tokenIndex;
+
+		// check if there are methods defined for all error types
+		this.methods = this.getAnnotatedMethods();
+
+		for (final var handlerName : this.errorType.getClass().getEnumConstants()) {
+			final var handlerNameStr = handlerName.name();
+
+			// throw an exception if there is no method defined for the error type
+			if (this.methods.stream().noneMatch(m -> this.isHandlerMethod(m, handlerNameStr)))
+				throw new IllegalStateException("No method defined for error type " + handlerNameStr);
+		}
 	}
 
 	private @NotNull List<@NotNull Method> getAnnotatedMethods() {
@@ -86,32 +98,23 @@ abstract class ParseStateErrorBase<T extends Enum<T> & ErrorLevelProvider> imple
 	}
 
 	private boolean isHandlerMethod(@NotNull Method method) {
-		return this.isHandlerMethod(method, this.errorsEnum.name());
+		return this.isHandlerMethod(method, this.errorType.name());
 	}
 
 	public final @NotNull String handle(@NotNull ErrorHandler handler) {
 		this.errorHandler = handler;
-		this.formatter = new ErrorFormatter(handler, this.errorsEnum.getErrorLevel());
+		this.formatter = new ErrorFormatter(handler, this.errorType.getErrorLevel());
 
-		List<Method> methods = this.getAnnotatedMethods();
+		// invoke the method if it is defined
+		for (final var method : this.methods) {
+			if (!this.isHandlerMethod(method)) continue;
 
-		for (final var handlerName : this.errorsEnum.getClass().getEnumConstants()) {
-			final var handlerNameStr = handlerName.name();
-
-			// throw an exception if there is no method defined for the error type
-			if (methods.stream().noneMatch(m -> this.isHandlerMethod(m, handlerNameStr)))
-				throw new RuntimeException("No method defined for error type " + handlerNameStr);
-
-			// invoke the method if it is defined
-			for (final var method : methods) {
-				if (this.isHandlerMethod(method)) {
-					try {
-						method.invoke(this);
-					} catch (Exception e) {
-						throw new RuntimeException(e);
-					}
-				}
+			try {
+				method.invoke(this);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
 			}
+			return this.formatter.toString();
 		}
 
 		return this.formatter.toString();
@@ -119,7 +122,7 @@ abstract class ParseStateErrorBase<T extends Enum<T> & ErrorLevelProvider> imple
 
 	@Override
 	public @NotNull ErrorLevel getErrorLevel() {
-		return this.errorsEnum.getErrorLevel();
+		return this.errorType.getErrorLevel();
 	}
 
 	protected @NotNull Token getCurrentToken() {

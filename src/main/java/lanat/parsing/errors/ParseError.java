@@ -56,11 +56,11 @@ public class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 			/* if we are going to show an error about an argument being incorrectly used, and that argument is defined
 			 * as obligatory, we don't need to show the obligatory error since its obvious that the user knows that
 			 * the argument is obligatory */
-			if (err.errorsEnum == ParseErrorType.ARG_INCORRECT_VALUE_NUMBER) {
+			if (err.errorType == ParseErrorType.ARG_INCORRECT_VALUE_NUMBER) {
 				newList.removeIf(e ->
 					e.argument != null
 						&& e.argument.equals(err.argument)
-						&& e.errorsEnum == ParseErrorType.OBLIGATORY_ARGUMENT_NOT_USED
+						&& e.errorType == ParseErrorType.OBLIGATORY_ARGUMENT_NOT_USED
 				);
 			}
 		}

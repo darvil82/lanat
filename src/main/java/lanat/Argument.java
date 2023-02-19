@@ -515,18 +515,22 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * Positional > Obligatory > Optional.
 	 * </p>
 	 *
+	 * @param first the first argument to compare
+	 * @param second the second argument to compare
 	 * @return 0 if both arguments are equal, -1 if the first argument goes before the second, 1 if the second goes
 	 * 	before the first.
 	 */
 	public static int compareByPriority(@NotNull Argument<?, ?> first, @NotNull Argument<?, ?> second) {
-		return Comparator.of(first, second)
+		return new Comparator<Argument<?, ?>>()
 			.addPredicate(Argument::isPositional, 1)
 			.addPredicate(Argument::isObligatory)
-			.compare();
+			.compare(first, second);
 	}
 
 	/**
-	 * Sorts the given array of arguments by the synopsis view priority order.
+	 * Sorts the given list of arguments by the synopsis view priority order.
+	 * @param args the arguments to sort
+	 * @return the sorted list
 	 */
 	public static List<Argument<?, ?>> sortByPriority(@NotNull List<@NotNull Argument<?, ?>> args) {
 		return new ArrayList<>(args) {{

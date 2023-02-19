@@ -5,8 +5,6 @@ import java.util.function.Predicate;
 
 /** A class that allows you to compare two objects using a list of predicates. */
 public class Comparator<T> {
-	private final T first;
-	private final T second;
 	private final ArrayList<Pred<T>> predicates = new ArrayList<>();
 
 	private record Pred<T>(int priority, Predicate<T> predicateCb) {
@@ -15,21 +13,6 @@ public class Comparator<T> {
 		}
 	}
 
-	private Comparator(T first, T second) {
-		this.first = first;
-		this.second = second;
-	}
-
-	/**
-	 * Creates a new Comparator instance that will compare the two objects given.
-	 * @param first The first object to compare.
-	 * @param second The second object to compare.
-	 * @return A new Comparator instance.
-	 * @param <T> The type of the objects to compare.
-	 */
-	public static <T> Comparator<T> of(T first, T second) {
-		return new Comparator<>(first, second);
-	}
 
 	/**
 	 * Adds a predicate to the list of predicates to be used when comparing.
@@ -50,15 +33,17 @@ public class Comparator<T> {
 	}
 
 	/**
-	 * Compares the two objects given when creating the Comparator instance.
+	 * Compares the two objects given using the predicates added to this comparator.
+	 * @param first The first object to compare.
+	 * @param second The second object to compare.
 	 * @return -1 if the first object is "greater" than the second, 1 if the second object is "greater" than the first,
 	 * 0 if they are equal.
 	 */
-	public int compare() {
+	public int compare(T first, T second) {
 		this.predicates.sort((a, b) -> b.priority - a.priority);
 		for (final Pred<T> p : this.predicates) {
-			if (p.predicateCb.test(this.first)) return -1;
-			if (p.predicateCb.test(this.second)) return 1;
+			if (p.predicateCb.test(first)) return -1;
+			if (p.predicateCb.test(second)) return 1;
 		}
 		return 0;
 	}

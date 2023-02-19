@@ -116,45 +116,46 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * </p>
 	 * @see PrefixChar#AUTO
 	 * */
-	public enum PrefixChar {
-		MINUS('-'),
-		PLUS('+'),
-		SLASH('/'),
-		AT('@'),
-		PERCENT('%'),
-		CARET('^'),
-		EXCLAMATION('!'),
-		TILDE('~'),
-		QUESTION('?'),
-		EQUALS('='),
-		COLON(':'),
+	public static class PrefixChar {
+		public static final PrefixChar MINUS = new PrefixChar('-');
+		public static final PrefixChar PLUS = new PrefixChar('+');
+		public static final PrefixChar SLASH = new PrefixChar('/');
+		public static final PrefixChar AT = new PrefixChar('@');
+		public static final PrefixChar PERCENT = new PrefixChar('%');
+		public static final PrefixChar CARET = new PrefixChar('^');
+		public static final PrefixChar EXCLAMATION = new PrefixChar('!');
+		public static final PrefixChar TILDE = new PrefixChar('~');
+		public static final PrefixChar QUESTION = new PrefixChar('?');
+		public static final PrefixChar EQUALS = new PrefixChar('=');
+		public static final PrefixChar COLON = new PrefixChar(':');
 
 		/**
 		 * This prefix will be automatically set depending on the Operating System.
 		 * On Linux, it will be {@link PrefixChar#MINUS}, and on Windows, it will be {@link PrefixChar#SLASH}.
 		 * */
-		AUTO('-', '/');
+		public static final PrefixChar AUTO = System.getProperty("os.name").toLowerCase().contains("win") ? SLASH : MINUS;
 
 
 		public final char character;
-		public static PrefixChar defaultPrefix = PrefixChar.MINUS;
+		public static @NotNull PrefixChar defaultPrefix = PrefixChar.MINUS;
 
-		PrefixChar(char character) {
+		private PrefixChar(char character) {
 			this.character = character;
 		}
 
-		PrefixChar(char linux, char windows) {
-			this.character = System.getProperty("os.name").toLowerCase().contains("win") ? windows : linux;
-		}
-
-		public static @Nullable PrefixChar from(char chr) {
-			for (PrefixChar prefix : PrefixChar.values()) {
-				if (prefix == PrefixChar.AUTO) continue; // skip AUTO (it isn't really a prefix)
-				if (prefix.character == chr) {
-					return prefix;
-				}
-			}
-			return null;
+		/**
+		 * Creates a new PrefixChar with the specified non-whitespace character.
+		 * <h2>NOTE:</h2>
+		 * <p>
+		 * The constant fields of this class should be used instead of this method. Other characters
+		 * could break compatibility with shells using special characters as prefixes, such as the <code>|</code> or <code>;</code> characters.
+		 * </p>
+		 * @param character the character that will be used as a prefix
+		 */
+		public static @NotNull PrefixChar fromCharUnsafe(char character) {
+			if (Character.isWhitespace(character))
+				throw new IllegalArgumentException("The character cannot be a whitespace character.");
+			return new PrefixChar(character);
 		}
 	}
 

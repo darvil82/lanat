@@ -40,7 +40,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 
 	public Tokenizer(@NotNull Command command) {
 		super(command);
-		this.tupleChars = command.getTupleChars().getCharPair();
+		this.tupleChars = command.getTupleChars().charPair;
 	}
 
 	// ------------------------------------------------ Error Handling ------------------------------------------------

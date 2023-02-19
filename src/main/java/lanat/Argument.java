@@ -145,8 +145,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 		/**
 		 * Creates a new PrefixChar with the specified non-whitespace character.
-		 * <h2>NOTE:</h2>
 		 * <p>
+		 * <strong>NOTE:<br></strong>
 		 * The constant fields of this class should be used instead of this method. Other characters
 		 * could break compatibility with shells using special characters as prefixes, such as the <code>|</code> or <code>;</code> characters.
 		 * </p>

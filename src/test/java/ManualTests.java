@@ -10,26 +10,13 @@ public final class ManualTests {
 		HelpFormatter.lineWrapMax = 110;
 		HelpFormatter.debugLayout = true;
 
-		ErrorFormatter.generator = new ErrorFormatter.ErrorFormatterGenerator() {
-			@Override
-			public @NotNull String generate() {
-				final var errorLevel = this.getErrorLevel();
-				return this.getErrorLevelFormatter()
-					.setContents("[" + errorLevel + ", " + this.getTokensViewFormatting() + "]: ")
-					+ this.getContentsSingleLine();
-			}
-
-			@Override
-			protected @NotNull String generateTokensViewFormatting(ErrorFormatter.DisplayTokensOptions options) {
-				return "(at token " + options.start() + ')';
-			}
-		};
 
 		enum Something {
 			ONE, TWO, THREE
 		}
 
 		new TestingParser("Testing") {{
+			this.setDefaultPrefixChar(Argument.PrefixChar.SLASH);
 			this.addArgument(Argument.create("testing", ArgumentType.FROM_PARSEABLE(new TestClass()))
 				.description("some description")
 				.onOk(value -> System.out.println("ok: " + value))
@@ -41,12 +28,13 @@ public final class ManualTests {
 			);
 
 			this.addSubCommand(new Command("hello") {{
+				this.addNames("hi", "hey");
 				this.addArgument(Argument.create("world", ArgumentType.INTEGER_RANGE(5, 10))
 					.description("a range between 5 and 10")
 					.onOk(value -> System.out.println("ok: " + value))
 				);
 			}});
-		}}.parseArgsExpectErrorPrint("--help");
+		}}.parseArgsExpectErrorPrint("hey /world 6");
 	}
 }
 

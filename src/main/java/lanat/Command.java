@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
@@ -26,9 +27,14 @@ import java.util.function.Consumer;
  */
 public class Command
 	extends ErrorsContainerImpl<CustomError>
-	implements ErrorCallbacks<ParsedArguments, Command>, ArgumentAdder, ArgumentGroupAdder, Resettable, NamedWithDescription, ParentCommandGetter
+	implements ErrorCallbacks<ParsedArguments, Command>,
+		ArgumentAdder,
+		ArgumentGroupAdder,
+		Resettable,
+		MultipleNamesAndDescription<Command>,
+		ParentCommandGetter
 {
-	public final @NotNull String name;
+	private final @NotNull List<@NotNull String> names = new ArrayList<>();
 	public final @Nullable String description;
 	final @NotNull ArrayList<@NotNull Argument<?, ?>> arguments = new ArrayList<>();
 	final @NotNull ArrayList<@NotNull Command> subCommands = new ArrayList<>();
@@ -44,21 +50,20 @@ public class Command
 	private final @NotNull ModifyRecord<HelpFormatter> helpFormatter = new ModifyRecord<>(new HelpFormatter(this));
 	private final @NotNull ModifyRecord<@NotNull CallbacksInvocationOption> callbackInvocationOption =
 		new ModifyRecord<>(CallbacksInvocationOption.NO_ERROR_IN_ALL_COMMANDS);
+	private final @NotNull ModifyRecord<Argument.PrefixChar> defaultPrefixChar = new ModifyRecord<>(Argument.PrefixChar.MINUS);
 
 	/** A pool of the colors that an argument may have when being represented on the help. */
 	final @NotNull LoopPool<@NotNull Color> colorsPool = LoopPool.atRandomIndex(Color.getBrightColors());
 
 
 	public Command(@NotNull String name, @Nullable String description) {
-		if (!UtlString.matchCharacters(name, Character::isAlphabetic)) {
-			throw new IllegalArgumentException("name must be alphabetic");
-		}
-		this.name = UtlString.sanitizeName(name);
+		this.addNames(name);
 		this.description = description;
 		this.addArgument(Argument.create("help")
 			.onOk(t -> System.out.println(this.getHelp()))
 			.description("Shows this message.")
 			.allowUnique()
+			.prefix(this.defaultPrefixChar.get())
 		);
 	}
 
@@ -69,11 +74,12 @@ public class Command
 	@Override
 	public <T extends ArgumentType<TInner>, TInner>
 	void addArgument(@NotNull Argument<T, TInner> argument) {
+		argument.setParentCommand(this); // has to be done before checking for duplicates
 		if (this.arguments.stream().anyMatch(a -> a.equals(argument))) {
 			throw new IllegalArgumentException("duplicate argument identifier '" + argument.getName() + "'");
 		}
-		argument.setParentCommand(this);
 		this.arguments.add(argument);
+		argument.prefixChar.setIfNotModified(this.defaultPrefixChar);
 	}
 
 	@Override
@@ -91,7 +97,7 @@ public class Command
 	}
 
 	public void addSubCommand(@NotNull Command cmd) {
-		if (this.subCommands.stream().anyMatch(a -> a.name.equals(cmd.name))) {
+		if (this.subCommands.stream().anyMatch(a -> a.hasName(cmd.names.get(0)))) {
 			throw new IllegalArgumentException("cannot create two sub commands with the same name");
 		}
 
@@ -137,9 +143,32 @@ public class Command
 		return this.tupleChars.get();
 	}
 
+	public void setDefaultPrefixChar(@NotNull Argument.PrefixChar prefixChar) {
+		this.defaultPrefixChar.set(prefixChar);
+	}
+
+	public @NotNull Argument.PrefixChar getDefaultPrefixChar() {
+		return this.defaultPrefixChar.get();
+	}
+
 	@Override
-	public @NotNull String getName() {
-		return this.name;
+	public Command addNames(String... names) {
+		Arrays.stream(names)
+			.forEach(n -> {
+				if (!UtlString.matchCharacters(n, Character::isAlphabetic))
+					throw new IllegalArgumentException("Name '" + n + "' contains non-alphabetic characters.");
+
+				if (this.hasName(n))
+					throw new IllegalArgumentException("Name '" + n + "' is already used by this command.");
+
+				this.names.add(n);
+			});
+		return this;
+	}
+
+	@Override
+	public @NotNull List<String> getNames() {
+		return this.names;
 	}
 
 	@Override
@@ -200,13 +229,13 @@ public class Command
 	public @NotNull String toString() {
 		return "Command[name='%s', description='%s', arguments=%s, subCommands=%s]"
 			.formatted(
-				this.name, this.description, this.arguments, this.subCommands
+				this.getName(), this.description, this.arguments, this.subCommands
 			);
 	}
 
 	@NotNull ParsedArguments getParsedArguments() {
 		return new ParsedArguments(
-			this.name,
+			this,
 			this.parser.getParsedArgumentsHashMap(),
 			this.subCommands.stream().map(Command::getParsedArguments).toList()
 		);
@@ -218,7 +247,7 @@ public class Command
 	 */
 	public @NotNull ArrayList<@NotNull Token> getFullTokenList() {
 		final ArrayList<Token> list = new ArrayList<>() {{
-			this.add(new Token(TokenType.SUB_COMMAND, Command.this.name));
+			this.add(new Token(TokenType.SUB_COMMAND, Command.this.getName()));
 			this.addAll(Command.this.getTokenizer().getFinalTokens());
 		}};
 
@@ -250,6 +279,7 @@ public class Command
 			return fmt;
 		});
 		this.callbackInvocationOption.setIfNotModified(parent.callbackInvocationOption);
+		this.defaultPrefixChar.setIfNotModified(parent.defaultPrefixChar);
 
 		this.passPropertiesToChildren();
 	}
@@ -376,6 +406,30 @@ public class Command
 
 		// this parses recursively!
 		this.parser.parseTokens();
+	}
+
+	/**
+	 * Returns true if the argument specified by the given name is equal to this argument.
+	 * <p>
+	 * Equality is determined by the argument's name and the command it belongs to.
+	 * </p>
+	 * @param obj the argument to compare to
+	 * @return true if the argument specified by the given name is equal to this argument
+	 */
+	public boolean equals(@NotNull Command obj) {
+		return Command.equalsByNamesAndParentCmd(this, obj);
+	}
+
+	public static <T extends MultipleNamesAndDescription<?> & ParentCommandGetter>
+	boolean equalsByNamesAndParentCmd(@NotNull T a, @NotNull T b) {
+		return a.getParentCommand() == b.getParentCommand() && (
+			a.getNames().stream().anyMatch(name -> {
+				for (var otherName : b.getNames()) {
+					if (name.equals(otherName)) return true;
+				}
+				return false;
+			})
+		);
 	}
 
 	@Override

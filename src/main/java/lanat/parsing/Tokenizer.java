@@ -258,17 +258,8 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	 * </p>
 	 */
 	private boolean isArgName(@NotNull String str) {
-		// first try to figure out if the prefix is used, to save time (does it start with '--'? (assuming the prefix is '-'))
-		if (
-			str.length() > 1 // make sure we are working with long enough strings
-				&& str.charAt(0) == str.charAt(1) // first and second chars are equal?
-		)
-		{
-			// now check if the name actually exist
-			return this.command.getArguments().stream().anyMatch(a -> a.checkMatch(str));
-		}
-
-		return false;
+		// make sure we are working with long enough strings
+		return str.length() > 1 && this.getArguments().stream().anyMatch(a -> a.checkMatch(str));
 	}
 
 	/**
@@ -281,7 +272,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 
 	/** Returns true if the given string is a subcommand name */
 	private boolean isSubCommand(@NotNull String str) {
-		return this.getSubCommands().stream().anyMatch(c -> c.name.equals(str));
+		return this.getSubCommands().stream().anyMatch(c -> c.hasName(str));
 	}
 
 	/**
@@ -299,7 +290,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 
 	/** Returns a command from the subcommands of {@link Tokenizer#command} that matches the given name */
 	private Command getSubCommandByName(@NotNull String name) {
-		var x = this.getSubCommands().stream().filter(sc -> sc.name.equals(name)).toList();
+		var x = this.getSubCommands().stream().filter(sc -> sc.hasName(name)).toList();
 		return x.isEmpty() ? null : x.get(0);
 	}
 

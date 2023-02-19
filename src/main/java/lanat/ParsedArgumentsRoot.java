@@ -10,13 +10,13 @@ public class ParsedArgumentsRoot extends ParsedArguments {
 	private final @NotNull String forwardValue;
 
 	ParsedArgumentsRoot(
-		@NotNull String name,
+		@NotNull Command cmd,
 		@NotNull HashMap<@NotNull Argument<?, ?>, @Nullable Object> parsedArgs,
 		@NotNull List<@NotNull ParsedArguments> subArgs,
 		@NotNull String forwardValue
 	)
 	{
-		super(name, parsedArgs, subArgs);
+		super(cmd, parsedArgs, subArgs);
 		this.forwardValue = forwardValue;
 	}
 

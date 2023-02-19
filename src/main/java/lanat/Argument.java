@@ -58,15 +58,19 @@ import java.util.function.Consumer;
  * @see ArgumentParser
  */
 public class Argument<Type extends ArgumentType<TInner>, TInner>
-	implements ErrorsContainer<CustomError>, ErrorCallbacks<TInner, Argument<Type, TInner>>, Resettable,
-	ParentCommandGetter, NamedWithDescription
+	implements ErrorsContainer<CustomError>,
+		ErrorCallbacks<TInner,
+		Argument<Type, TInner>>,
+		Resettable,
+		ParentCommandGetter,
+		MultipleNamesAndDescription<Argument<Type, TInner>>
 {
 	/**
 	 * The type of this argument. This is the subParser that will be used to parse the value/s this argument should
 	 * receive.
 	 */
 	public final @NotNull Type argType;
-	private PrefixChar prefixChar = PrefixChar.MINUS;
+	ModifyRecord<PrefixChar> prefixChar = new ModifyRecord<>(PrefixChar.MINUS);
 	private final @NotNull List<@NotNull String> names = new ArrayList<>();
 	private @Nullable String description;
 	private boolean obligatory = false, positional = false, allowUnique = false;
@@ -93,7 +97,13 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	private final @NotNull ModifyRecord<Color> representationColor = new ModifyRecord<>(null);
 
 
-	/** The list of prefixes that can be used. */
+	/**
+	 * The list of prefixes that can be used.
+	 * <p>
+	 * The {@link PrefixChar#AUTO} prefix will be automatically set depending on the Operating System.
+	 * </p>
+	 * @see PrefixChar#AUTO
+	 * */
 	public enum PrefixChar {
 		MINUS('-'),
 		PLUS('+'),
@@ -105,12 +115,32 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		TILDE('~'),
 		QUESTION('?'),
 		EQUALS('='),
-		COLON(':');
+		COLON(':'),
+
+		/**
+		 * This prefix will be automatically set depending on the Operating System.
+		 * On Linux, it will be {@link PrefixChar#MINUS}, and on Windows, it will be {@link PrefixChar#SLASH}.
+		 * */
+		AUTO('-', '/');
 
 		public final char character;
 
 		PrefixChar(char character) {
 			this.character = character;
+		}
+
+		PrefixChar(char linux, char windows) {
+			this.character = System.getProperty("os.name").toLowerCase().contains("win") ? windows : linux;
+		}
+
+		public static @Nullable PrefixChar from(char chr) {
+			for (PrefixChar prefix : PrefixChar.values()) {
+				if (prefix == PrefixChar.AUTO) continue; // skip AUTO (it isn't really a prefix)
+				if (prefix.character == chr) {
+					return prefix;
+				}
+			}
+			return null;
 		}
 	}
 
@@ -229,12 +259,12 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * @see PrefixChar
 	 */
 	public Argument<Type, TInner> prefix(PrefixChar prefixChar) {
-		this.prefixChar = prefixChar;
+		this.prefixChar.set(prefixChar);
 		return this;
 	}
 
 	public PrefixChar getPrefix() {
-		return this.prefixChar;
+		return this.prefixChar.get();
 	}
 
 	/**
@@ -273,6 +303,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 *
 	 * @param names the names that should be added to this argument.
 	 */
+	@Override
 	public Argument<Type, TInner> addNames(@NotNull String... names) {
 		Arrays.stream(names)
 			.map(UtlString::sanitizeName)
@@ -285,10 +316,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		return this;
 	}
 
-	public boolean hasName(String name) {
-		return this.names.contains(name);
-	}
-
+	@Override
 	public @NotNull List<@NotNull String> getNames() {
 		return Collections.unmodifiableList(this.names);
 	}
@@ -299,17 +327,6 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	public Argument<Type, TInner> description(@NotNull String description) {
 		this.description = description;
 		return this;
-	}
-
-	/** Returns the name of this argument. If multiple names are defined, the longest name will be returned. */
-	@Override
-	public @NotNull String getName() {
-		if (this.names.size() == 1)
-			return this.names.get(0);
-
-		return new ArrayList<>(this.getNames()) {{
-			this.sort((a, b) -> b.length() - a.length());
-		}}.get(0);
 	}
 
 	@Override
@@ -463,8 +480,9 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * @param name the name to check
 	 */
 	public boolean checkMatch(@NotNull String name) {
+		final char prefixChar = this.getPrefix().character;
 		return this.names.stream()
-			.anyMatch(a -> name.equals(Character.toString(this.prefixChar.character).repeat(2) + a));
+			.anyMatch(a -> name.equals("" + prefixChar + a) || name.equals("" + prefixChar + prefixChar + a));
 	}
 
 	/**
@@ -496,16 +514,16 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 	}
 
+	/**
+	 * Returns true if the argument specified by the given name is equal to this argument.
+	 * <p>
+	 * Equality is determined by the argument's name and the command it belongs to.
+	 * </p>
+	 * @param obj the argument to compare to
+	 * @return true if the argument specified by the given name is equal to this argument
+	 */
 	public boolean equals(@NotNull Argument<?, ?> obj) {
-		// we just want to check if there's a difference between identifiers and both are part of the same command
-		return this.parentCommand == obj.parentCommand || (
-			this.getNames().stream().anyMatch(name -> {
-				for (var otherName : obj.getNames()) {
-					if (name.equals(otherName)) return true;
-				}
-				return false;
-			})
-		);
+		return Command.equalsByNamesAndParentCmd(this, obj);
 	}
 
 	/**
@@ -547,7 +565,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	public @NotNull String toString() {
 		return "Argument<%s>[names=%s, prefix='%c', obligatory=%b, positional=%b, allowUnique=%b, defaultValue=%s]"
 			.formatted(
-				this.argType.getClass().getSimpleName(), this.names, this.prefixChar.character, this.obligatory,
+				this.argType.getClass().getSimpleName(), this.names, this.getPrefix().character, this.obligatory,
 				this.positional, this.allowUnique, this.defaultValue
 			);
 	}

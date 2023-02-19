@@ -17,18 +17,18 @@ import java.util.regex.Pattern;
  */
 public class ParsedArguments {
 	private final @NotNull HashMap<@NotNull Argument<?, ?>, @Nullable Object> parsedArgs;
-	private final @NotNull String name;
+	private final @NotNull Command cmd;
 	private final @NotNull List<@NotNull ParsedArguments> subParsedArguments;
 	private static @NotNull String separator = ".";
 
 	ParsedArguments(
-		@NotNull String name,
+		@NotNull Command cmd,
 		@NotNull HashMap<Argument<?, ?>, Object> parsedArgs,
 		@NotNull List<ParsedArguments> subParsedArguments
 	)
 	{
 		this.parsedArgs = parsedArgs;
-		this.name = name;
+		this.cmd = cmd;
 		this.subParsedArguments = subParsedArguments;
 	}
 
@@ -133,7 +133,7 @@ public class ParsedArguments {
 	 */
 	public ParsedArguments getSubParsedArgs(@NotNull String name) {
 		for (var sub : this.subParsedArguments)
-			if (sub.name.equals(name)) return sub;
+			if (sub.cmd.hasName(name)) return sub;
 		return null;
 	}
 

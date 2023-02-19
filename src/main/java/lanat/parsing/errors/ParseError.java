@@ -91,7 +91,7 @@ public class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 			.setContents(
 				argCmd instanceof ArgumentParser
 					? "Obligatory argument '%s' not used.".formatted(this.argument.getName())
-					: "Obligatory argument '%s' for command '%s' not used.".formatted(this.argument.getName(), argCmd.name)
+					: "Obligatory argument '%s' for command '%s' not used.".formatted(this.argument.getName(), argCmd.getName())
 			)
 			.displayTokens(this.tokenIndex + 1);
 	}

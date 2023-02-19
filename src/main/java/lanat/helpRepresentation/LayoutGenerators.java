@@ -3,6 +3,7 @@ package lanat.helpRepresentation;
 import lanat.Argument;
 import lanat.ArgumentParser;
 import lanat.Command;
+import lanat.MultipleNamesAndDescription;
 import lanat.utils.UtlString;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -11,7 +12,7 @@ public final class LayoutGenerators {
 	private LayoutGenerators() {}
 
 	public static @NotNull String title(@NotNull Command cmd) {
-		return cmd.name + (cmd.description == null ? "" : ": " + cmd.description);
+		return cmd.getName() + (cmd.description == null ? "" : ": " + cmd.description);
 	}
 
 	public static @Nullable String synopsis(@NotNull Command cmd, boolean includeHelp) {
@@ -36,7 +37,7 @@ public final class LayoutGenerators {
 		final var subCommands = cmd.getSubCommands();
 		if (!subCommands.isEmpty()) {
 			buffer.append(" {")
-				.append(String.join(" | ", subCommands.stream().map(c -> c.name).toList()))
+				.append(String.join(" | ", subCommands.stream().map(Command::getName).toList()))
 				.append('}');
 		}
 

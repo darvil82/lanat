@@ -86,7 +86,7 @@ public class ArgumentParser extends Command {
 	@NotNull
 	ParsedArgumentsRoot getParsedArguments() {
 		return new ParsedArgumentsRoot(
-			this.name,
+			this,
 			this.getParser().getParsedArgumentsHashMap(),
 			this.subCommands.stream().map(Command::getParsedArguments).toList(),
 			this.getForwardValue()

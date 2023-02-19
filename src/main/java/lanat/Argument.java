@@ -32,7 +32,7 @@ import java.util.function.Consumer;
  * An Argument with the names "name" and "n" that will parse an integer value. There are several ways to create this
  * argument.
  * </p>
- * <strong>Using the factory methods:</strong>
+ * <h4>Using the factory methods:</h4>
  * <pre>
  * {@code
  *     Argument.create(ArgumentType.INTEGER(), "name", "n");
@@ -42,7 +42,7 @@ import java.util.function.Consumer;
  * </pre>
  *
  * <p>
- * <strong>Using the constructors:</strong>
+ * <h4>Using the constructors:</h4>
  * <pre>
  * {@code
  *     new Argument<>(ArgumentType.INTEGER(), "name", "n");
@@ -50,6 +50,18 @@ import java.util.function.Consumer;
  *         .addNames("n");
  * }
  * </pre>
+ *
+ * <h3>Argument usage</h3>
+ * The argument can be used in the following ways:
+ * <ul>
+ * <li>
+ * Specifying the whole name with the prefix: {@code "--name 32"} or {@code "-name 32"}.
+ * <p>
+ * An equals sign can be used instead of a space: {@code "--name=32"} or {@code "-name=32"}.
+ * </p>
+ * </li>
+ * <li>Since the argument in the example above has a single character name, this is also possible: {@code "-n32"}.</li>
+ * </ul>
  *
  * @param <Type> the {@link ArgumentType} subclass that will parse the value passed to the argument
  * @param <TInner> the actual type of the value passed to the argument

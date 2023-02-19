@@ -50,7 +50,6 @@ public class Command
 	private final @NotNull ModifyRecord<HelpFormatter> helpFormatter = new ModifyRecord<>(new HelpFormatter(this));
 	private final @NotNull ModifyRecord<@NotNull CallbacksInvocationOption> callbackInvocationOption =
 		new ModifyRecord<>(CallbacksInvocationOption.NO_ERROR_IN_ALL_COMMANDS);
-	private final @NotNull ModifyRecord<Argument.PrefixChar> defaultPrefixChar = new ModifyRecord<>(Argument.PrefixChar.MINUS);
 
 	/** A pool of the colors that an argument may have when being represented on the help. */
 	final @NotNull LoopPool<@NotNull Color> colorsPool = LoopPool.atRandomIndex(Color.getBrightColors());
@@ -63,7 +62,6 @@ public class Command
 			.onOk(t -> System.out.println(this.getHelp()))
 			.description("Shows this message.")
 			.allowUnique()
-			.prefix(this.defaultPrefixChar.get())
 		);
 	}
 
@@ -79,7 +77,6 @@ public class Command
 			throw new IllegalArgumentException("duplicate argument identifier '" + argument.getName() + "'");
 		}
 		this.arguments.add(argument);
-		argument.prefixChar.setIfNotModified(this.defaultPrefixChar);
 	}
 
 	@Override
@@ -141,14 +138,6 @@ public class Command
 
 	public @NotNull TupleCharacter getTupleChars() {
 		return this.tupleChars.get();
-	}
-
-	public void setDefaultPrefixChar(@NotNull Argument.PrefixChar prefixChar) {
-		this.defaultPrefixChar.set(prefixChar);
-	}
-
-	public @NotNull Argument.PrefixChar getDefaultPrefixChar() {
-		return this.defaultPrefixChar.get();
 	}
 
 	@Override
@@ -279,7 +268,6 @@ public class Command
 			return fmt;
 		});
 		this.callbackInvocationOption.setIfNotModified(parent.callbackInvocationOption);
-		this.defaultPrefixChar.setIfNotModified(parent.defaultPrefixChar);
 
 		this.passPropertiesToChildren();
 	}

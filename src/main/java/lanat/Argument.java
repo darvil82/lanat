@@ -70,7 +70,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * receive.
 	 */
 	public final @NotNull Type argType;
-	ModifyRecord<PrefixChar> prefixChar = new ModifyRecord<>(PrefixChar.MINUS);
+	private PrefixChar prefixChar = PrefixChar.defaultPrefix;
 	private final @NotNull List<@NotNull String> names = new ArrayList<>();
 	private @Nullable String description;
 	private boolean obligatory = false, positional = false, allowUnique = false;
@@ -123,7 +123,9 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		 * */
 		AUTO('-', '/');
 
+
 		public final char character;
+		public static PrefixChar defaultPrefix = PrefixChar.MINUS;
 
 		PrefixChar(char character) {
 			this.character = character;
@@ -259,12 +261,12 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * @see PrefixChar
 	 */
 	public Argument<Type, TInner> prefix(PrefixChar prefixChar) {
-		this.prefixChar.set(prefixChar);
+		this.prefixChar = prefixChar;
 		return this;
 	}
 
 	public PrefixChar getPrefix() {
-		return this.prefixChar.get();
+		return this.prefixChar;
 	}
 
 	/**

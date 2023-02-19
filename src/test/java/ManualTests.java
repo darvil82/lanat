@@ -15,8 +15,9 @@ public final class ManualTests {
 			ONE, TWO, THREE
 		}
 
+		Argument.PrefixChar.defaultPrefix = Argument.PrefixChar.AUTO;
+
 		new TestingParser("Testing") {{
-			this.setDefaultPrefixChar(Argument.PrefixChar.SLASH);
 			this.addArgument(Argument.create("testing", ArgumentType.FROM_PARSEABLE(new TestClass()))
 				.description("some description")
 				.onOk(value -> System.out.println("ok: " + value))

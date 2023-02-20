@@ -5,4 +5,5 @@ module lanat {
 	exports lanat.utils.displayFormatter;
 	exports lanat.helpRepresentation;
 	exports lanat.parsing;
+	exports lanat.utils;
 }

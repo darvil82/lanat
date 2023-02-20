@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "darvil"
-version = "INDEV"
+version = "0.0.1-indev"
 java.sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {

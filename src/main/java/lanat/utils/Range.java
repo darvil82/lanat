@@ -1,4 +1,4 @@
-package lanat;
+package lanat.utils;
 
 
 import org.jetbrains.annotations.NotNull;
@@ -7,15 +7,15 @@ import org.jetbrains.annotations.NotNull;
  * Used to specify the number values an argument may accept. This is essentially a classic range, but if only one value
  * is specified, both min and max will have that value.
  */
-public class ArgValueCount {
-	public static final ArgValueCount ANY = new ArgValueCount(0, -1);
-	public static final ArgValueCount AT_LEAST_ONE = new ArgValueCount(1, -1);
-	public static final ArgValueCount NONE = new ArgValueCount(0);
-	public static final ArgValueCount ONE = new ArgValueCount(1);
+public class Range {
+	public static final Range ANY = new Range(0, -1);
+	public static final Range AT_LEAST_ONE = new Range(1, -1);
+	public static final Range NONE = new Range(0);
+	public static final Range ONE = new Range(1);
 
 	public final short min, max;
 
-	public ArgValueCount(int min, int max) {
+	public Range(int min, int max) {
 		if (min < -1 || max < -1)
 			throw new IllegalArgumentException("min and max values can only be positive, or -1 for any");
 		if ((min != -1 && max != -1) && (min > max))
@@ -26,7 +26,7 @@ public class ArgValueCount {
 		this.max = (short)(max == -1 ? Short.MAX_VALUE : max);
 	}
 
-	public ArgValueCount(int value) {
+	public Range(int value) {
 		this(value, value);
 	}
 
@@ -38,10 +38,10 @@ public class ArgValueCount {
 		return this.max == 0;
 	}
 
-	public @NotNull String getMessage() {
+	public @NotNull String getMessage(String kind) {
 		return this.isRange()
-			? "from %d to %s values".formatted(this.min, this.max == Short.MAX_VALUE ? "any number of" : this.max)
-			: "%s value%s".formatted(this.min, this.min == 1 ? "" : "s");
+			? "from %d to %s %s".formatted(this.min, this.max == Short.MAX_VALUE ? "any number of" : this.max, kind + 's')
+			: "%s %s".formatted(this.min, kind + (this.min == 1 ? "" : "s"));
 	}
 
 	public @NotNull String getRegexRange() {

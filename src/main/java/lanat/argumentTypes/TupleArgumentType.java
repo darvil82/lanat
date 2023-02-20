@@ -1,6 +1,6 @@
 package lanat.argumentTypes;
 
-import lanat.ArgValueCount;
+import lanat.utils.Range;
 import lanat.ArgumentType;
 import lanat.utils.displayFormatter.Color;
 import lanat.utils.displayFormatter.TextFormatter;
@@ -8,15 +8,15 @@ import org.jetbrains.annotations.NotNull;
 
 
 public abstract class TupleArgumentType<T> extends ArgumentType<T> {
-	private final @NotNull ArgValueCount argCount;
+	private final @NotNull Range argCount;
 
-	public TupleArgumentType(@NotNull ArgValueCount argValueCount, @NotNull T initialValue) {
+	public TupleArgumentType(@NotNull Range range, @NotNull T initialValue) {
 		super(initialValue);
-		this.argCount = argValueCount;
+		this.argCount = range;
 	}
 
 	@Override
-	public @NotNull ArgValueCount getArgValueCount() {
+	public @NotNull Range getRequiredArgValueCount() {
 		return this.argCount;
 	}
 

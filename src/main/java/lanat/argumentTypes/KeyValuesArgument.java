@@ -1,6 +1,6 @@
 package lanat.argumentTypes;
 
-import lanat.ArgValueCount;
+import lanat.utils.Range;
 import lanat.ArgumentType;
 import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
@@ -13,7 +13,7 @@ public class KeyValuesArgument<T extends ArgumentType<Ts>, Ts> extends ArgumentT
 	private final char separator;
 
 	public KeyValuesArgument(@NotNull T type, char separator) {
-		if (type.getArgValueCount().min != 1)
+		if (type.getRequiredArgValueCount().min != 1)
 			throw new IllegalArgumentException("The value type must at least accept one value.");
 
 		this.valueType = type;
@@ -26,8 +26,8 @@ public class KeyValuesArgument<T extends ArgumentType<Ts>, Ts> extends ArgumentT
 	}
 
 	@Override
-	public @NotNull ArgValueCount getArgValueCount() {
-		return new ArgValueCount(1, -1);
+	public @NotNull Range getRequiredArgValueCount() {
+		return new Range(1, -1);
 	}
 
 	@Override

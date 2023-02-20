@@ -1,6 +1,6 @@
 package lanat.argumentTypes;
 
-import lanat.ArgValueCount;
+import lanat.utils.Range;
 import lanat.ArgumentType;
 import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
@@ -19,8 +19,8 @@ public class FromParseableArgument<T extends Parseable<TInner>, TInner> extends 
 	}
 
 	@Override
-	public @NotNull ArgValueCount getArgValueCount() {
-		return this.parseable.getArgValueCount();
+	public @NotNull Range getRequiredArgValueCount() {
+		return this.parseable.getRequiredArgValueCount();
 	}
 
 	@Override

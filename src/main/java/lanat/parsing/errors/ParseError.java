@@ -21,6 +21,7 @@ public class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 		OBLIGATORY_ARGUMENT_NOT_USED,
 		UNMATCHED_TOKEN(ErrorLevel.WARNING),
 		ARG_INCORRECT_VALUE_NUMBER,
+		ARG_INCORRECT_USAGES_COUNT,
 		MULTIPLE_ARGS_IN_EXCLUSIVE_GROUP_USED;
 
 		public final @NotNull ErrorLevel level;
@@ -75,8 +76,22 @@ public class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 		this.fmt()
 			.setContents("Incorrect number of values for argument '%s'.%nExpected %s, but got %d."
 				.formatted(
-					this.argument.getName(), this.argument.argType.getArgValueCount().getMessage(),
-					Math.max(this.valueCount - 1, 0)
+					this.argument.getName(), this.argument.argType.getRequiredArgValueCount().getMessage("value"),
+					Math.max(this.valueCount - 1, 0) // this is done because if there are tuples, the end token is counted as a value (maybe a bit hacky?)
+				)
+			)
+			.displayTokens(this.tokenIndex + 1, this.valueCount, this.valueCount == 0);
+	}
+
+	@Handler("ARG_INCORRECT_USAGES_COUNT")
+	protected void handleIncorrectUsagesCount() {
+		assert this.argument != null;
+
+		this.fmt()
+			.setContents("Argument '%s' used an incorrect amount of times.%nExpected %s, but was used %d times."
+				.formatted(
+					this.argument.getName(), this.argument.argType.getRequiredUsageCount().getMessage("usage"),
+					this.argument.getUsageCount()
 				)
 			)
 			.displayTokens(this.tokenIndex + 1, this.valueCount, this.valueCount == 0);

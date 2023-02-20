@@ -3,6 +3,7 @@ package lanat;
 import lanat.argumentTypes.*;
 import lanat.parsing.errors.CustomError;
 import lanat.utils.ErrorsContainerImpl;
+import lanat.utils.Range;
 import lanat.utils.Resettable;
 import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
@@ -121,15 +122,26 @@ public abstract class ArgumentType<T> extends ErrorsContainerImpl<CustomError> i
 	 * Specifies the number of values that this argument should receive when being parsed.
 	 */
 	@Override
-	public @NotNull ArgValueCount getArgValueCount() {
-		return ArgValueCount.ONE;
+	public @NotNull Range getRequiredArgValueCount() {
+		return Range.ONE;
 	}
 
+	/**
+	 * Specifies the number of times this argument type can be used during parsing.
+	 */
+	public @NotNull UsageCountRange getRequiredUsageCount() {
+		return UsageCountRange.ONE;
+	}
+
+	/** Specifies the representation of this argument type. This may appear in places like the help message. */
 	@Override
 	public @Nullable TextFormatter getRepresentation() {
 		return new TextFormatter(this.getClass().getSimpleName());
 	}
 
+	/**
+	 * Returns the final value of this argument type. This is the value that this argument type has after parsing.
+	 */
 	public final @Nullable T getFinalValue() {
 		return this.currentValue;
 	}
@@ -171,7 +183,7 @@ public abstract class ArgumentType<T> extends ErrorsContainerImpl<CustomError> i
 	 * @param level The level of the error.
 	 */
 	protected void addError(@NotNull String message, int index, @NotNull ErrorLevel level) {
-		if (!this.getArgValueCount().isIndexInRange(index)) {
+		if (!this.getRequiredArgValueCount().isIndexInRange(index)) {
 			throw new IndexOutOfBoundsException("Index " + index + " is out of range for " + this.getClass().getName());
 		}
 
@@ -191,7 +203,7 @@ public abstract class ArgumentType<T> extends ErrorsContainerImpl<CustomError> i
 
 	@Override
 	public void addError(@NotNull CustomError error) {
-		if (!this.getArgValueCount().isIndexInRange(error.tokenIndex)) {
+		if (!this.getRequiredArgValueCount().isIndexInRange(error.tokenIndex)) {
 			throw new IndexOutOfBoundsException("Index " + error.tokenIndex + " is out of range for " + this.getClass().getName());
 		}
 

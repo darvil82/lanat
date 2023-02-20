@@ -254,7 +254,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * </ul>
 	 */
 	public Argument<Type, TInner> positional() {
-		if (this.argType.getArgValueCount().max == 0) {
+		if (this.argType.getRequiredArgValueCount().max == 0) {
 			throw new IllegalArgumentException("An argument that does not accept values cannot be positional");
 		}
 		this.positional = true;
@@ -434,6 +434,16 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * 	errors.
 	 */
 	public void parseValues(@NotNull String @NotNull [] values, short tokenIndex) {
+		// check if the argument was used more times than it should
+		if (++this.argType.usageCount > this.argType.getRequiredUsageCount().max) {
+			this.parentCommand.getParser()
+				.addError(
+					ParseError.ParseErrorType.ARG_INCORRECT_USAGES_COUNT,
+					this, values.length, this.argType.getTokenIndex() + 1
+				);
+			return;
+		}
+
 		// check if the parent group of this argument is exclusive, and if so, check if any other argument in it has been used
 		if (this.parentGroup != null) {
 			var exclusivityResult = this.parentGroup.checkExclusivity();
@@ -454,7 +464,6 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 		this.argType.setTokenIndex(tokenIndex);
 		this.argType.parseAndUpdateValue(values);
-		this.argType.usageCount++;
 		if (this.parentGroup != null) {
 			this.parentGroup.setArgUsed();
 		}
@@ -480,6 +489,12 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 			// if the argument type has a value defined (even if it wasn't used), use that. Otherwise, use the default value
 			TInner value = this.argType.getValue();
 			return value == null ? this.defaultValue : value;
+
+			// make sure that the argument was used the minimum amount of times specified
+		} else if (this.argType.usageCount < this.argType.getRequiredUsageCount().min) {
+			this.parentCommand.getParser()
+				.addError(ParseError.ParseErrorType.ARG_INCORRECT_USAGES_COUNT, this, 0);
+			return null;
 		}
 
 		this.argType.getErrorsUnderDisplayLevel().forEach(this.parentCommand.getParser()::addError);

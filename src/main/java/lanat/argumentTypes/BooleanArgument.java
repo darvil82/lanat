@@ -1,6 +1,6 @@
 package lanat.argumentTypes;
 
-import lanat.ArgValueCount;
+import lanat.utils.Range;
 import lanat.ArgumentType;
 import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
@@ -20,7 +20,7 @@ public class BooleanArgument extends ArgumentType<Boolean> {
 
 	@Override
 	// this is a boolean type. if the arg is present, that's enough.
-	public @NotNull ArgValueCount getArgValueCount() {
-		return ArgValueCount.NONE;
+	public @NotNull Range getRequiredArgValueCount() {
+		return Range.NONE;
 	}
 }

@@ -1,5 +1,6 @@
 import lanat.*;
 import lanat.argumentTypes.TupleArgumentType;
+import lanat.utils.Range;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 
@@ -11,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 class StringJoiner extends TupleArgumentType<String> {
 	public StringJoiner() {
-		super(new ArgValueCount(1, 3), "");
+		super(new Range(1, 3), "");
 	}
 
 	@Override

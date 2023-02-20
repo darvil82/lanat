@@ -1,6 +1,6 @@
 package lanat.argumentTypes;
 
-import lanat.ArgValueCount;
+import lanat.utils.Range;
 import lanat.ArgumentType;
 import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
@@ -15,8 +15,8 @@ public class StdinArgument extends ArgumentType<String> {
 	private final BufferedReader systemIn = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
 
 	@Override
-	public @NotNull ArgValueCount getArgValueCount() {
-		return ArgValueCount.NONE;
+	public @NotNull Range getRequiredArgValueCount() {
+		return Range.NONE;
 	}
 
 	@Override

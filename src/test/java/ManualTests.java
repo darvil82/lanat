@@ -1,6 +1,7 @@
 import lanat.*;
 import lanat.argumentTypes.Parseable;
 import lanat.helpRepresentation.HelpFormatter;
+import lanat.utils.Range;
 import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -14,8 +15,6 @@ public final class ManualTests {
 		enum Something {
 			ONE, TWO, THREE
 		}
-
-		Argument.PrefixChar.defaultPrefix = Argument.PrefixChar.AUTO;
 
 		new TestingParser("Testing") {{
 			this.addArgument(Argument.create("testing", ArgumentType.FROM_PARSEABLE(new TestClass()))
@@ -35,7 +34,7 @@ public final class ManualTests {
 					.onOk(value -> System.out.println("ok: " + value))
 				);
 			}});
-		}}.parseArgsExpectErrorPrint("hey /world 6");
+		}}.parseArgsExpectErrorPrint("hey --world 6 --world 3");
 	}
 }
 
@@ -43,8 +42,8 @@ public final class ManualTests {
 class TestClass implements Parseable<Integer> {
 
 	@Override
-	public @NotNull ArgValueCount getArgValueCount() {
-		return ArgValueCount.ONE;
+	public @NotNull Range getRequiredArgValueCount() {
+		return Range.ONE;
 	}
 
 	@Override

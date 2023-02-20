@@ -1,6 +1,6 @@
 package lanat.parsing;
 
-import lanat.ArgValueCount;
+import lanat.utils.Range;
 import lanat.Argument;
 import lanat.ArgumentType;
 import lanat.Command;
@@ -134,7 +134,7 @@ public class Parser extends ParsingStateBase<ParseError> {
 	 * </p>
 	 */
 	private void executeArgParse(@NotNull Argument<?, ?> arg) {
-		final ArgValueCount argumentValuesRange = arg.argType.getArgValueCount();
+		final Range argumentValuesRange = arg.argType.getRequiredArgValueCount();
 
 		// just skip the whole thing if it doesn't need any values
 		if (argumentValuesRange.isZero()) {
@@ -159,15 +159,11 @@ public class Parser extends ParsingStateBase<ParseError> {
 			i++, skipCount++
 		) {
 			final Token currentToken = this.tokens.get(i);
-			if (
-				(!isInTuple && (
+			if (!isInTuple && (
 					currentToken.type().isArgumentSpecifier() || i - this.currentTokenIndex >= argumentValuesRange.max
-				))
+				)
 					|| currentToken.type().isTuple()
-			)
-			{
-				break;
-			}
+			) break;
 			tempArgs.add(currentToken);
 		}
 
@@ -193,7 +189,7 @@ public class Parser extends ParsingStateBase<ParseError> {
 	 * </p>
 	 */
 	private void executeArgParse(@NotNull Argument<?, ?> arg, @Nullable String value) {
-		final ArgValueCount argumentValuesRange = arg.argType.getArgValueCount();
+		final Range argumentValuesRange = arg.argType.getRequiredArgValueCount();
 
 		if (value == null || value.isEmpty()) {
 			this.executeArgParse(arg); // value is not present in the suffix of the argList. Continue parsing values.
@@ -225,7 +221,7 @@ public class Parser extends ParsingStateBase<ParseError> {
 
 			if (!this.runForArgument(args.charAt(i), a -> {
 				// if the argument accepts 0 values, then we can just parse it like normal
-				if (a.argType.getArgValueCount().isZero()) {
+				if (a.argType.getRequiredArgValueCount().isZero()) {
 					this.executeArgParse(a);
 
 					// -- arguments now may accept 1 or more values from now on:

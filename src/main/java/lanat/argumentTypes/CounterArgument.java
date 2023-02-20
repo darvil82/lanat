@@ -1,6 +1,7 @@
 package lanat.argumentTypes;
 
-import lanat.ArgValueCount;
+import lanat.UsageCountRange;
+import lanat.utils.Range;
 import lanat.ArgumentType;
 import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
@@ -11,8 +12,13 @@ public class CounterArgument extends ArgumentType<Integer> {
 	}
 
 	@Override
-	public @NotNull ArgValueCount getArgValueCount() {
-		return ArgValueCount.NONE;
+	public @NotNull Range getRequiredArgValueCount() {
+		return Range.NONE;
+	}
+
+	@Override
+	public @NotNull UsageCountRange getRequiredUsageCount() {
+		return UsageCountRange.AT_LEAST_ONE;
 	}
 
 	@Override

@@ -27,6 +27,10 @@ public final class ManualTests {
 				.onOk(value -> System.out.println("ok: " + value))
 			);
 
+			this.addArgument(Argument.create("test type", new TestType())
+				.onOk(value -> System.out.println("ok: " + value))
+			);
+
 			this.addSubCommand(new Command("hello") {{
 				this.addNames("hi", "hey");
 				this.addArgument(Argument.create("world", ArgumentType.INTEGER_RANGE(5, 10))
@@ -34,7 +38,7 @@ public final class ManualTests {
 					.onOk(value -> System.out.println("ok: " + value))
 				);
 			}});
-		}}.parseArgsExpectErrorPrint("hey --world 6 --world 3");
+		}}.parseArgsExpectErrorPrint("--test-type 12.123 --testing 3 hello --world 23");
 	}
 }
 
@@ -54,5 +58,17 @@ class TestClass implements Parseable<Integer> {
 	@Override
 	public @Nullable TextFormatter getRepresentation() {
 		return null;
+	}
+}
+
+class TestType extends ArgumentType<Double> {
+	@Override
+	public @Nullable Double parseValues(@NotNull String @NotNull [] args) {
+		return Double.parseDouble(args[0]);
+	}
+
+	@Override
+	public @NotNull UsageCountRange getRequiredUsageCount() {
+		return new UsageCountRange(2, 5);
 	}
 }

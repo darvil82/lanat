@@ -38,12 +38,22 @@ public class Range {
 		return this.max == 0;
 	}
 
+	/**
+	 * Returns a string representation of the range, such as "from 3 to 5 times", or "3 times".
+	 * @param kind The kind of thing the range is for, such as "time" or "argument"
+	 * @return The string representation
+	 */
 	public @NotNull String getMessage(String kind) {
 		return this.isRange()
 			? "from %d to %s %s".formatted(this.min, this.max == Short.MAX_VALUE ? "any number of" : this.max, kind + 's')
-			: "%s %s".formatted(this.min, kind + (this.min == 1 ? "" : "s"));
+			: this.min + " " + UtlString.plural(kind, this.min);
 	}
 
+	/**
+	 * Returns a string representation of the range, such as <code>"{3, 5}"</code> or <code>"{3}"</code>.
+	 * If the max value is {@link Short#MAX_VALUE}, it will be represented as <code>"..."</code>.
+	 * @return The string representation
+	 */
 	public @NotNull String getRegexRange() {
 		return this.isRange()
 			? "{%d, %s}".formatted(this.min, "" + (this.max == Short.MAX_VALUE ? "..." : this.max))

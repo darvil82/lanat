@@ -186,4 +186,15 @@ public final class UtlString {
 	public static @NotNull String removeSequences(@NotNull String str) {
 		return str.replaceAll("\033\\[[\\d;]*m", "");
 	}
+
+	/**
+	 * Returns the count given appended to the string given. An <code>'s'</code> will be appended at the end if
+	 * the count is not 1.
+	 * @param str the string to append to
+	 * @param count the count
+	 * @return "count str" or "count strs" depending on the count
+	 */
+	public static @NotNull String plural(@NotNull String str, int count) {
+		return count + " " + (count == 1 ? str : str + "s");
+	}
 }

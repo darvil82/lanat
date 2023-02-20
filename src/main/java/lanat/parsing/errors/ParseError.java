@@ -5,6 +5,7 @@ import lanat.ArgumentGroup;
 import lanat.ArgumentParser;
 import lanat.ErrorLevel;
 import lanat.utils.ErrorLevelProvider;
+import lanat.utils.UtlString;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -88,10 +89,10 @@ public class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 		assert this.argument != null;
 
 		this.fmt()
-			.setContents("Argument '%s' used an incorrect amount of times.%nExpected %s, but was used %d times."
+			.setContents("Argument '%s' was used an incorrect amount of times.%nExpected %s, but was used %s."
 				.formatted(
 					this.argument.getName(), this.argument.argType.getRequiredUsageCount().getMessage("usage"),
-					this.argument.getUsageCount()
+					UtlString.plural("time", this.argument.getUsageCount())
 				)
 			)
 			.displayTokens(this.tokenIndex + 1, this.valueCount, this.valueCount == 0);

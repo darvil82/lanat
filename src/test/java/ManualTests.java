@@ -40,6 +40,11 @@ public final class ManualTests {
 				);
 			}});
 		}}.parseArgsExpectErrorPrint("--test-type 12.123 --testing 3 hello --world 23");
+
+		Range.from(1).to(56);
+		Range.of(13);
+		Range.from(1).toInfinity();
+
 	}
 }
 

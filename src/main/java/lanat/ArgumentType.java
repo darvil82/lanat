@@ -54,7 +54,7 @@ public abstract class ArgumentType<T> extends ErrorsContainerImpl<CustomError> i
 	}
 
 	public ArgumentType() {
-		if (this.getRequiredUsageCount().min == 0) {
+		if (this.getRequiredUsageCount().min() == 0) {
 			throw new IllegalArgumentException("The required usage count must be at least 1.");
 		}
 	}

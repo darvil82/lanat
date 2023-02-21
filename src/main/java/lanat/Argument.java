@@ -41,7 +41,6 @@ import java.util.function.Consumer;
  * }
  * </pre>
  *
- * <p>
  * <h4>Using the constructors:</h4>
  * <pre>
  * {@code
@@ -254,7 +253,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * </ul>
 	 */
 	public Argument<Type, TInner> positional() {
-		if (this.argType.getRequiredArgValueCount().max == 0) {
+		if (this.argType.getRequiredArgValueCount().max() == 0) {
 			throw new IllegalArgumentException("An argument that does not accept values cannot be positional");
 		}
 		this.positional = true;
@@ -435,7 +434,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 */
 	public void parseValues(@NotNull String @NotNull [] values, short tokenIndex) {
 		// check if the argument was used more times than it should
-		if (++this.argType.usageCount > this.argType.getRequiredUsageCount().max) {
+		if (++this.argType.usageCount > this.argType.getRequiredUsageCount().max()) {
 			this.parentCommand.getParser()
 				.addError(
 					ParseError.ParseErrorType.ARG_INCORRECT_USAGES_COUNT,
@@ -491,7 +490,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 			return value == null ? this.defaultValue : value;
 
 			// make sure that the argument was used the minimum amount of times specified
-		} else if (this.argType.usageCount < this.argType.getRequiredUsageCount().min) {
+		} else if (this.argType.usageCount < this.argType.getRequiredUsageCount().min()) {
 			this.parentCommand.getParser()
 				.addError(ParseError.ParseErrorType.ARG_INCORRECT_USAGES_COUNT, this, 0);
 			return null;

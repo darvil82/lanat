@@ -13,7 +13,7 @@ public class KeyValuesArgument<T extends ArgumentType<Ts>, Ts> extends ArgumentT
 	private final char separator;
 
 	public KeyValuesArgument(@NotNull T type, char separator) {
-		if (type.getRequiredArgValueCount().min != 1)
+		if (type.getRequiredArgValueCount().min() != 1)
 			throw new IllegalArgumentException("The value type must at least accept one value.");
 
 		this.valueType = type;

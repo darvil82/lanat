@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 class StringJoiner extends TupleArgumentType<String> {
 	public StringJoiner() {
-		super(Range.of(1, 3), "");
+		super(Range.from(1).to(3), "");
 	}
 
 	@Override
@@ -34,7 +34,7 @@ class RestrictedDoubleAdder extends ArgumentType<Double> {
 
 	@Override
 	public @NotNull Range getRequiredUsageCount() {
-		return Range.of(2, 4);
+		return Range.from(2).to(4);
 	}
 }
 

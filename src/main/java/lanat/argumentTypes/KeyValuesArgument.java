@@ -27,7 +27,7 @@ public class KeyValuesArgument<T extends ArgumentType<Ts>, Ts> extends ArgumentT
 
 	@Override
 	public @NotNull Range getRequiredArgValueCount() {
-		return new Range(1, -1);
+		return Range.AT_LEAST_ONE;
 	}
 
 	@Override

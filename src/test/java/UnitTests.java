@@ -2,6 +2,7 @@ import lanat.*;
 import lanat.argumentTypes.TupleArgumentType;
 import lanat.utils.Range;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 
 import java.util.List;
@@ -12,12 +13,28 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 class StringJoiner extends TupleArgumentType<String> {
 	public StringJoiner() {
-		super(new Range(1, 3), "");
+		super(Range.of(1, 3), "");
 	}
 
 	@Override
 	public String parseValues(String @NotNull [] args) {
 		return "(" + String.join("), (", args) + ")";
+	}
+}
+
+class RestrictedDoubleAdder extends ArgumentType<Double> {
+	public RestrictedDoubleAdder() {
+		super(0.0);
+	}
+
+	@Override
+	public @Nullable Double parseValues(@NotNull String @NotNull [] args) {
+		return Double.parseDouble(args[0]) + this.getValue();
+	}
+
+	@Override
+	public @NotNull Range getRequiredUsageCount() {
+		return Range.of(2, 4);
 	}
 }
 
@@ -55,6 +72,7 @@ public class UnitTests {
 				.positional()
 				.obligatory()
 			);
+			this.addArgument(Argument.create("double-adder", new RestrictedDoubleAdder()));
 			this.addArgument(Argument.create("a", ArgumentType.BOOLEAN()));
 			this.addSubCommand(new Command("subcommand") {{
 				this.addArgument(Argument.create("c", ArgumentType.COUNTER()));

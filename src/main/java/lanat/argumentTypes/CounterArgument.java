@@ -1,6 +1,5 @@
 package lanat.argumentTypes;
 
-import lanat.UsageCountRange;
 import lanat.utils.Range;
 import lanat.ArgumentType;
 import lanat.utils.displayFormatter.TextFormatter;
@@ -17,8 +16,8 @@ public class CounterArgument extends ArgumentType<Integer> {
 	}
 
 	@Override
-	public @NotNull UsageCountRange getRequiredUsageCount() {
-		return UsageCountRange.AT_LEAST_ONE;
+	public @NotNull Range getRequiredUsageCount() {
+		return Range.AT_LEAST_ONE;
 	}
 
 	@Override

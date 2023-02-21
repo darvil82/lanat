@@ -19,6 +19,7 @@ public final class ManualTests {
 		new TestingParser("Testing") {{
 			this.addArgument(Argument.create("testing", ArgumentType.FROM_PARSEABLE(new TestClass()))
 				.description("some description")
+					.obligatory()
 				.onOk(value -> System.out.println("ok: " + value))
 			);
 
@@ -27,7 +28,7 @@ public final class ManualTests {
 				.onOk(value -> System.out.println("ok: " + value))
 			);
 
-			this.addArgument(Argument.create("test type", new TestType())
+			this.addArgument(Argument.create("test type", new RestrictedDoubleAdder())
 				.onOk(value -> System.out.println("ok: " + value))
 			);
 
@@ -58,17 +59,5 @@ class TestClass implements Parseable<Integer> {
 	@Override
 	public @Nullable TextFormatter getRepresentation() {
 		return null;
-	}
-}
-
-class TestType extends ArgumentType<Double> {
-	@Override
-	public @Nullable Double parseValues(@NotNull String @NotNull [] args) {
-		return Double.parseDouble(args[0]);
-	}
-
-	@Override
-	public @NotNull UsageCountRange getRequiredUsageCount() {
-		return new UsageCountRange(2, 5);
 	}
 }

@@ -8,14 +8,14 @@ import org.jetbrains.annotations.NotNull;
  * is specified, both min and max will have that value.
  */
 public class Range {
-	public static final Range ANY = new Range(0, -1);
-	public static final Range AT_LEAST_ONE = new Range(1, -1);
-	public static final Range NONE = new Range(0);
-	public static final Range ONE = new Range(1);
+	public static final Range ANY = Range.of(0, -1);
+	public static final Range AT_LEAST_ONE = Range.of(1, -1);
+	public static final Range NONE = Range.of(0);
+	public static final Range ONE = Range.of(1);
 
 	public final short min, max;
 
-	public Range(int min, int max) {
+	private Range(int min, int max) {
 		if (min < -1 || max < -1)
 			throw new IllegalArgumentException("min and max values can only be positive, or -1 for any");
 		if ((min != -1 && max != -1) && (min > max))
@@ -26,8 +26,12 @@ public class Range {
 		this.max = (short)(max == -1 ? Short.MAX_VALUE : max);
 	}
 
-	public Range(int value) {
-		this(value, value);
+	public static @NotNull Range of(int min, int max) {
+		return new Range(min, max);
+	}
+
+	public static @NotNull Range of(int value) {
+		return new Range(value, value);
 	}
 
 	public boolean isRange() {

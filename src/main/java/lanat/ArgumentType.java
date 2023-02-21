@@ -49,10 +49,15 @@ public abstract class ArgumentType<T> extends ErrorsContainerImpl<CustomError> i
 	private final @NotNull ArrayList<@NotNull ArgumentType<?>> subTypes = new ArrayList<>();
 
 	public ArgumentType(@NotNull T initialValue) {
+		this();
 		this.setValue(this.initialValue = initialValue);
 	}
 
-	public ArgumentType() {}
+	public ArgumentType() {
+		if (this.getRequiredUsageCount().min == 0) {
+			throw new IllegalArgumentException("The required usage count must be at least 1.");
+		}
+	}
 
 	public final void parseAndUpdateValue(@NotNull String @NotNull [] args) {
 		this.receivedValueCount = args.length;
@@ -128,9 +133,12 @@ public abstract class ArgumentType<T> extends ErrorsContainerImpl<CustomError> i
 
 	/**
 	 * Specifies the number of times this argument type can be used during parsing.
+	 * <p>
+	 * <strong>Note: </strong> The minimum value must be at least 1.
+	 * </p>
 	 */
-	public @NotNull UsageCountRange getRequiredUsageCount() {
-		return UsageCountRange.ONE;
+	public @NotNull Range getRequiredUsageCount() {
+		return Range.ONE;
 	}
 
 	/** Specifies the representation of this argument type. This may appear in places like the help message. */
@@ -142,7 +150,7 @@ public abstract class ArgumentType<T> extends ErrorsContainerImpl<CustomError> i
 	/**
 	 * Returns the final value of this argument type. This is the value that this argument type has after parsing.
 	 */
-	public final @Nullable T getFinalValue() {
+	public @Nullable T getFinalValue() {
 		return this.currentValue;
 	}
 

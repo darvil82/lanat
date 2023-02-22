@@ -33,7 +33,7 @@ public final class LayoutGenerators {
 			buffer.append(' ');
 		}
 
-		buffer.append(CommandRepr.getSubcommandsRepresentation(cmd));
+		buffer.append(CommandRepr.getSubCommandsRepresentation(cmd));
 
 		return buffer.toString();
 	}
@@ -50,7 +50,7 @@ public final class LayoutGenerators {
 		return UtlString.center(content, HelpFormatter.lineWrapMax);
 	}
 
-	public static @Nullable String descriptions(@NotNull Command cmd) {
+	public static @Nullable String argumentDescriptions(@NotNull Command cmd) {
 		final var buff = new StringBuilder();
 		final var arguments = Argument.sortByPriority(cmd.getArguments()).stream().filter(arg ->
 			arg.getParentGroup() == null && !arg.isHelpArgument() && arg.getDescription() != null
@@ -67,7 +67,11 @@ public final class LayoutGenerators {
 		return buff.toString();
 	}
 
-	public static @Nullable String commandLicense(@NotNull Command cmd) {
+	public static @Nullable String subCommandsDescriptions(@NotNull Command cmd) {
+		return CommandRepr.getSubCommandsDescriptions(cmd);
+	}
+
+	public static @Nullable String programLicense(@NotNull Command cmd) {
 		/* This is a bit of a special case. getLicense() is only present in ArgumentParser... It doesn't make much sense
 		 * to have it in Command, since it's a program-only property. So we have to do this check here. */
 		return cmd instanceof ArgumentParser ap ? ap.getLicense() : null;

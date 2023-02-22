@@ -14,16 +14,20 @@ public class LayoutItem {
 	private int marginTop, marginBottom;
 	private final @NotNull Function<@NotNull Command, @Nullable String> layoutGenerator;
 
-	public LayoutItem(@NotNull Function<@NotNull Command, @Nullable String> layoutGenerator) {
+	private LayoutItem(@NotNull Function<@NotNull Command, @Nullable String> layoutGenerator) {
 		this.layoutGenerator = layoutGenerator;
 	}
 
-	public LayoutItem(@NotNull Supplier<@Nullable String> layoutGenerator) {
-		this(c -> layoutGenerator.get());
+	public static LayoutItem of(@NotNull String content) {
+		return new LayoutItem(cmd -> content);
 	}
 
-	public LayoutItem(@NotNull String content) {
-		this(c -> content);
+	public static LayoutItem of(@NotNull Supplier<@Nullable String> layoutGenerator) {
+		return new LayoutItem(cmd -> layoutGenerator.get());
+	}
+
+	public static LayoutItem of(@NotNull Function<@NotNull Command, @Nullable String> layoutGenerator) {
+		return new LayoutItem(layoutGenerator);
 	}
 
 	public LayoutItem indent(int indent) {

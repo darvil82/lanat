@@ -63,7 +63,7 @@ public class ParsedArguments {
 	 *
 	 * <strong>Example:</strong>
 	 * <pre>
-	 * {@code var argValue = parsedArguments.<String>get("rootcommand.subcommand.argument")}
+	 * {@code var argValue = parsedArguments.<String>get("rootcommand.subCommand.argument")}
 	 * </pre>
 	 * <p>
 	 * More info at {@link #get(String...)}
@@ -77,7 +77,7 @@ public class ParsedArguments {
 
 
 	/**
-	 * Specify the route of subcommands for reaching the argument desired. This method will return an {@link Object}
+	 * Specify the route of subCommands for reaching the argument desired. This method will return an {@link Object}
 	 * that can be cast to the desired type. However, it is recommended to use the type parameter instead, to avoid
 	 * casting.
 	 *
@@ -85,13 +85,13 @@ public class ParsedArguments {
 	 *
 	 * <strong>Example:</strong>
 	 * <pre>
-	 * {@code var argValue = parsedArguments.<String>get("rootcommand", "subcommand", "argument")}
+	 * {@code var argValue = parsedArguments.<String>get("rootcommand", "subCommand", "argument")}
 	 * </pre>
 	 * Returns the parsed value of the argument in the next command hierarchy:
 	 * <ul>
 	 *     <li>rootcommand
 	 *     <ul>
-	 *         <li>subcommand
+	 *         <li>subCommand
 	 *         <ul>
 	 *             <li>argument</li>
 	 *         </ul>
@@ -111,7 +111,7 @@ public class ParsedArguments {
 		} else if ((matchedParsedArgs = this.getSubParsedArgs(argRoute[0])) != null) {
 			return matchedParsedArgs.get(Arrays.copyOfRange(argRoute, 1, argRoute.length));
 		} else {
-			throw new IllegalArgumentException("subcommand '" + argRoute[0] + "' not found");
+			throw new IllegalArgumentException("subCommand '" + argRoute[0] + "' not found");
 		}
 	}
 

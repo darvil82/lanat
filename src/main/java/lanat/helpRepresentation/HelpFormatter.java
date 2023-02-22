@@ -51,16 +51,17 @@ public class HelpFormatter {
 
 	protected void initLayout() {
 		this.setLayout(
-			new LayoutItem(LayoutGenerators::title),
-			new LayoutItem(LayoutGenerators::synopsis).indent(1).margin(1),
-			new LayoutItem(LayoutGenerators::descriptions).title("Description:").indent(1),
-			new LayoutItem(LayoutGenerators::commandLicense).marginTop(2)
+			LayoutItem.of(LayoutGenerators::title),
+			LayoutItem.of(LayoutGenerators::synopsis).indent(1).margin(1),
+			LayoutItem.of(LayoutGenerators::argumentDescriptions).title("Description:").indent(1),
+			LayoutItem.of(LayoutGenerators::subCommandsDescriptions).title("Sub-Commands:").indent(1).marginTop(1),
+			LayoutItem.of(LayoutGenerators::programLicense).marginTop(2)
 		);
 	}
 
 	public void moveLayoutItem(int from, int to) {
 		if (from < 0 || from >= this.layout.size() || to < 0 || to >= this.layout.size()) {
-			throw new IndexOutOfBoundsException("invalid indexes given");
+			throw new IndexOutOfBoundsException("invalid indices given");
 		}
 
 		// same index, nothing to do

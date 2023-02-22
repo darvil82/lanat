@@ -78,7 +78,7 @@ public class UnitTests {
 			);
 			this.addArgument(Argument.create("double-adder", new RestrictedDoubleAdder()));
 			this.addArgument(Argument.create("a", ArgumentType.BOOLEAN()));
-			this.addSubCommand(new Command("subcommand") {{
+			this.addSubCommand(new Command("subCommand") {{
 				this.addArgument(Argument.create("c", ArgumentType.COUNTER()));
 				this.addArgument(Argument.create('s', "more-strings", new StringJoiner()));
 				this.addSubCommand(new Command("another") {{

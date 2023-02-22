@@ -231,7 +231,7 @@ public class Command
 	}
 
 	/**
-	 * Get all the tokens of all subcommands (the ones that we can get without errors) into one single list. This
+	 * Get all the tokens of all subCommands (the ones that we can get without errors) into one single list. This
 	 * includes the {@link TokenType#SUB_COMMAND} tokens.
 	 */
 	public @NotNull ArrayList<@NotNull Token> getFullTokenList() {
@@ -355,8 +355,8 @@ public class Command
 			)
 			.reduce(0, (a, b) -> a | b);
 
-		/* If we have errors, or the subcommands had errors, do OR with our own error level.
-		 * By doing this, the error code of a subcommand will be OR'd with the error codes of all its parents. */
+		/* If we have errors, or the subCommands had errors, do OR with our own error level.
+		 * By doing this, the error code of a subCommand will be OR'd with the error codes of all its parents. */
 		if (this.hasExitErrors() || errCode != 0) {
 			errCode |= this.errorCode.get();
 		}
@@ -386,7 +386,7 @@ public class Command
 	}
 
 	void parse() {
-		// first we need to set the tokens of all tokenized subcommands
+		// first we need to set the tokens of all tokenized subCommands
 		Command cmd = this;
 		do {
 			cmd.parser.setTokens(cmd.tokenizer.getFinalTokens());

@@ -21,18 +21,18 @@ public class TestTerminalOutput extends UnitTests {
 	@Test
 	@DisplayName("Arrow points to the root command name on first obligatory argument missing")
 	public void testFirstObligatoryArgument() {
-		this.assertErrorOutput("subcommand", """
+		this.assertErrorOutput("subCommand", """
 			ERROR
-			Testing <- subcommand
+			Testing <- subCommand
 			Obligatory argument 'what' not used.""");
 	}
 
 	@Test
 	@DisplayName("Arrow points to the last token on last obligatory argument missing")
 	public void testLastObligatoryArgument() {
-		this.assertErrorOutput("foo subcommand another", """
+		this.assertErrorOutput("foo subCommand another", """
 			ERROR
-			Testing foo subcommand another <-
+			Testing foo subCommand another <-
 			Obligatory argument 'number' for command 'another' not used.""");
 	}
 
@@ -60,9 +60,9 @@ public class TestTerminalOutput extends UnitTests {
 	@Test
 	@DisplayName("Arrow points to correct token on missing value before token")
 	public void testMissingValueBeforeToken() {
-		this.assertErrorOutput("--what subcommand", """
+		this.assertErrorOutput("--what subCommand", """
 			ERROR
-			Testing --what <- subcommand
+			Testing --what <- subCommand
 			Incorrect number of values for argument 'what'.
 			Expected from 1 to 3 values, but got 0.""");
 	}
@@ -80,9 +80,9 @@ public class TestTerminalOutput extends UnitTests {
 	@Test
 	@DisplayName("Test invalid argument type value")
 	public void testInvalidArgumentTypeValue() {
-		this.assertErrorOutput("foo subcommand another bar", """
+		this.assertErrorOutput("foo subCommand another bar", """
 			ERROR
-			Testing foo subcommand another bar
+			Testing foo subCommand another bar
 			Invalid integer value: 'bar'.""");
 	}
 

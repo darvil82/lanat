@@ -42,6 +42,14 @@ public final class ManualTests {
 					.onOk(value -> System.out.println("ok: " + value))
 				);
 			}});
+
+			this.addSubCommand(new Command("goodbye", "Some description for this other command") {{
+				this.addNames("bye", "cya");
+				this.addArgument(Argument.create("world", ArgumentType.INTEGER_RANGE(5, 10))
+					.description("a range between 5 and 10")
+					.onOk(value -> System.out.println("ok: " + value))
+				);
+			}});
 		}}.parseArgsExpectErrorPrint("--help");
 	}
 }

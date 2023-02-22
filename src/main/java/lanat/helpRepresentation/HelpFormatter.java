@@ -53,7 +53,7 @@ public class HelpFormatter {
 		this.setLayout(
 			new LayoutItem(LayoutGenerators::title),
 			new LayoutItem(LayoutGenerators::synopsis).indent(1).margin(1),
-			new LayoutItem(LayoutGenerators::argumentDescriptions).title("Description:").indent(1),
+			new LayoutItem(LayoutGenerators::descriptions).title("Description:").indent(1),
 			new LayoutItem(LayoutGenerators::commandLicense).marginTop(2)
 		);
 	}

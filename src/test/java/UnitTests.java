@@ -40,6 +40,10 @@ class RestrictedDoubleAdder extends ArgumentType<Double> {
 
 
 class TestingParser extends ArgumentParser {
+	public TestingParser(String programName, String description) {
+		super(programName, description);
+	}
+
 	public TestingParser(String programName) {
 		super(programName);
 	}

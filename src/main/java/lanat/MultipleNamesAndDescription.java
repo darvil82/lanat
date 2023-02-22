@@ -6,8 +6,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public interface MultipleNamesAndDescription<T> extends NamedWithDescription {
-	T addNames(String... names);
-	List<String> getNames();
+	/** Add one or more names to this object. */
+	T addNames(@NotNull String... names);
+
+	/** Returns all the names of this object. Will always return at least one. */
+	@NotNull List<@NotNull String> getNames();
 
 	/** Returns the name of this object. If multiple names are defined, the longest name will be returned. */
 	@Override

@@ -16,35 +16,33 @@ public final class ManualTests {
 			ONE, TWO, THREE
 		}
 
-		new TestingParser("Testing") {{
+		new TestingParser("Testing", "description for main parser") {{
 			this.addArgument(Argument.create("testing", ArgumentType.FROM_PARSEABLE(new TestClass()))
 				.description("some description")
 					.obligatory()
 				.onOk(value -> System.out.println("ok: " + value))
 			);
 
-			this.addArgument(Argument.create("double", ArgumentType.TRY_PARSE(Double.class))
-				.description("some description")
-				.onOk(value -> System.out.println("ok: " + value))
-			);
+			this.addGroup(new ArgumentGroup("my group", "some description for the group") {{
+				this.addArgument(Argument.create("double", ArgumentType.TRY_PARSE(Double.class))
+					.description("some description")
+					.onOk(value -> System.out.println("ok: " + value))
+				);
 
-			this.addArgument(Argument.create("test type", new RestrictedDoubleAdder())
-				.onOk(value -> System.out.println("ok: " + value))
-			);
+				this.addArgument(Argument.create("test type", new RestrictedDoubleAdder())
+					.onOk(value -> System.out.println("ok: " + value))
+				);
+			}});
 
-			this.addSubCommand(new Command("hello") {{
+
+			this.addSubCommand(new Command("hello", "Some description for the command") {{
 				this.addNames("hi", "hey");
 				this.addArgument(Argument.create("world", ArgumentType.INTEGER_RANGE(5, 10))
 					.description("a range between 5 and 10")
 					.onOk(value -> System.out.println("ok: " + value))
 				);
 			}});
-		}}.parseArgsExpectErrorPrint("--test-type 12.123 --testing 3 hello --world 23");
-
-		Range.from(1).to(56);
-		Range.of(13);
-		Range.from(1).toInfinity();
-
+		}}.parseArgsExpectErrorPrint("--help");
 	}
 }
 

@@ -3,7 +3,6 @@ package lanat.helpRepresentation;
 import lanat.Argument;
 import lanat.ArgumentParser;
 import lanat.Command;
-import lanat.MultipleNamesAndDescription;
 import lanat.utils.UtlString;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -12,7 +11,7 @@ public final class LayoutGenerators {
 	private LayoutGenerators() {}
 
 	public static @NotNull String title(@NotNull Command cmd) {
-		return cmd.getName() + (cmd.description == null ? "" : ": " + cmd.description);
+		return cmd.getName() + (cmd.description == null ? "" : ":\n" + HelpFormatter.indent(cmd.description, cmd));
 	}
 
 	public static @Nullable String synopsis(@NotNull Command cmd, boolean includeHelp) {
@@ -34,12 +33,7 @@ public final class LayoutGenerators {
 			buffer.append(' ');
 		}
 
-		final var subCommands = cmd.getSubCommands();
-		if (!subCommands.isEmpty()) {
-			buffer.append(" {")
-				.append(String.join(" | ", subCommands.stream().map(Command::getName).toList()))
-				.append('}');
-		}
+		buffer.append(CommandRepr.getSubcommandsRepresentation(cmd));
 
 		return buffer.toString();
 	}
@@ -56,7 +50,7 @@ public final class LayoutGenerators {
 		return UtlString.center(content, HelpFormatter.lineWrapMax);
 	}
 
-	public static @Nullable String argumentDescriptions(@NotNull Command cmd) {
+	public static @Nullable String descriptions(@NotNull Command cmd) {
 		final var buff = new StringBuilder();
 		final var arguments = Argument.sortByPriority(cmd.getArguments()).stream().filter(arg ->
 			arg.getParentGroup() == null && !arg.isHelpArgument() && arg.getDescription() != null
@@ -67,7 +61,7 @@ public final class LayoutGenerators {
 		ArgumentRepr.appendArgumentDescriptions(buff, arguments);
 
 		for (var group : cmd.getSubGroups()) {
-			buff.append(ArgumentGroupRepr.getArgumentDescriptions(group));
+			buff.append(ArgumentGroupRepr.getDescriptions(group));
 		}
 
 		return buff.toString();

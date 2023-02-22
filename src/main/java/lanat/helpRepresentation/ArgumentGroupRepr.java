@@ -11,20 +11,24 @@ import java.util.List;
 public final class ArgumentGroupRepr {
 	private ArgumentGroupRepr() {}
 
-	public static @NotNull String getArgumentDescriptions(@NotNull ArgumentGroup group) {
+	public static @NotNull String getDescriptions(@NotNull ArgumentGroup group) {
 		final var arguments = Argument.sortByPriority(group.getArguments()).stream().filter(arg ->
 			arg.getDescription() != null
 		).toList();
 		final var buff = new StringBuilder();
 		final var name = new TextFormatter(group.name + ':').addFormat(FormatOption.BOLD);
+		final var description = group.getDescription();
 
 		if (group.isExclusive())
 			name.addFormat(FormatOption.UNDERLINE);
 
+		if (description != null)
+			buff.append(description).append("\n\n");
+
 		ArgumentRepr.appendArgumentDescriptions(buff, arguments);
 
 		for (final var subGroup : group.getSubGroups()) {
-			buff.append(ArgumentGroupRepr.getArgumentDescriptions(subGroup));
+			buff.append(ArgumentGroupRepr.getDescriptions(subGroup));
 		}
 
 		return '\n' + name.toString() + '\n' + HelpFormatter.indent(buff.toString(), group);

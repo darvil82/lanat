@@ -1,6 +1,7 @@
 package lanat.argumentTypes;
 
 import lanat.ArgumentType;
+import lanat.exceptions.ArgumentTypeException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,7 +21,7 @@ public class TryParseArgument<T> extends ArgumentType<T> {
 		this.type = type;
 
 		if ((this.parseMethod = this.getParseMethod()) == null)
-			throw new IllegalArgumentException(
+			throw new ArgumentTypeException(
 				"Type " + type.getName() + " must have a static valueOf(String), parse(String), "
 					+ "or from(String) method, or a constructor that takes a string."
 			);
@@ -78,7 +79,7 @@ public class TryParseArgument<T> extends ArgumentType<T> {
 		try {
 			return this.type.cast(this.parseMethod.apply(args[0]));
 		} catch (Exception e) {
-			throw new IllegalArgumentException("Unable to cast value '" + args[0] + "' to type " + this.type.getSimpleName() + ".", e);
+			throw new ArgumentTypeException("Unable to cast value '" + args[0] + "' to type " + this.type.getSimpleName() + ".", e);
 		}
 	}
 }

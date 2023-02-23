@@ -29,6 +29,13 @@ public final class UtlString {
 	}
 
 	/**
+	 * Wrap a string in double quotes.
+	 */
+	public static @NotNull String surround(@NotNull String str) {
+		return surround(str, "\"");
+	}
+
+	/**
 	 * Get the longest line from the contents of a string. Lines are separated by newlines.
 	 */
 	public static @NotNull String getLongestLine(@NotNull String str) {

@@ -1,5 +1,6 @@
 package lanat;
 
+import lanat.exceptions.ArgumentGroupAlreadyExistsException;
 import lanat.utils.Resettable;
 import lanat.utils.UtlString;
 import org.jetbrains.annotations.NotNull;
@@ -69,11 +70,11 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resetta
 	@Override
 	public void addGroup(@NotNull ArgumentGroup group) {
 		if (group.parentGroup != null) {
-			throw new IllegalArgumentException("Group already has a parent.");
+			throw new ArgumentGroupAlreadyExistsException(group, group.parentGroup);
 		}
 
 		if (this.subGroups.stream().anyMatch(g -> g.name.equals(group.name))) {
-			throw new IllegalArgumentException("duplicate group identifier '" + group.name + "'");
+			throw new ArgumentGroupAlreadyExistsException(group, group);
 		}
 
 		group.parentGroup = this;
@@ -97,7 +98,7 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resetta
 	 */
 	void registerGroup(@NotNull Command parentCommand) {
 		if (this.parentCommand != null) {
-			throw new IllegalStateException("This group is already registered to a command.");
+			throw new ArgumentGroupAlreadyExistsException(this, this.parentCommand);
 		}
 
 		this.parentCommand = parentCommand;
@@ -164,11 +165,3 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resetta
 }
 
 
-interface ArgumentGroupAdder {
-	/**
-	 * Adds an argument group to this element.
-	 */
-	void addGroup(@NotNull ArgumentGroup group);
-
-	@NotNull List<@NotNull ArgumentGroup> getSubGroups();
-}

@@ -1,6 +1,7 @@
 package lanat;
 
 import lanat.argumentTypes.BooleanArgument;
+import lanat.exceptions.ArgumentAlreadyExistsException;
 import lanat.parsing.errors.CustomError;
 import lanat.parsing.errors.ParseError;
 import lanat.utils.*;
@@ -354,7 +355,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 */
 	void setParentCommand(@NotNull Command parentCommand) {
 		if (this.parentCommand != null) {
-			throw new IllegalStateException("Argument already added to a command");
+			throw new ArgumentAlreadyExistsException(this, this.parentCommand);
 		}
 		this.parentCommand = parentCommand;
 		this.representationColor.setIfNotModified(parentCommand.colorsPool.next());
@@ -371,7 +372,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 */
 	void setParentGroup(@NotNull ArgumentGroup parentGroup) {
 		if (this.parentGroup != null) {
-			throw new IllegalStateException("Argument already added to a group");
+			throw new ArgumentAlreadyExistsException(this, this.parentGroup);
 		}
 		this.parentGroup = parentGroup;
 	}
@@ -664,13 +665,3 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 }
 
 
-interface ArgumentAdder {
-	/**
-	 * Inserts an argument for this command to be parsed.
-	 *
-	 * @param argument the argument to be inserted
-	 */
-	<T extends ArgumentType<TInner>, TInner> void addArgument(@NotNull Argument<T, TInner> argument);
-
-	@NotNull List<@NotNull Argument<?, ?>> getArguments();
-}

@@ -1,5 +1,8 @@
 package lanat;
 
+import lanat.exceptions.ArgumentAlreadyExistsException;
+import lanat.exceptions.ArgumentGroupAlreadyExistsException;
+import lanat.exceptions.CommandAlreadyExistsException;
 import lanat.helpRepresentation.HelpFormatter;
 import lanat.parsing.Parser;
 import lanat.parsing.Token;
@@ -74,7 +77,7 @@ public class Command
 	void addArgument(@NotNull Argument<T, TInner> argument) {
 		argument.setParentCommand(this); // has to be done before checking for duplicates
 		if (this.arguments.stream().anyMatch(a -> a.equals(argument))) {
-			throw new IllegalArgumentException("duplicate argument identifier '" + argument.getName() + "'");
+			throw new ArgumentAlreadyExistsException(argument, this);
 		}
 		this.arguments.add(argument);
 	}
@@ -82,7 +85,7 @@ public class Command
 	@Override
 	public void addGroup(@NotNull ArgumentGroup group) {
 		if (this.argumentGroups.stream().anyMatch(g -> g.name.equals(group.name))) {
-			throw new IllegalArgumentException("duplicate group identifier '" + group.name + "'");
+			throw new ArgumentGroupAlreadyExistsException(group, this);
 		}
 		group.registerGroup(this);
 		this.argumentGroups.add(group);
@@ -95,11 +98,11 @@ public class Command
 
 	public void addSubCommand(@NotNull Command cmd) {
 		if (this.subCommands.stream().anyMatch(a -> a.hasName(cmd.names.get(0)))) {
-			throw new IllegalArgumentException("cannot create two sub commands with the same name");
+			throw new CommandAlreadyExistsException(cmd, this);
 		}
 
 		if (cmd instanceof ArgumentParser) {
-			throw new IllegalArgumentException("cannot add root command as sub command");
+			throw new IllegalArgumentException("cannot add root command as Sub-Command");
 		}
 
 		this.subCommands.add(cmd);
@@ -145,10 +148,10 @@ public class Command
 		Arrays.stream(names)
 			.forEach(n -> {
 				if (!UtlString.matchCharacters(n, Character::isAlphabetic))
-					throw new IllegalArgumentException("Name '" + n + "' contains non-alphabetic characters.");
+					throw new IllegalArgumentException("Name " + UtlString.surround(n) + " contains non-alphabetic characters.");
 
 				if (this.hasName(n))
-					throw new IllegalArgumentException("Name '" + n + "' is already used by this command.");
+					throw new IllegalArgumentException("Name " + UtlString.surround(n) + " is already used by this command.");
 
 				this.names.add(n);
 			});

@@ -1,5 +1,7 @@
 package lanat;
 
+import lanat.exceptions.ArgumentNotFoundException;
+import lanat.exceptions.CommandNotFoundException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -49,7 +51,7 @@ public class ParsedArguments {
 	@SuppressWarnings("unchecked") // we'll just have to trust the user
 	public <T> ParsedArgument<T> get(@NotNull Argument<?, T> arg) {
 		if (!this.parsedArgs.containsKey(arg)) {
-			throw new IllegalArgumentException("argument '" + arg.getName() + "' not found");
+			throw new ArgumentNotFoundException(arg);
 		}
 
 		return new ParsedArgument<>((T)this.parsedArgs.get(arg));
@@ -111,7 +113,7 @@ public class ParsedArguments {
 		} else if ((matchedParsedArgs = this.getSubParsedArgs(argRoute[0])) != null) {
 			return matchedParsedArgs.get(Arrays.copyOfRange(argRoute, 1, argRoute.length));
 		} else {
-			throw new IllegalArgumentException("subCommand '" + argRoute[0] + "' not found");
+			throw new CommandNotFoundException(argRoute[0]);
 		}
 	}
 
@@ -124,7 +126,7 @@ public class ParsedArguments {
 				return arg;
 			}
 		}
-		throw new IllegalArgumentException("argument '" + name + "' not found");
+		throw new ArgumentNotFoundException(name);
 	}
 
 	/**

@@ -69,9 +69,9 @@ public class ArgumentParser extends Command {
 			this.resetState();
 		}
 
-		// pass the properties of this subCommand to its children recursively (most of the time this is what the user will want)
+		// pass the properties of this Sub-Command to its children recursively (most of the time this is what the user will want)
 		this.passPropertiesToChildren();
-		this.tokenize(args); // first. This will tokenize all subCommands recursively
+		this.tokenize(args); // first. This will tokenize all Sub-Commands recursively
 		var errorHandler = new ErrorHandler(this);
 		this.parse(); // same thing, this parses all the stuff recursively
 

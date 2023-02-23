@@ -219,7 +219,7 @@ public class Command
 
 	@Override
 	public @NotNull String toString() {
-		return "Command[name='%s', description='%s', arguments=%s, subCommands=%s]"
+		return "Command[name='%s', description='%s', arguments=%s, Sub-Commands=%s]"
 			.formatted(
 				this.getName(), this.description, this.arguments, this.subCommands
 			);
@@ -234,7 +234,7 @@ public class Command
 	}
 
 	/**
-	 * Get all the tokens of all subCommands (the ones that we can get without errors) into one single list. This
+	 * Get all the tokens of all Sub-Commands (the ones that we can get without errors) into one single list. This
 	 * includes the {@link TokenType#SUB_COMMAND} tokens.
 	 */
 	public @NotNull ArrayList<@NotNull Token> getFullTokenList() {
@@ -358,8 +358,8 @@ public class Command
 			)
 			.reduce(0, (a, b) -> a | b);
 
-		/* If we have errors, or the subCommands had errors, do OR with our own error level.
-		 * By doing this, the error code of a subCommand will be OR'd with the error codes of all its parents. */
+		/* If we have errors, or the Sub-Commands had errors, do OR with our own error level.
+		 * By doing this, the error code of a Sub-Command will be OR'd with the error codes of all its parents. */
 		if (this.hasExitErrors() || errCode != 0) {
 			errCode |= this.errorCode.get();
 		}

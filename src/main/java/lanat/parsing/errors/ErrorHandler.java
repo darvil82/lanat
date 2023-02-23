@@ -67,7 +67,7 @@ public class ErrorHandler {
 	 *   SUB_COMMAND,
 	 *   ARGUMENT_NAME
 	 * }}</pre>
-	 * The nesting level of the second subCommand is <strong>1</strong> (starting at 0), and its index in the token list
+	 * The nesting level of the second Sub-Command is <strong>1</strong> (starting at 0), and its index in the token list
 	 * is <strong>3</strong>.
 	 *
 	 * @return <code>-1</code> if the command is not found.

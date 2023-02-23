@@ -79,7 +79,7 @@ public class ParsedArguments {
 
 
 	/**
-	 * Specify the route of subCommands for reaching the argument desired. This method will return an {@link Object}
+	 * Specify the route of Sub-Commands for reaching the argument desired. This method will return an {@link Object}
 	 * that can be cast to the desired type. However, it is recommended to use the type parameter instead, to avoid
 	 * casting.
 	 *
@@ -93,7 +93,7 @@ public class ParsedArguments {
 	 * <ul>
 	 *     <li>rootcommand
 	 *     <ul>
-	 *         <li>subCommand
+	 *         <li>Sub-Command
 	 *         <ul>
 	 *             <li>argument</li>
 	 *         </ul>

@@ -120,7 +120,7 @@ public class Parser extends ParsingStateBase<ParseError> {
 
 		this.hasFinished = true;
 
-		// now parse the subCommands
+		// now parse the Sub-Commands
 		this.getSubCommands().stream()
 			.filter(sb -> sb.getTokenizer().isFinishedTokenizing()) // only get the commands that were actually tokenized
 			.forEach(sb -> sb.getParser().parseTokens()); // now parse them

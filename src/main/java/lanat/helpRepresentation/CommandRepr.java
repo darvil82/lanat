@@ -10,16 +10,16 @@ public final class CommandRepr {
 	private CommandRepr() {}
 
 	public static @NotNull String getSubCommandsRepresentation(final @NotNull Command cmd) {
-		final var subCommands = cmd.getSubCommands();
-		if (subCommands.isEmpty()) return "";
-
-		return " {"
-			+ String.join(" | ", subCommands.stream().map(CommandRepr::getCommandRepresentation).toList())
+		return '{'
+			+ String.join(" | ", cmd.getSubCommands().stream().map(CommandRepr::getCommandRepresentation).toList())
 			+ '}';
 	}
 
 	public static @NotNull String getCommandRepresentation(final @NotNull Command cmd) {
-		return String.join("/", cmd.getNames().stream().map(n -> new TextFormatter(n).addFormat(FormatOption.BOLD).toString()).toList());
+		return String.join(
+			"/",
+			cmd.getNames().stream().map(n -> new TextFormatter(n).addFormat(FormatOption.BOLD).toString()).toList()
+		);
 	}
 
 	public static @Nullable String getSubCommandsDescriptions(final @NotNull Command cmd) {

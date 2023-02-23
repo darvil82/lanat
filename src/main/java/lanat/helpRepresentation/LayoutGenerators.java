@@ -33,7 +33,8 @@ public final class LayoutGenerators {
 			buffer.append(' ');
 		}
 
-		buffer.append(CommandRepr.getSubCommandsRepresentation(cmd));
+		if (!cmd.getSubCommands().isEmpty())
+			buffer.append(' ').append(CommandRepr.getSubCommandsRepresentation(cmd));
 
 		return buffer.toString();
 	}

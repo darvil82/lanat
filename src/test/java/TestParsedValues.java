@@ -1,4 +1,5 @@
 import lanat.ParsedArguments;
+import lanat.exceptions.ArgumentNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -19,7 +20,7 @@ public class TestParsedValues extends UnitTests {
 	@DisplayName("Exception thrown when querying an invalid argument")
 	public void testUnknownArg() {
 		assertThrows(
-			IllegalArgumentException.class,
+			ArgumentNotFoundException.class,
 			() -> this.parseArgs("--what hello world").<String>get("not-there")
 		);
 	}

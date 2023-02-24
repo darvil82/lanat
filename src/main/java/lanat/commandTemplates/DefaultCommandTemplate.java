@@ -20,9 +20,9 @@ public class DefaultCommandTemplate extends CommandTemplate {
 	public @Nullable Argument<BooleanArgument, Boolean> version() {
 		return this.cmd() instanceof ArgumentParser ap
 			? Argument.create("version")
-			.onOk(t -> System.out.println("Version: " + ap.getVersion()))
-			.description("Shows the version of this program.")
-			.allowUnique()
+				.onOk(t -> System.out.println("Version: " + ap.getVersion()))
+				.description("Shows the version of this program.")
+				.allowUnique()
 			: null;
 	}
 }

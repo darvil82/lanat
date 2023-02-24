@@ -19,6 +19,8 @@ public abstract class CommandTemplate {
 		// get all the methods with the @ArgDef annotation, and add them to the command
 		Arrays.stream(this.getClass().getMethods())
 			.filter(m -> m.isAnnotationPresent(ArgDef.class))
+			.filter(m -> m.getReturnType() == Argument.class)
+			.filter(m -> m.getParameterCount() == 0)
 			.forEach(m -> {
 				try {
 					var arg = (Argument<?, ?>)m.invoke(this);
@@ -30,6 +32,10 @@ public abstract class CommandTemplate {
 			});
 	}
 
+	/**
+	 * Annotation for methods that are used to define arguments to the command.
+	 * The method must return an {@link Argument} object and take no parameters.
+	 */
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.METHOD)
 	protected @interface ArgDef {}

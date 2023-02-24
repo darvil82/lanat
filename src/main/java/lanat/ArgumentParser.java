@@ -13,6 +13,7 @@ import java.util.List;
 public class ArgumentParser extends Command {
 	private boolean isParsed = false;
 	private @Nullable String license;
+	private @Nullable String version;
 
 
 	public ArgumentParser(@NotNull String programName, @Nullable String description) {
@@ -109,5 +110,13 @@ public class ArgumentParser extends Command {
 
 	public void setLicense(@NotNull String license) {
 		this.license = license;
+	}
+
+	public @Nullable String getVersion() {
+		return this.version;
+	}
+
+	public void setVersion(@NotNull String version) {
+		this.version = version;
 	}
 }

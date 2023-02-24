@@ -37,17 +37,6 @@ public final class ManualTests {
 				);
 			}});
 
-			this.addGroup(new ArgumentGroup("my group", "some description for the group") {{
-				this.addArgument(Argument.create("double", ArgumentType.TRY_PARSE(Double.class))
-					.description("some description")
-					.onOk(value -> System.out.println("ok: " + value))
-				);
-
-				this.addArgument(Argument.create("test type", new RestrictedDoubleAdder())
-					.onOk(value -> System.out.println("ok: " + value))
-				);
-			}});
-
 			this.addSubCommand(new Command("hello", "Some description for the command") {{
 				this.addNames("hi", "hey");
 				this.addArgument(Argument.create("world", ArgumentType.INTEGER_RANGE(5, 10))

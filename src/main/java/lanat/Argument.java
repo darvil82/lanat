@@ -416,7 +416,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 	/**
 	 * Returns <code>true</code> if this argument is the help argument of its parent command.
-	 * This just checks if the argument's name is "help" and if it is marked with {@link #allowUnique}.
+	 * This just checks if the argument's name is "help" and if it is marked with {@link #allowUnique()}.
 	 * @return <code>true</code> if this argument is the help argument of its parent command.
 	 */
 	public boolean isHelpArgument() {

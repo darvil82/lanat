@@ -14,7 +14,7 @@ public final class LayoutGenerators {
 		return cmd.getName() + (cmd.description == null ? "" : ":\n" + HelpFormatter.indent(cmd.description, cmd));
 	}
 
-	public static @Nullable String synopsis(@NotNull Command cmd, boolean includeHelp) {
+	public static @Nullable String synopsis(@NotNull Command cmd) {
 		final var args = Argument.sortByPriority(cmd.getArguments());
 
 		if (args.isEmpty() && cmd.getSubGroups().isEmpty()) return null;
@@ -22,7 +22,7 @@ public final class LayoutGenerators {
 
 		for (var arg : args) {
 			// skip arguments that are in groups (handled later), and help argument if it's not needed
-			if (arg.getParentGroup() != null || (!includeHelp && arg.isHelpArgument()))
+			if (arg.getParentGroup() != null)
 				continue;
 
 			buffer.append(ArgumentRepr.getSynopsisRepresentation(arg)).append(' ');
@@ -39,10 +39,6 @@ public final class LayoutGenerators {
 		return buffer.toString();
 	}
 
-	public static @Nullable String synopsis(@NotNull Command cmd) {
-		return synopsis(cmd, false);
-	}
-
 	public static @NotNull String heading(@NotNull String content, char lineChar) {
 		return UtlString.center(content, HelpFormatter.lineWrapMax, lineChar);
 	}
@@ -54,7 +50,7 @@ public final class LayoutGenerators {
 	public static @Nullable String argumentDescriptions(@NotNull Command cmd) {
 		final var buff = new StringBuilder();
 		final var arguments = Argument.sortByPriority(cmd.getArguments()).stream().filter(arg ->
-			arg.getParentGroup() == null && !arg.isHelpArgument() && arg.getDescription() != null
+			arg.getParentGroup() == null && arg.getDescription() != null
 		).toList();
 
 		if (arguments.isEmpty() && cmd.getSubGroups().isEmpty()) return null;

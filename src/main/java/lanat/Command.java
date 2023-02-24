@@ -1,5 +1,6 @@
 package lanat;
 
+import lanat.commandTemplates.DefaultCommandTemplate;
 import lanat.exceptions.ArgumentAlreadyExistsException;
 import lanat.exceptions.ArgumentGroupAlreadyExistsException;
 import lanat.exceptions.CommandAlreadyExistsException;
@@ -58,14 +59,14 @@ public class Command
 	final @NotNull LoopPool<@NotNull Color> colorsPool = LoopPool.atRandomIndex(Color.getBrightColors());
 
 
-	public Command(@NotNull String name, @Nullable String description) {
+	public Command(@NotNull String name, @Nullable String description, CommandTemplate template) {
 		this.addNames(name);
 		this.description = description;
-		this.addArgument(Argument.create("help")
-			.onOk(t -> System.out.println(this.getHelp()))
-			.description("Shows this message.")
-			.allowUnique()
-		);
+		template.applyTo(this);
+	}
+
+	public Command(@NotNull String name, @Nullable String description) {
+		this(name, description, new DefaultCommandTemplate());
 	}
 
 	public Command(@NotNull String name) {

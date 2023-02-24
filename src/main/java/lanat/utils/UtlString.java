@@ -9,7 +9,7 @@ public final class UtlString {
 	private UtlString() {}
 
 	/**
-	 * Apply a predicate for each character in the string, if any fails, return false.
+	 * Apply a predicate for each character in the string, if any fails, return <code>false</code>.
 	 *
 	 * @param str The string to check.
 	 * @param fn The predicate to apply to each character.

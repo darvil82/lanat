@@ -64,7 +64,7 @@ public class Range {
 		return this.min != this.max;
 	}
 
-	/** Returns true if the range is 0. */
+	/** Returns <code>true</code> if the range is 0. */
 	public boolean isZero() {
 		return this.max == 0;
 	}

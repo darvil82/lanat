@@ -3,7 +3,10 @@ package lanat.utils;
 import java.util.ArrayList;
 import java.util.function.Predicate;
 
-/** A class that allows you to compare two objects using a list of predicates. */
+/**
+ * A class that allows you to compare two objects using a list of predicates.
+ * @param <T> The type of the objects to compare.
+ * */
 public class Comparator<T> {
 	private final ArrayList<Pred<T>> predicates = new ArrayList<>();
 

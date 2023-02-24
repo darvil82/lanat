@@ -209,7 +209,7 @@ public class Command
 	}
 
 	/**
-	 * Returns true if an argument with {@link Argument#allowUnique()} in the command was used.
+	 * Returns <code>true</code> if an argument with {@link Argument#allowUnique()} in the command was used.
 	 */
 	public boolean uniqueArgumentReceivedValue() {
 		return this.arguments.stream().anyMatch(a -> a.getUsageCount() >= 1 && a.isUniqueAllowed())
@@ -400,12 +400,12 @@ public class Command
 	}
 
 	/**
-	 * Returns true if the argument specified by the given name is equal to this argument.
+	 * Returns <code>true</code> if the argument specified by the given name is equal to this argument.
 	 * <p>
 	 * Equality is determined by the argument's name and the command it belongs to.
 	 * </p>
 	 * @param obj the argument to compare to
-	 * @return true if the argument specified by the given name is equal to this argument
+	 * @return <code>true</code> if the argument specified by the given name is equal to this argument
 	 */
 	public boolean equals(@NotNull Command obj) {
 		return Command.equalsByNamesAndParentCmd(this, obj);

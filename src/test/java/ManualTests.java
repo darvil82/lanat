@@ -48,7 +48,6 @@ public final class ManualTests {
 				);
 			}});
 
-
 			this.addSubCommand(new Command("hello", "Some description for the command") {{
 				this.addNames("hi", "hey");
 				this.addArgument(Argument.create("world", ArgumentType.INTEGER_RANGE(5, 10))

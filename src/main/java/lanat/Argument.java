@@ -278,6 +278,10 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		return this;
 	}
 
+	/**
+	 * Returns the prefix of this argument.
+	 * @return the prefix of this argument.
+	 */
 	public PrefixChar getPrefix() {
 		return this.prefixChar;
 	}
@@ -377,23 +381,44 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		this.parentGroup = parentGroup;
 	}
 
+	/**
+	 * Returns the {@link ArgumentGroup} that contains this argument, or null if it does not have one.
+	 * @return the parent group of this argument, or null if it does not have one.
+	 */
 	public @Nullable ArgumentGroup getParentGroup() {
 		return this.parentGroup;
 	}
 
+	/**
+	 * The number of times this argument has been used in a command during parsing.
+	 * @return the number of times this argument has been used in a command.
+	 */
 	public short getUsageCount() {
 		return this.argType.usageCount;
 	}
 
+	/**
+	 * The color that will be used to represent this argument in the help message.
+	 * @return the color that will be used to represent this argument in the help message.
+	 */
 	public @NotNull Color getRepresentationColor() {
 		return this.representationColor.get();
 	}
 
+	/**
+	 * Sets the color that will be used to represent this argument in the help message.
+	 * @param color the color that will be used to represent this argument in the help message.
+	 */
 	public void setRepresentationColor(@NotNull Color color) {
 		this.representationColor.set(color);
 	}
 
 
+	/**
+	 * Returns <code>true</code> if this argument is the help argument of its parent command.
+	 * This just checks if the argument's name is "help" and if it is marked with {@link #allowUnique}.
+	 * @return <code>true</code> if this argument is the help argument of its parent command.
+	 */
 	public boolean isHelpArgument() {
 		return this.getName().equals("help") && this.isUniqueAllowed();
 	}
@@ -477,6 +502,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	/**
+	 * This method is called when the command is finished parsing.
 	 * @return the final value parsed by the argument type, or the default value if the argument was not used.
 	 */
 	public @Nullable TInner finishParsing() {
@@ -508,6 +534,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * return <code>true</code> if the name is <code>"--help"</code>.
 	 * </p>
 	 * @param name the name to check
+	 * @return <code>true</code> if the name matches, <code>false</code> otherwise.
 	 */
 	public boolean checkMatch(@NotNull String name) {
 		final char prefixChar = this.getPrefix().character;
@@ -519,6 +546,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * Checks if this argument matches the given single character name.
 	 * @see #checkMatch(String)
 	 * @param name the name to check
+	 * @return <code>true</code> if the name matches, <code>false</code> otherwise.
 	 */
 	public boolean checkMatch(char name) {
 		return this.hasName(Character.toString(name));
@@ -545,12 +573,12 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	/**
-	 * Returns true if the argument specified by the given name is equal to this argument.
+	 * Returns <code>true</code> if the argument specified by the given name is equal to this argument.
 	 * <p>
 	 * Equality is determined by the argument's name and the command it belongs to.
 	 * </p>
 	 * @param obj the argument to compare to
-	 * @return true if the argument specified by the given name is equal to this argument
+	 * @return <code>true</code> if the argument specified by the given name is equal to this argument
 	 */
 	public boolean equals(@NotNull Argument<?, ?> obj) {
 		return Command.equalsByNamesAndParentCmd(this, obj);

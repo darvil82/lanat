@@ -1,7 +1,7 @@
 package lanat.argumentTypes;
 
-import lanat.utils.Range;
 import lanat.ArgumentType;
+import lanat.utils.Range;
 import org.jetbrains.annotations.NotNull;
 
 public class MultipleStringsArgument extends ArgumentType<String[]> {

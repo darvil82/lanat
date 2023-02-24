@@ -1,11 +1,11 @@
 package lanat.parsing;
 
-import lanat.utils.Range;
 import lanat.Argument;
 import lanat.ArgumentType;
 import lanat.Command;
 import lanat.parsing.errors.CustomError;
 import lanat.parsing.errors.ParseError;
+import lanat.utils.Range;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

@@ -2,7 +2,6 @@ package lanat.parsing;
 
 import lanat.Command;
 import lanat.parsing.errors.TokenizeError;
-import lanat.utils.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,12 +18,6 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	/** The index of the current character in the {@link Tokenizer#inputString} */
 	private int currentCharIndex = 0;
 
-	/**
-	 * The characters that are used to open and close tuples. {@link Pair#first()} is the open character and
-	 * {@link Pair#second()} is the close character
-	 */
-	public final @NotNull Pair<@NotNull Character, @NotNull Character> tupleChars;
-
 	/** The tokens that have been parsed so far */
 	private final @NotNull List<@NotNull Token> finalTokens = new ArrayList<>();
 
@@ -40,7 +33,6 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 
 	public Tokenizer(@NotNull Command command) {
 		super(command);
-		this.tupleChars = command.getTupleChars().charPair;
 	}
 
 	// ------------------------------------------------ Error Handling ------------------------------------------------
@@ -68,6 +60,8 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 		final var values = new Object() {
 			char currentStringChar = 0;
 			TokenizeError.TokenizeErrorType errorType = null;
+			final char tupleOpenChar = Tokenizer.this.command.getTupleChars().open;
+			final char tupleCloseChar = Tokenizer.this.command.getTupleChars().close;
 		};
 
 
@@ -106,7 +100,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 				this.currentValue.append(cChar);
 
 				// reached a possible tuple start character
-			} else if (cChar == this.tupleChars.first()) {
+			} else if (cChar == values.tupleOpenChar) {
 				// if we are already in a tuple, set error and stop tokenizing
 				if (this.tupleOpen) {
 					values.errorType = TokenizeError.TokenizeErrorType.TUPLE_ALREADY_OPEN;
@@ -116,11 +110,11 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 				}
 
 				// push the tuple token and set the state to tuple open
-				this.addToken(TokenType.ARGUMENT_VALUE_TUPLE_START, this.tupleChars.first().toString());
+				this.addToken(TokenType.ARGUMENT_VALUE_TUPLE_START, values.tupleOpenChar);
 				this.tupleOpen = true;
 
 				// reached a possible tuple end character
-			} else if (cChar == this.tupleChars.second()) {
+			} else if (cChar == values.tupleCloseChar) {
 				// if we are not in a tuple, set error and stop tokenizing
 				if (!this.tupleOpen) {
 					values.errorType = TokenizeError.TokenizeErrorType.UNEXPECTED_TUPLE_CLOSE;
@@ -133,7 +127,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 				}
 
 				// push the tuple token and set the state to tuple closed
-				this.addToken(TokenType.ARGUMENT_VALUE_TUPLE_END, this.tupleChars.second().toString());
+				this.addToken(TokenType.ARGUMENT_VALUE_TUPLE_END, values.tupleCloseChar);
 				this.currentValue.setLength(0);
 				this.tupleOpen = false;
 
@@ -184,6 +178,11 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	/** Inserts a token into the final tokens list with the given type and contents */
 	private void addToken(@NotNull TokenType type, @NotNull String contents) {
 		this.finalTokens.add(new Token(type, contents));
+	}
+
+	/** Inserts a token into the final tokens list with the given type and contents */
+	private void addToken(@NotNull TokenType type, char contents) {
+		this.finalTokens.add(new Token(type, String.valueOf(contents)));
 	}
 
 	/**

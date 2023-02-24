@@ -1,4 +1,7 @@
-import lanat.*;
+import lanat.Argument;
+import lanat.ArgumentGroup;
+import lanat.ArgumentType;
+import lanat.Command;
 import lanat.argumentTypes.Parseable;
 import lanat.helpRepresentation.HelpFormatter;
 import lanat.utils.Range;

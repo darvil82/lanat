@@ -4,7 +4,7 @@ import fade.mirror.Invokable;
 import fade.mirror.MClass;
 import fade.mirror.MMethod;
 import fade.mirror.Parameterized;
-import fade.mirror.internal.exception.MirrorException;
+import fade.mirror.exception.MirrorException;
 import lanat.ArgumentType;
 import lanat.exceptions.ArgumentTypeException;
 import org.jetbrains.annotations.NotNull;

@@ -1,3 +1,5 @@
+package lanat.test;
+
 import lanat.*;
 import lanat.argumentTypes.TupleArgumentType;
 import lanat.utils.Range;

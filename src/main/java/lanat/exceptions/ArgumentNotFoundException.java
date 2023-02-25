@@ -2,7 +2,7 @@ package lanat.exceptions;
 
 import lanat.Argument;
 
-public class ArgumentNotFoundException extends RuntimeException {
+public class ArgumentNotFoundException extends LanatException {
 	public ArgumentNotFoundException(Argument<?, ?> argument) {
 		this(argument.getName());
 	}

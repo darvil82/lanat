@@ -4,7 +4,7 @@ import lanat.NamedWithDescription;
 import lanat.utils.UtlReflection;
 import lanat.utils.UtlString;
 
-class ObjectAlreadyExistsException extends RuntimeException {
+class ObjectAlreadyExistsException extends LanatException {
 	public ObjectAlreadyExistsException(NamedWithDescription obj, NamedWithDescription container) {
 		super(
 			UtlReflection.getSimpleName(obj.getClass())

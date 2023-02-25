@@ -87,7 +87,7 @@ public class Range {
 	public @NotNull String getMessage(String kind) {
 		return this.isRange()
 			? "from %d to %s %s".formatted(this.min, this.max == -1 ? "any number of" : this.max, kind + 's')
-			: this.min + " " + UtlString.plural(kind, this.min);
+			: UtlString.plural(kind, this.min);
 	}
 
 	/**

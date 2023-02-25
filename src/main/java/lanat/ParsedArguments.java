@@ -78,6 +78,7 @@ public class ParsedArguments {
 	 * @param <T> The type of the value of the argument. This is used to avoid casting. A type that does not match the
 	 *  argument's type will result in a {@link ClassCastException}.
 	 * @throws CommandNotFoundException If the command specified in the route does not exist
+	 * @throws ArgumentNotFoundException If the argument specified in the route does not exist
 	 */
 	public <T> ParsedArgument<T> get(@NotNull String argRoute) {
 		return this.get(argRoute.split(" *" + Pattern.quote(ParsedArguments.separator) + " *"));

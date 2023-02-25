@@ -15,26 +15,16 @@ public final class ManualTests {
 		HelpFormatter.debugLayout = true;
 
 
-		enum Something {
-			ONE, TWO, THREE
-		}
-
 		new TestingParser("Testing", "description for main parser") {{
 			this.addArgument(Argument.create("testing", ArgumentType.FROM_PARSEABLE(new TestClass()))
 				.description("some description")
-					.obligatory()
 				.onOk(value -> System.out.println("ok: " + value))
 			);
 
-			this.addGroup(new ArgumentGroup("my group", "some description for the group") {{
-				this.addArgument(Argument.create("double", ArgumentType.TRY_PARSE(Double.class))
-					.description("some description")
-					.onOk(value -> System.out.println("ok: " + value))
-				);
-
-				this.addArgument(Argument.create("test type", new RestrictedDoubleAdder())
-					.onOk(value -> System.out.println("ok: " + value))
-				);
+			this.addGroup(new ArgumentGroup("group") {{
+				this.exclusive();
+				this.addArgument(Argument.create("group-arg", ArgumentType.BOOLEAN()).onOk(value -> System.out.println("1: " + value)));
+				this.addArgument(Argument.create("group-arg2", ArgumentType.BOOLEAN()).onOk(value -> System.out.println("2: " + value)));
 			}});
 
 			this.addSubCommand(new Command("hello", "Some description for the command") {{

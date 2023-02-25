@@ -113,16 +113,22 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resetta
 		return this.parentCommand;
 	}
 
+	/**
+	 * Checks if there is any violation of exclusivity in this group's tree, from this group to the root.
+	 * This is done by checking if this or any of the group's siblings have been used (except for the childCallee, which is
+	 * the group that called this method). If none of them have been used, the parent group is checked, and so on.
+	 * @param childCallee The group that called this method. This is used to avoid checking the group that called this
+	 * 	method, because it is the one that is being checked for exclusivity. This can be <code>null</code> if this is the
+	 * 	first call to this method.
+	 * @return The group that caused the violation, or <code>null</code> if there is no violation.
+	 */
 	private @Nullable ArgumentGroup checkExclusivity(@Nullable ArgumentGroup childCallee) {
 		if (
 			this.isExclusive && (
-				this.subGroups.stream().filter(g -> g != childCallee).anyMatch(g -> g.argumentUsed)
-					|| this.arguments.stream().anyMatch(a -> a.getUsageCount() > 0)
+				this.argumentUsed || this.subGroups.stream().filter(g -> g != childCallee).anyMatch(g -> g.argumentUsed)
 			)
 		)
-		{
 			return this;
-		}
 
 		if (this.parentGroup != null)
 			return this.parentGroup.checkExclusivity(this);
@@ -134,6 +140,12 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resetta
 		return this.arguments.isEmpty() && this.subGroups.isEmpty();
 	}
 
+
+	/**
+	 * Checks if there is any violation of exclusivity in this group's tree, from this group to the root.
+	 * @see ArgumentGroup#checkExclusivity(ArgumentGroup)
+	 * @return The group that caused the violation, or <code>null</code> if there is no violation.
+	 */
 	@Nullable ArgumentGroup checkExclusivity() {
 		return this.checkExclusivity(null);
 	}
@@ -149,8 +161,8 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resetta
 
 	@Override
 	public void resetState() {
+		// we don't need to reset the state of the arguments, because they are reset when the command is reset
 		this.argumentUsed = false;
-		this.arguments.forEach(Resettable::resetState);
 	}
 
 	@Override

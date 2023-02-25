@@ -7,6 +7,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class BooleanArgument extends ArgumentType<Boolean> {
+	public BooleanArgument() {
+		super(false);
+	}
 
 	@Override
 	public Boolean parseValues(String @NotNull [] args) {

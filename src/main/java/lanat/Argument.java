@@ -464,67 +464,88 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 			this.parentCommand.getParser()
 				.addError(
 					ParseError.ParseErrorType.ARG_INCORRECT_USAGES_COUNT,
-					this, values.length, this.argType.getTokenIndex() + 1
+					this, values.length, this.argType.getLastTokenIndex() + 1
 				);
 			return;
 		}
 
-		// check if the parent group of this argument is exclusive, and if so, check if any other argument in it has been used
-		if (this.parentGroup != null) {
-			var exclusivityResult = this.parentGroup.checkExclusivity();
-			if (exclusivityResult != null) {
-				this.parentCommand.getParser().addError(
-					new ParseError(
-						ParseError.ParseErrorType.MULTIPLE_ARGS_IN_EXCLUSIVE_GROUP_USED,
-						this.parentCommand.getParser().getCurrentTokenIndex(),
-						this, values.length
-					)
-					{{
-						this.setArgumentGroup(exclusivityResult);
-					}}
-				);
-				return;
-			}
-		}
-
-		this.argType.setTokenIndex(tokenIndex);
+		this.argType.setLastTokenIndex(tokenIndex);
 		this.argType.parseAndUpdateValue(values);
-		if (this.parentGroup != null) {
-			this.parentGroup.setArgUsed();
-		}
 	}
 
 	/**
 	 * {@link #parseValues(String[], short)} but passes in an empty values array to parse.
 	 */
-	public void parseValues() {
-		this.parseValues(new String[0], (short)0);
+	public void parseValues(short tokenIndex) {
+		this.parseValues(new String[0], tokenIndex);
 	}
 
 	/**
-	 * This method is called when the command is finished parsing.
+	 * This method is called when the command is finished parsing. <strong>And should only ever be called once
+	 * (per parse).</strong>
 	 * @return the final value parsed by the argument type, or the default value if the argument was not used.
 	 */
 	public @Nullable TInner finishParsing() {
+		final TInner finalValue = this.argType.getFinalValue();
+		final TInner defaultValue = this.defaultValue == null ? this.argType.getInitialValue() : this.defaultValue;
+
+		/* no, | is not a typo. We don't want the OR operator to short-circuit, we want all of them to be evaluated
+		 * because the methods have side effects (they add errors to the parser) */
+		TInner returnValue = (finalValue == null | !this.finishParsingCheckExclusivity() | !this.finishParsingCheckUsageCount())
+			? defaultValue
+			: finalValue;
+
+		this.argType.getErrorsUnderDisplayLevel().forEach(this.parentCommand.getParser()::addError);
+		if (this.parentGroup != null) this.parentGroup.setArgUsed();
+
+		// if the argument type has a value defined (even if it wasn't used), use that. Otherwise, use the default value
+		return returnValue;
+	}
+
+	/**
+	 * Checks if the argument was used the correct amount of times.
+	 * @return <code>true</code> if the argument was used the correct amount of times.
+	 */
+	private boolean finishParsingCheckUsageCount() {
 		if (this.getUsageCount() == 0) {
 			if (this.obligatory && !this.parentCommand.uniqueArgumentReceivedValue()) {
-				this.parentCommand.getParser().addError(ParseError.ParseErrorType.OBLIGATORY_ARGUMENT_NOT_USED, this, 0);
-				return null;
+				this.parentCommand.getParser().addError(
+					ParseError.ParseErrorType.OBLIGATORY_ARGUMENT_NOT_USED, this, 0
+				);
+				return false;
 			}
-
-			// if the argument type has a value defined (even if it wasn't used), use that. Otherwise, use the default value
-			TInner value = this.argType.getValue();
-			return value == null ? this.defaultValue : value;
-
-			// make sure that the argument was used the minimum amount of times specified
+		// make sure that the argument was used the minimum amount of times specified
 		} else if (this.argType.usageCount < this.argType.getRequiredUsageCount().min()) {
 			this.parentCommand.getParser()
 				.addError(ParseError.ParseErrorType.ARG_INCORRECT_USAGES_COUNT, this, 0);
-			return null;
+			return false;
 		}
+		return true;
+	}
 
-		this.argType.getErrorsUnderDisplayLevel().forEach(this.parentCommand.getParser()::addError);
-		return this.argType.getFinalValue();
+	/**
+	 * Checks if the argument is part of an exclusive group, and if so, checks if there is any violation of exclusivity
+	 * in the group hierarchy.
+	 * @return <code>true</code> if there is no violation of exclusivity in the group hierarchy.
+	 */
+	private boolean finishParsingCheckExclusivity() {
+		// check if the parent group of this argument is exclusive, and if so, check if any other argument in it has been used
+		if (this.parentGroup == null || this.getUsageCount() == 0) return true;
+
+		ArgumentGroup exclusivityResult = this.parentGroup.checkExclusivity();
+		if (exclusivityResult == null) return true;
+
+		this.parentCommand.getParser().addError(
+			new ParseError(
+				ParseError.ParseErrorType.MULTIPLE_ARGS_IN_EXCLUSIVE_GROUP_USED,
+				this.argType.getLastTokenIndex(),
+				this, this.argType.getLastReceivedValueCount()
+			)
+			{{
+				this.setArgumentGroup(exclusivityResult);
+			}}
+		);
+		return false;
 	}
 
 	/**

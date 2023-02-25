@@ -138,7 +138,7 @@ public class Parser extends ParsingStateBase<ParseError> {
 
 		// just skip the whole thing if it doesn't need any values
 		if (argumentValuesRange.isZero()) {
-			arg.parseValues();
+			arg.parseValues(this.currentTokenIndex);
 			return;
 		}
 
@@ -198,7 +198,7 @@ public class Parser extends ParsingStateBase<ParseError> {
 
 		// just skip the whole thing if it doesn't need any values
 		if (argumentValuesRange.isZero()) {
-			arg.parseValues();
+			arg.parseValues(this.currentTokenIndex);
 			return;
 		}
 

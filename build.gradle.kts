@@ -9,7 +9,9 @@ java.sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
 	mavenCentral()
-	mavenLocal()
+
+	// this is here in case fade needs to use lanat as a live testing and developing tool lmao
+	//	mavenLocal()
 
 	maven {
 		name = "github-mirror"

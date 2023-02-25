@@ -1,7 +1,7 @@
 package lanat.helpRepresentation;
 
 import lanat.Command;
-import lanat.ParentCommandGetter;
+import lanat.CommandUser;
 import lanat.utils.UtlString;
 import lanat.utils.displayFormatter.Color;
 import lanat.utils.displayFormatter.FormatOption;
@@ -126,7 +126,7 @@ public class HelpFormatter {
 	 * @param obj the object that belongs to the {@link Command} that has the {@link HelpFormatter}
 	 * @return the indented string
 	 */
-	public static <T extends ParentCommandGetter> @NotNull String indent(@NotNull String str, @NotNull T obj) {
+	public static <T extends CommandUser> @NotNull String indent(@NotNull String str, @NotNull T obj) {
 		return HelpFormatter.indent(
 			// if obj is a Command, use it, otherwise get the parent command
 			str, obj instanceof Command cmd ? cmd : Objects.requireNonNull(obj.getParentCommand())

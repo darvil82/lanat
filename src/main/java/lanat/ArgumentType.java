@@ -12,7 +12,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
-public abstract class ArgumentType<T> extends ErrorsContainerImpl<CustomError> implements Resettable, Parseable<T> {
+public abstract class ArgumentType<T>
+	extends ErrorsContainerImpl<CustomError>
+	implements Resettable, Parseable<T>, ParentElementGetter<ArgumentType<?>>
+{
 	/** This is the value that this argument type current has while being parsed. */
 	private T currentValue;
 
@@ -255,6 +258,11 @@ public abstract class ArgumentType<T> extends ErrorsContainerImpl<CustomError> i
 		this.lastReceivedValueCount = 0;
 		this.usageCount = 0;
 		this.subTypes.forEach(ArgumentType::resetState);
+	}
+
+	@Override
+	public @Nullable ArgumentType<?> getParent() {
+		return this.parentArgType;
 	}
 
 	// Easy to access values. These are methods because we don't want to use the same instance everywhere.

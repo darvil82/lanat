@@ -10,7 +10,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resettable, ParentCommandGetter, NamedWithDescription {
+public class ArgumentGroup
+	implements ArgumentAdder,
+		ArgumentGroupAdder,
+		Resettable,
+		CommandUser,
+		NamedWithDescription,
+		ParentElementGetter<ArgumentGroup>
+{
 	public final @NotNull String name;
 	public final @Nullable String description;
 	private Command parentCommand;
@@ -122,7 +129,7 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resetta
 	 * 	first call to this method.
 	 * @return The group that caused the violation, or <code>null</code> if there is no violation.
 	 */
-	private @Nullable ArgumentGroup checkExclusivity(@Nullable ArgumentGroup childCallee) {
+	@Nullable ArgumentGroup checkExclusivity(@Nullable ArgumentGroup childCallee) {
 		if (
 			this.isExclusive && (
 				this.argumentUsed || this.subGroups.stream().filter(g -> g != childCallee).anyMatch(g -> g.argumentUsed)
@@ -140,15 +147,6 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resetta
 		return this.arguments.isEmpty() && this.subGroups.isEmpty();
 	}
 
-
-	/**
-	 * Checks if there is any violation of exclusivity in this group's tree, from this group to the root.
-	 * @see ArgumentGroup#checkExclusivity(ArgumentGroup)
-	 * @return The group that caused the violation, or <code>null</code> if there is no violation.
-	 */
-	@Nullable ArgumentGroup checkExclusivity() {
-		return this.checkExclusivity(null);
-	}
 
 	void setArgUsed() {
 		this.argumentUsed = true;
@@ -173,6 +171,11 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resetta
 	@Override
 	public @Nullable String getDescription() {
 		return this.description;
+	}
+
+	@Override
+	public ArgumentGroup getParent() {
+		return this.parentGroup;
 	}
 }
 

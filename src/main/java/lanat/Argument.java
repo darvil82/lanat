@@ -74,7 +74,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		ErrorCallbacks<TInner,
 		Argument<Type, TInner>>,
 		Resettable,
-		ParentCommandGetter,
+		CommandUser,
 		MultipleNamesAndDescription<Argument<Type, TInner>>
 {
 	/**
@@ -532,7 +532,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		// check if the parent group of this argument is exclusive, and if so, check if any other argument in it has been used
 		if (this.parentGroup == null || this.getUsageCount() == 0) return true;
 
-		ArgumentGroup exclusivityResult = this.parentGroup.checkExclusivity();
+		ArgumentGroup exclusivityResult = this.parentGroup.checkExclusivity(null);
 		if (exclusivityResult == null) return true;
 
 		this.parentCommand.getParser().addError(

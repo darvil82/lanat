@@ -36,7 +36,8 @@ public class Command
 		ArgumentGroupAdder,
 		Resettable,
 		MultipleNamesAndDescription<Command>,
-		ParentCommandGetter
+		ParentElementGetter<Command>,
+		CommandUser
 {
 	private final @NotNull List<@NotNull String> names = new ArrayList<>();
 	public final @Nullable String description;
@@ -112,13 +113,6 @@ public class Command
 
 	public @NotNull List<@NotNull Command> getSubCommands() {
 		return Collections.unmodifiableList(this.subCommands);
-	}
-
-	public @NotNull Command getRootCommand() {
-		Command root = this;
-		while (root.parentCommand != null)
-			root = root.parentCommand;
-		return root;
 	}
 
 	/**
@@ -316,7 +310,7 @@ public class Command
 		return switch (this.getCallbackInvocationOption()) {
 			case NO_ERROR_IN_COMMAND -> !this.hasExitErrorsNotIncludingSubCommands();
 			case NO_ERROR_IN_COMMAND_AND_SUBCOMMANDS -> !this.hasExitErrors();
-			case NO_ERROR_IN_ALL_COMMANDS -> !this.getRootCommand().hasExitErrors();
+			case NO_ERROR_IN_ALL_COMMANDS -> !this.getRoot().hasExitErrors();
 			case NO_ERROR_IN_ARGUMENT -> true;
 		};
 	}
@@ -351,11 +345,19 @@ public class Command
 			|| tokenizedSubCommand != null && tokenizedSubCommand.hasDisplayErrors();
 	}
 
+	/**
+	 * Get the error code of this Command. This is the OR of all the error codes of all the Sub-Commands that
+	 * have failed.
+	 * @see #setErrorCode(int) 
+	 * @return The error code of this command.
+	 */
 	public int getErrorCode() {
 		int errCode = this.subCommands.stream()
 			.filter(c -> c.tokenizer.isFinishedTokenizing())
-			.map(sc -> sc.getMinimumExitErrorLevel().get()
-				.isInErrorMinimum(this.getMinimumExitErrorLevel().get()) ? sc.getErrorCode() : 0
+			.map(sc ->
+				sc.getMinimumExitErrorLevel().get().isInErrorMinimum(this.getMinimumExitErrorLevel().get())
+					? sc.getErrorCode()
+					: 0
 			)
 			.reduce(0, (a, b) -> a | b);
 
@@ -412,7 +414,7 @@ public class Command
 		return Command.equalsByNamesAndParentCmd(this, obj);
 	}
 
-	public static <T extends MultipleNamesAndDescription<?> & ParentCommandGetter>
+	public static <T extends MultipleNamesAndDescription<?> & CommandUser>
 	boolean equalsByNamesAndParentCmd(@NotNull T a, @NotNull T b) {
 		return a.getParentCommand() == b.getParentCommand() && (
 			a.getNames().stream().anyMatch(name -> {
@@ -435,8 +437,13 @@ public class Command
 	}
 
 	@Override
-	public @Nullable Command getParentCommand() {
+	public @Nullable Command getParent() {
 		return this.parentCommand;
+	}
+
+	@Override
+	public @Nullable Command getParentCommand() {
+		return this.getParent();
 	}
 }
 

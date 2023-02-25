@@ -25,6 +25,7 @@ public class TestArgumentTypes extends UnitTests {
 			this.addArgument(Argument.create("enum", ArgumentType.ENUM(TestEnum.TWO)));
 			this.addArgument(Argument.create("key-value", ArgumentType.KEY_VALUES(ArgumentType.INTEGER())));
 			this.addArgument(Argument.create("int-range", ArgumentType.INTEGER_RANGE(3, 10)));
+			this.addArgument(Argument.create(""));
 		}};
 	}
 

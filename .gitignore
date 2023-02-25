@@ -1,6 +1,7 @@
 .gradle
 build
 bin
+gradle.properties
 
 # ides
 .idea

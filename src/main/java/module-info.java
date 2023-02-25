@@ -1,6 +1,8 @@
 module lanat {
 	requires org.jetbrains.annotations;
-	exports lanat;
+    requires fade.mirror;
+
+    exports lanat;
 	exports lanat.argumentTypes;
 	exports lanat.utils.displayFormatter;
 	exports lanat.helpRepresentation;

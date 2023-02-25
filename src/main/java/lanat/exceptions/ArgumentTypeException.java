@@ -1,6 +1,6 @@
 package lanat.exceptions;
 
-public class ArgumentTypeException extends RuntimeException {
+public class ArgumentTypeException extends LanatException {
 	public ArgumentTypeException(String message, Throwable cause) {
 		super(message, cause);
 	}

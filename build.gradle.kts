@@ -9,10 +9,25 @@ java.sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
 	mavenCentral()
+
+	maven {
+		name = "github-mirror"
+		url = uri("https://maven.pkg.github.com/fadeoffical/mirror")
+		credentials {
+			username = project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
+			password = project.findProperty("gpr.token") as String? ?: System.getenv("TOKEN")
+		}
+	}
 }
 
 dependencies {
 	implementation("org.jetbrains:annotations:23.0.0")
+	implementation("fade:mirror:0.0.4-beta.0+develop")
+//	implementation("fade:mirror") {
+//		version {
+//			branch = "develop"
+//		}
+//	}
 	testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
 	testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
 }

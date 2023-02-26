@@ -2,6 +2,8 @@ package lanat.parsing.errors;
 
 import fade.mirror.MClass;
 import fade.mirror.MMethod;
+import fade.mirror.filter.Filter;
+import fade.mirror.filter.MethodFilter;
 import lanat.ErrorFormatter;
 import lanat.ErrorLevel;
 import lanat.parsing.Token;
@@ -13,6 +15,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static fade.mirror.Mirror.mirror;
 
@@ -83,23 +87,16 @@ abstract class ParseStateErrorBase<T extends Enum<T> & ErrorLevelProvider> imple
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private @NotNull List<@NotNull MMethod<?>> getAnnotatedMethods() {
-		/* todo: replace with this in the next mirror update
-		return mirror(this.getClass()).getSuperClassUntil(clazz -> clazz.getMethodCount() > 0)
-			.getMethods().stream()
-			.filter(method -> method.isAnnotatedWith(Handler.class))
-			.toList();
-		*/
+		Optional<MClass<Object>> optionalSuperclass = mirror(this.getClass())
+			.getSuperclassUntilIncludingSelf(MClass::hasMethods);
 
-		List<MMethod<?>> methods;
-		MClass<?> currentClass = mirror(this.getClass());
+		if (optionalSuperclass.isEmpty()) return List.of();
 
-		// if there are no methods defined, get super class
-		// this is done for cases like usage of anonymous classes
-		while ((methods = currentClass.getMethods().toList()).size() == 0)
-			currentClass = mirror(currentClass.getRawClass().getSuperclass());
-
-		return methods.stream().filter(method -> method.isAnnotatedWith(Handler.class)).toList();
+		MClass<Object> superclass = optionalSuperclass.get();
+		MethodFilter<?> filter = Filter.forMethods().withAnnotations(Handler.class);
+		return superclass.getMethods(filter).collect(Collectors.toList()); // using Stream#toList() here fucks hard
 	}
 
 	private boolean isHandlerMethod(@NotNull MMethod<?> method, @NotNull String handlerName) {

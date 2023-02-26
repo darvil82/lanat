@@ -3,7 +3,6 @@ package lanat.parsing.errors;
 import fade.mirror.MClass;
 import fade.mirror.MMethod;
 import fade.mirror.filter.Filter;
-import fade.mirror.filter.MethodFilter;
 import lanat.ErrorFormatter;
 import lanat.ErrorLevel;
 import lanat.parsing.Token;
@@ -15,7 +14,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static fade.mirror.Mirror.mirror;
@@ -66,10 +64,10 @@ import static fade.mirror.Mirror.mirror;
  */
 abstract class ParseStateErrorBase<T extends Enum<T> & ErrorLevelProvider> implements ErrorLevelProvider {
 	public final @NotNull T errorType;
+	private final List<MMethod<?>> methods;
 	public int tokenIndex;
 	private ErrorHandler errorHandler;
 	private ErrorFormatter formatter;
-	private final List<MMethod<?>> methods;
 
 	public ParseStateErrorBase(@NotNull T errorType, int tokenIndex) {
 		this.errorType = errorType;
@@ -89,20 +87,15 @@ abstract class ParseStateErrorBase<T extends Enum<T> & ErrorLevelProvider> imple
 
 	@SuppressWarnings("unchecked")
 	private @NotNull List<@NotNull MMethod<?>> getAnnotatedMethods() {
-		Optional<MClass<Object>> optionalSuperclass = mirror(this.getClass())
-			.getSuperclassUntilIncludingSelf(MClass::hasMethods);
-
-		if (optionalSuperclass.isEmpty()) return List.of();
-
-		MClass<Object> superclass = optionalSuperclass.get();
-		MethodFilter<?> filter = Filter.forMethods().withAnnotations(Handler.class);
-		return superclass.getMethods(filter).collect(Collectors.toList()); // using Stream#toList() here fucks hard
+		return mirror(this.getClass())
+			.getSuperclassUntilIncludingSelf(MClass::hasMethods)
+			.<List<MMethod<?>>>map(objectMClass -> objectMClass.getMethods(Filter.forMethods().withAnnotations(Handler.class))
+			.collect(Collectors.toList()))
+			.orElseGet(List::of);
 	}
 
 	private boolean isHandlerMethod(@NotNull MMethod<?> method, @NotNull String handlerName) {
-		return method.getAnnotationOfType(Handler.class)
-			.map(handler -> handler.value().equals(handlerName))
-			.orElse(false);
+		return method.getAnnotationOfType(Handler.class).map(handler -> handler.value().equals(handlerName)).orElse(false);
 	}
 
 	private boolean isHandlerMethod(@NotNull MMethod<?> method) {
@@ -118,9 +111,7 @@ abstract class ParseStateErrorBase<T extends Enum<T> & ErrorLevelProvider> imple
 			if (!this.isHandlerMethod(method)) continue;
 
 			try {
-				method.bindToObject(this)
-					.requireAccessible()
-					.invoke();
+				method.bindToObject(this).requireAccessible().invoke();
 
 			} catch (Exception e) {
 				throw new RuntimeException(e);

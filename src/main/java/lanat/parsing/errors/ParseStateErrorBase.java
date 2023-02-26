@@ -1,5 +1,7 @@
 package lanat.parsing.errors;
 
+import fade.mirror.MClass;
+import fade.mirror.MMethod;
 import lanat.ErrorFormatter;
 import lanat.ErrorLevel;
 import lanat.parsing.Token;
@@ -10,9 +12,9 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.List;
+
+import static fade.mirror.Mirror.mirror;
 
 /**
  * Provides a {@link ParseStateErrorBase#handle(ErrorHandler)} method that when called, automatically invokes the
@@ -63,7 +65,7 @@ abstract class ParseStateErrorBase<T extends Enum<T> & ErrorLevelProvider> imple
 	public int tokenIndex;
 	private ErrorHandler errorHandler;
 	private ErrorFormatter formatter;
-	private final List<Method> methods;
+	private final List<MMethod<?>> methods;
 
 	public ParseStateErrorBase(@NotNull T errorType, int tokenIndex) {
 		this.errorType = errorType;
@@ -81,23 +83,32 @@ abstract class ParseStateErrorBase<T extends Enum<T> & ErrorLevelProvider> imple
 		}
 	}
 
-	private @NotNull List<@NotNull Method> getAnnotatedMethods() {
-		Method[] methods;
-		Class<?> currentClass = this.getClass();
+	private @NotNull List<@NotNull MMethod<?>> getAnnotatedMethods() {
+		/* todo: replace with this in the next mirror update
+		return mirror(this.getClass()).getSuperClassUntil(clazz -> clazz.getMethodCount() > 0)
+			.getMethods().stream()
+			.filter(method -> method.isAnnotatedWith(Handler.class))
+			.toList();
+		*/
+
+		List<MMethod<?>> methods;
+		MClass<?> currentClass = mirror(this.getClass());
 
 		// if there are no methods defined, get super class
 		// this is done for cases like usage of anonymous classes
-		while ((methods = currentClass.getDeclaredMethods()).length == 0)
-			currentClass = currentClass.getSuperclass();
+		while ((methods = currentClass.getMethods().toList()).size() == 0)
+			currentClass = mirror(currentClass.getRawClass().getSuperclass());
 
-		return Arrays.stream(methods).filter(m -> m.isAnnotationPresent(Handler.class)).toList();
+		return methods.stream().filter(method -> method.isAnnotatedWith(Handler.class)).toList();
 	}
 
-	private boolean isHandlerMethod(@NotNull Method method, @NotNull String handlerName) {
-		return method.getAnnotation(Handler.class).value().equals(handlerName);
+	private boolean isHandlerMethod(@NotNull MMethod<?> method, @NotNull String handlerName) {
+		return method.getAnnotationOfType(Handler.class)
+			.map(handler -> handler.value().equals(handlerName))
+			.orElse(false);
 	}
 
-	private boolean isHandlerMethod(@NotNull Method method) {
+	private boolean isHandlerMethod(@NotNull MMethod<?> method) {
 		return this.isHandlerMethod(method, this.errorType.name());
 	}
 
@@ -110,7 +121,10 @@ abstract class ParseStateErrorBase<T extends Enum<T> & ErrorLevelProvider> imple
 			if (!this.isHandlerMethod(method)) continue;
 
 			try {
-				method.invoke(this);
+				method.bindToObject(this)
+					.requireAccessible()
+					.invoke();
+
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}

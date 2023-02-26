@@ -1,3 +1,5 @@
+package lanat.test;
+
 import lanat.ParsedArguments;
 import lanat.exceptions.ArgumentNotFoundException;
 import org.junit.jupiter.api.DisplayName;

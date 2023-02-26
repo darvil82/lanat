@@ -1,3 +1,5 @@
+package lanat.test;
+
 import lanat.Argument;
 import lanat.ArgumentGroup;
 import lanat.ArgumentType;

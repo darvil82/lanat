@@ -1,3 +1,5 @@
+package lanat.test;
+
 import lanat.*;
 import lanat.utils.ErrorCallbacks;
 import org.jetbrains.annotations.NotNull;

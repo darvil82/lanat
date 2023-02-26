@@ -1,6 +1,7 @@
 package lanat.helpRepresentation;
 
 import lanat.Argument;
+import lanat.utils.UtlString;
 import lanat.utils.displayFormatter.FormatOption;
 import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
@@ -38,10 +39,13 @@ public final class ArgumentRepr {
 
 	public static @Nullable String getDescriptionRepresentation(@NotNull Argument<?, ?> arg) {
 		String desc = arg.getDescription();
-		if (desc == null)
+		String typeDesc = arg.argType.getDescription();
+		if (desc == null && typeDesc == null)
 			return null;
 
-		return ArgumentRepr.getSynopsisRepresentation(arg) + ":\n" + HelpFormatter.indent(desc, arg);
+		return ArgumentRepr.getSynopsisRepresentation(arg)
+			+ ":\n"
+			+ HelpFormatter.indent(UtlString.fromNullable(desc) + UtlString.fromNullable(typeDesc), arg);
 	}
 
 	static void appendArgumentDescriptions(@NotNull StringBuilder buff, @NotNull List<@NotNull Argument<?, ?>> arguments) {

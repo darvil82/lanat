@@ -150,6 +150,10 @@ public abstract class ArgumentType<T>
 		return new TextFormatter(this.getClass().getSimpleName());
 	}
 
+	public @Nullable String getDescription() {
+		return null;
+	}
+
 	/**
 	 * Returns the final value of this argument type. This is the value that this argument type has after parsing.
 	 */

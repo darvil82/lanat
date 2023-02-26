@@ -2,6 +2,7 @@ package lanat.parsing.errors;
 
 import fade.mirror.MClass;
 import fade.mirror.MMethod;
+import fade.mirror.exception.MirrorException;
 import fade.mirror.filter.Filter;
 import lanat.ErrorFormatter;
 import lanat.ErrorLevel;
@@ -113,7 +114,7 @@ abstract class ParseStateErrorBase<T extends Enum<T> & ErrorLevelProvider> imple
 			try {
 				method.bindToObject(this).requireAccessible().invoke();
 
-			} catch (Exception e) {
+			} catch (MirrorException e) {
 				throw new RuntimeException(e);
 			}
 			return this.formatter.toString();

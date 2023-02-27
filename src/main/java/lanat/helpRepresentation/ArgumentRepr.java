@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Objects;
 
 public final class ArgumentRepr {
 	private ArgumentRepr() {}
@@ -48,16 +49,20 @@ public final class ArgumentRepr {
 			+ HelpFormatter.indent(UtlString.fromNullable(desc) + UtlString.fromNullable(typeDesc), arg);
 	}
 
-	static void appendArgumentDescriptions(@NotNull StringBuilder buff, @NotNull List<@NotNull Argument<?, ?>> arguments) {
-		for (int i = 0; i < arguments.size(); i++) {
-			Argument<?, ?> arg = arguments.get(i);
+	static String getArgumentDescriptions(@NotNull List<@NotNull Argument<?, ?>> arguments) {
+		final var argDescriptions = arguments.stream().map(ArgumentRepr::getDescriptionRepresentation).filter(Objects::nonNull).toList();
+		if (argDescriptions.isEmpty())
+			return "";
+		final var buff = new StringBuilder();
 
-			buff.append(getDescriptionRepresentation(arg));
+		for (int i = 0; i < argDescriptions.size(); i++) {
+			buff.append(argDescriptions.get(i));
 
-			if (i < arguments.size() - 1)
+			if (i < argDescriptions.size() - 1)
 				buff.append("\n\n");
 		}
 
 		buff.append('\n');
+		return buff.toString();
 	}
 }

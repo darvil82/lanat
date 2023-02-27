@@ -11,7 +11,7 @@ public final class LayoutGenerators {
 	private LayoutGenerators() {}
 
 	public static @NotNull String title(@NotNull Command cmd) {
-		return cmd.getName() + (cmd.description == null ? "" : ":\n" + HelpFormatter.indent(cmd.description, cmd));
+		return cmd.getName() + (cmd.description == null ? "" : ":\n\n" + HelpFormatter.indent(cmd.description, cmd));
 	}
 
 	public static @Nullable String synopsis(@NotNull Command cmd) {
@@ -29,8 +29,7 @@ public final class LayoutGenerators {
 		}
 
 		for (var group : cmd.getSubGroups()) {
-			ArgumentGroupRepr.getRepresentation(group, buffer);
-			buffer.append(' ');
+			buffer.append(ArgumentGroupRepr.getRepresentation(group)).append(' ');
 		}
 
 		if (!cmd.getSubCommands().isEmpty())
@@ -55,7 +54,7 @@ public final class LayoutGenerators {
 
 		if (arguments.isEmpty() && cmd.getSubGroups().isEmpty()) return null;
 
-		ArgumentRepr.appendArgumentDescriptions(buff, arguments);
+		buff.append(ArgumentRepr.getArgumentDescriptions(arguments));
 
 		for (var group : cmd.getSubGroups()) {
 			buff.append(ArgumentGroupRepr.getDescriptions(group));

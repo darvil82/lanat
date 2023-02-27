@@ -18,6 +18,10 @@ public final class ArgumentGroupRepr {
 		final var buff = new StringBuilder();
 		final var name = new TextFormatter(group.name + ':').addFormat(FormatOption.BOLD);
 		final var description = group.getDescription();
+		final var argumentsDescription = ArgumentRepr.getArgumentDescriptions(arguments);
+
+		if (description == null && argumentsDescription.isEmpty())
+			return "";
 
 		if (group.isExclusive())
 			name.addFormat(FormatOption.UNDERLINE);
@@ -25,7 +29,7 @@ public final class ArgumentGroupRepr {
 		if (description != null)
 			buff.append(description).append("\n\n");
 
-		ArgumentRepr.appendArgumentDescriptions(buff, arguments);
+		buff.append(ArgumentRepr.getArgumentDescriptions(arguments));
 
 		for (final var subGroup : group.getSubGroups()) {
 			buff.append(ArgumentGroupRepr.getDescriptions(subGroup));
@@ -38,9 +42,11 @@ public final class ArgumentGroupRepr {
 	/**
 	 * Appends the representation of this group tree to the given string builder.
 	 */
-	public static void getRepresentation(@NotNull ArgumentGroup group, @NotNull StringBuilder sb) {
+	public static String getRepresentation(@NotNull ArgumentGroup group) {
+		final var sb = new StringBuilder();
+
 		// its empty, nothing to append
-		if (group.isEmpty()) return;
+		if (group.isEmpty()) return "";
 
 		// if this group isn't exclusive, we just want to append the arguments, basically
 		if (group.isExclusive())
@@ -68,7 +74,7 @@ public final class ArgumentGroupRepr {
 
 		for (int i = 0; i < groups.size(); i++) {
 			ArgumentGroup grp = groups.get(i);
-			ArgumentGroupRepr.getRepresentation(grp, sb); // append the group's representation recursively
+			sb.append(ArgumentGroupRepr.getRepresentation(grp)); // append the group's representation recursively
 			if (i < groups.size() - 1) {
 				sb.append(' ');
 				if (grp.isExclusive())
@@ -78,5 +84,7 @@ public final class ArgumentGroupRepr {
 
 		if (group.isExclusive())
 			sb.append(')');
+
+		return sb.toString();
 	}
 }

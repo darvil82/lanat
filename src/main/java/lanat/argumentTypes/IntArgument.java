@@ -3,6 +3,7 @@ package lanat.argumentTypes;
 import lanat.ArgumentType;
 import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class IntArgument extends ArgumentType<Integer> {
 	@Override
@@ -18,5 +19,10 @@ public class IntArgument extends ArgumentType<Integer> {
 	@Override
 	public @NotNull TextFormatter getRepresentation() {
 		return new TextFormatter("int");
+	}
+
+	@Override
+	public @Nullable String getDescription() {
+		return "An integer.";
 	}
 }

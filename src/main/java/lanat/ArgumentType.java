@@ -121,7 +121,7 @@ public abstract class ArgumentType<T>
 		this.currentValue = value;
 	}
 
-	public @Nullable T getInitialValue() {
+	public T getInitialValue() {
 		return this.initialValue;
 	}
 

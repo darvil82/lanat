@@ -11,7 +11,7 @@ public final class LayoutGenerators {
 	private LayoutGenerators() {}
 
 	public static @NotNull String title(@NotNull Command cmd) {
-		return cmd.getName() + (cmd.description == null ? "" : ":\n" + HelpFormatter.indent(cmd.description, cmd));
+		return cmd.getName() + (cmd.description == null ? "" : ":\n\n" + HelpFormatter.indent(cmd.description, cmd));
 	}
 
 	public static @Nullable String synopsis(@NotNull Command cmd) {
@@ -21,7 +21,7 @@ public final class LayoutGenerators {
 		final var buffer = new StringBuilder();
 
 		for (var arg : args) {
-			// skip arguments that are in groups (handled later), and help argument if it's not needed
+			// skip arguments that are in groups (handled later)
 			if (arg.getParentGroup() != null)
 				continue;
 
@@ -29,8 +29,7 @@ public final class LayoutGenerators {
 		}
 
 		for (var group : cmd.getSubGroups()) {
-			ArgumentGroupRepr.getRepresentation(group, buffer);
-			buffer.append(' ');
+			buffer.append(ArgumentGroupRepr.getRepresentation(group)).append(' ');
 		}
 
 		if (!cmd.getSubCommands().isEmpty())
@@ -49,13 +48,14 @@ public final class LayoutGenerators {
 
 	public static @Nullable String argumentDescriptions(@NotNull Command cmd) {
 		final var buff = new StringBuilder();
+		// skip arguments that are in groups (handled later)
 		final var arguments = Argument.sortByPriority(cmd.getArguments()).stream().filter(arg ->
-			arg.getParentGroup() == null && arg.getDescription() != null
+			arg.getParentGroup() == null
 		).toList();
 
 		if (arguments.isEmpty() && cmd.getSubGroups().isEmpty()) return null;
 
-		ArgumentRepr.appendArgumentDescriptions(buff, arguments);
+		buff.append(ArgumentRepr.getArgumentDescriptions(arguments));
 
 		for (var group : cmd.getSubGroups()) {
 			buff.append(ArgumentGroupRepr.getDescriptions(group));

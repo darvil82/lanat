@@ -85,7 +85,10 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	private PrefixChar prefixChar = PrefixChar.defaultPrefix;
 	private final @NotNull List<@NotNull String> names = new ArrayList<>();
 	private @Nullable String description;
-	private boolean obligatory = false, positional = false, allowUnique = false;
+	private boolean obligatory = false,
+		positional = false,
+		allowUnique = false;
+
 	private @Nullable TInner defaultValue;
 
 	/** The Command that this Argument belongs to. This should never be null after initialization. */

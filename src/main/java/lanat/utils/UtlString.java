@@ -1,6 +1,7 @@
 package lanat.utils;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.function.Predicate;
@@ -203,5 +204,14 @@ public final class UtlString {
 	 */
 	public static @NotNull String plural(@NotNull String str, int count) {
 		return count + " " + (count == 1 ? str : str + "s");
+	}
+
+	/**
+	 * Returns the string given if it is not null, otherwise returns an empty string.
+	 * @param str the string to check
+	 * @return the string given or an empty string
+	 */
+	public static @NotNull String fromNullable(@Nullable String str) {
+		return str == null ? "" : str;
 	}
 }

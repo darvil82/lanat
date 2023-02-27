@@ -20,7 +20,7 @@ public interface MultipleNamesAndDescription<T> extends NamedWithDescription {
 	@NotNull List<@NotNull String> getNames();
 
 	/**
-	 * Returns the name of this object. If multiple names are defined, the longest name will be returned.
+	 * {@inheritDoc} If multiple names are defined, the longest name will be returned.
 	 * @return The name of this object
 	 * */
 	@Override

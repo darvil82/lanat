@@ -26,7 +26,10 @@ public final class ManualTests {
 
 			this.addGroup(new ArgumentGroup("group") {{
 				this.exclusive();
-				this.addArgument(Argument.create("group-arg", ArgumentType.BOOLEAN()).onOk(value -> System.out.println("1: " + value)));
+				this.addArgument(Argument.create("group-arg", ArgumentType.STRING())
+					.onOk(value -> System.out.println("1: " + value))
+					.description("some description")
+				);
 				this.addArgument(Argument.create("group-arg2", ArgumentType.BOOLEAN()).onOk(value -> System.out.println("2: " + value)));
 			}});
 

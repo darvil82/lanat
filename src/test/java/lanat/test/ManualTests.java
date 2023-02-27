@@ -10,12 +10,13 @@ import lanat.utils.Range;
 import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.junit.jupiter.api.Test;
 
 public final class ManualTests {
-	public static void main(String[] args) {
+	@Test
+	public void main() {
 		HelpFormatter.lineWrapMax = 110;
 		HelpFormatter.debugLayout = true;
-
 
 		new TestingParser("Testing", "description for main parser") {{
 			this.addArgument(Argument.create("testing", ArgumentType.FROM_PARSEABLE(new TestClass()))

@@ -4,6 +4,7 @@ import lanat.ArgumentType;
 import lanat.utils.Range;
 import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Objects;
@@ -70,6 +71,11 @@ public class KeyValuesArgument<T extends ArgumentType<Ts>, Ts> extends ArgumentT
 		return new TextFormatter("(key=")
 			.concat(Objects.requireNonNull(this.valueType.getRepresentation()))
 			.concat(", ...)");
+	}
+
+	@Override
+	public @Nullable String getDescription() {
+		return "A list of key-value pairs. The key must be a string and the value must be of type " + this.valueType.getName() + ".";
 	}
 
 	public static <T extends ArgumentType<Ts>, Ts> KeyValuesArgument<T, Ts> create(T type, char separator) {

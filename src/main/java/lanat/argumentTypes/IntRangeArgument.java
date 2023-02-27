@@ -3,6 +3,7 @@ package lanat.argumentTypes;
 import lanat.utils.displayFormatter.Color;
 import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class IntRangeArgument extends IntArgument {
 	private final int min, max;
@@ -34,5 +35,10 @@ public class IntRangeArgument extends IntArgument {
 	public @NotNull TextFormatter getRepresentation() {
 		return super.getRepresentation()
 			.concat(new TextFormatter("[%d-%d]".formatted(this.min, this.max)).setColor(Color.YELLOW));
+	}
+
+	@Override
+	public @Nullable String getDescription() {
+		return super.getDescription() + " Must be between " + this.min + " and " + this.max + ". (Inclusive)";
 	}
 }

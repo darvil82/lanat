@@ -3,6 +3,7 @@ package lanat.argumentTypes;
 import lanat.ArgumentType;
 import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class FloatArgument extends ArgumentType<Float> {
 	@Override
@@ -18,5 +19,10 @@ public class FloatArgument extends ArgumentType<Float> {
 	@Override
 	public @NotNull TextFormatter getRepresentation() {
 		return new TextFormatter("float");
+	}
+
+	@Override
+	public @Nullable String getDescription() {
+		return "A floating point number.";
 	}
 }

@@ -4,6 +4,7 @@ import lanat.ArgumentType;
 import lanat.utils.Range;
 import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -35,5 +36,10 @@ public class StdinArgument extends ArgumentType<String> {
 		} catch (IOException ignored) {}
 
 		return String.join("\n", input);
+	}
+
+	@Override
+	public @Nullable String getDescription() {
+		return "Accepts input from stdin (Standard Input).";
 	}
 }

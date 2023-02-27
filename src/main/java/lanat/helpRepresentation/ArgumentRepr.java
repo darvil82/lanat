@@ -43,20 +43,16 @@ public final class ArgumentRepr {
 		if (desc == null && typeDesc == null)
 			return null;
 
-		final var buff = new StringBuilder(ArgumentRepr.getSynopsisRepresentation(arg))
-			.append(":\n");
+		final var buff = new StringBuilder();
 
 		if (typeDesc != null)
 			// append the description of the argument type
-			buff.append(HelpFormatter.indent(
-				arg.argType.getRepresentation() + ": " + typeDesc,
-				arg
-			)).append("\n");
+			buff.append(arg.argType.getName()).append(": ").append(typeDesc).append("\n");
 
 		if (desc != null)
-			buff.append(HelpFormatter.indent(desc, arg));
+			buff.append(desc);
 
-		return buff.toString();
+		return ArgumentRepr.getSynopsisRepresentation(arg) + ":\n" + HelpFormatter.indent(buff.toString(), arg);
 	}
 
 	static String getArgumentDescriptions(@NotNull List<@NotNull Argument<?, ?>> arguments) {

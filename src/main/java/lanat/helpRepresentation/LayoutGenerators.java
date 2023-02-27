@@ -21,7 +21,7 @@ public final class LayoutGenerators {
 		final var buffer = new StringBuilder();
 
 		for (var arg : args) {
-			// skip arguments that are in groups (handled later), and help argument if it's not needed
+			// skip arguments that are in groups (handled later)
 			if (arg.getParentGroup() != null)
 				continue;
 
@@ -48,8 +48,9 @@ public final class LayoutGenerators {
 
 	public static @Nullable String argumentDescriptions(@NotNull Command cmd) {
 		final var buff = new StringBuilder();
+		// skip arguments that are in groups (handled later)
 		final var arguments = Argument.sortByPriority(cmd.getArguments()).stream().filter(arg ->
-			arg.getParentGroup() == null && arg.getDescription() != null
+			arg.getParentGroup() == null
 		).toList();
 
 		if (arguments.isEmpty() && cmd.getSubGroups().isEmpty()) return null;

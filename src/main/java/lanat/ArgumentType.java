@@ -121,7 +121,7 @@ public abstract class ArgumentType<T>
 		this.currentValue = value;
 	}
 
-	public @Nullable T getInitialValue() {
+	public T getInitialValue() {
 		return this.initialValue;
 	}
 
@@ -148,10 +148,6 @@ public abstract class ArgumentType<T>
 	@Override
 	public @Nullable TextFormatter getRepresentation() {
 		return new TextFormatter(this.getClass().getSimpleName());
-	}
-
-	public @Nullable String getDescription() {
-		return null;
 	}
 
 	/**

@@ -1,4 +1,4 @@
-package lanat.helpRepresentation;
+package lanat.helpRepresentation.descriptions;
 
 import lanat.CommandUser;
 import lanat.NamedWithDescription;
@@ -46,4 +46,5 @@ public final class DescriptionFormatter {
 
 		return tagValue;
 	}
+
 }

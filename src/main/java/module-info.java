@@ -12,4 +12,5 @@ module lanat {
 
 	opens lanat.parsing.errors to fade.mirror;
 	opens lanat.commandTemplates to fade.mirror;
+	exports lanat.helpRepresentation.descriptions;
 }

@@ -5,7 +5,7 @@ import lanat.ArgumentGroup;
 import lanat.ArgumentType;
 import lanat.Command;
 import lanat.argumentTypes.Parseable;
-import lanat.helpRepresentation.DescriptionFormatter;
+import lanat.helpRepresentation.descriptions.DescriptionFormatter;
 import lanat.helpRepresentation.HelpFormatter;
 import lanat.utils.Range;
 import org.jetbrains.annotations.NotNull;

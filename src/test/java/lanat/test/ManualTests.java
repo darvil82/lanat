@@ -5,6 +5,7 @@ import lanat.ArgumentGroup;
 import lanat.ArgumentType;
 import lanat.Command;
 import lanat.argumentTypes.Parseable;
+import lanat.helpRepresentation.DescriptionFormatter;
 import lanat.helpRepresentation.HelpFormatter;
 import lanat.utils.Range;
 import org.jetbrains.annotations.NotNull;
@@ -21,7 +22,7 @@ public final class ManualTests {
 			ONE, TWO, THREE
 		}
 
-		new TestingParser("Testing", "description for main parser") {{
+		var parser = new TestingParser("Testing", "test: <link=foo.bar>") {{
 			this.addArgument(Argument.create("testing", ArgumentType.FROM_PARSEABLE(new TestClass()))
 				.description("some description")
 				.onOk(value -> System.out.println("ok: " + value))
@@ -51,7 +52,9 @@ public final class ManualTests {
 					.onOk(value -> System.out.println("ok: " + value))
 				);
 			}});
-		}}.parseArgsExpectErrorPrint("--help");
+		}};
+
+		System.out.println(DescriptionFormatter.parse(parser));
 	}
 }
 

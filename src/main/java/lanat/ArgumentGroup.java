@@ -116,7 +116,7 @@ public class ArgumentGroup
 	}
 
 	@Override
-	public Command getParentCommand() {
+	public @NotNull Command getParentCommand() {
 		return this.parentCommand;
 	}
 

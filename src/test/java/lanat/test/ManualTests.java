@@ -5,8 +5,8 @@ import lanat.ArgumentGroup;
 import lanat.ArgumentType;
 import lanat.Command;
 import lanat.argumentTypes.Parseable;
-import lanat.helpRepresentation.descriptions.DescriptionFormatter;
 import lanat.helpRepresentation.HelpFormatter;
+import lanat.helpRepresentation.descriptions.DescriptionFormatter;
 import lanat.utils.Range;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -22,7 +22,7 @@ public final class ManualTests {
 			ONE, TWO, THREE
 		}
 
-		var parser = new TestingParser("Testing", "test: <link=foo.bar>") {{
+		var parser = new TestingParser("Testing", "test: <link=args.group-arg.type>") {{
 			this.addArgument(Argument.create("testing", ArgumentType.FROM_PARSEABLE(new TestClass()))
 				.description("some description")
 				.onOk(value -> System.out.println("ok: " + value))

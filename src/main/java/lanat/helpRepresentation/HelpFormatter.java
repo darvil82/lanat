@@ -2,11 +2,13 @@ package lanat.helpRepresentation;
 
 import lanat.Command;
 import lanat.CommandUser;
+import lanat.helpRepresentation.descriptions.Tag;
 import lanat.utils.UtlString;
 import lanat.utils.displayFormatter.Color;
 import lanat.utils.displayFormatter.FormatOption;
 import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -17,14 +19,15 @@ public class HelpFormatter {
 	private @NotNull ArrayList<@NotNull LayoutItem> layout = new ArrayList<>();
 	public static boolean debugLayout = false;
 
-	public HelpFormatter(@NotNull Command parentCmd) {
+	public HelpFormatter(@Nullable Command parentCmd) {
 		this.parentCmd = parentCmd;
 		this.initLayout();
+		Tag.initTags();
 	}
 
 	// the user can create a helpFormatter, though, the parentCmd should be applied later (otherwise stuff will fail)
 	public HelpFormatter() {
-		this.initLayout();
+		this((Command)null);
 	}
 
 	public HelpFormatter(@NotNull HelpFormatter other) {

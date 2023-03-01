@@ -39,12 +39,14 @@ public final class DescriptionFormatter {
 		return out.toString();
 	}
 
-	private static @NotNull String parseTag(@NotNull String tag, @NotNull CommandUser user) {
-		final var split = tag.split("=", 2);
+
+	private static <T extends CommandUser & NamedWithDescription>
+	@NotNull String parseTag(@NotNull String tagContents, @NotNull T user) {
+		final var split = tagContents.split("=", 2);
 		final var tagName = split[0];
 		final var tagValue = split[1];
 
-		return tagValue;
+		return Tag.parseTagValue(tagName, tagValue, user);
 	}
 
 }

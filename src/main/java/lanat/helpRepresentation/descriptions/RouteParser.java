@@ -6,6 +6,8 @@ import lanat.utils.UtlReflection;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.BiFunction;
 
 public class RouteParser<T extends CommandUser & NamedWithDescription> {
 	private NamedWithDescription current;
@@ -24,38 +26,36 @@ public class RouteParser<T extends CommandUser & NamedWithDescription> {
 		}
 	}
 
-
 	public static <T extends CommandUser & NamedWithDescription>
-	NamedWithDescription parseRoute(T runner, String route) {
+	NamedWithDescription parse(T runner, String route) {
 		return new RouteParser<>(runner, route).parse();
 	}
+
 
 	private NamedWithDescription parse() {
 		for (this.index = 0; this.index < this.route.length; this.index++) {
 			final String token = this.route[this.index];
 
 			if (token.equals("args") && this.current instanceof ArgumentAdder argsContainer) {
-				this.setCurrent(argsContainer.getArguments());
+				this.setCurrent(argsContainer.getArguments(), MultipleNamesAndDescription::hasName);
 			} else if (token.equals("groups") && this.current instanceof ArgumentGroupAdder groupsContainer) {
-				groupsContainer.getSubGroups().stream()
-					.filter(a -> a.getName().equals(this.route[++this.index]))
-					.findFirst()
-					.ifPresent(argumentGroup -> this.current = argumentGroup);
+				this.setCurrent(groupsContainer.getSubGroups(), (g, name) -> g.getName().equals(name));
 			} else if (token.equals("cmds") && this.current instanceof Command cmdsContainer) {
-				this.setCurrent(cmdsContainer.getSubCommands());
+				this.setCurrent(cmdsContainer.getSubCommands(), MultipleNamesAndDescription::hasName);
 			} else if (token.equals("type") && this.current instanceof Argument<?, ?> arg) {
 				this.current = arg.argType;
 			} else {
-				throw new InvalidRouteException(token, this.current);
+				throw new InvalidRouteException(this.current, token);
 			}
 		}
 
 		return this.current;
 	}
 
-	private void setCurrent(List<? extends MultipleNamesAndDescription<?>> thing) {
-		var name = this.route[++this.index];
-		var res = thing.stream().filter(a -> a.hasName(name)).findFirst();
+	private <E extends NamedWithDescription>
+	void setCurrent(List<E> list, BiFunction<E, String, Boolean> filter) {
+		final var name = this.route[++this.index];
+		final Optional<E> res = list.stream().filter(x -> filter.apply(x, name)).findFirst();
 
 		this.current = res.orElseThrow(() -> new RuntimeException(
 			"Element " + name + " is not present in "

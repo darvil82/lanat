@@ -6,7 +6,6 @@ import lanat.ArgumentType;
 import lanat.Command;
 import lanat.argumentTypes.Parseable;
 import lanat.helpRepresentation.HelpFormatter;
-import lanat.helpRepresentation.descriptions.DescriptionFormatter;
 import lanat.utils.Range;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -22,7 +21,9 @@ public final class ManualTests {
 			ONE, TWO, THREE
 		}
 
-		var parser = new TestingParser("Testing", "hello, the argument <link=args.group-arg> is formatted! This is its type description: <desc=args.group-arg.type>") {{
+		var parser = new TestingParser("Testing", "hello, the argument <link=args.group-arg> is "
+			+ "formatted! This is its type description: <desc=args.group-arg.type>"
+		) {{
 			this.addArgument(Argument.create("testing", ArgumentType.FROM_PARSEABLE(new TestClass()))
 				.description("some description")
 				.onOk(value -> System.out.println("ok: " + value))
@@ -36,6 +37,7 @@ public final class ManualTests {
 				);
 				this.addArgument(Argument.create("group-arg2", ArgumentType.ENUM(TestEnum.ONE))
 					.onOk(value -> System.out.println("2: " + value))
+					.description("<desc=!.type>")
 				);
 			}});
 
@@ -54,7 +56,7 @@ public final class ManualTests {
 			}});
 		}};
 
-		System.out.println(DescriptionFormatter.parse(parser));
+		parser.parseArgs("--help");
 	}
 }
 

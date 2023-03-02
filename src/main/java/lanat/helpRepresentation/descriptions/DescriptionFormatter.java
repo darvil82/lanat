@@ -12,11 +12,11 @@ public final class DescriptionFormatter {
 
 	private DescriptionFormatter() {}
 
-	public static @Nullable <T extends CommandUser & NamedWithDescription>
-	String parse(@NotNull T element) {
-		final var desc = element.getDescription();
-		if (desc == null)
-			return null;
+	public static <T extends CommandUser & NamedWithDescription>
+	@NotNull String parse(@NotNull T element, @NotNull String desc) {
+		// if the description doesn't contain any tags, we can skip the parsing
+		if (!desc.contains(Character.toString(TAG_START)) && !desc.contains(Character.toString(TAG_END)))
+			return desc;
 
 		final var chars = desc.toCharArray();
 
@@ -54,6 +54,14 @@ public final class DescriptionFormatter {
 		return out.toString();
 	}
 
+	public static <T extends CommandUser & NamedWithDescription>
+	@Nullable String parse(@NotNull T element) {
+		final var desc = element.getDescription();
+		if (desc == null)
+			return null;
+
+		return DescriptionFormatter.parse(element, desc);
+	}
 
 	private static <T extends CommandUser & NamedWithDescription>
 	@NotNull String parseTag(@NotNull String tagContents, @NotNull T user) {

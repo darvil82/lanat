@@ -1,6 +1,7 @@
 package lanat.helpRepresentation;
 
 import lanat.Command;
+import lanat.helpRepresentation.descriptions.DescriptionFormatter;
 import lanat.utils.displayFormatter.FormatOption;
 import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
@@ -11,15 +12,19 @@ public final class CommandRepr {
 
 	public static @NotNull String getSubCommandsRepresentation(final @NotNull Command cmd) {
 		return '{'
-			+ String.join(" | ", cmd.getSubCommands().stream().map(CommandRepr::getCommandRepresentation).toList())
+			+ String.join(" | ", cmd.getSubCommands().stream().map(CommandRepr::getRepresentation).toList())
 			+ '}';
 	}
 
-	public static @NotNull String getCommandRepresentation(final @NotNull Command cmd) {
+	public static @NotNull String getRepresentation(final @NotNull Command cmd) {
 		return String.join(
 			"/",
 			cmd.getNames().stream().map(n -> new TextFormatter(n).addFormat(FormatOption.BOLD).toString()).toList()
 		);
+	}
+
+	public static @Nullable String getDescription(final @NotNull Command cmd) {
+		return DescriptionFormatter.parse(cmd);
 	}
 
 	public static @Nullable String getSubCommandsDescriptions(final @NotNull Command cmd) {
@@ -32,7 +37,7 @@ public final class CommandRepr {
 			final var desc = subCmd.getDescription();
 			if (desc == null) continue;
 
-			buff.append(CommandRepr.getCommandRepresentation(subCmd)).append(":\n").append(HelpFormatter.indent(desc, cmd));
+			buff.append(CommandRepr.getRepresentation(subCmd)).append(":\n").append(HelpFormatter.indent(desc, cmd));
 
 			if (i < subCommands.size() - 1) buff.append("\n\n");
 		}

@@ -6,10 +6,14 @@ import lanat.utils.UtlReflection;
 import lanat.utils.UtlString;
 
 public class InvalidRouteException extends LanatException {
-	public InvalidRouteException(String value, NamedWithDescription user) {
+	public InvalidRouteException(NamedWithDescription user, String value) {
 		super(
 			"invalid route value " + UtlString.surround(value)
 			+ " for " + UtlReflection.getSimpleName(user.getClass()) + " " + UtlString.surround(user.getName())
 		);
+	}
+
+	public InvalidRouteException(String message) {
+		super(message);
 	}
 }

@@ -11,16 +11,17 @@ public class LinkTag extends Tag {
 	@Override
 	protected @NotNull <T extends CommandUser & NamedWithDescription>
 	String parse(@NotNull String value, @NotNull T user) {
-		final var obj = RouteParser.parseRoute(user, value);
+		final var obj = RouteParser.parse(user, value);
 
+		// replace with switch expression when it's out of preview
 		if (obj instanceof Command cmd) {
-			return CommandRepr.getCommandRepresentation(cmd);
+			return CommandRepr.getRepresentation(cmd);
 		} else if (obj instanceof Argument<?,?> arg) {
-			return ArgumentRepr.getSynopsisRepresentation(arg);
+			return ArgumentRepr.getRepresentation(arg);
 		} else if (obj instanceof ArgumentGroup group) {
 			return ArgumentGroupRepr.getRepresentation(group);
 		} else {
-			throw new InvalidRouteException(value, user);
+			throw new InvalidRouteException(user, value);
 		}
 	}
 }

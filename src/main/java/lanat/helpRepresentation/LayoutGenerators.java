@@ -7,11 +7,16 @@ import lanat.utils.UtlString;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
+
 public final class LayoutGenerators {
 	private LayoutGenerators() {}
 
 	public static @NotNull String title(@NotNull Command cmd) {
-		return cmd.getName() + (cmd.description == null ? "" : ":\n\n" + HelpFormatter.indent(cmd.description, cmd));
+		return cmd.getName()
+			+ (cmd.getDescription() == null
+				? ""
+				: ":\n\n" + HelpFormatter.indent(Objects.requireNonNull(CommandRepr.getDescription(cmd)), cmd));
 	}
 
 	public static @Nullable String synopsis(@NotNull Command cmd) {
@@ -25,7 +30,7 @@ public final class LayoutGenerators {
 			if (arg.getParentGroup() != null)
 				continue;
 
-			buffer.append(ArgumentRepr.getSynopsisRepresentation(arg)).append(' ');
+			buffer.append(ArgumentRepr.getRepresentation(arg)).append(' ');
 		}
 
 		for (var group : cmd.getSubGroups()) {
@@ -55,7 +60,7 @@ public final class LayoutGenerators {
 
 		if (arguments.isEmpty() && cmd.getSubGroups().isEmpty()) return null;
 
-		buff.append(ArgumentRepr.getArgumentDescriptions(arguments));
+		buff.append(ArgumentRepr.getDescriptions(arguments));
 
 		for (var group : cmd.getSubGroups()) {
 			buff.append(ArgumentGroupRepr.getDescriptions(group));

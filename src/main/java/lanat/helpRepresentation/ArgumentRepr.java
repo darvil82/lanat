@@ -1,6 +1,7 @@
 package lanat.helpRepresentation;
 
 import lanat.Argument;
+import lanat.helpRepresentation.descriptions.DescriptionFormatter;
 import lanat.utils.displayFormatter.FormatOption;
 import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
@@ -12,7 +13,7 @@ import java.util.Objects;
 public final class ArgumentRepr {
 	private ArgumentRepr() {}
 
-	public static @NotNull String getSynopsisRepresentation(@NotNull Argument<?, ?> arg) {
+	public static @NotNull String getRepresentation(@NotNull Argument<?, ?> arg) {
 		final var repr = arg.argType.getRepresentation();
 
 		final var outText = new TextFormatter();
@@ -37,26 +38,17 @@ public final class ArgumentRepr {
 		return outText.toString();
 	}
 
-	public static @Nullable String getDescriptionRepresentation(@NotNull Argument<?, ?> arg) {
-		final String desc = arg.getDescription();
-		final String typeDesc = arg.argType.getDescription();
-		if (desc == null && typeDesc == null)
+	public static @Nullable String getDescription(@NotNull Argument<?, ?> arg) {
+		final String desc = DescriptionFormatter.parse(arg);
+
+		if (desc == null)
 			return null;
 
-		final var buff = new StringBuilder();
-
-		if (typeDesc != null)
-			// append the description of the argument type
-			buff.append(arg.argType.getName()).append(": ").append(typeDesc).append("\n");
-
-		if (desc != null)
-			buff.append(desc);
-
-		return ArgumentRepr.getSynopsisRepresentation(arg) + ":\n" + HelpFormatter.indent(buff.toString(), arg);
+		return ArgumentRepr.getRepresentation(arg) + ":\n" + HelpFormatter.indent(desc, arg);
 	}
 
-	static String getArgumentDescriptions(@NotNull List<@NotNull Argument<?, ?>> arguments) {
-		final var argDescriptions = arguments.stream().map(ArgumentRepr::getDescriptionRepresentation).filter(Objects::nonNull).toList();
+	static String getDescriptions(@NotNull List<@NotNull Argument<?, ?>> arguments) {
+		final var argDescriptions = arguments.stream().map(ArgumentRepr::getDescription).filter(Objects::nonNull).toList();
 		if (argDescriptions.isEmpty())
 			return "";
 		final var buff = new StringBuilder();

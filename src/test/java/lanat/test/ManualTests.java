@@ -22,7 +22,7 @@ public final class ManualTests {
 			ONE, TWO, THREE
 		}
 
-		var parser = new TestingParser("Testing", "test: <link=args.group-arg.type>") {{
+		var parser = new TestingParser("Testing", "hello, the argument <link=args.group-arg> is formatted! This is its type description: <desc=args.group-arg.type>") {{
 			this.addArgument(Argument.create("testing", ArgumentType.FROM_PARSEABLE(new TestClass()))
 				.description("some description")
 				.onOk(value -> System.out.println("ok: " + value))

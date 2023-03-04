@@ -1,6 +1,5 @@
 package lanat.helpRepresentation.descriptions;
 
-import lanat.CommandUser;
 import lanat.NamedWithDescription;
 import lanat.helpRepresentation.descriptions.exceptions.UnknownTagException;
 import org.jetbrains.annotations.NotNull;
@@ -12,8 +11,7 @@ public abstract class Tag {
 	private static boolean initializedTags;
 
 
-	protected abstract <T extends CommandUser & NamedWithDescription>
-	@NotNull String parse(@NotNull String value, @NotNull T user);
+	protected abstract @NotNull String parse(@NotNull String value, @NotNull NamedWithDescription user);
 
 
 	public static void initTags() {
@@ -29,8 +27,7 @@ public abstract class Tag {
 		Tag.registeredTags.put(name, tag);
 	}
 
-	static <T extends CommandUser & NamedWithDescription>
-	@NotNull String parseTagValue(@NotNull String tagName, @NotNull String value, @NotNull T user) {
+	static @NotNull String parseTagValue(@NotNull String tagName, @NotNull String value, @NotNull NamedWithDescription user) {
 		var tag = Tag.registeredTags.get(tagName.toLowerCase());
 		if (tag == null) throw new UnknownTagException(tagName);
 		return tag.parse(value, user);

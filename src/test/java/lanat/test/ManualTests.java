@@ -5,7 +5,6 @@ import lanat.ArgumentGroup;
 import lanat.ArgumentType;
 import lanat.Command;
 import lanat.argumentTypes.Parseable;
-import lanat.helpRepresentation.HelpFormatter;
 import lanat.utils.Range;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -14,8 +13,8 @@ import org.junit.jupiter.api.Test;
 public final class ManualTests {
 	@Test
 	public void main() {
-		HelpFormatter.lineWrapMax = 110;
-		HelpFormatter.debugLayout = true;
+//		HelpFormatter.lineWrapMax = 110;
+//		HelpFormatter.debugLayout = true;
 
 		enum TestEnum {
 			ONE, TWO, THREE

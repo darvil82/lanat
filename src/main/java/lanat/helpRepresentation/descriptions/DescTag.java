@@ -1,6 +1,5 @@
 package lanat.helpRepresentation.descriptions;
 
-import lanat.CommandUser;
 import lanat.NamedWithDescription;
 import lanat.helpRepresentation.descriptions.exceptions.InvalidRouteException;
 import lanat.helpRepresentation.descriptions.exceptions.NoDescriptionDefinedException;
@@ -8,8 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class DescTag extends Tag {
 	@Override
-	protected @NotNull <T extends CommandUser & NamedWithDescription>
-	String parse(@NotNull String value, @NotNull T user) {
+	protected @NotNull String parse(@NotNull String value, @NotNull NamedWithDescription user) {
 		final var target = RouteParser.parse(user, value);
 		if (target == user)
 			throw new InvalidRouteException("Cannot use desc tag to describe itself");
@@ -18,6 +16,6 @@ public class DescTag extends Tag {
 		if (description == null)
 			throw new NoDescriptionDefinedException(user);
 
-		return DescriptionFormatter.parse(user, description);
+		return DescriptionFormatter.parse(target, description);
 	}
 }

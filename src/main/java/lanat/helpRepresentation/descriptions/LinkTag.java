@@ -1,6 +1,9 @@
 package lanat.helpRepresentation.descriptions;
 
-import lanat.*;
+import lanat.Argument;
+import lanat.ArgumentGroup;
+import lanat.Command;
+import lanat.NamedWithDescription;
 import lanat.helpRepresentation.ArgumentGroupRepr;
 import lanat.helpRepresentation.ArgumentRepr;
 import lanat.helpRepresentation.CommandRepr;
@@ -9,8 +12,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class LinkTag extends Tag {
 	@Override
-	protected @NotNull <T extends CommandUser & NamedWithDescription>
-	String parse(@NotNull String value, @NotNull T user) {
+	protected @NotNull String parse(@NotNull String value, @NotNull NamedWithDescription user) {
 		final var obj = RouteParser.parse(user, value);
 
 		// replace with switch expression when it's out of preview

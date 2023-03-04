@@ -214,4 +214,13 @@ public final class UtlString {
 	public static @NotNull String fromNullable(@Nullable String str) {
 		return str == null ? "" : str;
 	}
+
+	/**
+	 * Returns true if the string given is null or empty.
+	 * @param str the string to check
+	 * @return true if the string is null or empty
+	 */
+	public static boolean isNullOrEmpty(@Nullable String str) {
+		return str == null || str.isEmpty();
+	}
 }

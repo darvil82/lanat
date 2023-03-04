@@ -107,7 +107,7 @@ public class HelpFormatter {
 			buffer.append(UtlString.wrap(generatedContent, lineWrapMax)).append('\n');
 		}
 
-		return buffer.toString();
+		return buffer.toString().trim();
 	}
 
 	/**

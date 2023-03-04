@@ -12,8 +12,7 @@ public final class DescriptionFormatter {
 
 	private DescriptionFormatter() {}
 
-	public static <T extends CommandUser & NamedWithDescription>
-	@NotNull String parse(@NotNull T element, @NotNull String desc) {
+	public static @NotNull String parse(@NotNull NamedWithDescription user, @NotNull String desc) {
 		// if the description doesn't contain any tags, we can skip the parsing
 		if (!desc.contains(Character.toString(TAG_START)) && !desc.contains(Character.toString(TAG_END)))
 			return desc;
@@ -32,7 +31,7 @@ public final class DescriptionFormatter {
 				if (current.length() == 0)
 					throw new MalformedTagException("empty tag at index " + lastTagOpen);
 
-				out.append(DescriptionFormatter.parseTag(current.toString(), element));
+				out.append(DescriptionFormatter.parseTag(current.toString(), user));
 				current.setLength(0);
 				inTag = false;
 			} else if (chr == TAG_START && !inTag) {
@@ -63,8 +62,7 @@ public final class DescriptionFormatter {
 		return DescriptionFormatter.parse(element, desc);
 	}
 
-	private static <T extends CommandUser & NamedWithDescription>
-	@NotNull String parseTag(@NotNull String tagContents, @NotNull T user) {
+	private static @NotNull String parseTag(@NotNull String tagContents, @NotNull NamedWithDescription user) {
 		if (tagContents.contains("=")) {
 			final var split = tagContents.split("=", 2);
 			return Tag.parseTagValue(split[0].trim(), split[1].trim(), user);

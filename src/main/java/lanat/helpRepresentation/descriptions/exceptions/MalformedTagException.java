@@ -1,13 +1,15 @@
 package lanat.helpRepresentation.descriptions.exceptions;
 
 import lanat.exceptions.LanatException;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class MalformedTagException extends LanatException {
-	public MalformedTagException(String tagName, String reason) {
+	public MalformedTagException(@NotNull String tagName, @Nullable String reason) {
 		super("tag " + tagName + " is malformed" + (reason == null ? "" : ": " + reason));
 	}
 
-	public MalformedTagException(String message) {
+	public MalformedTagException(@NotNull String message) {
 		super(message);
 	}
 }

@@ -8,11 +8,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class InvalidRouteException extends LanatException {
-	public InvalidRouteException(@NotNull NamedWithDescription user, @NotNull String value) {
+	public InvalidRouteException(@NotNull NamedWithDescription user, @Nullable String value) {
 		this(user, value, null);
 	}
 
-	public InvalidRouteException(@NotNull NamedWithDescription user, @NotNull String value, @Nullable String message) {
+	public InvalidRouteException(@NotNull NamedWithDescription user, @Nullable String value, @Nullable String message) {
 		super(
 			"invalid route value " + UtlString.surround(value)
 				+ " for " + UtlReflection.getSimpleName(user.getClass()) + " " + UtlString.surround(user.getName())

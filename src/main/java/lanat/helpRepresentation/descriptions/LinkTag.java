@@ -9,10 +9,11 @@ import lanat.helpRepresentation.ArgumentRepr;
 import lanat.helpRepresentation.CommandRepr;
 import lanat.helpRepresentation.descriptions.exceptions.InvalidRouteException;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class LinkTag extends Tag {
 	@Override
-	protected @NotNull String parse(@NotNull String value, @NotNull NamedWithDescription user) {
+	protected @NotNull String parse(@NotNull NamedWithDescription user, @Nullable String value) {
 		final var obj = RouteParser.parse(user, value);
 
 		// replace with switch expression when it's out of preview

@@ -65,10 +65,10 @@ public final class DescriptionFormatter {
 	private static @NotNull String parseTag(@NotNull String tagContents, @NotNull NamedWithDescription user) {
 		if (tagContents.contains("=")) {
 			final var split = tagContents.split("=", 2);
-			return Tag.parseTagValue(split[0].trim(), split[1].trim(), user);
+			return Tag.parseTagValue(user, split[0].trim(), split[1].trim());
 		}
 
-		return Tag.parseTagValue(tagContents, "", user);
+		return Tag.parseTagValue(user, tagContents, null);
 	}
 
 }

@@ -17,10 +17,10 @@ public class RouteParser {
 	private final String[] route;
 	private int index;
 
-	private RouteParser(@NotNull NamedWithDescription runner, @Nullable String route) {
-		// if route is empty, the command the runner belongs to is the target
+	private RouteParser(@NotNull NamedWithDescription user, @Nullable String route) {
+		// if route is empty, the command the user belongs to is the target
 		if (UtlString.isNullOrEmpty(route)) {
-			this.current = RouteParser.getCommandOf(runner);
+			this.current = RouteParser.getCommandOf(user);
 			this.route = new String[0];
 			return;
 		}
@@ -28,20 +28,20 @@ public class RouteParser {
 		final String[] splitRoute = route.split("\\.");
 
 		if (splitRoute[0].equals("!")) {
-			this.current = runner;
+			this.current = user;
 			this.route = Arrays.copyOfRange(splitRoute, 1, splitRoute.length);
 			return;
 		}
 
-		this.current = RouteParser.getCommandOf(runner);
+		this.current = RouteParser.getCommandOf(user);
 		this.route = splitRoute;
 	}
 
-	public static NamedWithDescription parse(@NotNull NamedWithDescription runner, @Nullable String route) {
-		return new RouteParser(runner, route).parse();
+	public static NamedWithDescription parse(@NotNull NamedWithDescription user, @Nullable String route) {
+		return new RouteParser(user, route).parse();
 	}
 
-	private static Command getCommandOf(NamedWithDescription obj) {
+	public static Command getCommandOf(NamedWithDescription obj) {
 		if (obj instanceof Command cmd) {
 			return cmd;
 		} else if (obj instanceof CommandUser cmdUser) {
@@ -72,12 +72,12 @@ public class RouteParser {
 	}
 
 	private <E extends NamedWithDescription>
-	void setCurrent(List<E> list, BiFunction<E, String, Boolean> filter) {
+	void setCurrent(List<E> list, BiFunction<E, String, Boolean> predicate) {
 		if (this.index + 1 >= this.route.length)
 			throw new InvalidRouteException(this.current, "", "Expected a name");
 
 		final var name = this.route[++this.index];
-		final Optional<E> res = list.stream().filter(x -> filter.apply(x, name)).findFirst();
+		final Optional<E> res = list.stream().filter(x -> predicate.apply(x, name)).findFirst();
 
 		this.current = res.orElseThrow(() -> new RuntimeException(
 			"Element " + name + " is not present in "

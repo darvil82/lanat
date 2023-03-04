@@ -7,7 +7,6 @@ import lanat.helpRepresentation.HelpFormatter;
 import lanat.helpRepresentation.LayoutItem;
 import lanat.helpRepresentation.descriptions.DescriptionFormatter;
 import lanat.helpRepresentation.descriptions.exceptions.InvalidRouteException;
-import lanat.utils.UtlString;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -19,8 +18,6 @@ public class TestHelpFormatting extends UnitTests {
 
 	@Override
 	public void setParser() {
-		HelpFormatter.lineWrapMax = 1000; // just so we don't have to worry about line wrapping
-
 		this.parser = new TestingParser(
 			"TestHelpFormatting",
 			"description of <link=args.arg1>: (<desc=args.arg1>)"
@@ -47,7 +44,7 @@ public class TestHelpFormatting extends UnitTests {
 		assertEquals(
 			"description of --arg1/a1: (description of arg2: (description of my type: "
 				+ "(Counts the number of times this argument is used.) i am in the command TestHelpFormatting))",
-			UtlString.removeSequences(this.helpFormatter.toString())
+			this.helpFormatter.toString()
 		);
 	}
 

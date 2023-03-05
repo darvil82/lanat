@@ -1,11 +1,32 @@
-package lanat.helpRepresentation.descriptions;
+package lanat.helpRepresentation.descriptions.tags;
 
 import lanat.NamedWithDescription;
+import lanat.helpRepresentation.descriptions.Tag;
 import lanat.helpRepresentation.descriptions.exceptions.MalformedTagException;
 import lanat.utils.displayFormatter.FormatOption;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Changes the format of the text.
+ * The available formats are the ones defined in {@link FormatOption}. The format name is case-insensitive.
+ * <p>
+ * The names that may be used are:
+ * <ul>
+ * <li>reset / r</li>
+ * <li>bold / b</li>
+ * <li>italic / i</li>
+ * <li>dim / d</li>
+ * <li>underline / u</li>
+ * <li>blink / bl</li>
+ * <li>reverse / re</li>
+ * <li>hidden / h</li>
+ * <li>strike / s</li>
+ * </ul>
+ *
+ * If the format name is invalid, a {@link MalformedTagException} is thrown.
+ * If no format is specified, the reset sequence is returned.
+ */
 public class FormatTag extends Tag {
 	@Override
 	protected @NotNull String parse(@NotNull NamedWithDescription user, @Nullable String value) {

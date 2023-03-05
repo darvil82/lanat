@@ -54,6 +54,14 @@ public class RouteParser {
 		return new RouteParser(user, route).parse();
 	}
 
+	/**
+	 * Returns the command the object belongs to. If the object is a {@link Command}, it is returned.
+	 * If it is a {@link CommandUser}, the command it belongs to is returned. Otherwise,
+	 * an {@link InvalidRouteException} is thrown.
+	 * @param obj the object to get the command of
+	 * @return the command the object belongs to
+	 * @throws InvalidRouteException if the object is not a {@link Command} or a {@link CommandUser}
+	 */
 	public static Command getCommandOf(NamedWithDescription obj) {
 		if (obj instanceof Command cmd) {
 			return cmd;
@@ -64,6 +72,11 @@ public class RouteParser {
 		}
 	}
 
+	/**
+	 * Advances through the route and sets the current target to each element in the route. If the route is invalid,
+	 * an {@link InvalidRouteException} is thrown.
+	 * @return the object the route points to
+	 */
 	private NamedWithDescription parse() {
 		for (this.index = 0; this.index < this.route.length; this.index++) {
 			final String token = this.route[this.index];
@@ -84,6 +97,13 @@ public class RouteParser {
 		return this.currentTarget;
 	}
 
+	/**
+	 * Sets the current target to the first element in the list that matches the given predicate.
+	 * @param list the list to search in
+	 * @param predicate the predicate to use to match the elements. The first parameter is the element, the second is the
+	 *  name to match against.
+	 * @param <E> the type of the elements in the list
+	 */
 	private <E extends NamedWithDescription>
 	void setCurrentTarget(List<E> list, BiFunction<E, String, Boolean> predicate) {
 		if (this.index + 1 >= this.route.length)

@@ -40,7 +40,7 @@ public class Command
 		CommandUser
 {
 	private final @NotNull List<@NotNull String> names = new ArrayList<>();
-	public final @Nullable String description;
+	public @Nullable String description;
 	final @NotNull ArrayList<@NotNull Argument<?, ?>> arguments = new ArrayList<>();
 	final @NotNull ArrayList<@NotNull Command> subCommands = new ArrayList<>();
 	private Command parentCommand;
@@ -156,6 +156,10 @@ public class Command
 	@Override
 	public @NotNull List<String> getNames() {
 		return this.names;
+	}
+
+	public void setDescription(@NotNull String description) {
+		this.description = description;
 	}
 
 	@Override

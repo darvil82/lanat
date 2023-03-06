@@ -20,8 +20,9 @@ public final class ManualTests {
 			ONE, TWO, THREE
 		}
 
-		var parser = new TestingParser("Testing", "<color=yellow>hello<color>, the argument <link=args.group-arg> is "
-			+ "formatted! This is its type description: <desc=args.group-arg.type>"
+		var parser = new TestingParser("Testing", "<color=yellow><format=bold,u,italic>"
+			+ "hello<color=white><format=!u>, the argument <link=args.group-arg> is formatted! "
+			+ "This is its type description: <desc=args.group-arg.type>"
 		) {{
 			this.addArgument(Argument.create("testing", ArgumentType.FROM_PARSEABLE(new TestClass()))
 				.description("some description")

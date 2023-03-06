@@ -9,7 +9,10 @@ import lanat.helpRepresentation.descriptions.exceptions.NoDescriptionDefinedExce
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-/** Gets the description of the target object specified by the route. */
+/**
+ * Gets the description of the target object specified by the route.
+ * @see RouteParser
+ * */
 public class DescTag extends Tag {
 	@Override
 	protected @NotNull String parse(@NotNull NamedWithDescription user, @Nullable String value) {

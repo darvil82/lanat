@@ -33,7 +33,6 @@ import org.jetbrains.annotations.Nullable;
  * <li>dark white / dw</li>
  * </ul>
  *
- * <br><br>
  * <p>
  * The tag may receive a single color name, in which case the color will be applied to the foreground.
  * If the tag receives two color names, separated by a colon, the first color will be applied to the foreground and the

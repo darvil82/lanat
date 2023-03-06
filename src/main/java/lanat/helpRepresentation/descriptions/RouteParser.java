@@ -19,6 +19,46 @@ import java.util.function.BiFunction;
  * By default, the route initial target is the command the user belongs to. If the route starts with <code>!</code>, the
  * user itself becomes the initial target. If the route is empty or null, the command the user belongs to is returned.
  * </p>
+ * <p>
+ * These are the objects that can be accessed using the route syntax:
+ * <ul>
+ * <li><code>args</code>: the arguments of the command.
+ * <ul>
+ * <li><code>type</code>: the type of the argument.
+ * <p>
+ * Note that this only works if the current target is an {@link Argument}.
+ * </p>
+ * </li>
+ * </ul>
+ * </li>
+ * <li><code>groups</code>: the groups of the command.</li>
+ * <li>
+ * <code>cmds</code>: the subcommands of the command.
+ * <p>
+ * Note that after selecting a command, all the selectors above can be used again to select inner objects of the command.
+ * </p>
+ * </li>
+ * </ul>
+ *
+ * <h2>Examples</h2>
+ * <ol>
+ * <li>
+ * Select the type of the argument <code>myArg1</code> of the current command:
+ * <code>"args.myArg1.type"</code>
+ * </li>
+ * <li>
+ * Select the Sub-Command <code>myCmd</code> of the current command:
+ * <code>"cmds.myCmd"</code>
+ * </li>
+ * <li>
+ * Select the type of the argument <code>myArg1</code> of the Sub-Command <code>myCmd</code> of the current command:
+ * <code>"cmds.myCmd.args.myArg1.type"</code>
+ * </li>
+ * <li>
+ * Select the {@link ArgumentType} of the {@link Argument} that is requesting to parse this description:
+ * <code>"!.type"</code>
+ * </li>
+ * </ol>
  * */
 public class RouteParser {
 	/** The current object being handled in the route */
@@ -56,6 +96,7 @@ public class RouteParser {
 	 * @param user the user that is requesting to parse the route
 	 * @param route the route to parse
 	 * @return the object the route points to
+	 * @see RouteParser
 	 */
 	public static NamedWithDescription parse(@NotNull NamedWithDescription user, @Nullable String route) {
 		return new RouteParser(user, route).parse();

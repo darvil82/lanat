@@ -20,14 +20,13 @@ public class LinkTag extends Tag {
 		final var obj = RouteParser.parse(user, value);
 
 		// replace with switch expression when it's out of preview
-		if (obj instanceof Command cmd) {
+		if (obj instanceof Command cmd)
 			return CommandRepr.getRepresentation(cmd);
-		} else if (obj instanceof Argument<?, ?> arg) {
+		else if (obj instanceof Argument<?, ?> arg)
 			return ArgumentRepr.getRepresentation(arg);
-		} else if (obj instanceof ArgumentGroup group) {
+		else if (obj instanceof ArgumentGroup group)
 			return ArgumentGroupRepr.getRepresentation(group);
-		} else {
-			throw new InvalidRouteException(user, value);
-		}
+
+		throw new InvalidRouteException(user, value);
 	}
 }

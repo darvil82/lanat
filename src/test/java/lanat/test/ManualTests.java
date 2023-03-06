@@ -15,6 +15,7 @@ public final class ManualTests {
 	public void main() {
 //		HelpFormatter.lineWrapMax = 110;
 //		HelpFormatter.debugLayout = true;
+//		TextFormatter.debug = true;
 
 		enum TestEnum {
 			ONE, TWO, THREE

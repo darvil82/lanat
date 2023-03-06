@@ -22,7 +22,7 @@ public class LinkTag extends Tag {
 		// replace with switch expression when it's out of preview
 		if (obj instanceof Command cmd) {
 			return CommandRepr.getRepresentation(cmd);
-		} else if (obj instanceof Argument<?,?> arg) {
+		} else if (obj instanceof Argument<?, ?> arg) {
 			return ArgumentRepr.getRepresentation(arg);
 		} else if (obj instanceof ArgumentGroup group) {
 			return ArgumentGroupRepr.getRepresentation(group);

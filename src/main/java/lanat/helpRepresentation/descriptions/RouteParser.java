@@ -12,7 +12,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
 
-/** Parser for simple route syntax used in description tags (e.g. <code>args.myArg1.type</code>). */
+/**
+ * Parser for simple route syntax used in description tags (e.g. <code>args.myArg1.type</code>).
+ * <p>
+ * The route syntax is very simple. It is a dot-separated list of names indicating the path to the object to be returned.
+ * By default, the route initial target is the command the user belongs to. If the route starts with <code>!</code>, the
+ * user itself becomes the initial target. If the route is empty or null, the command the user belongs to is returned.
+ * </p>
+ * */
 public class RouteParser {
 	/** The current object being handled in the route */
 	private NamedWithDescription currentTarget;

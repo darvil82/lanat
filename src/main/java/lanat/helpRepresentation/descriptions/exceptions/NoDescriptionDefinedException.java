@@ -6,6 +6,7 @@ import lanat.utils.UtlReflection;
 import lanat.utils.UtlString;
 import org.jetbrains.annotations.NotNull;
 
+/** Thrown when a description was not defined for an object. */
 public class NoDescriptionDefinedException extends LanatException {
 	public NoDescriptionDefinedException(@NotNull NamedWithDescription user) {
 		super(

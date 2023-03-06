@@ -4,6 +4,10 @@ import lanat.NamedWithDescription;
 import lanat.utils.UtlReflection;
 import lanat.utils.UtlString;
 
+/**
+ * Thrown when an object is added to a container that
+ * already contains an object with the same name.
+ * */
 class ObjectAlreadyExistsException extends LanatException {
 	public ObjectAlreadyExistsException(NamedWithDescription obj, NamedWithDescription container) {
 		super(

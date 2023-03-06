@@ -7,6 +7,7 @@ import lanat.utils.UtlString;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/** Thrown when a parsed route is invalid. */
 public class InvalidRouteException extends LanatException {
 	public InvalidRouteException(@NotNull NamedWithDescription user, @Nullable String value) {
 		this(user, value, null);

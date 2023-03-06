@@ -129,17 +129,16 @@ public class RouteParser {
 		for (this.index = 0; this.index < this.route.length; this.index++) {
 			final String token = this.route[this.index];
 
-			if (token.equals("args") && this.currentTarget instanceof ArgumentAdder argsContainer) {
+			if (token.equals("args") && this.currentTarget instanceof ArgumentAdder argsContainer)
 				this.setCurrentTarget(argsContainer.getArguments(), MultipleNamesAndDescription::hasName);
-			} else if (token.equals("groups") && this.currentTarget instanceof ArgumentGroupAdder groupsContainer) {
+			else if (token.equals("groups") && this.currentTarget instanceof ArgumentGroupAdder groupsContainer)
 				this.setCurrentTarget(groupsContainer.getSubGroups(), (g, name) -> g.getName().equals(name));
-			} else if (token.equals("cmds") && this.currentTarget instanceof Command cmdsContainer) {
+			else if (token.equals("cmds") && this.currentTarget instanceof Command cmdsContainer)
 				this.setCurrentTarget(cmdsContainer.getSubCommands(), MultipleNamesAndDescription::hasName);
-			} else if (token.equals("type") && this.currentTarget instanceof Argument<?, ?> arg) {
+			else if (token.equals("type") && this.currentTarget instanceof Argument<?, ?> arg)
 				this.currentTarget = arg.argType;
-			} else {
+			else
 				throw new InvalidRouteException(this.currentTarget, token);
-			}
 		}
 
 		return this.currentTarget;

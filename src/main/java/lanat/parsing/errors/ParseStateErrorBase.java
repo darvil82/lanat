@@ -97,8 +97,8 @@ abstract class ParseStateErrorBase<T extends Enum<T> & ErrorLevelProvider> imple
 
 	private boolean isHandlerMethod(@NotNull MMethod<?> method, @NotNull String handlerName) {
 		return method.getAnnotationOfType(Handler.class)
-				.map(handler -> handler.value().equals(handlerName))
-				.orElse(false);
+			.map(handler -> handler.value().equals(handlerName))
+			.orElse(false);
 	}
 
 	private boolean isHandlerMethod(@NotNull MMethod<?> method) {

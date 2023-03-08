@@ -2,6 +2,8 @@ package lanat.parsing.errors;
 
 import fade.mirror.MClass;
 import fade.mirror.MMethod;
+import fade.mirror.exception.MirrorException;
+import fade.mirror.filter.Filter;
 import lanat.ErrorFormatter;
 import lanat.ErrorLevel;
 import lanat.parsing.Token;
@@ -13,6 +15,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static fade.mirror.Mirror.mirror;
 
@@ -62,10 +65,10 @@ import static fade.mirror.Mirror.mirror;
  */
 abstract class ParseStateErrorBase<T extends Enum<T> & ErrorLevelProvider> implements ErrorLevelProvider {
 	public final @NotNull T errorType;
+	private final List<MMethod<?>> methods;
 	public int tokenIndex;
 	private ErrorHandler errorHandler;
 	private ErrorFormatter formatter;
-	private final List<MMethod<?>> methods;
 
 	public ParseStateErrorBase(@NotNull T errorType, int tokenIndex) {
 		this.errorType = errorType;
@@ -83,23 +86,13 @@ abstract class ParseStateErrorBase<T extends Enum<T> & ErrorLevelProvider> imple
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private @NotNull List<@NotNull MMethod<?>> getAnnotatedMethods() {
-		/* todo: replace with this in the next mirror update
-		return mirror(this.getClass()).getSuperClassUntil(clazz -> clazz.getMethodCount() > 0)
-			.getMethods().stream()
-			.filter(method -> method.isAnnotatedWith(Handler.class))
-			.toList();
-		*/
-
-		List<MMethod<?>> methods;
-		MClass<?> currentClass = mirror(this.getClass());
-
-		// if there are no methods defined, get super class
-		// this is done for cases like usage of anonymous classes
-		while ((methods = currentClass.getMethods().toList()).size() == 0)
-			currentClass = mirror(currentClass.getRawClass().getSuperclass());
-
-		return methods.stream().filter(method -> method.isAnnotatedWith(Handler.class)).toList();
+		return mirror(this.getClass())
+			.getSuperclassUntilIncludingSelf(MClass::hasMethods)
+			.<List<MMethod<?>>>map(objectMClass -> objectMClass.getMethods(Filter.forMethods().withAnnotations(Handler.class))
+			.collect(Collectors.toList()))
+			.orElseGet(List::of);
 	}
 
 	private boolean isHandlerMethod(@NotNull MMethod<?> method, @NotNull String handlerName) {
@@ -125,7 +118,7 @@ abstract class ParseStateErrorBase<T extends Enum<T> & ErrorLevelProvider> imple
 					.requireAccessible()
 					.invoke();
 
-			} catch (Exception e) {
+			} catch (MirrorException e) {
 				throw new RuntimeException(e);
 			}
 			return this.formatter.toString();

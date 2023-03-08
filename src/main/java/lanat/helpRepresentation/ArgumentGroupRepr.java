@@ -10,9 +10,21 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+/**
+ * Contains methods for generating the help representations of {@link ArgumentGroup}s.
+ */
 public final class ArgumentGroupRepr {
 	private ArgumentGroupRepr() {}
 
+	/**
+	 * Returns the name and description of the given group like shown below:
+	 * <pre>
+	 * &lt;name&gt;:
+	 *   &lt;description&gt;
+	 * </pre>
+	 * @param group the group
+	 * @return the name and description of the group
+	 */
 	public static @Nullable String getDescription(final @NotNull ArgumentGroup group) {
 		final var description = DescriptionFormatter.parse(group);
 		if (description == null)
@@ -25,6 +37,19 @@ public final class ArgumentGroupRepr {
 		return '\n' + name.toString() + '\n' + HelpFormatter.indent(description, group);
 	}
 
+	/**
+	 * Returns the descriptions of the arguments and subgroups of the given group like shown below:
+	 * <pre>
+	 * &lt;name&gt;:
+	 *   &lt;description&gt;
+	 *
+	 *   &lt;argument descriptions&gt;
+	 *
+	 *   &lt;subgroup descriptions&gt;
+	 * </pre>
+	 * @param group the group
+	 * @return the descriptions of the arguments and subgroups of the group
+	 */
 	public static @NotNull String getDescriptions(final @NotNull ArgumentGroup group) {
 		final var arguments = Argument.sortByPriority(group.getArguments());
 		final var buff = new StringBuilder();
@@ -52,7 +77,11 @@ public final class ArgumentGroupRepr {
 
 
 	/**
-	 * Appends the representation of this group tree to the given string builder.
+	 * Returns the representation of the given group like shown below:
+	 * <pre>
+	 * &lt;name&gt; &lt;arguments&gt;
+	 * </pre>
+	 * @param group the group
 	 */
 	public static String getRepresentation(final @NotNull ArgumentGroup group) {
 		final var sb = new StringBuilder();

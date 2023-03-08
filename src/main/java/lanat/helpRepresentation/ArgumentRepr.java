@@ -10,9 +10,24 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Contains methods for generating the help representations of {@link Argument}s.
+ */
 public final class ArgumentRepr {
 	private ArgumentRepr() {}
 
+	/**
+	 * Returns the representation of the given argument like shown below:
+	 * <pre>
+	 * &lt;prefix&gt;&lt;names&gt; &lt;type_representation&gt;
+	 * </pre>
+	 * or
+	 * <pre>
+	 * &lt;type_representation&gt; (&lt;prefix&gt;&lt;names&gt;)
+	 * </pre>
+	 * @param arg the argument
+	 * @return the representation of the argument
+	 */
 	public static @NotNull String getRepresentation(final @NotNull Argument<?, ?> arg) {
 		final var repr = arg.argType.getRepresentation();
 

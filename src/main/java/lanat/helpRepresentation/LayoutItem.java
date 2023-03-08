@@ -99,7 +99,7 @@ public class LayoutItem {
 	 * <p>
 	 * It is shown as:
 	 * <pre>
-	 * title:
+	 * &lt;title&lt;:
 	 *    &lt;content&gt;
 	 * </pre>
 	 * @param title the title of the layout item

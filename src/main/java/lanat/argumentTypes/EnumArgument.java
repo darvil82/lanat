@@ -5,11 +5,14 @@ import lanat.utils.displayFormatter.Color;
 import lanat.utils.displayFormatter.FormatOption;
 import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Arrays;
 
 public class EnumArgument<T extends Enum<T>> extends ArgumentType<T> {
 	private final @NotNull T @NotNull [] values;
 
-	public EnumArgument(T defaultValue) {
+	public EnumArgument(@NotNull T defaultValue) {
 		super(defaultValue);
 		this.values = defaultValue.getDeclaringClass().getEnumConstants();
 	}
@@ -44,5 +47,12 @@ public class EnumArgument<T extends Enum<T>> extends ArgumentType<T> {
 				fmt.concat(" | ");
 		}
 		return fmt.concat(")");
+	}
+
+	@Override
+	public @Nullable String getDescription() {
+		return "Specify one of the following values (case is ignored): "
+			+ String.join(", ", Arrays.stream(this.values).map(Enum::name).toList())
+			+ ". Default is " + this.getInitialValue().name() + ".";
 	}
 }

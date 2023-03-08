@@ -83,4 +83,9 @@ public class TryParseArgument<T> extends ArgumentType<T> {
 			throw new ArgumentTypeException("Unable to cast value '" + args[0] + "' to type " + this.type.getSimpleName() + ".", e);
 		}
 	}
+
+	@Override
+	public @Nullable String getDescription() {
+		return "A value of type " + this.type.getSimpleName() + ".";
+	}
 }

@@ -2,6 +2,7 @@ package lanat.argumentTypes;
 
 import lanat.ArgumentType;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 
@@ -14,5 +15,10 @@ public class FileArgument extends ArgumentType<File> {
 			this.addError("File not found: '" + args[0] + "'.");
 			return null;
 		}
+	}
+
+	@Override
+	public @Nullable String getDescription() {
+		return "A file path.";
 	}
 }

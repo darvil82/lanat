@@ -27,4 +27,9 @@ public class FromParseableArgument<T extends Parseable<TInner>, TInner> extends 
 	public @Nullable TextFormatter getRepresentation() {
 		return this.parseable.getRepresentation();
 	}
+
+	@Override
+	public @Nullable String getDescription() {
+		return this.parseable.getDescription();
+	}
 }

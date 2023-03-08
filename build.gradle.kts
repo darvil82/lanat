@@ -58,9 +58,6 @@ publishing {
 
 tasks.named<Test>("test") {
 	useJUnitPlatform()
-	filter {
-		includeTestsMatching("Test*")
-	}
 }
 
 tasks.withType<JavaCompile>().configureEach {

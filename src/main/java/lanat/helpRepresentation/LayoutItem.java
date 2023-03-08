@@ -55,6 +55,10 @@ public class LayoutItem {
 		return this;
 	}
 
+	public @NotNull Function<@NotNull Command, @Nullable String> getLayoutGenerator() {
+		return this.layoutGenerator;
+	}
+
 	public @Nullable String generate(HelpFormatter helpFormatter) {
 		final var content = this.layoutGenerator.apply(helpFormatter.parentCmd);
 		return content == null ? null : (

@@ -13,7 +13,7 @@ import java.util.Objects;
 public final class ArgumentRepr {
 	private ArgumentRepr() {}
 
-	public static @NotNull String getRepresentation(@NotNull Argument<?, ?> arg) {
+	public static @NotNull String getRepresentation(final @NotNull Argument<?, ?> arg) {
 		final var repr = arg.argType.getRepresentation();
 
 		final var outText = new TextFormatter();
@@ -38,7 +38,7 @@ public final class ArgumentRepr {
 		return outText.toString();
 	}
 
-	public static @Nullable String getDescription(@NotNull Argument<?, ?> arg) {
+	public static @Nullable String getDescription(final @NotNull Argument<?, ?> arg) {
 		final String desc = DescriptionFormatter.parse(arg);
 
 		if (desc == null)
@@ -47,7 +47,7 @@ public final class ArgumentRepr {
 		return ArgumentRepr.getRepresentation(arg) + ":\n" + HelpFormatter.indent(desc, arg);
 	}
 
-	static String getDescriptions(@NotNull List<@NotNull Argument<?, ?>> arguments) {
+	static String getDescriptions(final @NotNull List<@NotNull Argument<?, ?>> arguments) {
 		final var argDescriptions = arguments.stream().map(ArgumentRepr::getDescription).filter(Objects::nonNull).toList();
 		if (argDescriptions.isEmpty())
 			return "";

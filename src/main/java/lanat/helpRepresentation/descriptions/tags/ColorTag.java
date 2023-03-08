@@ -6,6 +6,7 @@ import lanat.helpRepresentation.descriptions.exceptions.MalformedTagException;
 import lanat.utils.UtlString;
 import lanat.utils.displayFormatter.Color;
 import lanat.utils.displayFormatter.FormatOption;
+import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,6 +47,7 @@ import org.jetbrains.annotations.Nullable;
 public class ColorTag extends Tag {
 	@Override
 	protected @NotNull String parse(@NotNull NamedWithDescription user, @Nullable String value) {
+		if (!TextFormatter.enableSequences) return "";
 		if (value == null) return FormatOption.RESET_ALL.toString();
 
 		if (!value.contains(":")) return getColor(value).toString();

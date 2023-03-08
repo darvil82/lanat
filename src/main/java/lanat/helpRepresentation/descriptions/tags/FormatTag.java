@@ -5,6 +5,7 @@ import lanat.helpRepresentation.descriptions.Tag;
 import lanat.helpRepresentation.descriptions.exceptions.MalformedTagException;
 import lanat.utils.UtlString;
 import lanat.utils.displayFormatter.FormatOption;
+import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,6 +39,7 @@ import org.jetbrains.annotations.Nullable;
 public class FormatTag extends Tag {
 	@Override
 	protected @NotNull String parse(@NotNull NamedWithDescription user, @Nullable String value) {
+		if (!TextFormatter.enableSequences) return "";
 		if (value == null) return FormatOption.RESET_ALL.toString();
 
 		final var buff = new StringBuilder();

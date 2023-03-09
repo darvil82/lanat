@@ -25,7 +25,7 @@ public final class ArgumentGroupRepr {
 	 * @param group the group
 	 * @return the name and description of the group
 	 */
-	public static @Nullable String getDescription(final @NotNull ArgumentGroup group) {
+	public static @Nullable String getDescription(@NotNull ArgumentGroup group) {
 		final var description = DescriptionFormatter.parse(group);
 		if (description == null)
 			return null;
@@ -50,7 +50,7 @@ public final class ArgumentGroupRepr {
 	 * @param group the group
 	 * @return the descriptions of the arguments and subgroups of the group
 	 */
-	public static @NotNull String getDescriptions(final @NotNull ArgumentGroup group) {
+	public static @NotNull String getDescriptions(@NotNull ArgumentGroup group) {
 		final var arguments = Argument.sortByPriority(group.getArguments());
 		final var buff = new StringBuilder();
 		final var name = new TextFormatter(group.name + ':').addFormat(FormatOption.BOLD);
@@ -83,7 +83,7 @@ public final class ArgumentGroupRepr {
 	 * </pre>
 	 * @param group the group
 	 */
-	public static String getRepresentation(final @NotNull ArgumentGroup group) {
+	public static String getRepresentation(@NotNull ArgumentGroup group) {
 		final var sb = new StringBuilder();
 
 		// its empty, nothing to append

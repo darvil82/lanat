@@ -10,24 +10,24 @@ import org.jetbrains.annotations.Nullable;
 public final class CommandRepr {
 	private CommandRepr() {}
 
-	public static @NotNull String getSubCommandsRepresentation(final @NotNull Command cmd) {
+	public static @NotNull String getSubCommandsRepresentation(@NotNull Command cmd) {
 		return '{'
 			+ String.join(" | ", cmd.getSubCommands().stream().map(CommandRepr::getRepresentation).toList())
 			+ '}';
 	}
 
-	public static @NotNull String getRepresentation(final @NotNull Command cmd) {
+	public static @NotNull String getRepresentation(@NotNull Command cmd) {
 		return String.join(
 			"/",
 			cmd.getNames().stream().map(n -> new TextFormatter(n).addFormat(FormatOption.BOLD).toString()).toList()
 		);
 	}
 
-	public static @Nullable String getDescription(final @NotNull Command cmd) {
+	public static @Nullable String getDescription(@NotNull Command cmd) {
 		return DescriptionFormatter.parse(cmd);
 	}
 
-	public static @Nullable String getSubCommandsDescriptions(final @NotNull Command cmd) {
+	public static @Nullable String getSubCommandsDescriptions(@NotNull Command cmd) {
 		final var subCommands = cmd.getSubCommands();
 		if (subCommands.isEmpty()) return null;
 		final var buff = new StringBuilder();

@@ -631,6 +631,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * Sorts the given list of arguments by the synopsis view priority order.
 	 * @param args the arguments to sort
 	 * @return the sorted list
+	 * @see #compareByPriority(Argument, Argument)
 	 */
 	public static List<Argument<?, ?>> sortByPriority(@NotNull List<@NotNull Argument<?, ?>> args) {
 		return new ArrayList<>(args) {{

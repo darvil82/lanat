@@ -5,3 +5,4 @@ gradle.properties
 
 # ides
 .idea
+.run

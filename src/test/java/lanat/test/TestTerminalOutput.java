@@ -1,6 +1,5 @@
 package lanat.test;
 
-import lanat.utils.UtlString;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -12,7 +11,7 @@ public class TestTerminalOutput extends UnitTests {
 		// remove all the decorations to not make the tests a pain to write
 		assertEquals(
 			expected,
-			UtlString.removeSequences(errors.get(0))
+			errors.get(0)
 				// the reason we replace \r here is that windows uses CRLF (I hate windows)
 				.replaceAll(" *[│─└┌\r] ?", "")
 				.strip()

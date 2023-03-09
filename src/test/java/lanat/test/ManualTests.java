@@ -5,7 +5,6 @@ import lanat.ArgumentGroup;
 import lanat.ArgumentType;
 import lanat.Command;
 import lanat.argumentTypes.Parseable;
-import lanat.helpRepresentation.HelpFormatter;
 import lanat.utils.Range;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -14,14 +13,18 @@ import org.junit.jupiter.api.Test;
 public final class ManualTests {
 	@Test
 	public void main() {
-		HelpFormatter.lineWrapMax = 110;
-		HelpFormatter.debugLayout = true;
+//		HelpFormatter.lineWrapMax = 110;
+//		HelpFormatter.debugLayout = true;
+//		TextFormatter.debug = true;
 
 		enum TestEnum {
 			ONE, TWO, THREE
 		}
 
-		new TestingParser("Testing", "description for main parser") {{
+		var parser = new TestingParser("Testing", "<color=yellow><format=bold,u,italic>"
+			+ "hello<color=white><format=!u>, the argument <link=args.group-arg> is formatted! "
+			+ "This is its type description: <desc=args.group-arg.type>"
+		) {{
 			this.addArgument(Argument.create("testing", ArgumentType.FROM_PARSEABLE(new TestClass()))
 				.description("some description")
 				.onOk(value -> System.out.println("ok: " + value))
@@ -35,6 +38,7 @@ public final class ManualTests {
 				);
 				this.addArgument(Argument.create("group-arg2", ArgumentType.ENUM(TestEnum.ONE))
 					.onOk(value -> System.out.println("2: " + value))
+					.description("<desc=!.type>")
 				);
 			}});
 
@@ -51,7 +55,9 @@ public final class ManualTests {
 					.onOk(value -> System.out.println("ok: " + value))
 				);
 			}});
-		}}.parseArgsExpectErrorPrint("--help");
+		}};
+
+		parser.parseArgs("--help");
 	}
 }
 

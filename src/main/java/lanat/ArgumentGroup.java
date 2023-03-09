@@ -19,7 +19,7 @@ public class ArgumentGroup
 		ParentElementGetter<ArgumentGroup>
 {
 	public final @NotNull String name;
-	public final @Nullable String description;
+	public @Nullable String description;
 	private Command parentCommand;
 	private @Nullable ArgumentGroup parentGroup;
 
@@ -116,7 +116,7 @@ public class ArgumentGroup
 	}
 
 	@Override
-	public Command getParentCommand() {
+	public @NotNull Command getParentCommand() {
 		return this.parentCommand;
 	}
 
@@ -168,6 +168,10 @@ public class ArgumentGroup
 		return this.name;
 	}
 
+	public void setDescription(@NotNull String description) {
+		this.description = description;
+	}
+	
 	@Override
 	public @Nullable String getDescription() {
 		return this.description;

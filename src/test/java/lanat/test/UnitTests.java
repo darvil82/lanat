@@ -2,7 +2,9 @@ package lanat.test;
 
 import lanat.*;
 import lanat.argumentTypes.TupleArgumentType;
+import lanat.helpRepresentation.HelpFormatter;
 import lanat.utils.Range;
+import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
@@ -71,6 +73,11 @@ class TestingParser extends ArgumentParser {
 
 public class UnitTests {
 	protected TestingParser parser;
+
+	static {
+		HelpFormatter.lineWrapMax = 1000; // just so we don't have to worry about line wrapping
+		TextFormatter.enableSequences = false; // just so we don't have to worry about color codes
+	}
 
 	public void setParser() {
 		this.parser = new TestingParser("Testing") {{

@@ -25,14 +25,14 @@ public final class UtlString {
 	/**
 	 * Wrap a string in two strings at both sides.
 	 */
-	public static @NotNull String surround(@NotNull String str, @NotNull String wrapper) {
+	public static @NotNull String surround(@Nullable String str, @NotNull String wrapper) {
 		return wrapper + str + wrapper;
 	}
 
 	/**
 	 * Wrap a string in double quotes.
 	 */
-	public static @NotNull String surround(@NotNull String str) {
+	public static @NotNull String surround(@Nullable String str) {
 		return surround(str, "\"");
 	}
 
@@ -213,5 +213,14 @@ public final class UtlString {
 	 */
 	public static @NotNull String fromNullable(@Nullable String str) {
 		return str == null ? "" : str;
+	}
+
+	/**
+	 * Returns true if the string given is null or empty.
+	 * @param str the string to check
+	 * @return true if the string is null or empty
+	 */
+	public static boolean isNullOrEmpty(@Nullable String str) {
+		return str == null || str.isEmpty();
 	}
 }

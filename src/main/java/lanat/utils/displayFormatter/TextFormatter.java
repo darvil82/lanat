@@ -111,14 +111,14 @@ public class TextFormatter {
 		final var buffer = new StringBuilder();
 
 		if (this.backgroundColor != null) {
-			buffer.append(FormatOption.RESET_ALL);
-		} else {
-			for (var option : this.formatOptions) {
-				buffer.append(option.toStringReset());
-			}
-			if (this.foregroundColor != null) {
-				buffer.append(this.getResetColor());
-			}
+			return buffer.append(FormatOption.RESET_ALL).toString();
+		}
+
+		for (var option : this.formatOptions) {
+			buffer.append(option.toStringReset());
+		}
+		if (this.foregroundColor != null) {
+			buffer.append(this.getResetColor());
 		}
 
 		return buffer.toString();

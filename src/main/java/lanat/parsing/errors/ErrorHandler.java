@@ -76,7 +76,7 @@ public class ErrorHandler {
 		if (level <= 0) return 0;
 
 		for (int i = 0, appearances = 0; i < this.tokens.size(); i++) {
-			if (this.tokens.get(i).type() == TokenType.SUB_COMMAND) {
+			if (this.tokens.get(i).type() == TokenType.COMMAND) {
 				appearances++;
 			}
 			if (appearances > level) {

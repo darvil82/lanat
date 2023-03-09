@@ -94,14 +94,14 @@ public class ArgumentParser extends Command {
 		);
 	}
 
-	private @NotNull String getForwardValue() {
+	private @Nullable String getForwardValue() {
 		final var tokens = this.getFullTokenList();
 		final var lastToken = tokens.get(tokens.size() - 1);
 
 		if (lastToken.type() == TokenType.FORWARD_VALUE)
 			return lastToken.contents();
 
-		return "";
+		return null;
 	}
 
 	public @Nullable String getLicense() {

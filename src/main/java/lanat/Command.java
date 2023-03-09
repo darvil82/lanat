@@ -234,11 +234,11 @@ public class Command
 
 	/**
 	 * Get all the tokens of all Sub-Commands (the ones that we can get without errors) into one single list. This
-	 * includes the {@link TokenType#SUB_COMMAND} tokens.
+	 * includes the {@link TokenType#COMMAND} tokens.
 	 */
 	public @NotNull ArrayList<@NotNull Token> getFullTokenList() {
 		final ArrayList<Token> list = new ArrayList<>() {{
-			this.add(new Token(TokenType.SUB_COMMAND, Command.this.getName()));
+			this.add(new Token(TokenType.COMMAND, Command.this.getName()));
 			this.addAll(Command.this.getTokenizer().getFinalTokens());
 		}};
 

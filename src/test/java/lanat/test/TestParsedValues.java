@@ -1,14 +1,16 @@
 package lanat.test;
 
-import lanat.ParsedArguments;
+import lanat.ParsedArgumentsRoot;
 import lanat.exceptions.ArgumentNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TestParsedValues extends UnitTests {
-	private ParsedArguments parseArgs(String args) {
+	private ParsedArgumentsRoot parseArgs(String args) {
 		return this.parser.parseArgs(args);
 	}
 
@@ -94,6 +96,21 @@ public class TestParsedValues extends UnitTests {
 				IllegalArgumentException.class,
 				() -> parsedArgs.get("what").defined(value)
 			);
+		}
+	}
+
+	@Test
+	@DisplayName("Test the forward value")
+	public void testForwardValue() {
+		{
+			Optional<String> parsedArgs = this.parseArgs("foo -- hello world").getForwardValue();
+			assertTrue(parsedArgs.isPresent());
+			assertEquals("hello world", parsedArgs.get());
+		}
+
+		{
+			Optional<String> parsedArgs = this.parseArgs("foo").getForwardValue();
+			assertFalse(parsedArgs.isPresent());
 		}
 	}
 }

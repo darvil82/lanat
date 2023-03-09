@@ -199,7 +199,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 		} else if (this.isArgNameList(str)) {
 			type = TokenType.ARGUMENT_NAME_LIST;
 		} else if (this.isSubCommand(str)) {
-			type = TokenType.SUB_COMMAND;
+			type = TokenType.COMMAND;
 		} else {
 			type = TokenType.ARGUMENT_VALUE;
 		}
@@ -217,7 +217,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 		final Token token = this.tokenizeWord(this.currentValue.toString());
 		Command subCmd;
 		// if this is a Sub-Command, continue tokenizing next elements
-		if (token.type() == TokenType.SUB_COMMAND && (subCmd = this.getSubCommandByName(token.contents())) != null) {
+		if (token.type() == TokenType.COMMAND && (subCmd = this.getSubCommandByName(token.contents())) != null) {
 			// forward the rest of stuff to the Sub-Command
 			subCmd.getTokenizer().tokenize(this.inputString.substring(this.currentCharIndex));
 			this.hasFinished = true;

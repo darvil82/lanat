@@ -57,7 +57,7 @@ public final class ManualTests {
 			}});
 		}};
 
-		parser.parseArgs("--help");
+		parser.parseArgs("");
 	}
 }
 

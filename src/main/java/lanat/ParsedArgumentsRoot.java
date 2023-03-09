@@ -5,15 +5,16 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 public class ParsedArgumentsRoot extends ParsedArguments {
-	private final @NotNull String forwardValue;
+	private final @Nullable String forwardValue;
 
 	ParsedArgumentsRoot(
 		@NotNull Command cmd,
 		@NotNull HashMap<@NotNull Argument<?, ?>, @Nullable Object> parsedArgs,
 		@NotNull List<@NotNull ParsedArguments> subArgs,
-		@NotNull String forwardValue
+		@Nullable String forwardValue
 	)
 	{
 		super(cmd, parsedArgs, subArgs);
@@ -23,7 +24,7 @@ public class ParsedArgumentsRoot extends ParsedArguments {
 	/**
 	 * Returns the forward value. An empty {@link String} is returned if no forward value was specified.
 	 */
-	public @NotNull String getForwardValue() {
-		return this.forwardValue;
+	public @NotNull Optional<String> getForwardValue() {
+		return Optional.ofNullable(this.forwardValue);
 	}
 }

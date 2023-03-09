@@ -2,7 +2,6 @@ package lanat.test;
 
 import lanat.Argument;
 import lanat.ArgumentType;
-import lanat.helpRepresentation.CommandRepr;
 import lanat.helpRepresentation.HelpFormatter;
 import lanat.helpRepresentation.LayoutItem;
 import lanat.helpRepresentation.descriptions.DescriptionFormatter;

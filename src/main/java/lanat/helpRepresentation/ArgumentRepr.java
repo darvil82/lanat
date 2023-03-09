@@ -18,13 +18,12 @@ public final class ArgumentRepr {
 
 	/**
 	 * Returns the representation of the given argument like shown below:
-	 * <pre>
-	 * &lt;prefix&gt;&lt;names&gt; &lt;type_representation&gt;
-	 * </pre>
+	 * <p>
+	 * {@code <prefix><names> <type_representation>}
+	 * <p>
 	 * or
-	 * <pre>
-	 * &lt;type_representation&gt; (&lt;prefix&gt;&lt;names&gt;)
-	 * </pre>
+	 * <p>
+	 * {@code <type_representation> (<names>)}: if the argument is positional
 	 * @param arg the argument
 	 * @return the representation of the argument
 	 */
@@ -53,6 +52,15 @@ public final class ArgumentRepr {
 		return outText.toString();
 	}
 
+	/**
+	 * Returns the {@link #getRepresentation(Argument)} and description of the given argument like shown below:
+	 * <pre>
+	 * &lt;representation&gt;:
+	 *   &lt;description&gt;
+	 * </pre>
+	 * @param arg the argument
+	 * @return the representation and description of the argument
+	 */
 	public static @Nullable String getDescription(@NotNull Argument<?, ?> arg) {
 		final String desc = DescriptionFormatter.parse(arg);
 
@@ -62,6 +70,18 @@ public final class ArgumentRepr {
 		return ArgumentRepr.getRepresentation(arg) + ":\n" + HelpFormatter.indent(desc, arg);
 	}
 
+	/**
+	 * Returns the descriptions of the given arguments like shown below:
+	 * <pre>
+	 * &lt;description&gt;
+	 *
+	 * &lt;description&gt;
+	 *
+	 * ...
+	 * </pre>
+	 * @param arguments the arguments
+	 * @return the descriptions of the arguments
+	 */
 	static String getDescriptions(@NotNull List<@NotNull Argument<?, ?>> arguments) {
 		final var argDescriptions = arguments.stream().map(ArgumentRepr::getDescription).filter(Objects::nonNull).toList();
 		if (argDescriptions.isEmpty())

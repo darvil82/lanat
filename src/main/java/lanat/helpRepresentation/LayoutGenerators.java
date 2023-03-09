@@ -3,6 +3,7 @@ package lanat.helpRepresentation;
 import lanat.Argument;
 import lanat.ArgumentParser;
 import lanat.Command;
+import lanat.helpRepresentation.descriptions.DescriptionFormatter;
 import lanat.utils.UtlString;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -23,10 +24,10 @@ public final class LayoutGenerators {
 	 * @return the generated title and description.
 	 */
 	public static @NotNull String title(@NotNull Command cmd) {
-		return cmd.getName()
+		return CommandRepr.getRepresentation(cmd)
 			+ (cmd.getDescription() == null
 				? ""
-				: ":\n\n" + HelpFormatter.indent(Objects.requireNonNull(CommandRepr.getDescription(cmd)), cmd));
+				: ":\n\n" + HelpFormatter.indent(Objects.requireNonNull(DescriptionFormatter.parse(cmd)), cmd));
 	}
 
 	/**

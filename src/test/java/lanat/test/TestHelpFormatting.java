@@ -32,7 +32,7 @@ public class TestHelpFormatting extends UnitTests {
 			@Override
 			protected void initLayout() {
 				this.setLayout(
-					LayoutItem.of(CommandRepr::getDescription)
+					LayoutItem.of(DescriptionFormatter::parse)
 				);
 			}
 		};

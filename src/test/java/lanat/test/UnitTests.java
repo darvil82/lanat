@@ -52,19 +52,12 @@ class TestingParser extends ArgumentParser {
 		super(programName);
 	}
 
-	public List<String> parseArgsExpectError(String args) {
-		return this.parseArgsNoExit(args).second();
+	public List<String> parseGetErrors(String args) {
+		return this.parse(args).getErrors();
 	}
 
-	public ParsedArgumentsRoot parseArgsExpectErrorPrint(String args) {
-		final var parsed = this.parseArgsNoExit(args);
-		System.out.println(String.join("\n", parsed.second()));
-		return parsed.first();
-	}
-
-	@Override
-	public @NotNull ParsedArgumentsRoot parseArgs(@NotNull String args) {
-		var res = this.parseArgsNoExit(args).first();
+	public @NotNull ParsedArgumentsRoot parseGetValues(@NotNull String args) {
+		var res = this.parse(args).getParsedArguments();
 		assertNotNull(res, "The result of the parsing was null (Arguments have failed)");
 		return res;
 	}
@@ -110,7 +103,7 @@ public class UnitTests {
 	 * </pre>
 	 */
 	protected <T> T parseArg(@NotNull String arg, @NotNull String values) {
-		return this.parser.parseArgs("--%s %s".formatted(arg.trim(), values)).<T>get(arg).get();
+		return this.parser.parseGetValues("--%s %s".formatted(arg.trim(), values)).<T>get(arg).get();
 	}
 
 	/**
@@ -120,6 +113,6 @@ public class UnitTests {
 	 * </pre>
 	 */
 	protected void assertNotPresent(@NotNull String arg) {
-		assertNull(this.parser.parseArgs("").get(arg).get());
+		assertNull(this.parser.parseGetValues("").get(arg).get());
 	}
 }

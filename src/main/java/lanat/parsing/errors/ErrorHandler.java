@@ -25,7 +25,7 @@ public class ErrorHandler {
 	/**
 	 * Handles all errors and returns a list of them.
 	 */
-	public @NotNull List<@NotNull String> handleErrorsGetMessages() {
+	public @NotNull List<@NotNull String> handleErrors() {
 		final List<Command> commands = this.rootCmd.getTokenizer().getTokenizedSubCommands();
 		final ArrayList<String> errors = new ArrayList<>();
 
@@ -85,10 +85,6 @@ public class ErrorHandler {
 		}
 
 		return -1;
-	}
-
-	public int getErrorCode() {
-		return this.rootCmd.getErrorCode();
 	}
 
 	public @NotNull Command getRootCmd() {

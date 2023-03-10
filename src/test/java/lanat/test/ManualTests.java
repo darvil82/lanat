@@ -57,7 +57,10 @@ public final class ManualTests {
 			}});
 		}};
 
-		parser.parseArgs("");
+		var parsed = parser.parse("--group-arg")
+			.printErrors()
+			.exitIfErrors()
+			.getParsedArguments();
 	}
 }
 

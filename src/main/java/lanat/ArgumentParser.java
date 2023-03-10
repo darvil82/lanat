@@ -3,7 +3,6 @@ package lanat;
 
 import lanat.parsing.TokenType;
 import lanat.parsing.errors.ErrorHandler;
-import lanat.utils.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,11 +25,12 @@ public class ArgumentParser extends Command {
 
 
 	/**
-	 * {@link ArgumentParser#parseArgs(String)}
+	 * {@link ArgumentParser#parse(String)}
 	 */
-	public @NotNull ParsedArgumentsRoot parseArgs(@NotNull String @NotNull [] args) {
+	public @NotNull ArgumentParser.AfterParseOptions parse(@NotNull String @NotNull [] args) {
+
 		// if we receive the classic args array, just join it back
-		return this.parseArgs(String.join(" ", args));
+		return this.parse(String.join(" ", args));
 	}
 
 	/**
@@ -38,33 +38,7 @@ public class ArgumentParser extends Command {
 	 *
 	 * @param args The command line arguments to parse.
 	 */
-	public @NotNull ParsedArgumentsRoot parseArgs(@NotNull String args) {
-		final var res = this.parseArgsNoExit(args);
-		final var errorCode = this.getErrorCode();
-
-		for (var msg : res.second()) {
-			System.err.println(msg);
-		}
-
-		if (errorCode != 0) {
-			System.exit(errorCode);
-		}
-
-		return res.first();
-	}
-
-	/**
-	 * Parses the arguments from the <code>sun.java.command</code> system property.
-	 */
-	public @NotNull ParsedArguments parseArgs() {
-		var args = System.getProperty("sun.java.command").split(" ");
-		return this.parseArgs(Arrays.copyOfRange(args, 1, args.length));
-	}
-
-
-	protected @NotNull Pair<@NotNull ParsedArgumentsRoot, @NotNull List<@NotNull String>>
-	parseArgsNoExit(@NotNull String args)
-	{
+	public @NotNull ArgumentParser.AfterParseOptions parse(@NotNull String args) {
 		if (this.isParsed) {
 			// reset all parsing related things to the initial state
 			this.resetState();
@@ -74,14 +48,23 @@ public class ArgumentParser extends Command {
 		this.passPropertiesToChildren();
 		this.tokenize(args); // first. This will tokenize all Sub-Commands recursively
 		var errorHandler = new ErrorHandler(this);
-		this.parse(); // same thing, this parses all the stuff recursively
+		this.parseTokens(); // same thing, this parses all the stuff recursively
 
 		this.invokeCallbacks();
 
 		this.isParsed = true;
 
-		return new Pair<>(this.getParsedArguments(), errorHandler.handleErrorsGetMessages());
+		return new AfterParseOptions(errorHandler);
 	}
+
+	/**
+	 * Parses the arguments from the <code>sun.java.command</code> system property.
+	 */
+	public @NotNull ArgumentParser.AfterParseOptions parse() {
+		final var args = System.getProperty("sun.java.command").split(" ");
+		return this.parse(Arrays.copyOfRange(args, 1, args.length));
+	}
+
 
 	@Override
 	@NotNull
@@ -118,5 +101,42 @@ public class ArgumentParser extends Command {
 
 	public void setVersion(@NotNull String version) {
 		this.version = version;
+	}
+
+
+	public class AfterParseOptions {
+		private final List<@NotNull String> errors;
+		private final int errorCode;
+
+		private AfterParseOptions(ErrorHandler errorHandler) {
+			this.errorCode = ArgumentParser.this.getErrorCode();
+			this.errors = errorHandler.handleErrors();
+		}
+
+		public @NotNull List<@NotNull String> getErrors() {
+			return this.errors;
+		}
+
+		public boolean hasErrors() {
+			return this.errorCode != 0;
+		}
+
+		public AfterParseOptions printErrors() {
+			for (var error : this.errors) {
+				System.err.println(error);
+			}
+			return this;
+		}
+
+		public AfterParseOptions exitIfErrors() {
+			if (this.errorCode != 0)
+				System.exit(this.errorCode);
+
+			return this;
+		}
+
+		public @NotNull ParsedArgumentsRoot getParsedArguments() {
+			return ArgumentParser.this.getParsedArguments();
+		}
 	}
 }

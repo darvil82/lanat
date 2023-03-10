@@ -64,7 +64,7 @@ public class TestErrors extends UnitTests {
 	@DisplayName("Test the argument callbacks (onOk and onErr) (ArgumentCallbacksOption.NO_ERROR_IN_ARGUMENT)")
 	public void testArgumentCallbacks__NoErrorInArg() {
 		this.parser.invokeCallbacksWhen(CallbacksInvocationOption.NO_ERROR_IN_ARGUMENT);
-		this.parser.parseArgs("--bool-arg --int-arg foo --float 55.0 sub --sub-float bar");
+		this.parser.parseGetValues("--bool-arg --int-arg foo --float 55.0 sub --sub-float bar");
 
 		this.assertOk("bool-arg", true);
 		this.assertErr("int-arg");
@@ -76,7 +76,7 @@ public class TestErrors extends UnitTests {
 	@Test
 	@DisplayName("Test the argument callbacks (onOk and onErr) (ArgumentCallbacksOption.(DEFAULT)))")
 	public void testArgumentCallbacks() {
-		this.parser.parseArgs("--bool-arg --float foo sub --sub-float 5.23");
+		this.parser.parseGetValues("--bool-arg --float foo sub --sub-float 5.23");
 
 		this.assertNotPresent("bool-arg");
 		this.assertNotPresent("counter");
@@ -87,7 +87,7 @@ public class TestErrors extends UnitTests {
 	@Test
 	@DisplayName("Test the command callbacks (onOk and onErr)")
 	public void testCommandCallbacks() {
-		this.parser.parseArgs("sub --sub-float bar");
+		this.parser.parseGetValues("sub --sub-float bar");
 		this.assertErr("sub-float");
 		this.assertErr(this.parser.getName());
 	}
@@ -95,7 +95,7 @@ public class TestErrors extends UnitTests {
 	@Test
 	@DisplayName("The error code must be the result of 5 | 2 = 7")
 	public void testCommandsErrorCode() {
-		this.parser.parseArgs("sub --sub-float bar");
+		this.parser.parseGetValues("sub --sub-float bar");
 		assertEquals(this.parser.getErrorCode(), 7);
 	}
 }

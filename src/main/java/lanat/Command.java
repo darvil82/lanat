@@ -395,7 +395,7 @@ public class Command
 		this.tokenizer.tokenize(input);
 	}
 
-	void parse() {
+	void parseTokens() {
 		// first we need to set the tokens of all tokenized subCommands
 		Command cmd = this;
 		do {

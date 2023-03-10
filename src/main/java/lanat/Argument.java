@@ -21,7 +21,7 @@ import java.util.function.Consumer;
  * An Argument specifies a value that the user can introduce to the command. This value will be parsed by the specified
  * {@link ArgumentType} each time the Argument is used. Once finished parsing, the value may be retrieved by using
  * {@link ParsedArguments#get(String)} on the {@link ParsedArguments} object returned by
- * {@link ArgumentParser#parseArgs(String[])}.
+ * {@link ArgumentParser#parse(String[])}.
  *
  * <p>
  * An Argument can be created using the factory methods available, like {@link Argument#create(String...)}.

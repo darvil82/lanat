@@ -33,15 +33,15 @@ public class TestArgumentTypes extends UnitTests {
 
 	@Test
 	public void testBoolean() {
-		assertEquals(Boolean.TRUE, this.parser.parseArgs("--boolean").<Boolean>get("boolean").get());
-		assertEquals(Boolean.FALSE, this.parser.parseArgs("").<Boolean>get("boolean").get());
+		assertEquals(Boolean.TRUE, this.parser.parseGetValues("--boolean").<Boolean>get("boolean").get());
+		assertEquals(Boolean.FALSE, this.parser.parseGetValues("").<Boolean>get("boolean").get());
 	}
 
 	@Test
 	public void testCounter() {
-		assertEquals(0, this.parser.parseArgs("").<Integer>get("counter").get());
-		assertEquals(1, this.parser.parseArgs("-c").<Integer>get("counter").get());
-		assertEquals(4, this.parser.parseArgs("-cccc").<Integer>get("counter").get());
+		assertEquals(0, this.parser.parseGetValues("").<Integer>get("counter").get());
+		assertEquals(1, this.parser.parseGetValues("-c").<Integer>get("counter").get());
+		assertEquals(4, this.parser.parseGetValues("-cccc").<Integer>get("counter").get());
 	}
 
 	@Test
@@ -84,7 +84,7 @@ public class TestArgumentTypes extends UnitTests {
 		assertEquals(TestEnum.ONE, this.parseArg("enum", "ONE"));
 		assertEquals(TestEnum.TWO, this.parseArg("enum", "TWO"));
 		assertEquals(TestEnum.THREE, this.parseArg("enum", "THREE"));
-		assertEquals(TestEnum.TWO, this.parser.parseArgs("").get("enum").get());
+		assertEquals(TestEnum.TWO, this.parser.parseGetValues("").get("enum").get());
 	}
 
 	@Test

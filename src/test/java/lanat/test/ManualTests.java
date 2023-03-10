@@ -59,7 +59,6 @@ public final class ManualTests {
 
 		var parsed = parser.parse("--group-arg")
 			.printErrors()
-			.exitIfErrors()
 			.getParsedArguments();
 	}
 }

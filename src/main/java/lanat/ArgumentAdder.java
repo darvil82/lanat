@@ -12,6 +12,11 @@ public interface ArgumentAdder {
 	 */
 	<T extends ArgumentType<TInner>, TInner> void addArgument(@NotNull Argument<T, TInner> argument);
 
+	default <T extends ArgumentType<TInner>, TInner>
+	void addArgument(@NotNull Argument.ArgumentBuilder<T, TInner> argument) {
+		this.addArgument(argument.build());
+	}
+
 	@NotNull List<@NotNull Argument<?, ?>> getArguments();
 
 	default Argument<?, ?> getArgument(@NotNull String name) {

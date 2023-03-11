@@ -22,9 +22,9 @@ public class TestHelpFormatting extends UnitTests {
 			"description of <link=args.arg1>: (<desc=args.arg1>)"
 		) {{
 			this.addArgument(Argument.create("arg1", "a1")
-				.description("description of arg2: (<desc=args.arg2>)"));
+				.withDescription("description of arg2: (<desc=args.arg2>)"));
 			this.addArgument(Argument.create("arg2", ArgumentType.COUNTER())
-				.description("description of my type: (<desc=!.type>) i am in the command <link>"));
+				.withDescription("description of my type: (<desc=!.type>) i am in the command <link>"));
 		}};
 
 		this.helpFormatter = new HelpFormatter(this.parser) {

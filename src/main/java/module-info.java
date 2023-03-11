@@ -11,6 +11,7 @@ module lanat {
 	exports lanat.parsing;
 	exports lanat.utils;
 	exports lanat.exceptions;
+	exports lanat.commandTemplates;
 
 	opens lanat.parsing.errors to fade.mirror;
 	opens lanat.commandTemplates to fade.mirror;

@@ -5,13 +5,12 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-public interface MultipleNamesAndDescription<T> extends NamedWithDescription {
+public interface MultipleNamesAndDescription extends NamedWithDescription {
 	/**
 	 * Add one or more names to this object.
 	 * @param names The names to add
-	 * @return This object
 	 * */
-	T addNames(@NotNull String... names);
+	void addNames(@NotNull String... names);
 
 	/**
 	 * Returns all the names of this object. Will always return at least one.

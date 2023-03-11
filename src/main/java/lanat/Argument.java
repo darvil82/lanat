@@ -1,5 +1,6 @@
 package lanat;
 
+import fade.mirror.MField;
 import lanat.argumentTypes.BooleanArgument;
 import lanat.exceptions.ArgumentAlreadyExistsException;
 import lanat.parsing.errors.CustomError;
@@ -9,11 +10,17 @@ import lanat.utils.displayFormatter.Color;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
+
+import static fade.mirror.Mirror.mirror;
 
 /**
  * <h2>Argument</h2>
@@ -75,7 +82,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		Argument<Type, TInner>>,
 		Resettable,
 		CommandUser,
-		MultipleNamesAndDescription<Argument<Type, TInner>>
+		MultipleNamesAndDescription
 {
 	/**
 	 * The type of this argument. This is the subParser that will be used to parse the value/s this argument should
@@ -162,35 +169,153 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		}
 	}
 
+	public static class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
+		private @NotNull String @Nullable [] names;
+		private @Nullable String description;
+		private @Nullable Type argType;
+		private boolean obligatory = false,
+			positional = false,
+			allowUnique = false;
+		private @Nullable TInner defaultValue;
+		private @Nullable Consumer<@NotNull Argument<Type, TInner>> onErrorCallback;
+		private @Nullable Consumer<@NotNull TInner> onCorrectCallback;
+		private @Nullable PrefixChar prefixChar = PrefixChar.defaultPrefix;
 
-	/**
-	 * Creates an argument with the specified type and names.
-	 *
-	 * @param argType the type of the argument. This is the subParser that will be used to parse the value/s this
-	 * 	argument should receive.
-	 * @param names the names of the argument. See {@link Argument#addNames(String...)} for more information.
-	 */
-	public Argument(@NotNull Type argType, @NotNull String... names) {
-		this.addNames(names);
-		this.argType = argType;
+		public ArgumentBuilder() {}
+
+		@SuppressWarnings("unchecked")
+		public static @NotNull <Type extends ArgumentType<TInner>, TInner>
+		ArgumentBuilder<Type, TInner> fromField(@NotNull MField<?> field, @NotNull Argument.Define annotation) {
+			final String[] names = annotation.names();
+			final var argTypeCtor = mirror(annotation.type()).getConstructor();
+
+			final var argumentBuilder = new ArgumentBuilder<Type, TInner>()
+				.withNames(names.length == 0 ? new String[] { field.getName() } : names);
+
+			if (argTypeCtor.isPresent()) {
+				final var argType = argTypeCtor.get().invoke();
+				argumentBuilder.withArgType((Type)argType);
+			}
+
+			return argumentBuilder;
+		}
+
+		public ArgumentBuilder<Type, TInner> withDescription(@NotNull String description) {
+			this.description = description;
+			return this;
+		}
+
+		public ArgumentBuilder<Type, TInner> obligatory() {
+			this.obligatory = true;
+			return this;
+		}
+
+		public ArgumentBuilder<Type, TInner> positional() {
+			this.positional = true;
+			return this;
+		}
+
+		public ArgumentBuilder<Type, TInner> allowsUnique() {
+			this.allowUnique = true;
+			return this;
+		}
+
+		public ArgumentBuilder<Type, TInner> withDefaultValue(TInner defaultValue) {
+			this.defaultValue = defaultValue;
+			return this;
+		}
+
+		/**
+		 * Specify a function that will be called with the value introduced by the user.
+		 * <p>
+		 * By default this callback is called only if all commands succeed, but you can change this behavior with
+		 * {@link Command#invokeCallbacksWhen(CallbacksInvocationOption)}
+		 * </p>
+		 * @param callback the function that will be called with the value introduced by the user.
+		 */
+		public ArgumentBuilder<Type, TInner> onOk(Consumer<Argument<Type, TInner>> callback) {
+			this.onErrorCallback = callback;
+			return this;
+		}
+
+		/**
+		 * Specify a function that will be called if an error occurs when parsing this argument.
+		 * <p>
+		 * <strong>Note</strong> that this callback is only called if the error was dispatched by this argument's type. That
+		 * is,
+		 * if the argument, for example, is obligatory, and the user does not specify a value, an error will be thrown, but
+		 * this callback will not be called, as the error was not dispatched by this argument's type.
+		 * </p>
+		 * @param callback the function that will be called if an error occurs when parsing this argument.
+		 */
+		public ArgumentBuilder<Type, TInner> onErr(Consumer<TInner> callback) {
+			this.onCorrectCallback = callback;
+			return this;
+		}
+
+		public ArgumentBuilder<Type, TInner> withPrefixChar(PrefixChar prefixChar) {
+			this.prefixChar = prefixChar;
+			return this;
+		}
+
+		public ArgumentBuilder<Type, TInner> withNames(String... names) {
+			this.names = names;
+			return this;
+		}
+
+		public ArgumentBuilder<Type, TInner> withArgType(Type argType) {
+			this.argType = argType;
+			return this;
+		}
+
+		public Argument<Type, TInner> build() {
+			if (this.names == null || this.names.length == 0)
+				throw new IllegalStateException("The argument must have at least one name.");
+
+			if (this.argType == null)
+				throw new IllegalStateException("The argument must have a type defined.");
+
+			final Argument<Type, TInner> argument = new Argument<>(this.argType, this.names);
+			argument.setDescription(this.description);
+			argument.setObligatory(this.obligatory);
+			argument.setPositional(this.positional);
+			argument.setAllowUnique(this.allowUnique);
+			argument.setDefaultValue(this.defaultValue);
+			argument.setPrefix(this.prefixChar);
+			argument.setOnErrorCallback(this.onErrorCallback);
+			argument.setOnCorrectCallback(this.onCorrectCallback);
+			return argument;
+		}
+
+		boolean hasName(@NotNull String name) {
+			if (this.names == null)
+				return false;
+
+			for (String argName : this.names) {
+				if (argName.equalsIgnoreCase(name))
+					return true;
+			}
+
+			return false;
+		}
 	}
 
-	/**
-	 * Creates an argument with the specified name and type.
-	 * @param name the name of the argument. See {@link Argument#addNames(String...)} for more information.
-	 * @param argType the type of the argument. This is the subParser that will be used to parse the value/s this
-	 * 	argument should receive.
-	 * */
-	public Argument(@NotNull String name, @NotNull Type argType) {
-		this(argType, name);
+	private Argument(@NotNull Type type, @NotNull String... names) {
+		this.argType = type;
+		this.addNames(names);
+	}
+
+	public static <Type extends ArgumentType<TInner>, TInner>
+	ArgumentBuilder<Type, TInner> create() {
+		return new ArgumentBuilder<>();
 	}
 
 	/**
 	 * Creates an argument with a {@link BooleanArgument} type.
 	 * @param names the names of the argument. See {@link Argument#addNames(String...)} for more information.
 	 */
-	public static Argument<BooleanArgument, Boolean> create(@NotNull String... names) {
-		return new Argument<>(ArgumentType.BOOLEAN(), names);
+	public static ArgumentBuilder<BooleanArgument, Boolean> create(@NotNull String... names) {
+		return Argument.<BooleanArgument, Boolean>create().withNames(names).withArgType(new BooleanArgument());
 	}
 
 	/** Creates an argument with the specified name and type.
@@ -199,8 +324,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * 	argument should receive.
 	 * */
 	public static <Type extends ArgumentType<TInner>, TInner>
-	Argument<Type, TInner> create(@NotNull String name, @NotNull Type argType) {
-		return new Argument<>(argType, name);
+	ArgumentBuilder<Type, TInner> create(@NotNull String name, @NotNull Type argType) {
+		return Argument.create(argType, name);
 	}
 
 	/** Creates an argument with the specified type and names.
@@ -209,8 +334,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 *  @param names the names of the argument. See {@link Argument#addNames(String...)} for more information.
 	 * */
 	public static <Type extends ArgumentType<TInner>, TInner>
-	Argument<Type, TInner> create(@NotNull Type argType, @NotNull String... names) {
-		return new Argument<>(argType, names);
+	ArgumentBuilder<Type, TInner> create(@NotNull Type argType, @NotNull String... names) {
+		return Argument.<Type, TInner>create().withNames(names).withArgType(argType);
 	}
 
 	/** Creates an argument with the specified single character name and type.
@@ -218,8 +343,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * @param argType the type of the argument. This is the subParser that will be used to parse the value/s this
 	 * */
 	public static <Type extends ArgumentType<TInner>, TInner>
-	Argument<Type, TInner> create(char name, @NotNull Type argType) {
-		return new Argument<>(argType, String.valueOf(name));
+	ArgumentBuilder<Type, TInner> create(char name, @NotNull Type argType) {
+		return Argument.create(argType, String.valueOf(name));
 	}
 
 	/** Creates an argument with the specified single character name, full name and type.
@@ -231,17 +356,16 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * @param argType the type of the argument. This is the subParser that will be used to parse the value/s this
 	 * */
 	public static <Type extends ArgumentType<TInner>, TInner>
-	Argument<Type, TInner> create(char charName, @NotNull String fullName, @NotNull Type argType) {
-		return new Argument<>(argType, String.valueOf(charName), fullName);
+	ArgumentBuilder<Type, TInner> create(char charName, @NotNull String fullName, @NotNull Type argType) {
+		return Argument.create(argType).withNames(fullName, String.valueOf(charName));
 	}
 
 
 	/**
 	 * Marks the argument as obligatory. This means that this argument should <b>always</b> be used by the user.
 	 */
-	public Argument<Type, TInner> obligatory() {
-		this.obligatory = true;
-		return this;
+	public void setObligatory(boolean obligatory) {
+		this.obligatory = obligatory;
 	}
 
 	public boolean isObligatory() {
@@ -256,12 +380,11 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 *    <li>Note that an argument marked as positional can still be used by specifying a name.
 	 * </ul>
 	 */
-	public Argument<Type, TInner> positional() {
-		if (this.argType.getRequiredArgValueCount().max() == 0) {
+	public void setPositional(boolean positional) {
+		if (positional && this.argType.getRequiredArgValueCount().max() == 0) {
 			throw new IllegalArgumentException("An argument that does not accept values cannot be positional");
 		}
-		this.positional = true;
-		return this;
+		this.positional = positional;
 	}
 
 	public boolean isPositional() {
@@ -276,9 +399,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * @param prefixChar the prefix that should be used for this argument.
 	 * @see PrefixChar
 	 */
-	public Argument<Type, TInner> prefix(PrefixChar prefixChar) {
+	public void setPrefix(PrefixChar prefixChar) {
 		this.prefixChar = prefixChar;
-		return this;
 	}
 
 	/**
@@ -294,9 +416,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * an argument in a command is set as obligatory, but one argument with {@link #allowUnique} was used, then the
 	 * unused obligatory argument will not throw an error.
 	 */
-	public Argument<Type, TInner> allowUnique() {
-		this.allowUnique = true;
-		return this;
+	public void setAllowUnique(boolean allowUnique) {
+		this.allowUnique = allowUnique;
 	}
 
 	public boolean isUniqueAllowed() {
@@ -307,11 +428,11 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * The value that should be used if the user does not specify a value for this argument. If the argument does not
 	 * accept values, this value will be ignored.
 	 *
-	 * @param value the value that should be used if the user does not specify a value for this argument.
+	 * @param value the value that should be used if the user does not specify a value for this argument. If the
+	 *  value is null, then no default value will be used.
 	 */
-	public Argument<Type, TInner> defaultValue(@NotNull TInner value) {
+	public void setDefaultValue(@Nullable TInner value) {
 		this.defaultValue = value;
-		return this;
 	}
 
 	/**
@@ -326,7 +447,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * @param names the names that should be added to this argument.
 	 */
 	@Override
-	public Argument<Type, TInner> addNames(@NotNull String... names) {
+	public void addNames(@NotNull String... names) {
 		Arrays.stream(names)
 			.map(UtlString::sanitizeName)
 			.forEach(newName -> {
@@ -335,7 +456,6 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 				}
 				this.names.add(newName);
 			});
-		return this;
 	}
 
 	@Override
@@ -346,9 +466,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	/** Sets the description of this argument. This description will be shown in the help message.
 	 * @param description the description of this argument.
 	 * */
-	public Argument<Type, TInner> description(@NotNull String description) {
+	public void setDescription(@Nullable String description) {
 		this.description = description;
-		return this;
 	}
 
 	@Override
@@ -419,39 +538,11 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 	/**
 	 * Returns <code>true</code> if this argument is the help argument of its parent command.
-	 * This just checks if the argument's name is "help" and if it is marked with {@link #allowUnique()}.
+	 * This just checks if the argument's name is "help" and if it is marked with {@link #setAllowUnique(boolean)}.
 	 * @return <code>true</code> if this argument is the help argument of its parent command.
 	 */
 	public boolean isHelpArgument() {
 		return this.getName().equals("help") && this.isUniqueAllowed();
-	}
-
-	/**
-	 * Specify a function that will be called with the value introduced by the user.
-	 * <p>
-	 * By default this callback is called only if all commands succeed, but you can change this behavior with
-	 * {@link Command#invokeCallbacksWhen(CallbacksInvocationOption)}
-	 * </p>
-	 * @param callback the function that will be called with the value introduced by the user.
-	 */
-	public Argument<Type, TInner> onOk(@NotNull Consumer<@NotNull TInner> callback) {
-		this.setOnCorrectCallback(callback);
-		return this;
-	}
-
-	/**
-	 * Specify a function that will be called if an error occurs when parsing this argument.
-	 * <p>
-	 * <strong>Note</strong> that this callback is only called if the error was dispatched by this argument's type. That
-	 * is,
-	 * if the argument, for example, is obligatory, and the user does not specify a value, an error will be thrown, but
-	 * this callback will not be called, as the error was not dispatched by this argument's type.
-	 * </p>
-	 * @param callback the function that will be called if an error occurs when parsing this argument.
-	 */
-	public Argument<Type, TInner> onErr(@NotNull Consumer<@NotNull Argument<Type, TInner>> callback) {
-		this.setOnErrorCallback(callback);
-		return this;
 	}
 
 	/**
@@ -653,6 +744,18 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 			);
 	}
 
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(ElementType.FIELD)
+	public @interface Define {
+		String[] names() default {};
+		String description() default "";
+		Class<? extends ArgumentType<?>> type();
+		char prefix() default '-';
+		boolean obligatory() default false;
+		boolean positional() default false;
+		boolean allowUnique() default false;
+	}
+
 
 	// ------------------------------------------------ Error Handling ------------------------------------------------
 	// just act as a proxy to the type error handling
@@ -698,12 +801,12 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	@Override
-	public void setOnErrorCallback(@NotNull Consumer<@NotNull Argument<Type, TInner>> callback) {
+	public void setOnErrorCallback(@Nullable Consumer<@NotNull Argument<Type, TInner>> callback) {
 		this.onErrorCallback = callback;
 	}
 
 	@Override
-	public void setOnCorrectCallback(@NotNull Consumer<@NotNull TInner> callback) {
+	public void setOnCorrectCallback(@Nullable Consumer<@NotNull TInner> callback) {
 		this.onCorrectCallback = callback;
 	}
 

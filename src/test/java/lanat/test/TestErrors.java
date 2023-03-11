@@ -48,13 +48,13 @@ public class TestErrors extends UnitTests {
 		this.parser = this.addCallbacks(new TestingParser("TestCallbacks") {{
 			this.setErrorCode(5);
 
-			this.addArgument(TestErrors.this.addCallbacks(Argument.create("bool-arg", ArgumentType.BOOLEAN())));
-			this.addArgument(TestErrors.this.addCallbacks(Argument.create("int-arg", ArgumentType.INTEGER())));
-			this.addArgument(TestErrors.this.addCallbacks(Argument.create("counter", ArgumentType.COUNTER())));
-			this.addArgument(TestErrors.this.addCallbacks(Argument.create("float", ArgumentType.FLOAT())));
+			this.addArgument(TestErrors.this.addCallbacks(Argument.create("bool-arg", ArgumentType.BOOLEAN()).build()));
+			this.addArgument(TestErrors.this.addCallbacks(Argument.create("int-arg", ArgumentType.INTEGER()).build()));
+			this.addArgument(TestErrors.this.addCallbacks(Argument.create("counter", ArgumentType.COUNTER()).build()));
+			this.addArgument(TestErrors.this.addCallbacks(Argument.create("float", ArgumentType.FLOAT()).build()));
 
 			this.addCommand(TestErrors.this.addCallbacks(new Command("sub") {{
-				this.addArgument(TestErrors.this.addCallbacks(Argument.create("sub-float", ArgumentType.FLOAT())));
+				this.addArgument(TestErrors.this.addCallbacks(Argument.create("sub-float", ArgumentType.FLOAT()).build()));
 				this.setErrorCode(2);
 			}}));
 		}});

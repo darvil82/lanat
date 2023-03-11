@@ -1,5 +1,6 @@
 package lanat;
 
+import fade.mirror.filter.Filter;
 import lanat.commandTemplates.DefaultCommandTemplate;
 import lanat.exceptions.ArgumentAlreadyExistsException;
 import lanat.exceptions.ArgumentGroupAlreadyExistsException;
@@ -15,11 +16,17 @@ import lanat.utils.displayFormatter.Color;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
+
+import static fade.mirror.Mirror.mirror;
 
 /**
  * <h2>Command</h2>
@@ -35,7 +42,7 @@ public class Command
 		ArgumentAdder,
 		ArgumentGroupAdder,
 		Resettable,
-		MultipleNamesAndDescription<Command>,
+		MultipleNamesAndDescription,
 		ParentElementGetter<Command>,
 		CommandUser
 {
@@ -63,7 +70,7 @@ public class Command
 	public Command(@NotNull String name, @Nullable String description, CommandTemplate template) {
 		this.addNames(name);
 		this.description = description;
-		template.applyTo(this);
+//		template.applyTo(this);
 	}
 
 	public Command(@NotNull String name, @Nullable String description) {
@@ -139,7 +146,7 @@ public class Command
 	}
 
 	@Override
-	public Command addNames(String... names) {
+	public void addNames(String... names) {
 		Arrays.stream(names)
 			.forEach(n -> {
 				if (!UtlString.matchCharacters(n, Character::isAlphabetic))
@@ -150,7 +157,6 @@ public class Command
 
 				this.names.add(n);
 			});
-		return this;
 	}
 
 	@Override
@@ -177,7 +183,7 @@ public class Command
 	}
 
 	/**
-	 * Specifies in which cases the {@link Argument#onOk(Consumer)} should be invoked.
+	 * Specifies in which cases the {@link Argument#setOnCorrectCallback(Consumer)} should be invoked.
 	 * <p>By default, this is set to {@link CallbacksInvocationOption#NO_ERROR_IN_ALL_COMMANDS}.</p>
 	 *
 	 * @see CallbacksInvocationOption
@@ -208,7 +214,7 @@ public class Command
 	}
 
 	/**
-	 * Returns <code>true</code> if an argument with {@link Argument#allowUnique()} in the command was used.
+	 * Returns <code>true</code> if an argument with {@link Argument#setAllowUnique(boolean)} in the command was used.
 	 */
 	public boolean uniqueArgumentReceivedValue() {
 		return this.arguments.stream().anyMatch(a -> a.getUsageCount() >= 1 && a.isUniqueAllowed())
@@ -274,6 +280,32 @@ public class Command
 		this.passPropertiesToChildren();
 	}
 
+	@SuppressWarnings("unchecked")
+	public void from(@NotNull Class<? extends CommandTemplate> clazz) {
+		final var mirrorClass = mirror(clazz);
+		final ArrayList<Argument.ArgumentBuilder<?, ?>> argBuilders = new ArrayList<>();
+
+		mirrorClass.getFields(Filter.forFields()
+			.withAnnotations(Argument.Define.class))
+			.forEach(f ->
+				f.getAnnotationOfType(Argument.Define.class)
+					.ifPresent(a -> argBuilders.add(Argument.ArgumentBuilder.fromField(f, a)))
+			);
+
+		mirrorClass.getMethod(Filter.forMethods()
+			.withAnnotations(CommandTemplate.InitDef.class)
+			.withName("init")
+			.withParameters(CommandTemplate.CommandBuildHelper.class)
+		).ifPresent(m -> {
+			if (!m.isStatic())
+				throw new IllegalArgumentException("The init method must be static!");
+
+			m.invoke(new CommandTemplate.CommandBuildHelper(this, argBuilders));
+		});
+
+		argBuilders.forEach(b -> this.addArgument(b.build()));
+	}
+
 	void passPropertiesToChildren() {
 		this.subCommands.forEach(c -> c.inheritProperties(this));
 	}
@@ -281,7 +313,7 @@ public class Command
 	// ------------------------------------------------ Error Handling ------------------------------------------------
 
 	@Override
-	public void setOnErrorCallback(@NotNull Consumer<@NotNull Command> callback) {
+	public void setOnErrorCallback(@Nullable Consumer<@NotNull Command> callback) {
 		this.onErrorCallback = callback;
 	}
 
@@ -293,7 +325,7 @@ public class Command
 	 * </p>
 	 */
 	@Override
-	public void setOnCorrectCallback(@NotNull Consumer<@NotNull ParsedArguments> callback) {
+	public void setOnCorrectCallback(@Nullable Consumer<@NotNull ParsedArguments> callback) {
 		this.onCorrectCallback = callback;
 	}
 
@@ -418,7 +450,7 @@ public class Command
 		return Command.equalsByNamesAndParentCmd(this, obj);
 	}
 
-	public static <T extends MultipleNamesAndDescription<?> & CommandUser>
+	public static <T extends MultipleNamesAndDescription & CommandUser>
 	boolean equalsByNamesAndParentCmd(@NotNull T a, @NotNull T b) {
 		return a.getParentCommand() == b.getParentCommand() && (
 			a.getNames().stream().anyMatch(name -> {
@@ -448,6 +480,13 @@ public class Command
 	@Override
 	public @Nullable Command getParentCommand() {
 		return this.getParent();
+	}
+
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(ElementType.TYPE)
+	public @interface Define {
+		String[] names() default {};
+		String description() default "";
 	}
 }
 

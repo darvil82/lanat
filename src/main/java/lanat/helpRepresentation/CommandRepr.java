@@ -23,7 +23,7 @@ public final class CommandRepr {
 	 */
 	public static @NotNull String getSubCommandsRepresentation(@NotNull Command cmd) {
 		return '{'
-			+ String.join(" | ", cmd.getSubCommands().stream().map(CommandRepr::getRepresentation).toList())
+			+ String.join(" | ", cmd.getCommands().stream().map(CommandRepr::getRepresentation).toList())
 			+ '}';
 	}
 
@@ -68,7 +68,7 @@ public final class CommandRepr {
 	 * @return the name and representation of the sub-commands of the command
 	 */
 	public static @Nullable String getSubCommandsDescriptions(@NotNull Command cmd) {
-		final var subCommands = cmd.getSubCommands();
+		final var subCommands = cmd.getCommands();
 		if (subCommands.isEmpty()) return null;
 		final var buff = new StringBuilder();
 

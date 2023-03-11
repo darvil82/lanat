@@ -68,7 +68,7 @@ public final class ArgumentGroupRepr {
 
 		buff.append(ArgumentRepr.getDescriptions(arguments));
 
-		for (final var subGroup : group.getSubGroups()) {
+		for (final var subGroup : group.getGroups()) {
 			buff.append(ArgumentGroupRepr.getDescriptions(subGroup));
 		}
 
@@ -105,7 +105,7 @@ public final class ArgumentGroupRepr {
 			}
 		}
 
-		final List<ArgumentGroup> groups = group.getSubGroups().stream().filter(g -> !g.isEmpty()).toList();
+		final List<ArgumentGroup> groups = group.getGroups().stream().filter(g -> !g.isEmpty()).toList();
 
 		if (!arguments.isEmpty() && !groups.isEmpty()) {
 			sb.append(' ');

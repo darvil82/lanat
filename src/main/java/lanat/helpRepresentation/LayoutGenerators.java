@@ -47,7 +47,7 @@ public final class LayoutGenerators {
 	public static @Nullable String synopsis(@NotNull Command cmd) {
 		final var args = Argument.sortByPriority(cmd.getArguments());
 
-		if (args.isEmpty() && cmd.getSubGroups().isEmpty()) return null;
+		if (args.isEmpty() && cmd.getGroups().isEmpty()) return null;
 		final var buffer = new StringBuilder();
 
 		for (var arg : args) {
@@ -58,11 +58,11 @@ public final class LayoutGenerators {
 			buffer.append(ArgumentRepr.getRepresentation(arg)).append(' ');
 		}
 
-		for (var group : cmd.getSubGroups()) {
+		for (var group : cmd.getGroups()) {
 			buffer.append(ArgumentGroupRepr.getRepresentation(group)).append(' ');
 		}
 
-		if (!cmd.getSubCommands().isEmpty())
+		if (!cmd.getCommands().isEmpty())
 			buffer.append(' ').append(CommandRepr.getSubCommandsRepresentation(cmd));
 
 		return buffer.toString();
@@ -103,11 +103,11 @@ public final class LayoutGenerators {
 			arg.getParentGroup() == null
 		).toList();
 
-		if (arguments.isEmpty() && cmd.getSubGroups().isEmpty()) return null;
+		if (arguments.isEmpty() && cmd.getGroups().isEmpty()) return null;
 
 		buff.append(ArgumentRepr.getDescriptions(arguments));
 
-		for (var group : cmd.getSubGroups()) {
+		for (var group : cmd.getGroups()) {
 			buff.append(ArgumentGroupRepr.getDescriptions(group));
 		}
 

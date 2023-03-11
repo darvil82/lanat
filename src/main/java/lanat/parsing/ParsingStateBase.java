@@ -61,7 +61,7 @@ public abstract class ParsingStateBase<T extends ErrorLevelProvider> extends Err
 	}
 
 	protected @NotNull List<@NotNull Command> getSubCommands() {
-		return this.command.getSubCommands();
+		return this.command.getCommands();
 	}
 
 	public boolean hasFinished() {

@@ -70,7 +70,7 @@ public class ArgumentGroup
 	}
 
 	@Override
-	public @NotNull List<ArgumentGroup> getSubGroups() {
+	public @NotNull List<ArgumentGroup> getGroups() {
 		return Collections.unmodifiableList(this.subGroups);
 	}
 
@@ -109,14 +109,18 @@ public class ArgumentGroup
 		}
 
 		this.parentCommand = parentCommand;
-		for (var argument : this.arguments) {
-			parentCommand.addArgument(argument);
-		}
+
+		// if the argument already has a parent command, it means that it was added to the command before this group was
+		// added to it, so we don't need to add it again (it would cause an exception)
+		this.arguments.stream()
+			.filter(a -> a.getParentCommand() == null)
+			.forEach(parentCommand::addArgument);
+
 		this.subGroups.forEach(g -> g.registerGroup(parentCommand));
 	}
 
 	@Override
-	public @NotNull Command getParentCommand() {
+	public Command getParentCommand() {
 		return this.parentCommand;
 	}
 

@@ -80,10 +80,10 @@ public class UnitTests {
 			);
 			this.addArgument(Argument.create("double-adder", new RestrictedDoubleAdder()));
 			this.addArgument(Argument.create("a", ArgumentType.STRING()));
-			this.addSubCommand(new Command("subCommand") {{
+			this.addCommand(new Command("subCommand") {{
 				this.addArgument(Argument.create("c", ArgumentType.COUNTER()));
 				this.addArgument(Argument.create('s', "more-strings", new StringJoiner()));
-				this.addSubCommand(new Command("another") {{
+				this.addCommand(new Command("another") {{
 					this.addArgument(Argument.create("ball", new StringJoiner()));
 					this.addArgument(Argument.create("number", ArgumentType.INTEGER()).positional().obligatory());
 				}});

@@ -94,11 +94,11 @@ public class Command
 	}
 
 	@Override
-	public @NotNull List<@NotNull ArgumentGroup> getSubGroups() {
+	public @NotNull List<@NotNull ArgumentGroup> getGroups() {
 		return Collections.unmodifiableList(this.argumentGroups);
 	}
 
-	public void addSubCommand(@NotNull Command cmd) {
+	public void addCommand(@NotNull Command cmd) {
 		if (this.subCommands.stream().anyMatch(a -> a.hasName(cmd.names.get(0)))) {
 			throw new CommandAlreadyExistsException(cmd, this);
 		}
@@ -111,7 +111,7 @@ public class Command
 		cmd.parentCommand = this;
 	}
 
-	public @NotNull List<@NotNull Command> getSubCommands() {
+	public @NotNull List<@NotNull Command> getCommands() {
 		return Collections.unmodifiableList(this.subCommands);
 	}
 

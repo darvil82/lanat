@@ -369,7 +369,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	@Override
-	public @NotNull Command getParentCommand() {
+	public Command getParentCommand() {
 		return this.parentCommand;
 	}
 

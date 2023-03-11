@@ -53,7 +53,7 @@ public class TestErrors extends UnitTests {
 			this.addArgument(TestErrors.this.addCallbacks(Argument.create("counter", ArgumentType.COUNTER())));
 			this.addArgument(TestErrors.this.addCallbacks(Argument.create("float", ArgumentType.FLOAT())));
 
-			this.addSubCommand(TestErrors.this.addCallbacks(new Command("sub") {{
+			this.addCommand(TestErrors.this.addCallbacks(new Command("sub") {{
 				this.addArgument(TestErrors.this.addCallbacks(Argument.create("sub-float", ArgumentType.FLOAT())));
 				this.setErrorCode(2);
 			}}));

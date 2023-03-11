@@ -13,4 +13,11 @@ public interface ArgumentAdder {
 	<T extends ArgumentType<TInner>, TInner> void addArgument(@NotNull Argument<T, TInner> argument);
 
 	@NotNull List<@NotNull Argument<?, ?>> getArguments();
+
+	default Argument<?, ?> getArgument(@NotNull String name) {
+		return this.getArguments().stream()
+			.filter(a -> a.hasName(name))
+			.findFirst()
+			.orElse(null);
+	}
 }

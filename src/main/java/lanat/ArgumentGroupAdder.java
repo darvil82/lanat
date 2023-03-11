@@ -10,5 +10,5 @@ public interface ArgumentGroupAdder {
 	 */
 	void addGroup(@NotNull ArgumentGroup group);
 
-	@NotNull List<@NotNull ArgumentGroup> getSubGroups();
+	@NotNull List<@NotNull ArgumentGroup> getGroups();
 }

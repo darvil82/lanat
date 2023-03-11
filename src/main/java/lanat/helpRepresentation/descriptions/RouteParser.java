@@ -132,9 +132,9 @@ public class RouteParser {
 			if (token.equals("args") && this.currentTarget instanceof ArgumentAdder argsContainer)
 				this.setCurrentTarget(argsContainer.getArguments(), MultipleNamesAndDescription::hasName);
 			else if (token.equals("groups") && this.currentTarget instanceof ArgumentGroupAdder groupsContainer)
-				this.setCurrentTarget(groupsContainer.getSubGroups(), (g, name) -> g.getName().equals(name));
+				this.setCurrentTarget(groupsContainer.getGroups(), (g, name) -> g.getName().equals(name));
 			else if (token.equals("cmds") && this.currentTarget instanceof Command cmdsContainer)
-				this.setCurrentTarget(cmdsContainer.getSubCommands(), MultipleNamesAndDescription::hasName);
+				this.setCurrentTarget(cmdsContainer.getCommands(), MultipleNamesAndDescription::hasName);
 			else if (token.equals("type") && this.currentTarget instanceof Argument<?, ?> arg)
 				this.currentTarget = arg.argType;
 			else

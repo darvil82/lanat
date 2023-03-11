@@ -30,26 +30,35 @@ public final class ManualTests {
 				.onOk(value -> System.out.println("ok: " + value))
 			);
 
-			this.addGroup(new ArgumentGroup("group") {{
-				this.exclusive();
-				this.addArgument(Argument.create("group-arg", ArgumentType.STRING())
-					.onOk(value -> System.out.println("1: " + value))
-					.description("some description")
-				);
-				this.addArgument(Argument.create("group-arg2", ArgumentType.ENUM(TestEnum.ONE))
-					.onOk(value -> System.out.println("2: " + value))
-					.description("<desc=!.type>")
-				);
-			}});
+			this.addArgument(Argument.create("group-arg2", ArgumentType.ENUM(TestEnum.ONE))
+				.onOk(value -> System.out.println("2: " + value))
+				.description("<desc=!.type>")
+			);
 
-			this.addSubCommand(new Command("hello", "Some description for the command") {{
+			var group = new ArgumentGroup("group") {{
+				this.exclusive();
+			}};
+
+			group.addArgument(this.getArgument("group-arg2"));
+
+			var groupArg1 = Argument.create("group-arg", ArgumentType.STRING())
+				.onOk(value -> System.out.println("1: " + value))
+				.description("some description");
+
+			// make sure these two don't fail when used together
+			this.addArgument(groupArg1);
+			group.addArgument(groupArg1);
+
+			this.addGroup(group);
+
+			this.addCommand(new Command("hello", "Some description for the command") {{
 				this.addNames("hi", "hey");
 				this.addArgument(Argument.create("world", ArgumentType.INTEGER_RANGE(5, 10))
 					.onOk(value -> System.out.println("ok: " + value))
 				);
 			}});
 
-			this.addSubCommand(new Command("goodbye", "Some description for this other command") {{
+			this.addCommand(new Command("goodbye", "Some description for this other command") {{
 				this.addNames("bye", "cya");
 				this.addArgument(Argument.create("world", new StringJoiner())
 					.onOk(value -> System.out.println("ok: " + value))
@@ -57,7 +66,7 @@ public final class ManualTests {
 			}});
 		}};
 
-		var parsed = parser.parse("--group-arg")
+		var parsed = parser.parse("--help")
 			.printErrors()
 			.getParsedArguments();
 	}

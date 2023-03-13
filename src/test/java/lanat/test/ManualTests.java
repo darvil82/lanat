@@ -33,7 +33,7 @@ public final class ManualTests {
 
 @Command.Define
 class MyProgram extends DefaultCommandTemplate {
-	@Argument.Define(type = StringArgument.class)
+	@Argument.Define(type = StringArgument.class, description = "This is a string argument.")
 	public String string;
 
 	@Argument.Define(type = IntArgument.class)

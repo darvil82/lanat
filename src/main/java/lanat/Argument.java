@@ -197,6 +197,12 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 				argumentBuilder.withArgType((Type)argType);
 			}
 
+			argumentBuilder.withPrefixChar(PrefixChar.fromCharUnsafe(annotation.prefix()));
+			if (!annotation.description().isEmpty()) argumentBuilder.withDescription(annotation.description());
+			if (annotation.obligatory()) argumentBuilder.obligatory();
+			if (annotation.positional()) argumentBuilder.positional();
+			if (annotation.allowUnique()) argumentBuilder.allowsUnique();
+
 			return argumentBuilder;
 		}
 

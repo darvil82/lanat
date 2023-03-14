@@ -23,7 +23,7 @@ public abstract class CommandTemplate {
 
 		// get all the methods with the @ArgDef annotation, and add them to the command
 		mirror(this.getClass())
-			.getMethods(Filter.forMethods().withReturnType(Argument.class).withAnnotations(ArgDef.class).withParameters())
+			.getMethods(Filter.forMethods().ofType(Argument.class).withAnnotation(ArgDef.class).withNoParameters())
 			.forEach(method -> {
 				try {
 					var arg = method.bindToObject(this).invoke();

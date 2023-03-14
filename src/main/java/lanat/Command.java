@@ -282,7 +282,7 @@ public class Command
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T extends CommandTemplate>
+	private <T extends CommandTemplate>
 	void from(@NotNull MClass<T> clazz, ArrayList<Argument.ArgumentBuilder<?, ?>> argBuilders) {
 		clazz.getSuperclass().ifPresent(superClass -> this.from((MClass<T>)superClass, argBuilders));
 

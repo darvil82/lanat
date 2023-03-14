@@ -23,6 +23,6 @@ public class IntArgument extends ArgumentType<Integer> {
 
 	@Override
 	public @Nullable String getDescription() {
-		return "An integer.";
+		return "An integer value.";
 	}
 }

@@ -1,6 +1,7 @@
 package lanat.test;
 
 import lanat.Argument;
+import lanat.ArgumentGroup;
 import lanat.Command;
 import lanat.argumentTypes.IntArgument;
 import lanat.argumentTypes.StringArgument;
@@ -20,7 +21,13 @@ public final class ManualTests {
 		}
 
 		var parser = new TestingParser("Testing", "<color=cyan><format=b>some simple description") {{
+			final var that = this;
 			this.from(MyProgram.class);
+
+			this.addGroup(new ArgumentGroup("test-group") {{
+				this.addArgument(that.getArgument("string"));
+				this.addArgument(that.getArgument("number"));
+			}});
 		}};
 
 		var parsed = parser.parse("--help")
@@ -34,7 +41,7 @@ class MyProgram extends DefaultCommandTemplate {
 	@Argument.Define(type = StringArgument.class, description = "This is a string argument.")
 	public String string;
 
-	@Argument.Define(type = IntArgument.class)
+	@Argument.Define(type = IntArgument.class, description = "<desc=!.type>")
 	public int number = 12;
 
 	@InitDef

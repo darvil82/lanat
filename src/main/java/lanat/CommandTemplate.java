@@ -28,6 +28,7 @@ public abstract class CommandTemplate {
 		}
 	}
 
+	// Dummy method so that we prevent the user from creating an instance method with the same name.
 	@InitDef
 	public static void init(@NotNull CommandBuildHelper helper) {}
 }

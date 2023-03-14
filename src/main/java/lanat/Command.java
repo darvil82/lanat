@@ -297,13 +297,7 @@ public class Command
 			.withAnnotations(CommandTemplate.InitDef.class)
 			.withName("init")
 			.withParameters(CommandTemplate.CommandBuildHelper.class)
-		).ifPresent(m -> {
-			if (!m.isStatic())
-				throw new IllegalArgumentException("The init method must be static!");
-
-			m.invoke(new CommandTemplate.CommandBuildHelper(this, argBuilders));
-		});
-
+		).ifPresent(m -> m.invoke(new CommandTemplate.CommandBuildHelper(this, argBuilders)));
 	}
 
 	public void from(@NotNull Class<? extends CommandTemplate> clazz) {

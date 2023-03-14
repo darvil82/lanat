@@ -287,16 +287,16 @@ public class Command
 		clazz.getSuperclass().ifPresent(superClass -> this.from((MClass<T>)superClass, argBuilders));
 
 		clazz.getFields(Filter.forFields()
-			.withAnnotations(Argument.Define.class))
+			.withAnnotation(Argument.Define.class))
 			.forEach(f ->
 				f.getAnnotationOfType(Argument.Define.class)
 					.ifPresent(a -> argBuilders.add(Argument.ArgumentBuilder.fromField(f, a)))
 			);
 
 		clazz.getMethod(Filter.forMethods()
-			.withAnnotations(CommandTemplate.InitDef.class)
+			.withAnnotation(CommandTemplate.InitDef.class)
 			.withName("init")
-			.withParameters(CommandTemplate.CommandBuildHelper.class)
+			.withParameter(CommandTemplate.CommandBuildHelper.class)
 		).ifPresent(m -> m.invoke(new CommandTemplate.CommandBuildHelper(this, argBuilders)));
 	}
 
@@ -384,7 +384,7 @@ public class Command
 	/**
 	 * Get the error code of this Command. This is the OR of all the error codes of all the Sub-Commands that
 	 * have failed.
-	 * @see #setErrorCode(int) 
+	 * @see #setErrorCode(int)
 	 * @return The error code of this command.
 	 */
 	public int getErrorCode() {
@@ -489,4 +489,3 @@ public class Command
 		String description() default "";
 	}
 }
-

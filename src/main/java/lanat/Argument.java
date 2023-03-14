@@ -239,8 +239,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		 * </p>
 		 * @param callback the function that will be called with the value introduced by the user.
 		 */
-		public ArgumentBuilder<Type, TInner> onOk(Consumer<Argument<Type, TInner>> callback) {
-			this.onErrorCallback = callback;
+		public ArgumentBuilder<Type, TInner> onOk(Consumer<TInner> callback) {
+			this.onCorrectCallback = callback;
 			return this;
 		}
 
@@ -254,8 +254,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		 * </p>
 		 * @param callback the function that will be called if an error occurs when parsing this argument.
 		 */
-		public ArgumentBuilder<Type, TInner> onErr(Consumer<TInner> callback) {
-			this.onCorrectCallback = callback;
+		public ArgumentBuilder<Type, TInner> onErr(Consumer<Argument<Type, TInner>> callback) {
+			this.onErrorCallback = callback;
 			return this;
 		}
 

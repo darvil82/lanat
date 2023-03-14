@@ -1,6 +1,5 @@
 package lanat;
 
-import lanat.exceptions.ArgumentNotFoundException;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.ElementType;
@@ -21,7 +20,11 @@ public abstract class CommandTemplate {
 			return this.args.stream()
 				.filter(a -> a.hasName(name))
 				.findFirst()
-				.orElseThrow(() -> new ArgumentNotFoundException(name));
+				.orElse(null);
+		}
+
+		public void addArgument(@NotNull Argument.ArgumentBuilder<?, ?> arg) {
+			this.args.add(arg);
 		}
 	}
 

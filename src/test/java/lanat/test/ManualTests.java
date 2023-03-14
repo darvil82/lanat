@@ -5,6 +5,7 @@ import lanat.Command;
 import lanat.argumentTypes.IntArgument;
 import lanat.argumentTypes.StringArgument;
 import lanat.commandTemplates.DefaultCommandTemplate;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 public final class ManualTests {
@@ -18,10 +19,7 @@ public final class ManualTests {
 			ONE, TWO, THREE
 		}
 
-		var parser = new TestingParser("Testing", "<color=yellow><format=bold,u,italic>"
-			+ "hello<color=white><format=!u>, the argument <link=args.group-arg> is formatted! "
-			+ "This is its type description: <desc=args.group-arg.type>"
-		) {{
+		var parser = new TestingParser("Testing", "<color=cyan><format=b>some simple description") {{
 			this.from(MyProgram.class);
 		}};
 
@@ -37,5 +35,10 @@ class MyProgram extends DefaultCommandTemplate {
 	public String string;
 
 	@Argument.Define(type = IntArgument.class)
-	public int number;
+	public int number = 12;
+
+	@InitDef
+	public static void init(@NotNull CommandBuildHelper helper) {
+		helper.getArgument("help").withDescription("This is a custom help message.");
+	}
 }

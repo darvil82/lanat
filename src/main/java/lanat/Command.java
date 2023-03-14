@@ -1,5 +1,6 @@
 package lanat;
 
+import fade.mirror.MClass;
 import fade.mirror.filter.Filter;
 import lanat.commandTemplates.DefaultCommandTemplate;
 import lanat.exceptions.ArgumentAlreadyExistsException;
@@ -281,18 +282,18 @@ public class Command
 	}
 
 	@SuppressWarnings("unchecked")
-	public void from(@NotNull Class<? extends CommandTemplate> clazz) {
-		final var mirrorClass = mirror(clazz);
-		final ArrayList<Argument.ArgumentBuilder<?, ?>> argBuilders = new ArrayList<>();
+	public <T extends CommandTemplate>
+	void from(@NotNull MClass<T> clazz, ArrayList<Argument.ArgumentBuilder<?, ?>> argBuilders) {
+		clazz.getSuperclass().ifPresent(superClass -> this.from((MClass<T>)superClass, argBuilders));
 
-		mirrorClass.getFields(Filter.forFields()
+		clazz.getFields(Filter.forFields()
 			.withAnnotations(Argument.Define.class))
 			.forEach(f ->
 				f.getAnnotationOfType(Argument.Define.class)
 					.ifPresent(a -> argBuilders.add(Argument.ArgumentBuilder.fromField(f, a)))
 			);
 
-		mirrorClass.getMethod(Filter.forMethods()
+		clazz.getMethod(Filter.forMethods()
 			.withAnnotations(CommandTemplate.InitDef.class)
 			.withName("init")
 			.withParameters(CommandTemplate.CommandBuildHelper.class)
@@ -303,6 +304,11 @@ public class Command
 			m.invoke(new CommandTemplate.CommandBuildHelper(this, argBuilders));
 		});
 
+	}
+
+	public void from(@NotNull Class<? extends CommandTemplate> clazz) {
+		var argBuilders = new ArrayList<Argument.ArgumentBuilder<?, ?>>();
+		this.from(mirror(clazz), argBuilders);
 		argBuilders.forEach(b -> this.addArgument(b.build()));
 	}
 

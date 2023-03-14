@@ -11,9 +11,7 @@ import java.util.List;
 public abstract class CommandTemplate {
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.METHOD)
-	public @interface InitDef {
-		boolean callSuper() default true;
-	}
+	public @interface InitDef {}
 
 	public record CommandBuildHelper(@NotNull Command cmd, @NotNull List<Argument.ArgumentBuilder<?, ?>> args) {
 		public Argument.ArgumentBuilder<?, ?> getArgument(@NotNull String name) {

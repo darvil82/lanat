@@ -281,6 +281,12 @@ public class Command
 		this.passPropertiesToChildren();
 	}
 
+	public void from(@NotNull Class<? extends CommandTemplate> clazz) {
+		var argBuilders = new ArrayList<Argument.ArgumentBuilder<?, ?>>();
+		this.from(mirror(clazz), argBuilders);
+		argBuilders.forEach(b -> this.addArgument(b.build()));
+	}
+
 	@SuppressWarnings("unchecked")
 	private <T extends CommandTemplate>
 	void from(@NotNull MClass<T> clazz, ArrayList<Argument.ArgumentBuilder<?, ?>> argBuilders) {
@@ -298,12 +304,6 @@ public class Command
 			.withName("init")
 			.withParameter(CommandTemplate.CommandBuildHelper.class)
 		).ifPresent(m -> m.invoke(new CommandTemplate.CommandBuildHelper(this, argBuilders)));
-	}
-
-	public void from(@NotNull Class<? extends CommandTemplate> clazz) {
-		var argBuilders = new ArrayList<Argument.ArgumentBuilder<?, ?>>();
-		this.from(mirror(clazz), argBuilders);
-		argBuilders.forEach(b -> this.addArgument(b.build()));
 	}
 
 	void passPropertiesToChildren() {

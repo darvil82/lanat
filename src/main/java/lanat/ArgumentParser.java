@@ -1,6 +1,8 @@
 package lanat;
 
 
+import fade.mirror.MClass;
+import fade.mirror.filter.Filter;
 import lanat.parsing.TokenType;
 import lanat.parsing.errors.ErrorHandler;
 import org.jetbrains.annotations.NotNull;
@@ -8,6 +10,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
+
+import static fade.mirror.Mirror.mirror;
 
 public class ArgumentParser extends Command {
 	private boolean isParsed = false;
@@ -137,6 +141,25 @@ public class ArgumentParser extends Command {
 
 		public @NotNull ParsedArgumentsRoot getParsedArguments() {
 			return ArgumentParser.this.getParsedArguments();
+		}
+
+		public <T extends CommandTemplate> T into(@NotNull Class<T> clazz) {
+			return this.into(mirror(clazz));
+		}
+
+		public <T extends CommandTemplate> T into(@NotNull MClass<T> clazz) {
+			final var ctor = clazz.getConstructor();
+
+			if (ctor.isEmpty())
+				throw new IllegalArgumentException("the given class does not have a public constructor without parameters");
+
+			final var fields = clazz.getFields(Filter.forFields().withAnnotation(Argument.Define.class)).toList();
+			final var parsedArguments = this.getParsedArguments();
+			final T instance = ctor.get().invoke();
+
+			assert instance != null;
+
+			return ctor.get().invoke();
 		}
 	}
 }

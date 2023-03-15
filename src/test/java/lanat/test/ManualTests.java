@@ -32,12 +32,14 @@ public final class ManualTests {
 
 		var parsed = parser.parse("--help")
 			.printErrors()
-			.getParsedArguments();
+			.into(MyProgram.class);
 	}
 }
 
 @Command.Define
 class MyProgram extends DefaultCommandTemplate {
+	public MyProgram() {}
+
 	@Argument.Define(type = StringArgument.class, description = "This is a string argument.")
 	public String string;
 

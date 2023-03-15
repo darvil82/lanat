@@ -86,11 +86,10 @@ abstract class ParseStateErrorBase<T extends Enum<T> & ErrorLevelProvider> imple
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	private @NotNull List<@NotNull MMethod<?>> getAnnotatedMethods() {
 		return mirror(this.getClass())
-			.getSuperclassUntilIncludingSelf(MClass::hasMethods)
-			.<List<MMethod<?>>>map(objectMClass -> objectMClass.getMethods(Filter.forMethods().withAnnotations(Handler.class))
+			.getSuperclassUntil(MClass::hasMethods, MClass.IncludeSelf.Yes)
+			.<List<MMethod<?>>>map(objectMClass -> objectMClass.getMethods(Filter.forMethods().withAnnotation(Handler.class))
 			.collect(Collectors.toList()))
 			.orElseGet(List::of);
 	}

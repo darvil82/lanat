@@ -2,6 +2,7 @@ package lanat;
 
 
 import fade.mirror.MClass;
+import fade.mirror.MField;
 import fade.mirror.filter.Filter;
 import lanat.parsing.TokenType;
 import lanat.parsing.errors.ErrorHandler;
@@ -159,7 +160,17 @@ public class ArgumentParser extends Command {
 
 			assert instance != null;
 
-			return ctor.get().invoke();
+			fields.forEach(f -> {
+				@SuppressWarnings("OptionalGetWithoutIsPresent") var annotation = f.getAnnotationOfType(Argument.Define.class).get();
+				Arrays.stream(annotation.names()).forEach(name -> {
+					var value = parsedArguments.get(name);
+					if (value != null) {
+						((MField<Object>)f).setValue(instance, value);
+					}
+				});
+			});
+
+			return instance;
 		}
 	}
 }

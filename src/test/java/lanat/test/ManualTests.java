@@ -30,9 +30,12 @@ public final class ManualTests {
 			}});
 		}};
 
-		var parsed = parser.parse("--help")
+		var parsed = parser.parse("--string hello --number 12")
 			.printErrors()
 			.into(MyProgram.class);
+
+		System.out.println(parsed.string);
+		System.out.println(parsed.number);
 	}
 }
 

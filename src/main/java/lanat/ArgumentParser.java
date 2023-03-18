@@ -148,26 +148,30 @@ public class ArgumentParser extends Command {
 			return this.into(mirror(clazz));
 		}
 
-		public <T extends CommandTemplate> T into(@NotNull MClass<T> clazz) {
+		@SuppressWarnings("unchecked")
+		private <T extends CommandTemplate> T into(@NotNull MClass<T> clazz) {
 			final var ctor = clazz.getConstructor();
 
 			if (ctor.isEmpty())
 				throw new IllegalArgumentException("the given class does not have a public constructor without parameters");
 
-			final var fields = clazz.getFields(Filter.forFields().withAnnotation(Argument.Define.class)).toList();
+			final var fields = clazz.getFields(
+				Filter.forFields().withAnnotation(Argument.Define.class), MClass.IncludeSuperclasses.Yes
+			).toList();
+
 			final var parsedArguments = this.getParsedArguments();
 			final T instance = ctor.get().invoke();
 
 			assert instance != null;
 
 			fields.forEach(f -> {
-				@SuppressWarnings("OptionalGetWithoutIsPresent") var annotation = f.getAnnotationOfType(Argument.Define.class).get();
-				Arrays.stream(annotation.names()).forEach(name -> {
-					var value = parsedArguments.get(name);
-					if (value != null) {
-						((MField<Object>)f).setValue(instance, value);
-					}
-				});
+				@SuppressWarnings("OptionalGetWithoutIsPresent") // we know that the field has the annotation (see above)
+				final var annotation = f.getAnnotationOfType(Argument.Define.class).get();
+
+				// get the name of the argument from the annotation or field name
+				final String argName = annotation.names().length == 0 ? f.getName() : annotation.names()[0];
+
+				parsedArguments.get(argName).defined(v -> ((MField<Object>)f).setValue(instance, v));
 			});
 
 			return instance;

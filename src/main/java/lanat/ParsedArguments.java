@@ -52,7 +52,7 @@ public class ParsedArguments {
 	 * @param <T> The type of the value of the argument
 	 */
 	@SuppressWarnings("unchecked") // we'll just have to trust the user
-	public <T> ParsedArgument<T> get(@NotNull Argument<?, T> arg) {
+	public <T> @NotNull ParsedArgument<T> get(@NotNull Argument<?, T> arg) {
 		if (!this.parsedArgs.containsKey(arg)) {
 			throw new ArgumentNotFoundException(arg);
 		}
@@ -80,7 +80,7 @@ public class ParsedArguments {
 	 * @throws CommandNotFoundException If the command specified in the route does not exist
 	 * @throws ArgumentNotFoundException If the argument specified in the route does not exist
 	 */
-	public <T> ParsedArgument<T> get(@NotNull String argRoute) {
+	public <T> @NotNull ParsedArgument<T> get(@NotNull String argRoute) {
 		return this.get(argRoute.split(" *" + Pattern.quote(ParsedArguments.separator) + " *"));
 	}
 
@@ -109,7 +109,7 @@ public class ParsedArguments {
 	 * @throws CommandNotFoundException If the command specified in the route does not exist
 	 */
 	@SuppressWarnings("unchecked") // we'll just have to trust the user
-	public <T> ParsedArgument<T> get(@NotNull String... argRoute) {
+	public <T> @NotNull ParsedArgument<T> get(@NotNull String... argRoute) {
 		if (argRoute.length == 0) {
 			throw new IllegalArgumentException("argument route must not be empty");
 		}

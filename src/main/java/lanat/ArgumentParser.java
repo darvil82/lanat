@@ -165,6 +165,8 @@ public class ArgumentParser extends Command {
 			assert instance != null;
 
 			fields.forEach(f -> {
+				f.bindToObject(instance); // TODO: remove on next mirror update
+
 				@SuppressWarnings("OptionalGetWithoutIsPresent") // we know that the field has the annotation (see above)
 				final var annotation = f.getAnnotationOfType(Argument.Define.class).get();
 

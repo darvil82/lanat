@@ -52,7 +52,7 @@ public class TryParseArgument<T> extends ArgumentType<T> {
 		if (method.isPresent()) {
 			return input -> {
 				try {
-					return method.get().invoke(input);
+					return method.get().invokeWithoutInstance(input);
 				} catch (MirrorException exception) {
 					this.addError(input);
 				}
@@ -66,7 +66,7 @@ public class TryParseArgument<T> extends ArgumentType<T> {
 			.findFirst()
 			.<Function<String, Object>>map(constructor -> s -> {
 				try {
-					return constructor.invoke(s);
+					return constructor.invokeWithoutInstance(s);
 				} catch (MirrorException exception) {
 					this.addError(s);
 				}

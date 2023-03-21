@@ -52,6 +52,10 @@ class TestingParser extends ArgumentParser {
 		super(programName);
 	}
 
+	public TestingParser(@NotNull Class<? extends CommandTemplate> templateClass) {
+		super(templateClass);
+	}
+
 	public List<String> parseGetErrors(String args) {
 		return this.parse(args).getErrors();
 	}

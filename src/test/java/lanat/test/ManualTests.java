@@ -20,9 +20,8 @@ public final class ManualTests {
 			ONE, TWO, THREE
 		}
 
-		var parser = new TestingParser("Testing", "<color=cyan><format=b>some simple description") {{
+		var parser = new TestingParser(MyProgram.class) {{
 			final var that = this;
-			this.from(MyProgram.class);
 
 			this.addGroup(new ArgumentGroup("test-group") {{
 				this.addArgument(that.getArgument("string"));
@@ -30,7 +29,7 @@ public final class ManualTests {
 			}});
 		}};
 
-		var parsed = parser.parse("--string hello --number 12")
+		var parsed = parser.parse("--string hello --number 67")
 			.printErrors()
 			.into(MyProgram.class);
 
@@ -39,7 +38,7 @@ public final class ManualTests {
 	}
 }
 
-@Command.Define
+@Command.Define(names = "my-program", description = "This is a test program.")
 class MyProgram extends DefaultCommandTemplate {
 	public MyProgram() {}
 

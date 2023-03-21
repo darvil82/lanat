@@ -8,6 +8,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.List;
 
+@Command.Define
 public abstract class CommandTemplate {
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.METHOD)

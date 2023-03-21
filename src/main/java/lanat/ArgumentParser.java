@@ -28,6 +28,10 @@ public class ArgumentParser extends Command {
 		this(programName, null);
 	}
 
+	public ArgumentParser(@NotNull Class<? extends CommandTemplate> templateClass) {
+		super(templateClass);
+	}
+
 
 	/**
 	 * {@link ArgumentParser#parse(String)}
@@ -160,13 +164,11 @@ public class ArgumentParser extends Command {
 			).toList();
 
 			final var parsedArguments = this.getParsedArguments();
-			final T instance = ctor.get().invoke();
+			final T instance = ctor.get().invokeWithoutInstance();
 
 			assert instance != null;
 
 			fields.forEach(f -> {
-				f.bindToObject(instance); // TODO: remove on next mirror update
-
 				@SuppressWarnings("OptionalGetWithoutIsPresent") // we know that the field has the annotation (see above)
 				final var annotation = f.getAnnotationOfType(Argument.Define.class).get();
 

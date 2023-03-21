@@ -68,18 +68,17 @@ public class Command
 	final @NotNull LoopPool<@NotNull Color> colorsPool = LoopPool.atRandomIndex(Color.getBrightColors());
 
 
-	public Command(@NotNull String name, @Nullable String description, CommandTemplate template) {
+	public Command(@NotNull String name, @Nullable String description) {
 		this.addNames(name);
 		this.description = description;
-//		template.applyTo(this);
-	}
-
-	public Command(@NotNull String name, @Nullable String description) {
-		this(name, description, new DefaultCommandTemplate());
 	}
 
 	public Command(@NotNull String name) {
 		this(name, null);
+	}
+
+	public Command(@NotNull Class<? extends CommandTemplate> templateClass) {
+		this.from(templateClass);
 	}
 
 	@Override
@@ -149,10 +148,8 @@ public class Command
 	@Override
 	public void addNames(String... names) {
 		Arrays.stream(names)
+			.map(UtlString::sanitizeName)
 			.forEach(n -> {
-				if (!UtlString.matchCharacters(n, Character::isAlphabetic))
-					throw new IllegalArgumentException("Name " + UtlString.surround(n) + " contains non-alphabetic characters.");
-
 				if (this.hasName(n))
 					throw new IllegalArgumentException("Name " + UtlString.surround(n) + " is already used by this command.");
 
@@ -283,14 +280,27 @@ public class Command
 
 	public void from(@NotNull Class<? extends CommandTemplate> clazz) {
 		var argBuilders = new ArrayList<Argument.ArgumentBuilder<?, ?>>();
+
 		this.from(mirror(clazz), argBuilders);
+
+		if (this.names.isEmpty()) {
+			this.addNames(clazz.getAnnotation(Command.Define.class).names());
+		}
 		argBuilders.forEach(b -> this.addArgument(b.build()));
 	}
 
 	@SuppressWarnings("unchecked")
 	private <T extends CommandTemplate>
 	void from(@NotNull MClass<T> clazz, ArrayList<Argument.ArgumentBuilder<?, ?>> argBuilders) {
+		if (!mirror(CommandTemplate.class).isSuperclassOf(clazz)) return;
+
+		// get to the top of the hierarchy
 		clazz.getSuperclass().ifPresent(superClass -> this.from((MClass<T>)superClass, argBuilders));
+
+		// don't allow classes without the @Command.Define annotation
+		if (!clazz.isAnnotatedWith(Command.Define.class)) {
+			throw new IllegalArgumentException("The class '%s' is not annotated with @Command.Define".formatted(clazz.getName()));
+		}
 
 		clazz.getFields(Filter.forFields()
 			.withAnnotation(Argument.Define.class))
@@ -303,7 +313,7 @@ public class Command
 			.withAnnotation(CommandTemplate.InitDef.class)
 			.withName("init")
 			.withParameter(CommandTemplate.CommandBuildHelper.class)
-		).ifPresent(m -> m.invoke(new CommandTemplate.CommandBuildHelper(this, argBuilders)));
+		).ifPresent(m -> m.invokeWithoutInstance(new CommandTemplate.CommandBuildHelper(this, argBuilders)));
 	}
 
 	void passPropertiesToChildren() {

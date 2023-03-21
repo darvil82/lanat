@@ -2,9 +2,11 @@ package lanat.commandTemplates;
 
 import lanat.Argument;
 import lanat.ArgumentParser;
+import lanat.Command;
 import lanat.CommandTemplate;
 import org.jetbrains.annotations.NotNull;
 
+@Command.Define
 public class DefaultCommandTemplate extends CommandTemplate {
 	/*
 	 * The reason we add these arguments here is so that they do not "physically" appear in the

@@ -170,7 +170,16 @@ public class ArgumentParser extends Command {
 				// get the name of the argument from the annotation or field name
 				final String argName = annotation.names().length == 0 ? f.getName() : annotation.names()[0];
 
-				parsedArgs.get(argName).defined(v -> ((MField<Object>)f).setValue(instance, v));
+				final @Nullable Object parsedValue = parsedArgs.get(argName).get();
+
+				// if the type of the field is a ParsedArgumentValue, wrap the value in it.
+				// otherwise, just set the value
+				((MField<Object>)f).setValue(
+					instance,
+					mirror(ParsedArgumentValue.class).isSuperclassOf(f.getType())
+						? new ParsedArgumentValue<>(parsedValue)
+						: parsedValue
+				);
 			});
 
 			// now handle the sub-command attribute accessors (if any)

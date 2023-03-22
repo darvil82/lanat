@@ -8,10 +8,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 /**
@@ -52,12 +48,12 @@ public class ParsedArguments {
 	 * @param <T> The type of the value of the argument
 	 */
 	@SuppressWarnings("unchecked") // we'll just have to trust the user
-	public <T> @NotNull ParsedArgument<T> get(@NotNull Argument<?, T> arg) {
+	public <T> @NotNull ParsedArgumentValue<T> get(@NotNull Argument<?, T> arg) {
 		if (!this.parsedArgs.containsKey(arg)) {
 			throw new ArgumentNotFoundException(arg);
 		}
 
-		return new ParsedArgument<>((T)this.parsedArgs.get(arg));
+		return new ParsedArgumentValue<>((T)this.parsedArgs.get(arg));
 	}
 
 	/**
@@ -80,7 +76,7 @@ public class ParsedArguments {
 	 * @throws CommandNotFoundException If the command specified in the route does not exist
 	 * @throws ArgumentNotFoundException If the argument specified in the route does not exist
 	 */
-	public <T> @NotNull ParsedArgument<T> get(@NotNull String argRoute) {
+	public <T> @NotNull ParsedArgumentValue<T> get(@NotNull String argRoute) {
 		return this.get(argRoute.split(" *" + Pattern.quote(ParsedArguments.separator) + " *"));
 	}
 
@@ -109,7 +105,7 @@ public class ParsedArguments {
 	 * @throws CommandNotFoundException If the command specified in the route does not exist
 	 */
 	@SuppressWarnings("unchecked") // we'll just have to trust the user
-	public <T> @NotNull ParsedArgument<T> get(@NotNull String... argRoute) {
+	public <T> @NotNull ParsedArgumentValue<T> get(@NotNull String... argRoute) {
 		if (argRoute.length == 0) {
 			throw new IllegalArgumentException("argument route must not be empty");
 		}
@@ -117,7 +113,7 @@ public class ParsedArguments {
 		ParsedArguments matchedParsedArgs;
 
 		if (argRoute.length == 1) {
-			return (ParsedArgument<T>)this.get(this.getArgument(argRoute[0]));
+			return (ParsedArgumentValue<T>)this.get(this.getArgument(argRoute[0]));
 		} else if ((matchedParsedArgs = this.getSubParsedArgs(argRoute[0])) != null) {
 			return matchedParsedArgs.get(Arrays.copyOfRange(argRoute, 1, argRoute.length));
 		} else {
@@ -148,120 +144,5 @@ public class ParsedArguments {
 		for (var sub : this.subParsedArguments)
 			if (sub.cmd.hasName(name)) return sub;
 		return null;
-	}
-
-
-	/**
-	 * Container for a parsed argument value.
-	 * @param <T> The type of the argument value.
-	 */
-	public static class ParsedArgument<T> {
-		private final @Nullable T value;
-
-		ParsedArgument(@Nullable T value) {
-			this.value = value;
-		}
-
-		/**
-		 * @return The parsed value of the argument, or <code>null</code> if the argument was not parsed.
-		 */
-		public @Nullable T get() {
-			return this.value;
-		}
-
-		/**
-		 * @return <code>true</code> if the argument was parsed, <code>false</code> otherwise.
-		 */
-		public boolean defined() {
-			return this.value != null;
-		}
-
-		/**
-		 * Specifies a function to run if the argument was parsed.
-		 *
-		 * @param onDefined The function to run if the argument was parsed. This function will receive the parsed
-		 * 	value.
-		 */
-		public @NotNull ParsedArgument<T> defined(@NotNull Consumer<T> onDefined) {
-			if (this.defined()) onDefined.accept(this.value);
-			return this;
-		}
-
-		/**
-		 * Returns <code>true</code> if the argument was not parsed, <code>false</code> otherwise. If a single value array is passed, and the
-		 * argument was parsed, this will set the first value of the array to the parsed value.
-		 * @param value A single value array to set the parsed value to if the argument was parsed.
-		 * @return <code>true</code> if the argument was parsed, <code>false</code> otherwise.
-		 * @throws IllegalArgumentException If the value array is not of length 1
-		 */
-		public boolean defined(@Nullable T @NotNull [] value) {
-			if (value.length != 1) {
-				throw new IllegalArgumentException("value must be an array of length 1");
-			}
-
-			if (this.defined()) {
-				value[0] = this.value;
-				return true;
-			}
-
-			return false;
-		}
-
-		/**
-		 * @return <code>true</code> if the argument was not parsed, <code>false</code> otherwise.
-		 */
-		public boolean undefined() {
-			return this.value == null;
-		}
-
-		/**
-		 * Returns the supplied fallback value if the argument was not parsed, otherwise returns the parsed value.
-		 *
-		 * @param fallbackValue The fallback value to return if the argument was not parsed.
-		 * @return The parsed value if the argument was parsed, otherwise the fallback value.
-		 */
-		public T undefined(@NotNull T fallbackValue) {
-			return this.defined() ? this.value : fallbackValue;
-		}
-
-		/**
-		 * Specifies a supplier function that will be called when the argument is not parsed. The supplier will be
-		 * called and its return value will be returned if so.
-		 *
-		 * @param fallbackCb The supplier function to call if the argument was not parsed.
-		 * @return The parsed value if the argument was parsed, otherwise the value returned by the supplier.
-		 */
-		public T undefined(@NotNull Supplier<@NotNull T> fallbackCb) {
-			return this.defined() ? this.value : fallbackCb.get();
-		}
-
-		/**
-		 * Specifies a function to run if the argument was not parsed.
-		 * @param onUndefined The function to run if the argument was not parsed.
-		 */
-		public @NotNull ParsedArgument<T> undefined(@NotNull Runnable onUndefined) {
-			if (this.undefined()) onUndefined.run();
-			return this;
-		}
-
-		/**
-		 * Returns <code><code>true</code></code> if the argument was parsed and the value matches the given predicate, <code>false</code>
-		 * otherwise.
-		 *
-		 * @param predicate The predicate to test the value against (if the argument was parsed). This predicate will
-		 * 	never receive a <code>null</code> value.
-		 * @return <code><code>true</code></code> if the argument was parsed and the value matches the given predicate, <code>false</code> otherwise.
-		 */
-		public boolean matches(@NotNull Predicate<@Nullable T> predicate) {
-			return this.defined() && predicate.test(this.value);
-		}
-
-		/**
-		 * @return A {@link Optional} containing the parsed value if the argument was parsed, or an empty {@link Optional}
-		 * 	otherwise.
-		 */
-		public Optional<T> asOptional() {
-			return Optional.ofNullable(this.value);
-		}
 	}
 }

@@ -1,14 +1,10 @@
 package lanat.test;
 
-import lanat.Argument;
-import lanat.ArgumentGroup;
-import lanat.Command;
-import lanat.CommandTemplate;
+import lanat.*;
 import lanat.argumentTypes.CounterArgument;
 import lanat.argumentTypes.IntArgument;
 import lanat.argumentTypes.StringArgument;
 import lanat.commandTemplates.DefaultCommandTemplate;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 public final class ManualTests {
@@ -37,7 +33,9 @@ public final class ManualTests {
 			.printErrors()
 			.into(MyProgram.class);
 
-		System.out.println(parsed.string);
+		parsed.string
+			.defined(s -> System.out.println("Value is defined: " + s))
+			.undefined(() -> System.out.println("undefined!"));
 		System.out.println(parsed.number);
 		System.out.println(parsed.subCommand.counter);
 	}
@@ -48,7 +46,7 @@ class MyProgram extends DefaultCommandTemplate {
 	public MyProgram() {}
 
 	@Argument.Define(type = StringArgument.class, description = "This is a string argument.")
-	public String string;
+	public ParsedArgumentValue<String> string;
 
 	@Argument.Define(type = IntArgument.class, description = "<desc=!.type>")
 	public int number = 12;

@@ -23,10 +23,11 @@ public final class UtlString {
 	}
 
 	/**
-	 * Wrap a string in two strings at both sides.
+	 * Wrap a string in two strings at both sides. If the string is <code>null</code>, it will be replaced with
+	 * <code>"null"</code>.
 	 */
 	public static @NotNull String surround(@Nullable String str, @NotNull String wrapper) {
-		return wrapper + str + wrapper;
+		return str == null ? "null" : wrapper + str + wrapper;
 	}
 
 	/**

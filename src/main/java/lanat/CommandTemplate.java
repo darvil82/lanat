@@ -12,7 +12,11 @@ import java.util.List;
 public abstract class CommandTemplate {
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.METHOD)
-	public @interface InitDef {}
+	protected @interface InitDef {}
+
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(ElementType.FIELD)
+	protected @interface CommandAccessor {}
 
 	public record CommandBuildHelper(@NotNull Command cmd, @NotNull List<Argument.ArgumentBuilder<?, ?>> args) {
 		public Argument.ArgumentBuilder<?, ?> getArgument(@NotNull String name) {

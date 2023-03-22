@@ -14,6 +14,7 @@ import lanat.parsing.Tokenizer;
 import lanat.parsing.errors.CustomError;
 import lanat.utils.*;
 import lanat.utils.displayFormatter.Color;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -286,6 +287,7 @@ public class Command
 		if (this.names.isEmpty()) {
 			this.addNames(clazz.getAnnotation(Command.Define.class).names());
 		}
+
 		argBuilders.forEach(b -> this.addArgument(b.build()));
 	}
 
@@ -294,13 +296,13 @@ public class Command
 	void from(@NotNull MClass<T> clazz, ArrayList<Argument.ArgumentBuilder<?, ?>> argBuilders) {
 		if (!mirror(CommandTemplate.class).isSuperclassOf(clazz)) return;
 
-		// get to the top of the hierarchy
-		clazz.getSuperclass().ifPresent(superClass -> this.from((MClass<T>)superClass, argBuilders));
-
 		// don't allow classes without the @Command.Define annotation
 		if (!clazz.isAnnotatedWith(Command.Define.class)) {
-			throw new IllegalArgumentException("The class '%s' is not annotated with @Command.Define".formatted(clazz.getName()));
+			throw new IllegalArgumentException("The class '" + clazz.getName() + "' is not annotated with @Command.Define");
 		}
+
+		// get to the top of the hierarchy
+		clazz.getSuperclass().ifPresent(superClass -> this.from((MClass<T>)superClass, argBuilders));
 
 		clazz.getFields(Filter.forFields()
 			.withAnnotation(Argument.Define.class))
@@ -313,7 +315,7 @@ public class Command
 			.withAnnotation(CommandTemplate.InitDef.class)
 			.withName("init")
 			.withParameter(CommandTemplate.CommandBuildHelper.class)
-		).ifPresent(m -> m.invokeWithoutInstance(new CommandTemplate.CommandBuildHelper(this, argBuilders)));
+		).ifPresent(m -> m.invokeWithNoInstance(new CommandTemplate.CommandBuildHelper(this, argBuilders)));
 	}
 
 	void passPropertiesToChildren() {

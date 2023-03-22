@@ -193,7 +193,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 				.withNames(names.length == 0 ? new String[] { field.getName() } : names);
 
 			if (argTypeCtor.isPresent()) {
-				final var argType = argTypeCtor.get().invokeWithoutInstance();
+				final var argType = argTypeCtor.get().invokeWithNoInstance();
 				argumentBuilder.withArgType((Type)argType);
 			}
 

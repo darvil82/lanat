@@ -113,7 +113,7 @@ abstract class ParseStateErrorBase<T extends Enum<T> & ErrorLevelProvider> imple
 			if (!this.isHandlerMethod(method)) continue;
 
 			try {
-				method.requireAccessible().invokeWithInstance(this);
+				method.requireAccessible(this).invokeWithInstance(this);
 			} catch (MirrorException e) {
 				throw new RuntimeException(e);
 			}

@@ -3,6 +3,8 @@ package lanat.test;
 import lanat.Argument;
 import lanat.ArgumentGroup;
 import lanat.Command;
+import lanat.CommandTemplate;
+import lanat.argumentTypes.CounterArgument;
 import lanat.argumentTypes.IntArgument;
 import lanat.argumentTypes.StringArgument;
 import lanat.commandTemplates.DefaultCommandTemplate;
@@ -27,14 +29,17 @@ public final class ManualTests {
 				this.addArgument(that.getArgument("string"));
 				this.addArgument(that.getArgument("number"));
 			}});
+
+			this.addCommand(new Command(MyProgram.MySubCommand.class));
 		}};
 
-		var parsed = parser.parse("--string hello --number 67")
+		var parsed = parser.parse("--string hello --number 67 sub-command -ccc")
 			.printErrors()
 			.into(MyProgram.class);
 
 		System.out.println(parsed.string);
 		System.out.println(parsed.number);
+		System.out.println(parsed.subCommand.counter);
 	}
 }
 
@@ -48,8 +53,15 @@ class MyProgram extends DefaultCommandTemplate {
 	@Argument.Define(type = IntArgument.class, description = "<desc=!.type>")
 	public int number = 12;
 
-	@InitDef
-	public static void init(@NotNull CommandBuildHelper helper) {
-		helper.getArgument("help").withDescription("This is a custom help message.");
+	@CommandAccessor
+	public MySubCommand subCommand;
+
+
+	@Command.Define(names = "sub-command", description = "This is a sub-command.")
+	public static class MySubCommand extends CommandTemplate {
+		public MySubCommand() {}
+
+		@Argument.Define(type = CounterArgument.class, description = "This is a counter", names = "c")
+		public int counter = 0;
 	}
 }

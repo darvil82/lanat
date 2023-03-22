@@ -149,36 +149,54 @@ public class ArgumentParser extends Command {
 		}
 
 		public <T extends CommandTemplate> T into(@NotNull Class<T> clazz) {
-			return this.into(mirror(clazz));
+			return this.into(mirror(clazz), this.getParsedArguments());
 		}
 
 		@SuppressWarnings("unchecked")
-		private <T extends CommandTemplate> T into(@NotNull MClass<T> clazz) {
+		private <T extends CommandTemplate> T into(@NotNull MClass<T> clazz, @NotNull ParsedArguments parsedArgs) {
 			final var ctor = clazz.getConstructor();
 
 			if (ctor.isEmpty())
 				throw new IllegalArgumentException("the given class does not have a public constructor without parameters");
 
-			final var fields = clazz.getFields(
+			final T instance = ctor.get().invokeWithNoInstance();
+
+			clazz.getFields(
 				Filter.forFields().withAnnotation(Argument.Define.class), MClass.IncludeSuperclasses.Yes
-			).toList();
-
-			final var parsedArguments = this.getParsedArguments();
-			final T instance = ctor.get().invokeWithoutInstance();
-
-			assert instance != null;
-
-			fields.forEach(f -> {
+			).forEach(f -> {
 				@SuppressWarnings("OptionalGetWithoutIsPresent") // we know that the field has the annotation (see above)
 				final var annotation = f.getAnnotationOfType(Argument.Define.class).get();
 
 				// get the name of the argument from the annotation or field name
 				final String argName = annotation.names().length == 0 ? f.getName() : annotation.names()[0];
 
-				parsedArguments.get(argName).defined(v -> ((MField<Object>)f).setValue(instance, v));
+				parsedArgs.get(argName).defined(v -> ((MField<Object>)f).setValue(instance, v));
 			});
 
+			// now handle the sub-command attribute accessors (if any)
+			clazz.getFields(Filter.forFields().withAnnotation(CommandTemplate.CommandAccessor.class))
+				.forEach(f -> this.into$handleCommandAccessor(instance, (MField<T>)f, parsedArgs));
+
 			return instance;
+		}
+
+		private <T extends CommandTemplate>
+		void into$handleCommandAccessor(T instance, MField<T> field, ParsedArguments parsedArgs) {
+			if (!CommandTemplate.class.isAssignableFrom(field.getType()))
+				throw new IllegalArgumentException(
+					"The field '" + field.getName() + "' is annotated with @CommandAccessor but is not of type CommandTemplate"
+				);
+
+			for (var subCommand : ArgumentParser.this.subCommands) {
+				final var fieldClass = mirror(field.getType());
+
+				fieldClass.getAnnotationOfType(Command.Define.class).ifPresent(a -> {
+					final String cmdName = a.names().length == 0 ? field.getName() : a.names()[0];
+
+					if (subCommand.hasName(cmdName))
+						field.setValue(instance, this.into(fieldClass, parsedArgs.getSubParsedArgs(cmdName)));
+				});
+			}
 		}
 	}
 }

@@ -9,7 +9,7 @@ public enum CallbacksInvocationOption {
 
 	/**
 	 * The callback will only be invoked when there are no errors in the command it belongs to, and all its
-	 * subcommands.
+	 * Sub-Commands.
 	 */
 	NO_ERROR_IN_COMMAND_AND_SUBCOMMANDS,
 

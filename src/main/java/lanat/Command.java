@@ -1,5 +1,9 @@
 package lanat;
 
+import lanat.commandTemplates.DefaultCommandTemplate;
+import lanat.exceptions.ArgumentAlreadyExistsException;
+import lanat.exceptions.ArgumentGroupAlreadyExistsException;
+import lanat.exceptions.CommandAlreadyExistsException;
 import lanat.helpRepresentation.HelpFormatter;
 import lanat.parsing.Parser;
 import lanat.parsing.Token;
@@ -32,10 +36,11 @@ public class Command
 		ArgumentGroupAdder,
 		Resettable,
 		MultipleNamesAndDescription<Command>,
-		ParentCommandGetter
+		ParentElementGetter<Command>,
+		CommandUser
 {
 	private final @NotNull List<@NotNull String> names = new ArrayList<>();
-	public final @Nullable String description;
+	public @Nullable String description;
 	final @NotNull ArrayList<@NotNull Argument<?, ?>> arguments = new ArrayList<>();
 	final @NotNull ArrayList<@NotNull Command> subCommands = new ArrayList<>();
 	private Command parentCommand;
@@ -55,14 +60,14 @@ public class Command
 	final @NotNull LoopPool<@NotNull Color> colorsPool = LoopPool.atRandomIndex(Color.getBrightColors());
 
 
-	public Command(@NotNull String name, @Nullable String description) {
+	public Command(@NotNull String name, @Nullable String description, CommandTemplate template) {
 		this.addNames(name);
 		this.description = description;
-		this.addArgument(Argument.create("help")
-			.onOk(t -> System.out.println(this.getHelp()))
-			.description("Shows this message.")
-			.allowUnique()
-		);
+		template.applyTo(this);
+	}
+
+	public Command(@NotNull String name, @Nullable String description) {
+		this(name, description, new DefaultCommandTemplate());
 	}
 
 	public Command(@NotNull String name) {
@@ -74,7 +79,7 @@ public class Command
 	void addArgument(@NotNull Argument<T, TInner> argument) {
 		argument.setParentCommand(this); // has to be done before checking for duplicates
 		if (this.arguments.stream().anyMatch(a -> a.equals(argument))) {
-			throw new IllegalArgumentException("duplicate argument identifier '" + argument.getName() + "'");
+			throw new ArgumentAlreadyExistsException(argument, this);
 		}
 		this.arguments.add(argument);
 	}
@@ -82,7 +87,7 @@ public class Command
 	@Override
 	public void addGroup(@NotNull ArgumentGroup group) {
 		if (this.argumentGroups.stream().anyMatch(g -> g.name.equals(group.name))) {
-			throw new IllegalArgumentException("duplicate group identifier '" + group.name + "'");
+			throw new ArgumentGroupAlreadyExistsException(group, this);
 		}
 		group.registerGroup(this);
 		this.argumentGroups.add(group);
@@ -95,11 +100,11 @@ public class Command
 
 	public void addSubCommand(@NotNull Command cmd) {
 		if (this.subCommands.stream().anyMatch(a -> a.hasName(cmd.names.get(0)))) {
-			throw new IllegalArgumentException("cannot create two sub commands with the same name");
+			throw new CommandAlreadyExistsException(cmd, this);
 		}
 
 		if (cmd instanceof ArgumentParser) {
-			throw new IllegalArgumentException("cannot add root command as sub command");
+			throw new IllegalArgumentException("cannot add root command as Sub-Command");
 		}
 
 		this.subCommands.add(cmd);
@@ -108,13 +113,6 @@ public class Command
 
 	public @NotNull List<@NotNull Command> getSubCommands() {
 		return Collections.unmodifiableList(this.subCommands);
-	}
-
-	public @NotNull Command getRootCommand() {
-		Command root = this;
-		while (root.parentCommand != null)
-			root = root.parentCommand;
-		return root;
 	}
 
 	/**
@@ -145,10 +143,10 @@ public class Command
 		Arrays.stream(names)
 			.forEach(n -> {
 				if (!UtlString.matchCharacters(n, Character::isAlphabetic))
-					throw new IllegalArgumentException("Name '" + n + "' contains non-alphabetic characters.");
+					throw new IllegalArgumentException("Name " + UtlString.surround(n) + " contains non-alphabetic characters.");
 
 				if (this.hasName(n))
-					throw new IllegalArgumentException("Name '" + n + "' is already used by this command.");
+					throw new IllegalArgumentException("Name " + UtlString.surround(n) + " is already used by this command.");
 
 				this.names.add(n);
 			});
@@ -158,6 +156,10 @@ public class Command
 	@Override
 	public @NotNull List<String> getNames() {
 		return this.names;
+	}
+
+	public void setDescription(@NotNull String description) {
+		this.description = description;
 	}
 
 	@Override
@@ -206,7 +208,7 @@ public class Command
 	}
 
 	/**
-	 * Returns true if an argument with {@link Argument#allowUnique()} in the command was used.
+	 * Returns <code>true</code> if an argument with {@link Argument#allowUnique()} in the command was used.
 	 */
 	public boolean uniqueArgumentReceivedValue() {
 		return this.arguments.stream().anyMatch(a -> a.getUsageCount() >= 1 && a.isUniqueAllowed())
@@ -216,7 +218,7 @@ public class Command
 
 	@Override
 	public @NotNull String toString() {
-		return "Command[name='%s', description='%s', arguments=%s, subCommands=%s]"
+		return "Command[name='%s', description='%s', arguments=%s, Sub-Commands=%s]"
 			.formatted(
 				this.getName(), this.description, this.arguments, this.subCommands
 			);
@@ -231,12 +233,12 @@ public class Command
 	}
 
 	/**
-	 * Get all the tokens of all subcommands (the ones that we can get without errors) into one single list. This
-	 * includes the {@link TokenType#SUB_COMMAND} tokens.
+	 * Get all the tokens of all Sub-Commands (the ones that we can get without errors) into one single list. This
+	 * includes the {@link TokenType#COMMAND} tokens.
 	 */
 	public @NotNull ArrayList<@NotNull Token> getFullTokenList() {
 		final ArrayList<Token> list = new ArrayList<>() {{
-			this.add(new Token(TokenType.SUB_COMMAND, Command.this.getName()));
+			this.add(new Token(TokenType.COMMAND, Command.this.getName()));
 			this.addAll(Command.this.getTokenizer().getFinalTokens());
 		}};
 
@@ -312,7 +314,7 @@ public class Command
 		return switch (this.getCallbackInvocationOption()) {
 			case NO_ERROR_IN_COMMAND -> !this.hasExitErrorsNotIncludingSubCommands();
 			case NO_ERROR_IN_COMMAND_AND_SUBCOMMANDS -> !this.hasExitErrors();
-			case NO_ERROR_IN_ALL_COMMANDS -> !this.getRootCommand().hasExitErrors();
+			case NO_ERROR_IN_ALL_COMMANDS -> !this.getRoot().hasExitErrors();
 			case NO_ERROR_IN_ARGUMENT -> true;
 		};
 	}
@@ -347,16 +349,24 @@ public class Command
 			|| tokenizedSubCommand != null && tokenizedSubCommand.hasDisplayErrors();
 	}
 
+	/**
+	 * Get the error code of this Command. This is the OR of all the error codes of all the Sub-Commands that
+	 * have failed.
+	 * @see #setErrorCode(int) 
+	 * @return The error code of this command.
+	 */
 	public int getErrorCode() {
 		int errCode = this.subCommands.stream()
 			.filter(c -> c.tokenizer.isFinishedTokenizing())
-			.map(sc -> sc.getMinimumExitErrorLevel().get()
-				.isInErrorMinimum(this.getMinimumExitErrorLevel().get()) ? sc.getErrorCode() : 0
+			.map(sc ->
+				sc.getMinimumExitErrorLevel().get().isInErrorMinimum(this.getMinimumExitErrorLevel().get())
+					? sc.getErrorCode()
+					: 0
 			)
 			.reduce(0, (a, b) -> a | b);
 
-		/* If we have errors, or the subcommands had errors, do OR with our own error level.
-		 * By doing this, the error code of a subcommand will be OR'd with the error codes of all its parents. */
+		/* If we have errors, or the Sub-Commands had errors, do OR with our own error level.
+		 * By doing this, the error code of a Sub-Command will be OR'd with the error codes of all its parents. */
 		if (this.hasExitErrors() || errCode != 0) {
 			errCode |= this.errorCode.get();
 		}
@@ -386,7 +396,7 @@ public class Command
 	}
 
 	void parse() {
-		// first we need to set the tokens of all tokenized subcommands
+		// first we need to set the tokens of all tokenized subCommands
 		Command cmd = this;
 		do {
 			cmd.parser.setTokens(cmd.tokenizer.getFinalTokens());
@@ -397,18 +407,18 @@ public class Command
 	}
 
 	/**
-	 * Returns true if the argument specified by the given name is equal to this argument.
+	 * Returns <code>true</code> if the argument specified by the given name is equal to this argument.
 	 * <p>
 	 * Equality is determined by the argument's name and the command it belongs to.
 	 * </p>
 	 * @param obj the argument to compare to
-	 * @return true if the argument specified by the given name is equal to this argument
+	 * @return <code>true</code> if the argument specified by the given name is equal to this argument
 	 */
 	public boolean equals(@NotNull Command obj) {
 		return Command.equalsByNamesAndParentCmd(this, obj);
 	}
 
-	public static <T extends MultipleNamesAndDescription<?> & ParentCommandGetter>
+	public static <T extends MultipleNamesAndDescription<?> & CommandUser>
 	boolean equalsByNamesAndParentCmd(@NotNull T a, @NotNull T b) {
 		return a.getParentCommand() == b.getParentCommand() && (
 			a.getNames().stream().anyMatch(name -> {
@@ -431,8 +441,13 @@ public class Command
 	}
 
 	@Override
-	public @Nullable Command getParentCommand() {
+	public @Nullable Command getParent() {
 		return this.parentCommand;
+	}
+
+	@Override
+	public @Nullable Command getParentCommand() {
+		return this.getParent();
 	}
 }
 

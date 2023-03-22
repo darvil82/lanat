@@ -1,3 +1,5 @@
+package lanat.test;
+
 import lanat.Argument;
 import lanat.ArgumentType;
 import org.junit.jupiter.api.Test;
@@ -25,13 +27,14 @@ public class TestArgumentTypes extends UnitTests {
 			this.addArgument(Argument.create("enum", ArgumentType.ENUM(TestEnum.TWO)));
 			this.addArgument(Argument.create("key-value", ArgumentType.KEY_VALUES(ArgumentType.INTEGER())));
 			this.addArgument(Argument.create("int-range", ArgumentType.INTEGER_RANGE(3, 10)));
+			this.addArgument(Argument.create("try-parse", ArgumentType.TRY_PARSE(Double.class)));
 		}};
 	}
 
 	@Test
 	public void testBoolean() {
 		assertEquals(Boolean.TRUE, this.parser.parseArgs("--boolean").<Boolean>get("boolean").get());
-		assertFalse(this.parser.parseArgs("").<Boolean>get("boolean").defined());
+		assertEquals(Boolean.FALSE, this.parser.parseArgs("").<Boolean>get("boolean").get());
 	}
 
 	@Test
@@ -103,5 +106,12 @@ public class TestArgumentTypes extends UnitTests {
 		this.assertNotPresent("int-range");
 		assertNull(this.parseArg("int-range", "invalid"));
 		assertNull(this.parseArg("int-range", "11"));
+	}
+
+	@Test
+	public void testTryParse() {
+		assertEquals(4.67, this.<Double>parseArg("try-parse", "4.67"));
+		this.assertNotPresent("try-parse");
+		assertNull(this.parseArg("try-parse", "invalid"));
 	}
 }

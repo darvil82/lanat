@@ -1,6 +1,7 @@
 package lanat;
 
 import lanat.argumentTypes.BooleanArgument;
+import lanat.exceptions.ArgumentAlreadyExistsException;
 import lanat.parsing.errors.CustomError;
 import lanat.parsing.errors.ParseError;
 import lanat.utils.*;
@@ -41,7 +42,6 @@ import java.util.function.Consumer;
  * }
  * </pre>
  *
- * <p>
  * <h4>Using the constructors:</h4>
  * <pre>
  * {@code
@@ -74,7 +74,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		ErrorCallbacks<TInner,
 		Argument<Type, TInner>>,
 		Resettable,
-		ParentCommandGetter,
+		CommandUser,
 		MultipleNamesAndDescription<Argument<Type, TInner>>
 {
 	/**
@@ -85,7 +85,10 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	private PrefixChar prefixChar = PrefixChar.defaultPrefix;
 	private final @NotNull List<@NotNull String> names = new ArrayList<>();
 	private @Nullable String description;
-	private boolean obligatory = false, positional = false, allowUnique = false;
+	private boolean obligatory = false,
+		positional = false,
+		allowUnique = false;
+
 	private @Nullable TInner defaultValue;
 
 	/** The Command that this Argument belongs to. This should never be null after initialization. */
@@ -254,7 +257,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * </ul>
 	 */
 	public Argument<Type, TInner> positional() {
-		if (this.argType.getRequiredArgValueCount().max == 0) {
+		if (this.argType.getRequiredArgValueCount().max() == 0) {
 			throw new IllegalArgumentException("An argument that does not accept values cannot be positional");
 		}
 		this.positional = true;
@@ -278,6 +281,10 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		return this;
 	}
 
+	/**
+	 * Returns the prefix of this argument.
+	 * @return the prefix of this argument.
+	 */
 	public PrefixChar getPrefix() {
 		return this.prefixChar;
 	}
@@ -355,7 +362,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 */
 	void setParentCommand(@NotNull Command parentCommand) {
 		if (this.parentCommand != null) {
-			throw new IllegalStateException("Argument already added to a command");
+			throw new ArgumentAlreadyExistsException(this, this.parentCommand);
 		}
 		this.parentCommand = parentCommand;
 		this.representationColor.setIfNotModified(parentCommand.colorsPool.next());
@@ -372,28 +379,49 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 */
 	void setParentGroup(@NotNull ArgumentGroup parentGroup) {
 		if (this.parentGroup != null) {
-			throw new IllegalStateException("Argument already added to a group");
+			throw new ArgumentAlreadyExistsException(this, this.parentGroup);
 		}
 		this.parentGroup = parentGroup;
 	}
 
+	/**
+	 * Returns the {@link ArgumentGroup} that contains this argument, or null if it does not have one.
+	 * @return the parent group of this argument, or null if it does not have one.
+	 */
 	public @Nullable ArgumentGroup getParentGroup() {
 		return this.parentGroup;
 	}
 
+	/**
+	 * The number of times this argument has been used in a command during parsing.
+	 * @return the number of times this argument has been used in a command.
+	 */
 	public short getUsageCount() {
 		return this.argType.usageCount;
 	}
 
+	/**
+	 * The color that will be used to represent this argument in the help message.
+	 * @return the color that will be used to represent this argument in the help message.
+	 */
 	public @NotNull Color getRepresentationColor() {
 		return this.representationColor.get();
 	}
 
+	/**
+	 * Sets the color that will be used to represent this argument in the help message.
+	 * @param color the color that will be used to represent this argument in the help message.
+	 */
 	public void setRepresentationColor(@NotNull Color color) {
 		this.representationColor.set(color);
 	}
 
 
+	/**
+	 * Returns <code>true</code> if this argument is the help argument of its parent command.
+	 * This just checks if the argument's name is "help" and if it is marked with {@link #allowUnique()}.
+	 * @return <code>true</code> if this argument is the help argument of its parent command.
+	 */
 	public boolean isHelpArgument() {
 		return this.getName().equals("help") && this.isUniqueAllowed();
 	}
@@ -435,70 +463,92 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 */
 	public void parseValues(@NotNull String @NotNull [] values, short tokenIndex) {
 		// check if the argument was used more times than it should
-		if (++this.argType.usageCount > this.argType.getRequiredUsageCount().max) {
+		if (++this.argType.usageCount > this.argType.getRequiredUsageCount().max()) {
 			this.parentCommand.getParser()
 				.addError(
 					ParseError.ParseErrorType.ARG_INCORRECT_USAGES_COUNT,
-					this, values.length, this.argType.getTokenIndex() + 1
+					this, values.length, this.argType.getLastTokenIndex() + 1
 				);
 			return;
 		}
 
-		// check if the parent group of this argument is exclusive, and if so, check if any other argument in it has been used
-		if (this.parentGroup != null) {
-			var exclusivityResult = this.parentGroup.checkExclusivity();
-			if (exclusivityResult != null) {
-				this.parentCommand.getParser().addError(
-					new ParseError(
-						ParseError.ParseErrorType.MULTIPLE_ARGS_IN_EXCLUSIVE_GROUP_USED,
-						this.parentCommand.getParser().getCurrentTokenIndex(),
-						this, values.length
-					)
-					{{
-						this.setArgumentGroup(exclusivityResult);
-					}}
-				);
-				return;
-			}
-		}
-
-		this.argType.setTokenIndex(tokenIndex);
+		this.argType.setLastTokenIndex(tokenIndex);
 		this.argType.parseAndUpdateValue(values);
-		if (this.parentGroup != null) {
-			this.parentGroup.setArgUsed();
-		}
 	}
 
 	/**
 	 * {@link #parseValues(String[], short)} but passes in an empty values array to parse.
 	 */
-	public void parseValues() {
-		this.parseValues(new String[0], (short)0);
+	public void parseValues(short tokenIndex) {
+		this.parseValues(new String[0], tokenIndex);
 	}
 
 	/**
+	 * This method is called when the command is finished parsing. <strong>And should only ever be called once
+	 * (per parse).</strong>
 	 * @return the final value parsed by the argument type, or the default value if the argument was not used.
 	 */
 	public @Nullable TInner finishParsing() {
-		if (this.getUsageCount() == 0) {
-			if (this.obligatory && !this.parentCommand.uniqueArgumentReceivedValue()) {
-				this.parentCommand.getParser().addError(ParseError.ParseErrorType.OBLIGATORY_ARGUMENT_NOT_USED, this, 0);
-				return null;
-			}
+		final TInner finalValue = this.argType.getFinalValue();
+		final TInner defaultValue = this.defaultValue == null ? this.argType.getInitialValue() : this.defaultValue;
 
-			// if the argument type has a value defined (even if it wasn't used), use that. Otherwise, use the default value
-			TInner value = this.argType.getValue();
-			return value == null ? this.defaultValue : value;
-
-			// make sure that the argument was used the minimum amount of times specified
-		} else if (this.argType.usageCount < this.argType.getRequiredUsageCount().min) {
-			this.parentCommand.getParser()
-				.addError(ParseError.ParseErrorType.ARG_INCORRECT_USAGES_COUNT, this, 0);
-			return null;
-		}
+		/* no, | is not a typo. We don't want the OR operator to short-circuit, we want all of them to be evaluated
+		 * because the methods have side effects (they add errors to the parser) */
+		TInner returnValue = (finalValue == null | !this.finishParsingCheckExclusivity() | !this.finishParsingCheckUsageCount())
+			? defaultValue
+			: finalValue;
 
 		this.argType.getErrorsUnderDisplayLevel().forEach(this.parentCommand.getParser()::addError);
-		return this.argType.getFinalValue();
+		if (this.parentGroup != null) this.parentGroup.setArgUsed();
+
+		// if the argument type has a value defined (even if it wasn't used), use that. Otherwise, use the default value
+		return returnValue;
+	}
+
+	/**
+	 * Checks if the argument was used the correct amount of times.
+	 * @return <code>true</code> if the argument was used the correct amount of times.
+	 */
+	private boolean finishParsingCheckUsageCount() {
+		if (this.getUsageCount() == 0) {
+			if (this.obligatory && !this.parentCommand.uniqueArgumentReceivedValue()) {
+				this.parentCommand.getParser().addError(
+					ParseError.ParseErrorType.OBLIGATORY_ARGUMENT_NOT_USED, this, 0
+				);
+				return false;
+			}
+		// make sure that the argument was used the minimum amount of times specified
+		} else if (this.argType.usageCount < this.argType.getRequiredUsageCount().min()) {
+			this.parentCommand.getParser()
+				.addError(ParseError.ParseErrorType.ARG_INCORRECT_USAGES_COUNT, this, 0);
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Checks if the argument is part of an exclusive group, and if so, checks if there is any violation of exclusivity
+	 * in the group hierarchy.
+	 * @return <code>true</code> if there is no violation of exclusivity in the group hierarchy.
+	 */
+	private boolean finishParsingCheckExclusivity() {
+		// check if the parent group of this argument is exclusive, and if so, check if any other argument in it has been used
+		if (this.parentGroup == null || this.getUsageCount() == 0) return true;
+
+		ArgumentGroup exclusivityResult = this.parentGroup.checkExclusivity(null);
+		if (exclusivityResult == null) return true;
+
+		this.parentCommand.getParser().addError(
+			new ParseError(
+				ParseError.ParseErrorType.MULTIPLE_ARGS_IN_EXCLUSIVE_GROUP_USED,
+				this.argType.getLastTokenIndex(),
+				this, this.argType.getLastReceivedValueCount()
+			)
+			{{
+				this.setArgumentGroup(exclusivityResult);
+			}}
+		);
+		return false;
 	}
 
 	/**
@@ -508,6 +558,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * return <code>true</code> if the name is <code>"--help"</code>.
 	 * </p>
 	 * @param name the name to check
+	 * @return <code>true</code> if the name matches, <code>false</code> otherwise.
 	 */
 	public boolean checkMatch(@NotNull String name) {
 		final char prefixChar = this.getPrefix().character;
@@ -519,6 +570,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * Checks if this argument matches the given single character name.
 	 * @see #checkMatch(String)
 	 * @param name the name to check
+	 * @return <code>true</code> if the name matches, <code>false</code> otherwise.
 	 */
 	public boolean checkMatch(char name) {
 		return this.hasName(Character.toString(name));
@@ -545,12 +597,12 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	/**
-	 * Returns true if the argument specified by the given name is equal to this argument.
+	 * Returns <code>true</code> if the argument specified by the given name is equal to this argument.
 	 * <p>
 	 * Equality is determined by the argument's name and the command it belongs to.
 	 * </p>
 	 * @param obj the argument to compare to
-	 * @return true if the argument specified by the given name is equal to this argument
+	 * @return <code>true</code> if the argument specified by the given name is equal to this argument
 	 */
 	public boolean equals(@NotNull Argument<?, ?> obj) {
 		return Command.equalsByNamesAndParentCmd(this, obj);
@@ -579,6 +631,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * Sorts the given list of arguments by the synopsis view priority order.
 	 * @param args the arguments to sort
 	 * @return the sorted list
+	 * @see #compareByPriority(Argument, Argument)
 	 */
 	public static List<Argument<?, ?>> sortByPriority(@NotNull List<@NotNull Argument<?, ?>> args) {
 		return new ArrayList<>(args) {{
@@ -665,13 +718,3 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 }
 
 
-interface ArgumentAdder {
-	/**
-	 * Inserts an argument for this command to be parsed.
-	 *
-	 * @param argument the argument to be inserted
-	 */
-	<T extends ArgumentType<TInner>, TInner> void addArgument(@NotNull Argument<T, TInner> argument);
-
-	@NotNull List<@NotNull Argument<?, ?>> getArguments();
-}

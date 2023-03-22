@@ -1,7 +1,7 @@
 package lanat.argumentTypes;
 
-import lanat.utils.Range;
 import lanat.ArgumentType;
+import lanat.utils.Range;
 import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -26,5 +26,10 @@ public class FromParseableArgument<T extends Parseable<TInner>, TInner> extends 
 	@Override
 	public @Nullable TextFormatter getRepresentation() {
 		return this.parseable.getRepresentation();
+	}
+
+	@Override
+	public @Nullable String getDescription() {
+		return this.parseable.getDescription();
 	}
 }

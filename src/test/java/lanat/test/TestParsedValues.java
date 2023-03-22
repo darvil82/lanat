@@ -1,11 +1,16 @@
-import lanat.ParsedArguments;
+package lanat.test;
+
+import lanat.ParsedArgumentsRoot;
+import lanat.exceptions.ArgumentNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TestParsedValues extends UnitTests {
-	private ParsedArguments parseArgs(String args) {
+	private ParsedArgumentsRoot parseArgs(String args) {
 		return this.parser.parseArgs(args);
 	}
 
@@ -19,7 +24,7 @@ public class TestParsedValues extends UnitTests {
 	@DisplayName("Exception thrown when querying an invalid argument")
 	public void testUnknownArg() {
 		assertThrows(
-			IllegalArgumentException.class,
+			ArgumentNotFoundException.class,
 			() -> this.parseArgs("--what hello world").<String>get("not-there")
 		);
 	}
@@ -27,26 +32,26 @@ public class TestParsedValues extends UnitTests {
 	@Test
 	@DisplayName("Test querying parsed values from arguments in subCommands")
 	public void testNestedArguments() {
-		var parsedArgs = this.parseArgs("smth subcommand -cccc another 56");
-		assertEquals(4, parsedArgs.<Integer>get("subcommand.c").get());
-		assertEquals(4, parsedArgs.<Integer>get("subcommand", "c").get());
+		var parsedArgs = this.parseArgs("smth subCommand -cccc another 56");
+		assertEquals(4, parsedArgs.<Integer>get("subCommand.c").get());
+		assertEquals(4, parsedArgs.<Integer>get("subCommand", "c").get());
 
-		assertEquals(56, parsedArgs.<Integer>get("subcommand.another.number").get());
-		assertEquals(56, parsedArgs.<Integer>get("subcommand", "another", "number").get());
+		assertEquals(56, parsedArgs.<Integer>get("subCommand.another.number").get());
+		assertEquals(56, parsedArgs.<Integer>get("subCommand", "another", "number").get());
 	}
 
 	@Test
 	@DisplayName("Test the defined() callbacks")
 	public void testDefinedCallbacks() {
-		var parsedArgs = this.parseArgs("smth subcommand -cccc");
+		var parsedArgs = this.parseArgs("smth subCommand -cccc");
 		final byte[] called = { 0 };
 
-		parsedArgs.<Integer>get("subcommand.c").defined(v -> {
+		parsedArgs.<Integer>get("subCommand.c").defined(v -> {
 			assertEquals(4, v);
 			called[0]++;
 		});
 
-		parsedArgs.<Integer>get("subcommand.another.number").undefined(() -> called[0]++);
+		parsedArgs.<Integer>get("subCommand.another.number").undefined(() -> called[0]++);
 
 		assertEquals(2, called[0]);
 	}
@@ -54,10 +59,10 @@ public class TestParsedValues extends UnitTests {
 	@Test
 	@DisplayName("Test the toOptional() method")
 	public void testToOptional() {
-		var parsedArgs = this.parseArgs("smth subcommand -cccc");
-		parsedArgs.get("subcommand.c").asOptional().ifPresent(v -> assertEquals(4, v));
-		parsedArgs.get("subcommand.another.number").asOptional().ifPresent(v -> assertEquals(56, v));
-		assertTrue(parsedArgs.get("subcommand.c").asOptional().isPresent());
+		var parsedArgs = this.parseArgs("smth subCommand -cccc");
+		parsedArgs.get("subCommand.c").asOptional().ifPresent(v -> assertEquals(4, v));
+		parsedArgs.get("subCommand.another.number").asOptional().ifPresent(v -> assertEquals(56, v));
+		assertTrue(parsedArgs.get("subCommand.c").asOptional().isPresent());
 	}
 
 	@Test
@@ -91,6 +96,21 @@ public class TestParsedValues extends UnitTests {
 				IllegalArgumentException.class,
 				() -> parsedArgs.get("what").defined(value)
 			);
+		}
+	}
+
+	@Test
+	@DisplayName("Test the forward value")
+	public void testForwardValue() {
+		{
+			Optional<String> parsedArgs = this.parseArgs("foo -- hello world").getForwardValue();
+			assertTrue(parsedArgs.isPresent());
+			assertEquals("hello world", parsedArgs.get());
+		}
+
+		{
+			Optional<String> parsedArgs = this.parseArgs("foo").getForwardValue();
+			assertFalse(parsedArgs.isPresent());
 		}
 	}
 }

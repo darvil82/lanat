@@ -12,7 +12,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
-public abstract class ArgumentType<T> extends ErrorsContainerImpl<CustomError> implements Resettable, Parseable<T> {
+public abstract class ArgumentType<T>
+	extends ErrorsContainerImpl<CustomError>
+	implements Resettable, Parseable<T>, ParentElementGetter<ArgumentType<?>>
+{
 	/** This is the value that this argument type current has while being parsed. */
 	private T currentValue;
 
@@ -31,12 +34,12 @@ public abstract class ArgumentType<T> extends ErrorsContainerImpl<CustomError> i
 	 * This is used for storing errors that occur during parsing. We need to keep track of the index of the token that
 	 * caused the error. -1 means that this was still not parsed.
 	 */
-	private short tokenIndex = -1;
+	private short lastTokenIndex = -1;
 
 	/**
 	 * This specifies the number of values that this argument received when being parsed.
 	 */
-	private int receivedValueCount = 0;
+	private int lastReceivedValueCount = 0;
 
 	/** This specifies the number of times this argument type has been used during parsing. */
 	short usageCount = 0;
@@ -49,18 +52,23 @@ public abstract class ArgumentType<T> extends ErrorsContainerImpl<CustomError> i
 	private final @NotNull ArrayList<@NotNull ArgumentType<?>> subTypes = new ArrayList<>();
 
 	public ArgumentType(@NotNull T initialValue) {
+		this();
 		this.setValue(this.initialValue = initialValue);
 	}
 
-	public ArgumentType() {}
+	public ArgumentType() {
+		if (this.getRequiredUsageCount().min() == 0) {
+			throw new IllegalArgumentException("The required usage count must be at least 1.");
+		}
+	}
 
 	public final void parseAndUpdateValue(@NotNull String @NotNull [] args) {
-		this.receivedValueCount = args.length;
+		this.lastReceivedValueCount = args.length;
 		this.currentValue = this.parseValues(args);
 	}
 
 	public final void parseAndUpdateValue(@NotNull String arg) {
-		this.receivedValueCount = 1;
+		this.lastReceivedValueCount = 1;
 		this.currentValue = this.parseValues(arg);
 	}
 
@@ -80,7 +88,7 @@ public abstract class ArgumentType<T> extends ErrorsContainerImpl<CustomError> i
 		if (subType.parentArgType == this) {
 			throw new IllegalArgumentException("The sub type is already registered to this argument type.");
 		}
-		subType.tokenIndex = 0; // This is so the subtype will not throw the error that it was not parsed.
+		subType.lastTokenIndex = 0; // This is so the subtype will not throw the error that it was not parsed.
 		subType.parentArgType = this;
 		this.subTypes.add(subType);
 	}
@@ -113,7 +121,7 @@ public abstract class ArgumentType<T> extends ErrorsContainerImpl<CustomError> i
 		this.currentValue = value;
 	}
 
-	public @Nullable T getInitialValue() {
+	public T getInitialValue() {
 		return this.initialValue;
 	}
 
@@ -128,9 +136,12 @@ public abstract class ArgumentType<T> extends ErrorsContainerImpl<CustomError> i
 
 	/**
 	 * Specifies the number of times this argument type can be used during parsing.
+	 * <p>
+	 * <strong>Note: </strong> The minimum value must be at least 1.
+	 * </p>
 	 */
-	public @NotNull UsageCountRange getRequiredUsageCount() {
-		return UsageCountRange.ONE;
+	public @NotNull Range getRequiredUsageCount() {
+		return Range.ONE;
 	}
 
 	/** Specifies the representation of this argument type. This may appear in places like the help message. */
@@ -142,7 +153,7 @@ public abstract class ArgumentType<T> extends ErrorsContainerImpl<CustomError> i
 	/**
 	 * Returns the final value of this argument type. This is the value that this argument type has after parsing.
 	 */
-	public final @Nullable T getFinalValue() {
+	public @Nullable T getFinalValue() {
 		return this.currentValue;
 	}
 
@@ -187,13 +198,13 @@ public abstract class ArgumentType<T> extends ErrorsContainerImpl<CustomError> i
 			throw new IndexOutOfBoundsException("Index " + index + " is out of range for " + this.getClass().getName());
 		}
 
-		if (this.tokenIndex == -1) {
+		if (this.lastTokenIndex == -1) {
 			throw new IllegalStateException("Cannot add an error to an argument that has not been parsed yet.");
 		}
 
 		var error = new CustomError(
 			message,
-			this.tokenIndex + Math.min(index + 1, this.receivedValueCount),
+			this.lastTokenIndex + Math.min(index + 1, this.lastReceivedValueCount),
 			level
 		);
 
@@ -207,18 +218,22 @@ public abstract class ArgumentType<T> extends ErrorsContainerImpl<CustomError> i
 			throw new IndexOutOfBoundsException("Index " + error.tokenIndex + " is out of range for " + this.getClass().getName());
 		}
 
-		error.tokenIndex = this.tokenIndex + Math.min(error.tokenIndex + 1, this.receivedValueCount);
+		error.tokenIndex = this.lastTokenIndex + Math.min(error.tokenIndex + 1, this.lastReceivedValueCount);
 
 		super.addError(error);
 		this.dispatchErrorToParent(error);
 	}
 
-	protected short getTokenIndex() {
-		return this.tokenIndex;
+	protected short getLastTokenIndex() {
+		return this.lastTokenIndex;
 	}
 
-	void setTokenIndex(short tokenIndex) {
-		this.tokenIndex = tokenIndex;
+	void setLastTokenIndex(short lastTokenIndex) {
+		this.lastTokenIndex = lastTokenIndex;
+	}
+
+	int getLastReceivedValueCount() {
+		return this.lastReceivedValueCount;
 	}
 
 	/**
@@ -238,11 +253,16 @@ public abstract class ArgumentType<T> extends ErrorsContainerImpl<CustomError> i
 	@Override
 	public void resetState() {
 		this.currentValue = this.initialValue;
-		this.tokenIndex = -1;
+		this.lastTokenIndex = -1;
 		this.currentArgValueIndex = 0;
-		this.receivedValueCount = 0;
+		this.lastReceivedValueCount = 0;
 		this.usageCount = 0;
 		this.subTypes.forEach(ArgumentType::resetState);
+	}
+
+	@Override
+	public @Nullable ArgumentType<?> getParent() {
+		return this.parentArgType;
 	}
 
 	// Easy to access values. These are methods because we don't want to use the same instance everywhere.

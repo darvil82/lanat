@@ -1,8 +1,9 @@
 package lanat.argumentTypes;
 
-import lanat.utils.Range;
 import lanat.ArgumentType;
+import lanat.utils.Range;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class MultipleStringsArgument extends ArgumentType<String[]> {
 	@Override
@@ -13,5 +14,10 @@ public class MultipleStringsArgument extends ArgumentType<String[]> {
 	@Override
 	public @NotNull String[] parseValues(@NotNull String @NotNull [] args) {
 		return args;
+	}
+
+	@Override
+	public @Nullable String getDescription() {
+		return "Accepts multiple strings.";
 	}
 }

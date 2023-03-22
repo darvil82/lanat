@@ -13,6 +13,7 @@ import java.util.List;
 public class ArgumentParser extends Command {
 	private boolean isParsed = false;
 	private @Nullable String license;
+	private @Nullable String version;
 
 
 	public ArgumentParser(@NotNull String programName, @Nullable String description) {
@@ -69,9 +70,9 @@ public class ArgumentParser extends Command {
 			this.resetState();
 		}
 
-		// pass the properties of this subcommand to its children recursively (most of the time this is what the user will want)
+		// pass the properties of this Sub-Command to its children recursively (most of the time this is what the user will want)
 		this.passPropertiesToChildren();
-		this.tokenize(args); // first. This will tokenize all subCommands recursively
+		this.tokenize(args); // first. This will tokenize all Sub-Commands recursively
 		var errorHandler = new ErrorHandler(this);
 		this.parse(); // same thing, this parses all the stuff recursively
 
@@ -93,14 +94,14 @@ public class ArgumentParser extends Command {
 		);
 	}
 
-	private @NotNull String getForwardValue() {
+	private @Nullable String getForwardValue() {
 		final var tokens = this.getFullTokenList();
 		final var lastToken = tokens.get(tokens.size() - 1);
 
 		if (lastToken.type() == TokenType.FORWARD_VALUE)
 			return lastToken.contents();
 
-		return "";
+		return null;
 	}
 
 	public @Nullable String getLicense() {
@@ -109,5 +110,13 @@ public class ArgumentParser extends Command {
 
 	public void setLicense(@NotNull String license) {
 		this.license = license;
+	}
+
+	public @Nullable String getVersion() {
+		return this.version;
+	}
+
+	public void setVersion(@NotNull String version) {
+		this.version = version;
 	}
 }

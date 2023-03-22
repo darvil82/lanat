@@ -1,6 +1,7 @@
 package lanat.utils;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.function.Predicate;
@@ -9,7 +10,7 @@ public final class UtlString {
 	private UtlString() {}
 
 	/**
-	 * Apply a predicate for each character in the string, if any fails, return false.
+	 * Apply a predicate for each character in the string, if any fails, return <code>false</code>.
 	 *
 	 * @param str The string to check.
 	 * @param fn The predicate to apply to each character.
@@ -24,8 +25,15 @@ public final class UtlString {
 	/**
 	 * Wrap a string in two strings at both sides.
 	 */
-	public static @NotNull String surround(@NotNull String str, @NotNull String wrapper) {
+	public static @NotNull String surround(@Nullable String str, @NotNull String wrapper) {
 		return wrapper + str + wrapper;
+	}
+
+	/**
+	 * Wrap a string in double quotes.
+	 */
+	public static @NotNull String surround(@Nullable String str) {
+		return surround(str, "\"");
 	}
 
 	/**
@@ -185,5 +193,34 @@ public final class UtlString {
 	 */
 	public static @NotNull String removeSequences(@NotNull String str) {
 		return str.replaceAll("\033\\[[\\d;]*m", "");
+	}
+
+	/**
+	 * Returns the count given appended to the string given. An <code>'s'</code> will be appended at the end if
+	 * the count is not 1.
+	 * @param str the string to append to
+	 * @param count the count
+	 * @return "count str" or "count strs" depending on the count
+	 */
+	public static @NotNull String plural(@NotNull String str, int count) {
+		return count + " " + (count == 1 ? str : str + "s");
+	}
+
+	/**
+	 * Returns the string given if it is not null, otherwise returns an empty string.
+	 * @param str the string to check
+	 * @return the string given or an empty string
+	 */
+	public static @NotNull String fromNullable(@Nullable String str) {
+		return str == null ? "" : str;
+	}
+
+	/**
+	 * Returns true if the string given is null or empty.
+	 * @param str the string to check
+	 * @return true if the string is null or empty
+	 */
+	public static boolean isNullOrEmpty(@Nullable String str) {
+		return str == null || str.isEmpty();
 	}
 }

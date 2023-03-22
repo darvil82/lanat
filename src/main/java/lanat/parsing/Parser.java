@@ -1,11 +1,11 @@
 package lanat.parsing;
 
-import lanat.utils.Range;
 import lanat.Argument;
 import lanat.ArgumentType;
 import lanat.Command;
 import lanat.parsing.errors.CustomError;
 import lanat.parsing.errors.ParseError;
+import lanat.utils.Range;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -120,7 +120,7 @@ public class Parser extends ParsingStateBase<ParseError> {
 
 		this.hasFinished = true;
 
-		// now parse the subcommands
+		// now parse the Sub-Commands
 		this.getSubCommands().stream()
 			.filter(sb -> sb.getTokenizer().isFinishedTokenizing()) // only get the commands that were actually tokenized
 			.forEach(sb -> sb.getParser().parseTokens()); // now parse them
@@ -138,7 +138,7 @@ public class Parser extends ParsingStateBase<ParseError> {
 
 		// just skip the whole thing if it doesn't need any values
 		if (argumentValuesRange.isZero()) {
-			arg.parseValues();
+			arg.parseValues(this.currentTokenIndex);
 			return;
 		}
 
@@ -160,7 +160,7 @@ public class Parser extends ParsingStateBase<ParseError> {
 		) {
 			final Token currentToken = this.tokens.get(i);
 			if (!isInTuple && (
-					currentToken.type().isArgumentSpecifier() || i - this.currentTokenIndex >= argumentValuesRange.max
+					currentToken.type().isArgumentSpecifier() || i - this.currentTokenIndex >= argumentValuesRange.max()
 				)
 					|| currentToken.type().isTuple()
 			) break;
@@ -170,7 +170,7 @@ public class Parser extends ParsingStateBase<ParseError> {
 		final int tempArgsSize = tempArgs.size();
 		final int newCurrentTokenIndex = skipCount + ifTupleOffset;
 
-		if (tempArgsSize > argumentValuesRange.max || tempArgsSize < argumentValuesRange.min) {
+		if (tempArgsSize > argumentValuesRange.max() || tempArgsSize < argumentValuesRange.min()) {
 			this.addError(ParseError.ParseErrorType.ARG_INCORRECT_VALUE_NUMBER, arg, tempArgsSize + ifTupleOffset);
 			this.currentTokenIndex += newCurrentTokenIndex;
 			return;
@@ -198,11 +198,11 @@ public class Parser extends ParsingStateBase<ParseError> {
 
 		// just skip the whole thing if it doesn't need any values
 		if (argumentValuesRange.isZero()) {
-			arg.parseValues();
+			arg.parseValues(this.currentTokenIndex);
 			return;
 		}
 
-		if (argumentValuesRange.min > 1) {
+		if (argumentValuesRange.min() > 1) {
 			this.addError(ParseError.ParseErrorType.ARG_INCORRECT_VALUE_NUMBER, arg, 0);
 			return;
 		}

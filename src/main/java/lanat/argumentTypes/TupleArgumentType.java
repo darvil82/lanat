@@ -1,10 +1,11 @@
 package lanat.argumentTypes;
 
-import lanat.utils.Range;
 import lanat.ArgumentType;
+import lanat.utils.Range;
 import lanat.utils.displayFormatter.Color;
 import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 
 public abstract class TupleArgumentType<T> extends ArgumentType<T> {
@@ -24,5 +25,11 @@ public abstract class TupleArgumentType<T> extends ArgumentType<T> {
 	public @NotNull TextFormatter getRepresentation() {
 		return new TextFormatter(this.getValue().getClass().getSimpleName())
 			.concat(new TextFormatter(this.argCount.getRegexRange()).setColor(Color.BRIGHT_YELLOW));
+	}
+
+	@Override
+	public @Nullable String getDescription() {
+		return "Takes " + this.argCount.getMessage("value")
+			+ " of type " + this.getInitialValue().getClass().getSimpleName() + ".";
 	}
 }

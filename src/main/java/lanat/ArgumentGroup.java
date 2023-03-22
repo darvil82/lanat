@@ -1,5 +1,6 @@
 package lanat;
 
+import lanat.exceptions.ArgumentGroupAlreadyExistsException;
 import lanat.utils.Resettable;
 import lanat.utils.UtlString;
 import org.jetbrains.annotations.NotNull;
@@ -9,9 +10,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resettable, ParentCommandGetter, NamedWithDescription {
+public class ArgumentGroup
+	implements ArgumentAdder,
+		ArgumentGroupAdder,
+		Resettable,
+		CommandUser,
+		NamedWithDescription,
+		ParentElementGetter<ArgumentGroup>
+{
 	public final @NotNull String name;
-	public final @Nullable String description;
+	public @Nullable String description;
 	private Command parentCommand;
 	private @Nullable ArgumentGroup parentGroup;
 
@@ -33,7 +41,7 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resetta
 	private boolean isExclusive = false;
 
 	/**
-	 * When set to true, indicates that one argument in this group has been used. This is used when later checking for
+	 * When set to <code>true</code>, indicates that one argument in this group has been used. This is used when later checking for
 	 * exclusivity in the groups tree at {@link ArgumentGroup#checkExclusivity(ArgumentGroup)}
 	 */
 	private boolean argumentUsed = false;
@@ -69,11 +77,11 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resetta
 	@Override
 	public void addGroup(@NotNull ArgumentGroup group) {
 		if (group.parentGroup != null) {
-			throw new IllegalArgumentException("Group already has a parent.");
+			throw new ArgumentGroupAlreadyExistsException(group, group.parentGroup);
 		}
 
 		if (this.subGroups.stream().anyMatch(g -> g.name.equals(group.name))) {
-			throw new IllegalArgumentException("duplicate group identifier '" + group.name + "'");
+			throw new ArgumentGroupAlreadyExistsException(group, group);
 		}
 
 		group.parentGroup = this;
@@ -97,7 +105,7 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resetta
 	 */
 	void registerGroup(@NotNull Command parentCommand) {
 		if (this.parentCommand != null) {
-			throw new IllegalStateException("This group is already registered to a command.");
+			throw new ArgumentGroupAlreadyExistsException(this, this.parentCommand);
 		}
 
 		this.parentCommand = parentCommand;
@@ -108,20 +116,26 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resetta
 	}
 
 	@Override
-	public Command getParentCommand() {
+	public @NotNull Command getParentCommand() {
 		return this.parentCommand;
 	}
 
-	private @Nullable ArgumentGroup checkExclusivity(@Nullable ArgumentGroup childCallee) {
+	/**
+	 * Checks if there is any violation of exclusivity in this group's tree, from this group to the root.
+	 * This is done by checking if this or any of the group's siblings have been used (except for the childCallee, which is
+	 * the group that called this method). If none of them have been used, the parent group is checked, and so on.
+	 * @param childCallee The group that called this method. This is used to avoid checking the group that called this
+	 * 	method, because it is the one that is being checked for exclusivity. This can be <code>null</code> if this is the
+	 * 	first call to this method.
+	 * @return The group that caused the violation, or <code>null</code> if there is no violation.
+	 */
+	@Nullable ArgumentGroup checkExclusivity(@Nullable ArgumentGroup childCallee) {
 		if (
 			this.isExclusive && (
-				this.subGroups.stream().filter(g -> g != childCallee).anyMatch(g -> g.argumentUsed)
-					|| this.arguments.stream().anyMatch(a -> a.getUsageCount() > 0)
+				this.argumentUsed || this.subGroups.stream().filter(g -> g != childCallee).anyMatch(g -> g.argumentUsed)
 			)
 		)
-		{
 			return this;
-		}
 
 		if (this.parentGroup != null)
 			return this.parentGroup.checkExclusivity(this);
@@ -133,14 +147,11 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resetta
 		return this.arguments.isEmpty() && this.subGroups.isEmpty();
 	}
 
-	@Nullable ArgumentGroup checkExclusivity() {
-		return this.checkExclusivity(null);
-	}
 
 	void setArgUsed() {
 		this.argumentUsed = true;
 
-		// set argUsed to true on all parents until reaching the groups root
+		// set argUsed to <code>true</code> on all parents until reaching the groups root
 		if (this.parentGroup != null)
 			this.parentGroup.setArgUsed();
 	}
@@ -148,8 +159,8 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resetta
 
 	@Override
 	public void resetState() {
+		// we don't need to reset the state of the arguments, because they are reset when the command is reset
 		this.argumentUsed = false;
-		this.arguments.forEach(Resettable::resetState);
 	}
 
 	@Override
@@ -157,18 +168,19 @@ public class ArgumentGroup implements ArgumentAdder, ArgumentGroupAdder, Resetta
 		return this.name;
 	}
 
+	public void setDescription(@NotNull String description) {
+		this.description = description;
+	}
+	
 	@Override
 	public @Nullable String getDescription() {
 		return this.description;
 	}
+
+	@Override
+	public ArgumentGroup getParent() {
+		return this.parentGroup;
+	}
 }
 
 
-interface ArgumentGroupAdder {
-	/**
-	 * Adds an argument group to this element.
-	 */
-	void addGroup(@NotNull ArgumentGroup group);
-
-	@NotNull List<@NotNull ArgumentGroup> getSubGroups();
-}

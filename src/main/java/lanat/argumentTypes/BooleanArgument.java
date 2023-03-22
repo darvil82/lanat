@@ -1,12 +1,15 @@
 package lanat.argumentTypes;
 
-import lanat.utils.Range;
 import lanat.ArgumentType;
+import lanat.utils.Range;
 import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class BooleanArgument extends ArgumentType<Boolean> {
+	public BooleanArgument() {
+		super(false);
+	}
 
 	@Override
 	public Boolean parseValues(String @NotNull [] args) {

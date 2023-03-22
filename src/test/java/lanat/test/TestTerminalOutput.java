@@ -1,4 +1,5 @@
-import lanat.utils.UtlString;
+package lanat.test;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -10,7 +11,7 @@ public class TestTerminalOutput extends UnitTests {
 		// remove all the decorations to not make the tests a pain to write
 		assertEquals(
 			expected,
-			UtlString.removeSequences(errors.get(0))
+			errors.get(0)
 				// the reason we replace \r here is that windows uses CRLF (I hate windows)
 				.replaceAll(" *[│─└┌\r] ?", "")
 				.strip()
@@ -21,18 +22,18 @@ public class TestTerminalOutput extends UnitTests {
 	@Test
 	@DisplayName("Arrow points to the root command name on first obligatory argument missing")
 	public void testFirstObligatoryArgument() {
-		this.assertErrorOutput("subcommand", """
+		this.assertErrorOutput("subCommand", """
 			ERROR
-			Testing <- subcommand
+			Testing <- subCommand
 			Obligatory argument 'what' not used.""");
 	}
 
 	@Test
 	@DisplayName("Arrow points to the last token on last obligatory argument missing")
 	public void testLastObligatoryArgument() {
-		this.assertErrorOutput("foo subcommand another", """
+		this.assertErrorOutput("foo subCommand another", """
 			ERROR
-			Testing foo subcommand another <-
+			Testing foo subCommand another <-
 			Obligatory argument 'number' for command 'another' not used.""");
 	}
 
@@ -60,9 +61,9 @@ public class TestTerminalOutput extends UnitTests {
 	@Test
 	@DisplayName("Arrow points to correct token on missing value before token")
 	public void testMissingValueBeforeToken() {
-		this.assertErrorOutput("--what subcommand", """
+		this.assertErrorOutput("--what subCommand", """
 			ERROR
-			Testing --what <- subcommand
+			Testing --what <- subCommand
 			Incorrect number of values for argument 'what'.
 			Expected from 1 to 3 values, but got 0.""");
 	}
@@ -80,9 +81,9 @@ public class TestTerminalOutput extends UnitTests {
 	@Test
 	@DisplayName("Test invalid argument type value")
 	public void testInvalidArgumentTypeValue() {
-		this.assertErrorOutput("foo subcommand another bar", """
+		this.assertErrorOutput("foo subCommand another bar", """
 			ERROR
-			Testing foo subcommand another bar
+			Testing foo subCommand another bar
 			Invalid integer value: 'bar'.""");
 	}
 
@@ -93,5 +94,21 @@ public class TestTerminalOutput extends UnitTests {
 			WARNING
 			Testing [ foo ] --unknown
 			Token '--unknown' does not correspond with a valid argument, value, or command.""");
+	}
+
+	@Test
+	@DisplayName("Test incorrect usage count")
+	public void testIncorrectUsageCount() {
+		this.assertErrorOutput("foo --double-adder 5.0", """
+			ERROR
+			Testing foo --double-adder 5.0 <-
+			Argument 'double-adder' was used an incorrect amount of times.
+			Expected from 2 to 4 usages, but was used 1 time.""");
+
+		this.assertErrorOutput("foo --double-adder 5.0 --double-adder 5.0 --double-adder 5.0 --double-adder 5.0 --double-adder 5.0", """
+			ERROR
+			Testing foo --double-adder 5.0 --double-adder 5.0 --double-adder 5.0 --double-adder 5.0 --double-adder 5.0
+			Argument 'double-adder' was used an incorrect amount of times.
+			Expected from 2 to 4 usages, but was used 5 times.""");
 	}
 }

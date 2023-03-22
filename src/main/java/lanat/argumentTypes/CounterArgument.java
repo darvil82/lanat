@@ -1,10 +1,10 @@
 package lanat.argumentTypes;
 
-import lanat.UsageCountRange;
-import lanat.utils.Range;
 import lanat.ArgumentType;
+import lanat.utils.Range;
 import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class CounterArgument extends ArgumentType<Integer> {
 	public CounterArgument() {
@@ -17,8 +17,8 @@ public class CounterArgument extends ArgumentType<Integer> {
 	}
 
 	@Override
-	public @NotNull UsageCountRange getRequiredUsageCount() {
-		return UsageCountRange.AT_LEAST_ONE;
+	public @NotNull Range getRequiredUsageCount() {
+		return Range.AT_LEAST_ONE;
 	}
 
 	@Override
@@ -29,5 +29,10 @@ public class CounterArgument extends ArgumentType<Integer> {
 	@Override
 	public Integer parseValues(String @NotNull [] args) {
 		return this.getValue() + 1;
+	}
+
+	@Override
+	public @Nullable String getDescription() {
+		return "Counts the number of times this argument is used.";
 	}
 }

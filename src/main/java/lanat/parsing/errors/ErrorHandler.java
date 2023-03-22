@@ -67,7 +67,7 @@ public class ErrorHandler {
 	 *   SUB_COMMAND,
 	 *   ARGUMENT_NAME
 	 * }}</pre>
-	 * The nesting level of the second subcommand is <strong>1</strong> (starting at 0), and its index in the token list
+	 * The nesting level of the second Sub-Command is <strong>1</strong> (starting at 0), and its index in the token list
 	 * is <strong>3</strong>.
 	 *
 	 * @return <code>-1</code> if the command is not found.
@@ -76,7 +76,7 @@ public class ErrorHandler {
 		if (level <= 0) return 0;
 
 		for (int i = 0, appearances = 0; i < this.tokens.size(); i++) {
-			if (this.tokens.get(i).type() == TokenType.SUB_COMMAND) {
+			if (this.tokens.get(i).type() == TokenType.COMMAND) {
 				appearances++;
 			}
 			if (appearances > level) {

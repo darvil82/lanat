@@ -14,15 +14,15 @@ public class DefaultCommandTemplate extends CommandTemplate {
 	 * arguments that execute actions, and they not really provide any useful values.
 	 */
 	@InitDef
-	public static void init(@NotNull CommandBuildHelper helper) {
-		helper.addArgument(Argument.create("help")
-			.onOk(t -> System.out.println(helper.cmd().getHelp()))
+	public static void init(@NotNull Command cmd) {
+		cmd.addArgument(Argument.create("help")
+			.onOk(t -> System.out.println(cmd.getHelp()))
 			.withDescription("Shows this message.")
 			.allowsUnique()
 		);
 
-		if (helper.cmd() instanceof ArgumentParser ap) {
-			helper.addArgument(Argument.create("version")
+		if (cmd instanceof ArgumentParser ap) {
+			cmd.addArgument(Argument.create("version")
 				.onOk(t -> System.out.println("Version: " + ap.getVersion()))
 				.withDescription("Shows the version of this program.")
 				.allowsUnique()

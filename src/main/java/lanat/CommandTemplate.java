@@ -18,20 +18,8 @@ public abstract class CommandTemplate {
 	@Target(ElementType.FIELD)
 	protected @interface CommandAccessor {}
 
-	public record CommandBuildHelper(@NotNull Command cmd, @NotNull List<Argument.ArgumentBuilder<?, ?>> args) {
-		public Argument.ArgumentBuilder<?, ?> getArgument(@NotNull String name) {
-			return this.args.stream()
-				.filter(a -> a.hasName(name))
-				.findFirst()
-				.orElse(null);
-		}
-
-		public void addArgument(@NotNull Argument.ArgumentBuilder<?, ?> arg) {
-			this.args.add(arg);
-		}
-	}
 
 	// Dummy method so that we prevent the user from creating an instance method with the same name.
 	@InitDef
-	public static void init(@NotNull CommandBuildHelper helper) {}
+	public static void init(@NotNull Command cmd) {}
 }

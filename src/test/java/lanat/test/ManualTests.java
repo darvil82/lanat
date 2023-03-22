@@ -5,6 +5,7 @@ import lanat.argumentTypes.CounterArgument;
 import lanat.argumentTypes.IntArgument;
 import lanat.argumentTypes.StringArgument;
 import lanat.commandTemplates.DefaultCommandTemplate;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 public final class ManualTests {
@@ -53,6 +54,14 @@ class MyProgram extends DefaultCommandTemplate {
 
 	@CommandAccessor
 	public MySubCommand subCommand;
+
+	@InitDef
+	public static void init(@NotNull Command cmd) {
+		cmd.addGroup(new ArgumentGroup("test-group") {{
+			this.addArgument(cmd.getArgument("string"));
+			this.addArgument(cmd.getArgument("number"));
+		}});
+	}
 
 
 	@Command.Define(names = "sub-command", description = "This is a sub-command.")

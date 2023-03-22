@@ -280,20 +280,16 @@ public class Command
 	}
 
 	public void from(@NotNull Class<? extends CommandTemplate> clazz) {
-		var argBuilders = new ArrayList<Argument.ArgumentBuilder<?, ?>>();
-
-		this.from(mirror(clazz), argBuilders);
-
 		if (this.names.isEmpty()) {
 			this.addNames(clazz.getAnnotation(Command.Define.class).names());
 		}
 
-		argBuilders.forEach(b -> this.addArgument(b.build()));
+		this.from(mirror(clazz));
 	}
 
 	@SuppressWarnings("unchecked")
 	private <T extends CommandTemplate>
-	void from(@NotNull MClass<T> clazz, ArrayList<Argument.ArgumentBuilder<?, ?>> argBuilders) {
+	void from(@NotNull MClass<T> clazz) {
 		if (!mirror(CommandTemplate.class).isSuperclassOf(clazz)) return;
 
 		// don't allow classes without the @Command.Define annotation
@@ -302,20 +298,20 @@ public class Command
 		}
 
 		// get to the top of the hierarchy
-		clazz.getSuperclass().ifPresent(superClass -> this.from((MClass<T>)superClass, argBuilders));
+		clazz.getSuperclass().ifPresent(superClass -> this.from((MClass<T>)superClass));
 
 		clazz.getFields(Filter.forFields()
 			.withAnnotation(Argument.Define.class))
 			.forEach(f ->
 				f.getAnnotationOfType(Argument.Define.class)
-					.ifPresent(a -> argBuilders.add(Argument.ArgumentBuilder.fromField(f, a)))
+					.ifPresent(a -> this.addArgument(Argument.ArgumentBuilder.fromField(f, a)))
 			);
 
 		clazz.getMethod(Filter.forMethods()
 			.withAnnotation(CommandTemplate.InitDef.class)
 			.withName("init")
-			.withParameter(CommandTemplate.CommandBuildHelper.class)
-		).ifPresent(m -> m.invokeWithNoInstance(new CommandTemplate.CommandBuildHelper(this, argBuilders)));
+			.withParameter(Command.class)
+		).ifPresent(m -> m.invokeWithNoInstance(this));
 	}
 
 	void passPropertiesToChildren() {

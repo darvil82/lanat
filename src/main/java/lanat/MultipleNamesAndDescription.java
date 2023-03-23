@@ -3,6 +3,7 @@ package lanat;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public interface MultipleNamesAndDescription<T> extends NamedWithDescription {
@@ -29,8 +30,8 @@ public interface MultipleNamesAndDescription<T> extends NamedWithDescription {
 		if (names.size() == 1)
 			return names.get(0);
 
-		return new ArrayList<>(this.getNames()) {{
-			this.sort((a, b) -> b.length() - a.length());
+		return new ArrayList<>(names) {{
+			this.sort(Comparator.comparingInt(String::length).reversed());
 		}}.get(0);
 	}
 

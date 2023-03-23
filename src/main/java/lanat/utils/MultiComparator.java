@@ -1,13 +1,14 @@
 package lanat.utils;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.function.Predicate;
 
 /**
  * A class that allows you to compare two objects using a list of predicates.
  * @param <T> The type of the objects to compare.
  * */
-public class Comparator<T> {
+public class MultiComparator<T> {
 	private final ArrayList<Pred<T>> predicates = new ArrayList<>();
 
 	private record Pred<T>(int priority, Predicate<T> predicateCb) {
@@ -22,7 +23,7 @@ public class Comparator<T> {
 	 * @param p The predicate to add.
 	 * @param priority The priority of the predicate. The higher the priority, the earlier the predicate will be checked.
 	 */
-	public Comparator<T> addPredicate(Predicate<T> p, int priority) {
+	public MultiComparator<T> addPredicate(Predicate<T> p, int priority) {
 		this.predicates.add(new Pred<>(priority, p));
 		return this;
 	}
@@ -31,7 +32,7 @@ public class Comparator<T> {
 	 * Adds a predicate to the list of predicates to be used when comparing. The priority of the predicate will be 0.
 	 * @param p The predicate to add.
 	 */
-	public Comparator<T> addPredicate(Predicate<T> p) {
+	public MultiComparator<T> addPredicate(Predicate<T> p) {
 		return this.addPredicate(p, 0);
 	}
 
@@ -43,7 +44,7 @@ public class Comparator<T> {
 	 * 0 if they are equal.
 	 */
 	public int compare(T first, T second) {
-		this.predicates.sort((a, b) -> b.priority - a.priority);
+		this.predicates.sort(Comparator.comparingInt(Pred::priority));
 		for (final Pred<T> p : this.predicates) {
 			if (p.predicateCb.test(first)) return -1;
 			if (p.predicateCb.test(second)) return 1;

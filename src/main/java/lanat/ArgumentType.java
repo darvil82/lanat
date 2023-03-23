@@ -5,7 +5,6 @@ import lanat.parsing.errors.CustomError;
 import lanat.utils.ErrorsContainerImpl;
 import lanat.utils.Range;
 import lanat.utils.Resettable;
-import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -76,9 +75,6 @@ public abstract class ArgumentType<T>
 		return this.parseValues(new String[] { arg });
 	}
 
-	@Override
-	public abstract @Nullable T parseValues(@NotNull String @NotNull [] args);
-
 
 	/**
 	 * By registering a subtype, this allows you to listen for errors that occurred in this subtype during parsing. The
@@ -125,10 +121,6 @@ public abstract class ArgumentType<T>
 		return this.initialValue;
 	}
 
-
-	/**
-	 * Specifies the number of values that this argument should receive when being parsed.
-	 */
 	@Override
 	public @NotNull Range getRequiredArgValueCount() {
 		return Range.ONE;
@@ -142,12 +134,6 @@ public abstract class ArgumentType<T>
 	 */
 	public @NotNull Range getRequiredUsageCount() {
 		return Range.ONE;
-	}
-
-	/** Specifies the representation of this argument type. This may appear in places like the help message. */
-	@Override
-	public @Nullable TextFormatter getRepresentation() {
-		return new TextFormatter(this.getClass().getSimpleName());
 	}
 
 	/**

@@ -5,6 +5,8 @@ import lanat.argumentTypes.CounterArgument;
 import lanat.argumentTypes.IntArgument;
 import lanat.argumentTypes.StringArgument;
 import lanat.commandTemplates.DefaultCommandTemplate;
+import lanat.utils.displayFormatter.Color;
+import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 

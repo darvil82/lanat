@@ -52,7 +52,7 @@ public class ColorTag extends Tag {
 
 		if (!value.contains(":")) return getColor(value).toString();
 
-		final String[] split = value.split(":");
+		final String[] split = UtlString.split(value, ':');
 		if (split.length != 2)
 			throw new MalformedTagException(
 				"color", "invalid color format " + UtlString.surround(value)
@@ -63,7 +63,7 @@ public class ColorTag extends Tag {
 	}
 
 	private static Color getColor(@NotNull String colorName) {
-		return switch (colorName.toLowerCase().trim().replaceAll("[_-]", " ")) {
+		return switch (colorName.toLowerCase().strip().replaceAll("[_-]", " ")) {
 			case "black", "k" -> Color.BLACK;
 			case "red", "r" -> Color.BRIGHT_RED;
 			case "green", "g" -> Color.BRIGHT_GREEN;

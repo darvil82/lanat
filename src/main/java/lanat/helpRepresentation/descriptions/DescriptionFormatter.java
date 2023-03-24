@@ -3,6 +3,7 @@ package lanat.helpRepresentation.descriptions;
 import lanat.CommandUser;
 import lanat.NamedWithDescription;
 import lanat.helpRepresentation.descriptions.exceptions.MalformedTagException;
+import lanat.utils.UtlString;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -84,8 +85,8 @@ public final class DescriptionFormatter {
 	 */
 	private static @NotNull String parseTag(@NotNull String tagContents, @NotNull NamedWithDescription user) {
 		if (tagContents.contains("=")) {
-			final var split = tagContents.split("=", 2);
-			return Tag.parseTagValue(user, split[0].trim(), split[1].trim());
+			final var split = UtlString.split(tagContents, '=', 2);
+			return Tag.parseTagValue(user, split[0], split[1]);
 		}
 
 		return Tag.parseTagValue(user, tagContents, null);

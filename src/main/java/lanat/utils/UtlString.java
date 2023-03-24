@@ -1,10 +1,12 @@
 package lanat.utils;
 
+import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 
 public final class UtlString {
 	private UtlString() {}
@@ -45,7 +47,7 @@ public final class UtlString {
 
 	public static @NotNull String sanitizeName(@NotNull String name) {
 		// remove all non-alphanumeric characters
-		final var sanitized = UtlString.trim(name.replaceAll("[^a-zA-Z0-9 -]", ""), "[^a-zA-Z0-9]")
+		final var sanitized = UtlString.strip(name.replaceAll("[^a-zA-Z0-9 -]", ""), "[^a-zA-Z0-9]")
 			.replaceAll(" ", "-");
 
 		if (sanitized.isEmpty())
@@ -164,35 +166,31 @@ public final class UtlString {
 	}
 
 	public static @NotNull String center(@NotNull String str, int width, char padChar) {
-		final var buffer = new StringBuilder();
 		final var paddingString = String.valueOf(padChar).repeat((width / 2) - (str.length() / 2) - 1);
 
-		buffer.append(paddingString);
-		buffer.append(str);
-		buffer.append(paddingString);
-
-		return buffer.toString();
+		return paddingString + str + paddingString;
 	}
 
 	public static @NotNull String center(@NotNull String str, int width) {
 		return UtlString.center(str, width, '─');
 	}
 
-	public static @NotNull String trim(@NotNull String str, @NotNull String regex) {
+	/**
+	 * Remove all leading and trailing occurrences of the given regex from the string.
+	 * @param str the string to strip
+	 * @param regex the regex to remove
+	 * @return the stripped string
+	 */
+	public static @NotNull String strip(@NotNull String str, @NotNull String regex) {
 		return str.replaceAll("^" + regex + "+", "")
 			.replaceAll(regex + "+$", "");
 	}
-
-	public static @NotNull String trim(@NotNull String str) {
-		return UtlString.trim(str, "[ \n\r\t]");
-	}
-
 
 	/**
 	 * Remove all formatting colors or format from the string
 	 */
 	public static @NotNull String removeSequences(@NotNull String str) {
-		return str.replaceAll("\033\\[[\\d;]*m", "");
+		return str.replaceAll(TextFormatter.ESC + "\\[[\\d;]*m", "");
 	}
 
 	/**
@@ -222,5 +220,44 @@ public final class UtlString {
 	 */
 	public static boolean isNullOrEmpty(@Nullable String str) {
 		return str == null || str.isEmpty();
+	}
+
+	/**
+	 * Split a string by the given splitter. This is similar to {@link String#split(String)} but it will also
+	 * ignore spaces around the splitter.
+	 * @param str the string to split
+	 * @param splitter the splitter
+	 * @param max the maximum amount of splits
+	 * @return the split string
+	 */
+	public static @NotNull String @NotNull [] split(@NotNull String str, @NotNull String splitter, int max) {
+		return str.split(" *" + Pattern.quote(splitter) + " *", max);
+	}
+
+	/**
+	 * {@link UtlString#split(String, String, int)} with max set to -1. (Default of {@link String#split(String)})
+	 * @see UtlString#split(String, String, int)
+	 */
+	public static @NotNull String @NotNull [] split(@NotNull String str, @NotNull String splitter) {
+		return UtlString.split(str, splitter, -1);
+	}
+
+	/**
+	 * Split a string by the given splitter. This is similar to {@link String#split(String)} but it will also
+	 * ignore spaces around the splitter.
+	 * @param str the string to split
+	 * @param splitter the splitter
+	 * @return the split string
+	 */
+	public static @NotNull String @NotNull [] split(@NotNull String str, char splitter, int max) {
+		return UtlString.split(str, String.valueOf(splitter), max);
+	}
+
+	/**
+	 * {@link UtlString#split(String, char, int)} with max set to -1. (Default of {@link String#split(String)})
+	 * @see UtlString#split(String, char, int)
+	 */
+	public static @NotNull String @NotNull [] split(@NotNull String str, char splitter) {
+		return UtlString.split(str, String.valueOf(splitter), -1);
 	}
 }

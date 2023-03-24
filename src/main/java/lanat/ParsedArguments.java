@@ -2,6 +2,7 @@ package lanat;
 
 import lanat.exceptions.ArgumentNotFoundException;
 import lanat.exceptions.CommandNotFoundException;
+import lanat.utils.UtlString;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,7 +22,6 @@ public class ParsedArguments {
 	private final @NotNull HashMap<@NotNull Argument<?, ?>, @Nullable Object> parsedArgs;
 	private final @NotNull Command cmd;
 	private final @NotNull List<@NotNull ParsedArguments> subParsedArguments;
-	private static @NotNull String separator = ".";
 
 	ParsedArguments(
 		@NotNull Command cmd,
@@ -32,18 +32,6 @@ public class ParsedArguments {
 		this.parsedArgs = parsedArgs;
 		this.cmd = cmd;
 		this.subParsedArguments = subParsedArguments;
-	}
-
-	/**
-	 * Specifies the separator to use when using the {@link #get(String)} method. By default, this is set to
-	 * <code>.</code>
-	 * @param separator The separator to use
-	 */
-	public static void setSeparator(@NotNull String separator) {
-		if (separator.isEmpty()) {
-			throw new IllegalArgumentException("separator cannot be empty");
-		}
-		ParsedArguments.separator = separator;
 	}
 
 	/**
@@ -62,7 +50,7 @@ public class ParsedArguments {
 
 	/**
 	 * Returns the parsed value of the argument with the given name. In order to access arguments in sub-commands, use
-	 * the separator specified by {@link #setSeparator(String)}. (By default, this is <code>.</code>)
+	 * the <code>.</code> separator to specify the route to the argument.
 	 *
 	 * <br><br>
 	 *
@@ -73,15 +61,14 @@ public class ParsedArguments {
 	 * <p>
 	 * More info at {@link #get(String...)}
 	 *
-	 * @param argRoute The route to the argument, separated by a separator set by {@link #setSeparator(String)}
-	 * 	(default is <code>.</code>)
+	 * @param argRoute The route to the argument, separated by the <code>.</code> character.
 	 * @param <T> The type of the value of the argument. This is used to avoid casting. A type that does not match the
 	 *  argument's type will result in a {@link ClassCastException}.
 	 * @throws CommandNotFoundException If the command specified in the route does not exist
 	 * @throws ArgumentNotFoundException If the argument specified in the route does not exist
 	 */
 	public <T> ParsedArgument<T> get(@NotNull String argRoute) {
-		return this.get(argRoute.split(" *" + Pattern.quote(ParsedArguments.separator) + " *"));
+		return this.get(UtlString.split(argRoute, '.'));
 	}
 
 

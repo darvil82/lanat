@@ -21,20 +21,18 @@ public final class ManualTests {
 			ONE, TWO, THREE
 		}
 
-		var parser = new TestingParser(MyProgram.class) {{
-			final var that = this;
+//		var parser = new TestingParser(MyProgram.class) {{
+//			final var that = this;
+//
+//			this.addGroup(new ArgumentGroup("test-group") {{
+//				this.addArgument(that.getArgument("string"));
+//				this.addArgument(that.getArgument("number"));
+//			}});
+//
+//			this.addCommand(new Command(MyProgram.MySubCommand.class));
+//		}};
 
-			this.addGroup(new ArgumentGroup("test-group") {{
-				this.addArgument(that.getArgument("string"));
-				this.addArgument(that.getArgument("number"));
-			}});
-
-			this.addCommand(new Command(MyProgram.MySubCommand.class));
-		}};
-
-		var parsed = parser.parse("--string hello --number 67 sub-command -ccc")
-			.printErrors()
-			.into(MyProgram.class);
+		var parsed = ArgumentParser.parseFromInto(MyProgram.class, "--string hello --number 67 sub-command -ccc".split(" "));
 
 		parsed.string
 			.defined(s -> System.out.println("Value is defined: " + s))

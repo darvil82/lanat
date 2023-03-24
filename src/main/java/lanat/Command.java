@@ -307,11 +307,12 @@ public class Command
 					.ifPresent(a -> this.addArgument(Argument.ArgumentBuilder.fromField(f, a)))
 			);
 
-		clazz.getMethod(Filter.forMethods()
-			.withAnnotation(CommandTemplate.InitDef.class)
-			.withName("init")
-			.withParameter(Command.class)
-		).ifPresent(m -> m.invokeWithNoInstance(this));
+		// TODO: Uncomment this when mirror gets fixed
+//		clazz.getMethod(Filter.forMethods()
+//			.withAnnotation(CommandTemplate.InitDef.class)
+//			.withName("init")
+//			.withParameter(Command.class)
+//		).ifPresent(m -> m.invokeWithNoInstance(this));
 	}
 
 	void passPropertiesToChildren() {

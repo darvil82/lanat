@@ -9,6 +9,7 @@ import lanat.parsing.errors.ErrorHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.List;
 
@@ -32,12 +33,32 @@ public class ArgumentParser extends Command {
 		super(templateClass);
 	}
 
+	@SuppressWarnings("unchecked")
+	public static <T extends CommandTemplate>
+	@NotNull T parseFromInto(@NotNull Class<T> clazz, @NotNull String @NotNull [] args) {
+		final var commandDefs = Arrays.stream(clazz.getDeclaredClasses())
+			.filter(c -> c.isAnnotationPresent(Command.Define.class))
+			.filter(c -> Modifier.isStatic(c.getModifiers()))
+			.toList();
+
+		final var argParser = new ArgumentParser(clazz);
+
+		for (var commandDef : commandDefs) {
+			argParser.addCommand(new Command((Class<? extends CommandTemplate>)commandDef));
+		}
+
+		return argParser
+			.parse(args)
+			.printErrors()
+			.exitIfErrors()
+			.into(clazz);
+	}
+
 
 	/**
 	 * {@link ArgumentParser#parse(String)}
 	 */
 	public @NotNull ArgumentParser.AfterParseOptions parse(@NotNull String @NotNull [] args) {
-
 		// if we receive the classic args array, just join it back
 		return this.parse(String.join(" ", args));
 	}

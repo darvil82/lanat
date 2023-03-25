@@ -59,12 +59,12 @@ public class ErrorHandler {
 	 * token list like this:<br>
 	 * <pre>{@code
 	 * {
-	 *   SUB_COMMAND,
+	 *   COMMAND,
 	 *   ARGUMENT_NAME,
 	 *   ARGUMENT_VALUE,
-	 *   SUB_COMMAND, // <- here
+	 *   COMMAND, // <- here
 	 *   ARGUMENT_NAME_LIST,
-	 *   SUB_COMMAND,
+	 *   COMMAND,
 	 *   ARGUMENT_NAME
 	 * }}</pre>
 	 * The nesting level of the second Sub-Command is <strong>1</strong> (starting at 0), and its index in the token list

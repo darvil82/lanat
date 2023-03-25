@@ -5,8 +5,6 @@ import lanat.argumentTypes.CounterArgument;
 import lanat.argumentTypes.IntArgument;
 import lanat.argumentTypes.StringArgument;
 import lanat.commandTemplates.DefaultCommandTemplate;
-import lanat.utils.displayFormatter.Color;
-import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
@@ -32,7 +30,7 @@ public final class ManualTests {
 //			this.addCommand(new Command(MyProgram.MySubCommand.class));
 //		}};
 
-		var parsed = ArgumentParser.parseFromInto(MyProgram.class, "--string hello --number 67 sub-command -ccc".split(" "));
+		var parsed = ArgumentParser.parseFromInto(MyProgram.class, CLInput.from("--string hello --number 67 sub-command -ccc"));
 
 		parsed.string
 			.defined(s -> System.out.println("Value is defined: " + s))
@@ -70,5 +68,16 @@ class MyProgram extends DefaultCommandTemplate {
 
 		@Argument.Define(type = CounterArgument.class, description = "This is a counter", names = "c")
 		public int counter = 0;
+
+		@CommandAccessor
+		public AnotherSubCommand anotherSubCommand;
+
+		@Command.Define(names = "another-sub-command", description = "This is a sub-command.")
+		public static class AnotherSubCommand extends CommandTemplate {
+			public AnotherSubCommand() {}
+
+			@Argument.Define(type = CounterArgument.class, description = "This is a counter", names = "c")
+			public int counter = 0;
+		}
 	}
 }

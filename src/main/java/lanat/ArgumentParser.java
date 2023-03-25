@@ -12,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static fade.mirror.Mirror.mirror;
 
@@ -33,42 +34,98 @@ public class ArgumentParser extends Command {
 		super(templateClass);
 	}
 
-	@SuppressWarnings("unchecked")
-	public static <T extends CommandTemplate>
-	@NotNull T parseFromInto(@NotNull Class<T> clazz, @NotNull String @NotNull [] args) {
-		final var commandDefs = Arrays.stream(clazz.getDeclaredClasses())
-			.filter(c -> c.isAnnotationPresent(Command.Define.class))
-			.filter(c -> Modifier.isStatic(c.getModifiers()))
-			.toList();
+	/**
+	 * Constructs a new {@link ArgumentParser} based on the given {@link CommandTemplate}, parses the given input,
+	 * and populates the template with the parsed values.
+	 * <p>
+	 * This is basically a shortcut for the following code:
+	 * <pre>{@code
+	 * new ArgumentParser(clazz).parse(input).into(clazz);
+	 * }</pre>
+	 * <p>
+	 * <h3>Example:</h3>
+	 * This code:
+	 * <pre>{@code
+	 * MyTemplate parsed = new ArgumentParser(MyTemplate.class) {{
+	 *     addCommand(new Command(MyTemplate.SubTemplate.class));
+	 * }}
+	 *     .parse(input)
+	 *     .printErrors()
+	 *     .exitIfErrors()
+	 *     .into(MyTemplate.class);
+	 * }</pre>
+	 * <p>
+	 * Is equivalent to this code:
+	 * <pre>{@code
+	 * MyTemplate parsed = ArgumentParser.parseFromInto(MyTemplate.class, input);
+	 * }
+	 * @param templateClass The class to use as a template.
+	 * @param input The input to parse.
+	 * @param options A consumer that can be used for configuring the parsing process.
+	 * @return The parsed template.
+	 * @param <T> The type of the template.
+	 * @see #parseFromInto(Class, CLInput)
+	 */
+	public static <T extends CommandTemplate> @NotNull T parseFromInto(
+		@NotNull Class<T> templateClass,
+		@NotNull CLInput input,
+		@NotNull Consumer<@NotNull AfterParseOptions> options
+	) {
+		final var argParser = new ArgumentParser(templateClass);
 
-		final var argParser = new ArgumentParser(clazz);
+		// add all commands recursively
+		ArgumentParser.parseFromInto$setCommands(templateClass, argParser);
 
-		for (var commandDef : commandDefs) {
-			argParser.addCommand(new Command((Class<? extends CommandTemplate>)commandDef));
-		}
+		final AfterParseOptions opts = argParser.parse(input);
+		options.accept(opts);
 
-		return argParser
-			.parse(args)
-			.printErrors()
-			.exitIfErrors()
-			.into(clazz);
+		return opts.into(templateClass);
 	}
-
 
 	/**
-	 * {@link ArgumentParser#parse(String)}
+	 * Constructs a new {@link ArgumentParser} based on the given {@link CommandTemplate}, parses the given input,
+	 * and populates the template with the parsed values.
+	 * @param templateClass The class to use as a template.
+	 * @param input The input to parse.
+	 * @return The parsed template.
+	 * @param <T> The type of the template.
 	 */
-	public @NotNull ArgumentParser.AfterParseOptions parse(@NotNull String @NotNull [] args) {
-		// if we receive the classic args array, just join it back
-		return this.parse(String.join(" ", args));
+	public static <T extends CommandTemplate>
+	@NotNull T parseFromInto(@NotNull Class<T> templateClass, @NotNull CLInput input) {
+		return ArgumentParser.parseFromInto(templateClass, input, opts -> opts.printErrors().exitIfErrors());
 	}
+
+	/**
+	 * Adds all commands defined with {@link Command.Define} in the given class to the given parent command.
+	 * This method is recursive and will add all sub-commands of the given class.
+	 * @param templateClass The class to search for commands in.
+	 * @param parentCommand The command to add the found commands to.
+	 * @param <T> The type of the class to search for commands in.
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T extends CommandTemplate>
+	void parseFromInto$setCommands(@NotNull Class<T> templateClass, @NotNull Command parentCommand) {
+		final var commandDefs = Arrays.stream(templateClass.getDeclaredClasses())
+			.filter(c -> c.isAnnotationPresent(Command.Define.class))
+			.filter(c -> Modifier.isStatic(c.getModifiers()))
+			.filter(CommandTemplate.class::isAssignableFrom)
+			.map(c -> (Class<? extends CommandTemplate>)c)
+			.toList();
+
+		for (var commandDef : commandDefs) {
+			var command = new Command(commandDef);
+			parentCommand.addCommand(command);
+			ArgumentParser.parseFromInto$setCommands(commandDef, command);
+		}
+	}
+
 
 	/**
 	 * Parses the given command line arguments and returns a {@link ParsedArguments} object.
 	 *
-	 * @param args The command line arguments to parse.
+	 * @param input The command line arguments to parse.
 	 */
-	public @NotNull ArgumentParser.AfterParseOptions parse(@NotNull String args) {
+	public @NotNull ArgumentParser.AfterParseOptions parse(@NotNull CLInput input) {
 		if (this.isParsed) {
 			// reset all parsing related things to the initial state
 			this.resetState();
@@ -76,7 +133,7 @@ public class ArgumentParser extends Command {
 
 		// pass the properties of this Sub-Command to its children recursively (most of the time this is what the user will want)
 		this.passPropertiesToChildren();
-		this.tokenize(args); // first. This will tokenize all Sub-Commands recursively
+		this.tokenize(input.args); // first. This will tokenize all Sub-Commands recursively
 		var errorHandler = new ErrorHandler(this);
 		this.parseTokens(); // same thing, this parses all the stuff recursively
 
@@ -85,14 +142,6 @@ public class ArgumentParser extends Command {
 		this.isParsed = true;
 
 		return new AfterParseOptions(errorHandler);
-	}
-
-	/**
-	 * Parses the arguments from the <code>sun.java.command</code> system property.
-	 */
-	public @NotNull ArgumentParser.AfterParseOptions parse() {
-		final var args = System.getProperty("sun.java.command").split(" ");
-		return this.parse(Arrays.copyOfRange(args, 1, args.length));
 	}
 
 

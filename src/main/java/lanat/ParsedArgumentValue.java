@@ -123,4 +123,9 @@ public class ParsedArgumentValue<T> {
 	public Optional<T> asOptional() {
 		return Optional.ofNullable(this.value);
 	}
+
+	@Override
+	public String toString() {
+		return this.value != null ? this.value.toString() : "[undefined]";
+	}
 }

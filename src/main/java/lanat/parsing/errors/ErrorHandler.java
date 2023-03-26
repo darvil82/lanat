@@ -26,7 +26,7 @@ public class ErrorHandler {
 	 * Handles all errors and returns a list of them.
 	 */
 	public @NotNull List<@NotNull String> handleErrors() {
-		final List<Command> commands = this.rootCmd.getTokenizer().getTokenizedSubCommands();
+		final List<Command> commands = this.rootCmd.getTokenizer().getTokenizedCommands();
 		final ArrayList<String> errors = new ArrayList<>();
 
 		for (int i = 0; i < commands.size(); i++) {

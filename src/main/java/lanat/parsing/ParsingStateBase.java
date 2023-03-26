@@ -60,7 +60,7 @@ public abstract class ParsingStateBase<T extends ErrorLevelProvider> extends Err
 		return this.command.getArguments();
 	}
 
-	protected @NotNull List<@NotNull Command> getSubCommands() {
+	protected @NotNull List<@NotNull Command> getCommands() {
 		return this.command.getCommands();
 	}
 

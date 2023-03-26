@@ -271,7 +271,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 
 	/** Returns <code>true</code> if the given string is a Sub-Command name */
 	private boolean isSubCommand(@NotNull String str) {
-		return this.getSubCommands().stream().anyMatch(c -> c.hasName(str));
+		return this.getCommands().stream().anyMatch(c -> c.hasName(str));
 	}
 
 	/**
@@ -289,7 +289,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 
 	/** Returns a command from the Sub-Commands of {@link Tokenizer#command} that matches the given name */
 	private Command getSubCommandByName(@NotNull String name) {
-		var x = this.getSubCommands().stream().filter(sc -> sc.hasName(name)).toList();
+		var x = this.getCommands().stream().filter(sc -> sc.hasName(name)).toList();
 		return x.isEmpty() ? null : x.get(0);
 	}
 
@@ -299,20 +299,20 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	 * Note that a Command only has a single tokenized Sub-Command, so this will have one Command per nesting level.
 	 * </p>
 	 */
-	public @NotNull List<@NotNull Command> getTokenizedSubCommands() {
+	public @NotNull List<@NotNull Command> getTokenizedCommands() {
 		final List<Command> x = new ArrayList<>();
 		final Command subCmd;
 
 		x.add(this.command);
 		if ((subCmd = this.getTokenizedSubCommand()) != null) {
-			x.addAll(subCmd.getTokenizer().getTokenizedSubCommands());
+			x.addAll(subCmd.getTokenizer().getTokenizedCommands());
 		}
 		return x;
 	}
 
 	/** Returns the tokenized Sub-Command of {@link Tokenizer#command}. */
 	public @Nullable Command getTokenizedSubCommand() {
-		return this.getSubCommands().stream()
+		return this.getCommands().stream()
 			.filter(sb -> sb.getTokenizer().hasFinished)
 			.findFirst()
 			.orElse(null);

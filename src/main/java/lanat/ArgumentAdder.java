@@ -1,5 +1,6 @@
 package lanat;
 
+import lanat.exceptions.ArgumentNotFoundException;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -19,10 +20,12 @@ public interface ArgumentAdder {
 
 	@NotNull List<@NotNull Argument<?, ?>> getArguments();
 
-	default Argument<?, ?> getArgument(@NotNull String name) {
-		return this.getArguments().stream()
-			.filter(a -> a.hasName(name))
-			.findFirst()
-			.orElse(null);
+	default @NotNull Argument<?, ?> getArgument(@NotNull String name) {
+		for (final var argument : this.getArguments()) {
+			if (argument.hasName(name)) {
+				return argument;
+			}
+		}
+		throw new ArgumentNotFoundException(name);
 	}
 }

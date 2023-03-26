@@ -2,7 +2,6 @@ package lanat;
 
 import fade.mirror.MClass;
 import fade.mirror.filter.Filter;
-import lanat.commandTemplates.DefaultCommandTemplate;
 import lanat.exceptions.ArgumentAlreadyExistsException;
 import lanat.exceptions.ArgumentGroupAlreadyExistsException;
 import lanat.exceptions.CommandAlreadyExistsException;
@@ -14,7 +13,6 @@ import lanat.parsing.Tokenizer;
 import lanat.parsing.errors.CustomError;
 import lanat.utils.*;
 import lanat.utils.displayFormatter.Color;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -43,6 +41,7 @@ public class Command
 	implements ErrorCallbacks<ParsedArguments, Command>,
 		ArgumentAdder,
 		ArgumentGroupAdder,
+		CommandAdder,
 		Resettable,
 		MultipleNamesAndDescription,
 		ParentElementGetter<Command>,
@@ -106,6 +105,7 @@ public class Command
 		return Collections.unmodifiableList(this.argumentGroups);
 	}
 
+	@Override
 	public void addCommand(@NotNull Command cmd) {
 		if (this.subCommands.stream().anyMatch(a -> a.hasName(cmd.names.get(0)))) {
 			throw new CommandAlreadyExistsException(cmd, this);
@@ -119,9 +119,15 @@ public class Command
 		cmd.parentCommand = this;
 	}
 
+	/**
+	 * Returns a list of all the Sub-Commands that belong to this command.
+	 * @return a list of all the Sub-Commands in this command
+	 */
+	@Override
 	public @NotNull List<@NotNull Command> getCommands() {
 		return Collections.unmodifiableList(this.subCommands);
 	}
+
 
 	/**
 	 * Specifies the error code that the program should return when this command failed to parse. When multiple commands

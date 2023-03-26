@@ -30,13 +30,16 @@ public final class ManualTests {
 //			this.addCommand(new Command(MyProgram.MySubCommand.class));
 //		}};
 
-		var parsed = ArgumentParser.parseFromInto(MyProgram.class, CLInput.from("--string hello --number 67 sub-command -ccc"));
+		String input = "--string hello --number 67 sub-command -ccc";
+
+		var parsed = ArgumentParser.parseFromInto(MyProgram.class, CLInput.from(input));
 
 		parsed.string
 			.defined(s -> System.out.println("Value is defined: " + s))
 			.undefined(() -> System.out.println("undefined!"));
 		System.out.println(parsed.number);
 		System.out.println(parsed.subCommand.counter);
+		System.out.println(parsed.subCommand.anotherSubCommand.counter);
 	}
 }
 

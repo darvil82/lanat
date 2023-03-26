@@ -30,7 +30,7 @@ public class TestParsedValues extends UnitTests {
 	}
 
 	@Test
-	@DisplayName("Test querying parsed values from arguments in subCommands")
+	@DisplayName("Test querying parsed values from arguments in Sub-Commands")
 	public void testNestedArguments() {
 		var parsedArgs = this.parseArgs("smth subCommand -cccc another 56");
 		assertEquals(4, parsedArgs.<Integer>get("subCommand.c").get());

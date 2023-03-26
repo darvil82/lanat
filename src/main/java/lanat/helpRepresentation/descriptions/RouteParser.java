@@ -74,10 +74,12 @@ public class RouteParser {
 			return;
 		}
 
-		final String[] splitRoute = route.split("\\.");
+		final String[] splitRoute = UtlString.split(route, '.');
 
+		// if route starts with !, the user itself is the target
 		if (splitRoute[0].equals("!")) {
 			this.currentTarget = user;
+			// slice the array to remove the first element (the !)
 			this.route = Arrays.copyOfRange(splitRoute, 1, splitRoute.length);
 			return;
 		}

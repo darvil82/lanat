@@ -44,14 +44,14 @@ public class FormatTag extends Tag {
 
 		final var buff = new StringBuilder();
 
-		for (String opt : value.split(","))
+		for (String opt : UtlString.split(value, ','))
 			buff.append(opt.startsWith("!") ? getFormat(opt.substring(1)).toStringReset() : getFormat(opt));
 
 		return buff.toString();
 	}
 
 	private static FormatOption getFormat(@NotNull String formatName) {
-		return switch (formatName.toLowerCase().trim()) {
+		return switch (formatName.toLowerCase().strip()) {
 			case "reset", "r" -> FormatOption.RESET_ALL;
 			case "bold", "b" -> FormatOption.BOLD;
 			case "italic", "i" -> FormatOption.ITALIC;

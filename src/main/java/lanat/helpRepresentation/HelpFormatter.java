@@ -157,8 +157,8 @@ public class HelpFormatter {
 			buffer.append(UtlString.wrap(generatedContent, lineWrapMax)).append('\n');
 		}
 
-		// UtlString.trim() is used because String.trim() also removes trailing \022 (escape character)
-		return UtlString.trim(buffer.toString());
+		// strip() is used here because trim() also removes \022 (escape character)
+		return buffer.toString().strip();
 	}
 
 	/**

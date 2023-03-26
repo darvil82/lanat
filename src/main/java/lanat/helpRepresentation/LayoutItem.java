@@ -129,7 +129,8 @@ public class LayoutItem {
 		return content == null ? null : (
 			"\n".repeat(this.marginTop)
 				+ (this.title == null ? "" : this.title + "\n\n")
-				+ UtlString.indent(UtlString.trim(content), this.indentCount * helpFormatter.getIndentSize())
+				// strip() is used here because trim() also removes \022 (escape character)
+				+ UtlString.indent(content.strip(), this.indentCount * helpFormatter.getIndentSize())
 				+ "\n".repeat(this.marginBottom)
 		);
 	}

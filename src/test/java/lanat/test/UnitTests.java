@@ -107,7 +107,7 @@ public class UnitTests {
 	 * </pre>
 	 */
 	protected <T> T parseArg(@NotNull String arg, @NotNull String values) {
-		return this.parser.parseGetValues("--%s %s".formatted(arg.trim(), values)).<T>get(arg).get();
+		return this.parser.parseGetValues("--%s %s".formatted(arg.strip(), values)).<T>get(arg).get();
 	}
 
 	/**

@@ -43,7 +43,7 @@ public class ArgumentParser extends Command {
 	 * new ArgumentParser(clazz).parse(input).into(clazz);
 	 * }</pre>
 	 * <p>
-	 * <h3>Example:</h3>
+	 * <h4>Example:</h4>
 	 * This code:
 	 * <pre>{@code
 	 * MyTemplate parsed = new ArgumentParser(MyTemplate.class) {{
@@ -59,6 +59,7 @@ public class ArgumentParser extends Command {
 	 * <pre>{@code
 	 * MyTemplate parsed = ArgumentParser.parseFromInto(MyTemplate.class, input);
 	 * }
+	 * </pre>
 	 * @param templateClass The class to use as a template.
 	 * @param input The input to parse.
 	 * @param options A consumer that can be used for configuring the parsing process.

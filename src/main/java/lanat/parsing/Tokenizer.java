@@ -30,6 +30,9 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	/** The input string that is being tokenized, split into characters */
 	private char[] inputChars;
 
+	final char tupleOpenChar = this.command.getTupleChars().open;
+	final char tupleCloseChar = this.command.getTupleChars().close;
+
 
 	public Tokenizer(@NotNull Command command) {
 		super(command);
@@ -51,19 +54,12 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	 * {@link Tokenizer#getFinalTokens()}
 	 */
 	public void tokenize(@NotNull String input) {
-		if (this.hasFinished) {
-			throw new IllegalStateException("Tokenizer has already finished tokenizing");
-		}
+		assert !this.hasFinished : "Tokenizer has already finished tokenizing";
 
 		this.setInputString(input);
 
-		final var values = new Object() {
-			char currentStringChar = 0;
-			TokenizeError.TokenizeErrorType errorType = null;
-			final char tupleOpenChar = Tokenizer.this.command.getTupleChars().open;
-			final char tupleCloseChar = Tokenizer.this.command.getTupleChars().close;
-		};
-
+		char currentStringChar = 0; // the character that opened the string
+		TokenizeError.TokenizeErrorType errorType = null;
 
 		for (
 			this.currentCharIndex = 0;
@@ -80,7 +76,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 			} else if (cChar == '"' || cChar == '\'') {
 				// if we are already in an open string, push the current value and close the string. Make sure
 				// that the current char is the same as the one that opened the string
-				if (this.stringOpen && values.currentStringChar == cChar) {
+				if (this.stringOpen && currentStringChar == cChar) {
 					this.addToken(TokenType.ARGUMENT_VALUE, this.currentValue.toString());
 					this.currentValue.setLength(0);
 					this.stringOpen = false;
@@ -92,7 +88,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 					// the string is not open, so open it and set the current string char to the current char
 				} else {
 					this.stringOpen = true;
-					values.currentStringChar = cChar;
+					currentStringChar = cChar;
 				}
 
 				// append characters to the current value as long as we are in a string
@@ -100,24 +96,24 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 				this.currentValue.append(cChar);
 
 				// reached a possible tuple start character
-			} else if (cChar == values.tupleOpenChar) {
+			} else if (cChar == this.tupleOpenChar) {
 				// if we are already in a tuple, set error and stop tokenizing
 				if (this.tupleOpen) {
-					values.errorType = TokenizeError.TokenizeErrorType.TUPLE_ALREADY_OPEN;
+					errorType = TokenizeError.TokenizeErrorType.TUPLE_ALREADY_OPEN;
 					break;
 				} else if (!this.currentValue.isEmpty()) { // if there was something before the tuple, tokenize it
 					this.tokenizeCurrentValue();
 				}
 
 				// push the tuple token and set the state to tuple open
-				this.addToken(TokenType.ARGUMENT_VALUE_TUPLE_START, values.tupleOpenChar);
+				this.addToken(TokenType.ARGUMENT_VALUE_TUPLE_START, this.tupleOpenChar);
 				this.tupleOpen = true;
 
 				// reached a possible tuple end character
-			} else if (cChar == values.tupleCloseChar) {
+			} else if (cChar == this.tupleCloseChar) {
 				// if we are not in a tuple, set error and stop tokenizing
 				if (!this.tupleOpen) {
-					values.errorType = TokenizeError.TokenizeErrorType.UNEXPECTED_TUPLE_CLOSE;
+					errorType = TokenizeError.TokenizeErrorType.UNEXPECTED_TUPLE_CLOSE;
 					break;
 				}
 
@@ -127,7 +123,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 				}
 
 				// push the tuple token and set the state to tuple closed
-				this.addToken(TokenType.ARGUMENT_VALUE_TUPLE_END, values.tupleCloseChar);
+				this.addToken(TokenType.ARGUMENT_VALUE_TUPLE_END, this.tupleCloseChar);
 				this.currentValue.setLength(0);
 				this.tupleOpen = false;
 
@@ -156,11 +152,11 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 			}
 		}
 
-		if (values.errorType == null)
+		if (errorType == null)
 			if (this.tupleOpen) {
-				values.errorType = TokenizeError.TokenizeErrorType.TUPLE_NOT_CLOSED;
+				errorType = TokenizeError.TokenizeErrorType.TUPLE_NOT_CLOSED;
 			} else if (this.stringOpen) {
-				values.errorType = TokenizeError.TokenizeErrorType.STRING_NOT_CLOSED;
+				errorType = TokenizeError.TokenizeErrorType.STRING_NOT_CLOSED;
 			}
 
 		// we left something in the current value, tokenize it
@@ -168,8 +164,8 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 			this.tokenizeCurrentValue();
 		}
 
-		if (values.errorType != null) {
-			this.addError(values.errorType, this.finalTokens.size());
+		if (errorType != null) {
+			this.addError(errorType, this.finalTokens.size());
 		}
 
 		this.hasFinished = true;
@@ -320,9 +316,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 
 	/** Returns the list of all tokens that have been tokenized. */
 	public @NotNull List<@NotNull Token> getFinalTokens() {
-		if (!this.hasFinished) {
-			throw new IllegalStateException("Cannot get final tokens before tokenizing is finished!");
-		}
+		assert this.hasFinished : "Cannot get final tokens before tokenizing has finished";
 		return this.finalTokens;
 	}
 

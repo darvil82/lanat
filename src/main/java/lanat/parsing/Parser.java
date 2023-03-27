@@ -82,12 +82,8 @@ public class Parser extends ParsingStateBase<ParseError> {
 	}
 
 	public void parseTokens() {
-		if (this.tokens == null)
-			throw new IllegalStateException("Tokens have not been set yet.");
-
-		if (this.hasFinished)
-			throw new IllegalStateException("This parser has already finished parsing.");
-
+		assert this.tokens != null : "Tokens have not been set yet";
+		assert !this.hasFinished : "This parser has already finished parsing.";
 
 		short argumentNameCount = 0;
 		boolean foundNonPositionalArg = false;

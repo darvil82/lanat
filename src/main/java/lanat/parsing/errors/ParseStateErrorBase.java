@@ -80,9 +80,9 @@ abstract class ParseStateErrorBase<T extends Enum<T> & ErrorLevelProvider> imple
 		for (final var handlerName : this.errorType.getClass().getEnumConstants()) {
 			final var handlerNameStr = handlerName.name();
 
-			// throw an exception if there is no method defined for the error type
-			if (this.methods.stream().noneMatch(m -> this.isHandlerMethod(m, handlerNameStr)))
-				throw new IllegalStateException("No method defined for error type " + handlerNameStr);
+			// make sure there is a method defined for each error type
+			assert this.methods.stream().anyMatch(m -> this.isHandlerMethod(m, handlerNameStr))
+				: "No method defined for error type " + handlerNameStr;
 		}
 	}
 

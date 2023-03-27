@@ -277,7 +277,7 @@ public class ArgumentParser extends Command {
 
 			if (!mirror(CommandTemplate.class).isSuperclassOf(fieldType))
 				throw new IllegalArgumentException(
-					"The field '" + field.getName() + "' is annotated with @CommandAccessor but is not of type CommandTemplate"
+					"The field '" + field.getName() + "' is annotated with @CommandAccessor but its type is not a subclass of CommandTemplate"
 				);
 
 			final Command.Define annotation = fieldType.getAnnotationOfType(Command.Define.class).orElseThrow(

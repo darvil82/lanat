@@ -13,7 +13,7 @@ public class TestArgumentGroups extends UnitTests {
 	public void setParser() {
 		super.setParser();
 		this.parser.addGroup(new ArgumentGroup("group") {{
-			this.exclusive();
+			this.setExclusive(true);
 			this.addArgument(Argument.create("group-arg", ArgumentType.BOOLEAN()));
 			this.addArgument(Argument.create("group-arg2", ArgumentType.BOOLEAN()));
 		}});

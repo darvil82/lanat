@@ -92,8 +92,8 @@ public class ArgumentGroup
 	/**
 	 * Sets this group to be exclusive, meaning that only one argument in it can be used.
 	 */
-	public void exclusive() {
-		this.isExclusive = true;
+	public void setExclusive(boolean isExclusive) {
+		this.isExclusive = isExclusive;
 	}
 
 	public boolean isExclusive() {

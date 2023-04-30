@@ -5,6 +5,9 @@ import lanat.utils.UtlReflection;
 import lanat.utils.UtlString;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Thrown when an object is not found.
+ */
 public class ObjectNotFoundException extends LanatException {
 	public ObjectNotFoundException(
 		@NotNull String typeName,

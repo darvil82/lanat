@@ -281,28 +281,16 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 			if (this.argType == null)
 				throw new IllegalStateException("The argument must have a type defined.");
 
-			final Argument<Type, TInner> argument = new Argument<>(this.argType, this.names);
-			argument.setDescription(this.description);
-			argument.setObligatory(this.obligatory);
-			argument.setPositional(this.positional);
-			argument.setAllowUnique(this.allowUnique);
-			argument.setDefaultValue(this.defaultValue);
-			argument.setPrefix(this.prefixChar);
-			argument.setOnErrorCallback(this.onErrorCallback);
-			argument.setOnCorrectCallback(this.onCorrectCallback);
-			return argument;
-		}
-
-		boolean hasName(@NotNull String name) {
-			if (this.names == null)
-				return false;
-
-			for (String argName : this.names) {
-				if (argName.equalsIgnoreCase(name))
-					return true;
-			}
-
-			return false;
+			return new Argument<>(this.argType, this.names) {{
+				this.setDescription(ArgumentBuilder.this.description);
+				this.setObligatory(ArgumentBuilder.this.obligatory);
+				this.setPositional(ArgumentBuilder.this.positional);
+				this.setAllowUnique(ArgumentBuilder.this.allowUnique);
+				this.setDefaultValue(ArgumentBuilder.this.defaultValue);
+				this.setPrefix(ArgumentBuilder.this.prefixChar);
+				this.setOnErrorCallback(ArgumentBuilder.this.onErrorCallback);
+				this.setOnCorrectCallback(ArgumentBuilder.this.onCorrectCallback);
+			}};
 		}
 	}
 
@@ -591,7 +579,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 		/* no, | is not a typo. We don't want the OR operator to short-circuit, we want all of them to be evaluated
 		 * because the methods have side effects (they add errors to the parser) */
-		TInner returnValue = (finalValue == null | !this.finishParsingCheckExclusivity() | !this.finishParsingCheckUsageCount())
+		TInner returnValue = (finalValue == null | !this.finishParsing$checkExclusivity() | !this.finishParsing$checkUsageCount())
 			? defaultValue
 			: finalValue;
 
@@ -606,7 +594,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * Checks if the argument was used the correct amount of times.
 	 * @return <code>true</code> if the argument was used the correct amount of times.
 	 */
-	private boolean finishParsingCheckUsageCount() {
+	private boolean finishParsing$checkUsageCount() {
 		if (this.getUsageCount() == 0) {
 			if (this.obligatory && !this.parentCommand.uniqueArgumentReceivedValue()) {
 				this.parentCommand.getParser().addError(
@@ -628,7 +616,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * in the group hierarchy.
 	 * @return <code>true</code> if there is no violation of exclusivity in the group hierarchy.
 	 */
-	private boolean finishParsingCheckExclusivity() {
+	private boolean finishParsing$checkExclusivity() {
 		// check if the parent group of this argument is exclusive, and if so, check if any other argument in it has been used
 		if (this.parentGroup == null || this.getUsageCount() == 0) return true;
 

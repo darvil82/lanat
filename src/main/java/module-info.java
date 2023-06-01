@@ -2,7 +2,7 @@ module lanat {
 	requires org.jetbrains.annotations;
     requires fade.mirror;
 
-    exports lanat;
+	exports lanat;
 	exports lanat.argumentTypes;
 	exports lanat.utils.displayFormatter;
 	exports lanat.helpRepresentation;
@@ -14,4 +14,5 @@ module lanat {
 
 	opens lanat.parsing.errors to fade.mirror;
 	opens lanat.commandTemplates to fade.mirror;
+	opens lanat.helpRepresentation.descriptions.tags to fade.mirror;
 }

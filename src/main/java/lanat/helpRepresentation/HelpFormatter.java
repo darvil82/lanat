@@ -32,10 +32,13 @@ public class HelpFormatter {
 	private @NotNull ArrayList<@NotNull LayoutItem> layout = new ArrayList<>();
 	public static boolean debugLayout = false;
 
+	static {
+		Tag.initTags();
+	}
+
 	public HelpFormatter(@Nullable Command parentCmd) {
 		this.parentCmd = parentCmd;
 		this.initLayout();
-		Tag.initTags();
 	}
 
 	// the user can create a helpFormatter, though, the parentCmd should be applied later (otherwise stuff will fail)
@@ -71,10 +74,18 @@ public class HelpFormatter {
 	protected void initLayout() {
 		this.setLayout(
 			LayoutItem.of(LayoutGenerators::title),
-			LayoutItem.of(LayoutGenerators::synopsis).indent(1).margin(1),
-			LayoutItem.of(LayoutGenerators::argumentDescriptions).title("Description:").indent(1),
-			LayoutItem.of(LayoutGenerators::subCommandsDescriptions).title("Sub-Commands:").indent(1).marginTop(1),
-			LayoutItem.of(LayoutGenerators::programLicense).marginTop(2)
+			LayoutItem.of(LayoutGenerators::synopsis)
+				.indent(1)
+				.margin(1),
+			LayoutItem.of(LayoutGenerators::argumentDescriptions)
+				.title("Description:")
+				.indent(1),
+			LayoutItem.of(LayoutGenerators::subCommandsDescriptions)
+				.title("Sub-Commands:")
+				.indent(1)
+				.marginTop(1),
+			LayoutItem.of(LayoutGenerators::programLicense)
+				.marginTop(2)
 		);
 	}
 

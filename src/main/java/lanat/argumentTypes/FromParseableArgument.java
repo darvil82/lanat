@@ -32,4 +32,9 @@ public class FromParseableArgument<T extends Parseable<TInner>, TInner> extends 
 	public @Nullable String getDescription() {
 		return this.parseable.getDescription();
 	}
+
+	@Override
+	public @NotNull String getName() {
+		return this.parseable.getName();
+	}
 }

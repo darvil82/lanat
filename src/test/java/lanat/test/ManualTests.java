@@ -6,8 +6,6 @@ import lanat.ArgumentType;
 import lanat.Command;
 import lanat.argumentTypes.Parseable;
 import lanat.utils.Range;
-import lanat.utils.displayFormatter.Color;
-import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Test;

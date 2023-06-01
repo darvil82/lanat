@@ -69,7 +69,7 @@ public final class UtlString {
 			throw new IllegalArgumentException("maxWidth must be greater than 0");
 
 		// we cant split anyway, so why bother
-		if (!(str.contains(" ") || str.contains("\t")))
+		if (str.length() <= maxWidth || !(str.contains(" ") || str.contains("\t")))
 			return str;
 
 		final var wordBuff = new StringBuilder(); // buffer for the current word

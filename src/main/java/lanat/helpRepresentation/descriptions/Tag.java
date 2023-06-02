@@ -73,6 +73,6 @@ public abstract class Tag {
 		final var tagCtor = mirror(tagClass).getConstructor();
 		assert tagCtor.isPresent() : "Tag class " + tagClass.getName() + " has no default constructor";
 
-		return Objects.requireNonNull(tagCtor.get().invoke()).parse(user, value);
+		return Objects.requireNonNull(tagCtor.get().invokeWithNoInstance()).parse(user, value);
 	}
 }

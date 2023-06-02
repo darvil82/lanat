@@ -58,8 +58,8 @@ public final class UtlString {
 	}
 
 	/**
-	 * Wraps a string into multiple lines in order to fit in the given maximum width. Wrapping respects words, so no
-	 * word will be split in two lines.
+	 * Wraps a string into multiple lines in order to fit in the given maximum width. Wrapping respects words and
+	 * indentation, so no word will be split in two lines and indentation will be preserved.
 	 *
 	 * @param str The text to wrap.
 	 * @param maxWidth The maximum width that the text should never exceed.
@@ -69,8 +69,9 @@ public final class UtlString {
 		if (maxWidth <= 0)
 			throw new IllegalArgumentException("maxWidth must be greater than 0");
 
-		// we cant split anyway, so why bother
-		if (!(str.contains(" ") || str.contains("\t")))
+		// contents are already short enough, no need to wrap.
+		// also if we can't even split, why bother.
+		if (str.length() <= maxWidth || !(str.contains(" ") || str.contains("\t")))
 			return str;
 
 		final var wordBuff = new StringBuilder(); // buffer for the current word

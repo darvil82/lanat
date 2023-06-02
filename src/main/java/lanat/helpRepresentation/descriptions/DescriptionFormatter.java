@@ -21,7 +21,7 @@ public final class DescriptionFormatter {
 	 */
 	public static @NotNull String parse(@NotNull NamedWithDescription user, @NotNull String desc) {
 		// if the description doesn't contain any tags, we can skip the parsing
-		if (!desc.contains(Character.toString(TAG_START)) && !desc.contains(Character.toString(TAG_END)))
+		if (!desc.contains(Character.toString(TAG_START)))
 			return desc;
 
 		final var chars = desc.toCharArray();

@@ -117,9 +117,9 @@ public class RouteParser {
 			return cmd;
 		} else if (obj instanceof CommandUser cmdUser) {
 			return cmdUser.getParentCommand();
-		} else {
-			throw new InvalidRouteException("Cannot get the Command " + obj.getName() + " belongs to");
 		}
+
+		throw new InvalidRouteException("Cannot get the Command " + obj.getName() + " belongs to");
 	}
 
 	/**

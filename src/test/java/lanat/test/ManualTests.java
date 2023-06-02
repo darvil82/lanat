@@ -1,10 +1,11 @@
 package lanat.test;
 
-import lanat.*;
-import lanat.argumentTypes.CounterArgument;
-import lanat.argumentTypes.IntArgument;
-import lanat.argumentTypes.StringArgument;
-import lanat.commandTemplates.DefaultCommandTemplate;
+import lanat.Argument;
+import lanat.ArgumentGroup;
+import lanat.ArgumentType;
+import lanat.Command;
+import lanat.argumentTypes.Parseable;
+import lanat.utils.Range;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 

@@ -276,9 +276,9 @@ public class Command
 			 *
 			 * Stuff like the layout generators closures are capturing the reference to the previous Command
 			 * and will not be updated properly when the parent command is updated. */
-			var fmt = new HelpFormatter(parent.helpFormatter.get());
-			fmt.setParentCmd(this); // we need to update the parent command!
-			return fmt;
+			return new HelpFormatter(parent.helpFormatter.get()) {{
+				this.setParentCmd(Command.this); // we need to update the parent command!
+			}};
 		});
 		this.callbackInvocationOption.setIfNotModified(parent.callbackInvocationOption);
 

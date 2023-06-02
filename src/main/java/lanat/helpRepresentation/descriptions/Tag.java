@@ -10,6 +10,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Hashtable;
+import java.util.Objects;
+
+import static fade.mirror.Mirror.mirror;
 
 /**
  * Class for handling parsing of the simple tags used in descriptions. (e.g. {@code <a-tag=the-value>}).
@@ -18,8 +21,7 @@ import java.util.Hashtable;
  * @see #parse(NamedWithDescription, String)
  */
 public abstract class Tag {
-	private static final Hashtable<String, Tag> registeredTags = new Hashtable<>();
-	private static boolean initializedTags;
+	private static final Hashtable<String, Class<? extends Tag>> registeredTags = new Hashtable<>();
 
 
 	/**
@@ -34,23 +36,19 @@ public abstract class Tag {
 
 	/** Initialize the tags. This method will register the default tags that are used in descriptions. */
 	public static void initTags() {
-		if (Tag.initializedTags) return;
-
-		Tag.registerTag("link", new LinkTag());
-		Tag.registerTag("desc", new DescTag());
-		Tag.registerTag("color", new ColorTag());
-		Tag.registerTag("format", new FormatTag());
-
-		Tag.initializedTags = true;
+		Tag.registerTag("link", LinkTag.class);
+		Tag.registerTag("desc", DescTag.class);
+		Tag.registerTag("color", ColorTag.class);
+		Tag.registerTag("format", FormatTag.class);
 	}
 
 	/**
-	 * Register a tag instance to be used in descriptions. This class will be used to parse the tags encountered in the
-	 * descriptions being parsed.
+	 * Register a tag class to be used in descriptions. This class will be instantiated to parse
+	 * the tags encountered in the descriptions being parsed.
 	 * @param name name of the tag (case-insensitive)
 	 * @param tag tag object that will be used to parse the tag
 	 */
-	public static void registerTag(@NotNull String name, @NotNull Tag tag) {
+	public static void registerTag(@NotNull String name, @NotNull Class<? extends Tag> tag) {
 		if (name.isEmpty()) throw new IllegalArgumentException("Tag name cannot be empty");
 		Tag.registeredTags.put(name, tag);
 	}
@@ -62,9 +60,19 @@ public abstract class Tag {
 	 * @param value value of the tag
 	 * @return parsed value of the tag
 	 */
-	static @NotNull String parseTagValue(@NotNull NamedWithDescription user, @NotNull String tagName, @Nullable String value) {
-		var tag = Tag.registeredTags.get(tagName.toLowerCase());
-		if (tag == null) throw new UnknownTagException(tagName);
-		return tag.parse(user, value);
+	static @NotNull String parseTagValue(
+		@NotNull NamedWithDescription user,
+		@NotNull String tagName,
+		@Nullable String value
+	) {
+		final var tagClass = Tag.registeredTags.get(tagName.toLowerCase());
+
+		if (tagClass == null)
+			throw new UnknownTagException(tagName);
+
+		final var tagCtor = mirror(tagClass).getConstructor();
+		assert tagCtor.isPresent() : "Tag class " + tagClass.getName() + " has no default constructor";
+
+		return Objects.requireNonNull(tagCtor.get().invoke()).parse(user, value);
 	}
 }

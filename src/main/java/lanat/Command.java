@@ -282,11 +282,11 @@ public class Command
 	}
 
 	public void from(@NotNull Class<? extends CommandTemplate> clazz) {
+		this.from$recursive(clazz);
+
 		if (this.names.isEmpty()) {
 			this.addNames(clazz.getAnnotation(Command.Define.class).names());
 		}
-
-		this.from$recursive(clazz);
 	}
 
 	private void from$recursive(@NotNull Class<?> clazz) {

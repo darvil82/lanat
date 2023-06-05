@@ -4,6 +4,7 @@ import lanat.ErrorFormatter;
 import lanat.ErrorLevel;
 import lanat.parsing.Token;
 import lanat.utils.ErrorLevelProvider;
+import lanat.utils.UtlReflection;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.ElementType;
@@ -12,9 +13,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.Optional;
 
 
 /**
@@ -63,55 +62,35 @@ import java.util.stream.Stream;
  */
 abstract class ParseStateErrorBase<T extends Enum<T> & ErrorLevelProvider> implements ErrorLevelProvider {
 	public final @NotNull T errorType;
-	private final List<Method> methods;
 	public int tokenIndex;
 	private ErrorHandler errorHandler;
 	private ErrorFormatter formatter;
 
+
 	public ParseStateErrorBase(@NotNull T errorType, int tokenIndex) {
 		this.errorType = errorType;
 		this.tokenIndex = tokenIndex;
-
-		// check if there are methods defined for all error types
-		this.methods = this.getAnnotatedMethods();
-
-		for (final var handlerName : this.errorType.getClass().getEnumConstants()) {
-			final var handlerNameStr = handlerName.name();
-
-			// make sure there is a method defined for each error type
-			assert this.methods.stream().anyMatch(m -> this.isHandlerMethod(m, handlerNameStr))
-				: "No method defined for error type " + handlerNameStr;
-		}
 	}
 
-	private @NotNull List<@NotNull Method> getAnnotatedMethods() {
-		return Stream.of(this.getClass().getDeclaredMethods())
-			.filter(m -> m.isAnnotationPresent(Handler.class))
-			.collect(Collectors.toList());
-	}
 
-	private boolean isHandlerMethod(@NotNull Method method, @NotNull String handlerName) {
-		return method.getAnnotation(Handler.class).value().equals(handlerName);
-	}
-
-	private boolean isHandlerMethod(@NotNull Method method) {
-		return this.isHandlerMethod(method, this.errorType.name());
+	private @NotNull Method getHandlerMethod() {
+		return UtlReflection.getMethods(this.getClass())
+			.filter(m -> Optional.ofNullable(m.getAnnotation(Handler.class))
+				.map(a -> a.value().equals(this.errorType.name()))
+				.orElse(false)
+			)
+			.findFirst()
+			.orElseThrow(() -> new RuntimeException("No handler method defined for error type " + this.errorType.name()));
 	}
 
 	public final @NotNull String handle(@NotNull ErrorHandler handler) {
 		this.errorHandler = handler;
 		this.formatter = new ErrorFormatter(handler, this.errorType.getErrorLevel());
 
-		// invoke the method if it is defined
-		for (final var method : this.methods) {
-			if (!this.isHandlerMethod(method)) continue;
-
-			try {
-				method.invoke(this);
-			} catch (InvocationTargetException | IllegalAccessException e) {
-				throw new RuntimeException(e);
-			}
-			return this.formatter.toString();
+		try {
+			this.getHandlerMethod().invoke(this);
+		} catch (InvocationTargetException | IllegalAccessException e) {
+			throw new RuntimeException(e);
 		}
 
 		return this.formatter.toString();

@@ -6,6 +6,7 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 public final class UtlReflection {
 	private UtlReflection() {}
@@ -90,6 +91,12 @@ public final class UtlReflection {
 		} catch (ReflectiveOperationException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public static Stream<Method> getMethods(Class<?> clazz) {
+		if (clazz.isAnonymousClass())
+			return UtlReflection.getMethods(clazz.getSuperclass());
+		return Stream.of(clazz.getDeclaredMethods());
 	}
 
 }

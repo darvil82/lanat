@@ -1,12 +1,12 @@
 package lanat;
 
-import fade.mirror.MField;
 import lanat.argumentTypes.BooleanArgument;
 import lanat.exceptions.ArgumentAlreadyExistsException;
 import lanat.parsing.errors.CustomError;
 import lanat.parsing.errors.ParseError;
 import lanat.utils.*;
 import lanat.utils.displayFormatter.Color;
+import net.auoeke.reflect.Constructors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,13 +14,13 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
-import static fade.mirror.Mirror.mirror;
 
 /**
  * <h2>Argument</h2>
@@ -185,17 +185,13 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 		@SuppressWarnings("unchecked")
 		public static @NotNull <Type extends ArgumentType<TInner>, TInner>
-		ArgumentBuilder<Type, TInner> fromField(@NotNull MField<?> field, @NotNull Argument.Define annotation) {
+		ArgumentBuilder<Type, TInner> fromField(@NotNull Field field, @NotNull Argument.Define annotation) {
 			final String[] names = annotation.names();
-			final var argTypeCtor = mirror(annotation.type()).getConstructor();
 
 			final var argumentBuilder = new ArgumentBuilder<Type, TInner>()
 				.withNames(names.length == 0 ? new String[] { field.getName() } : names);
 
-			if (argTypeCtor.isPresent()) {
-				final var argType = argTypeCtor.get().invokeWithNoInstance();
-				argumentBuilder.withArgType((Type)argType);
-			}
+			argumentBuilder.withArgType((Type)Constructors.construct(annotation.type()));
 
 			argumentBuilder.withPrefixChar(PrefixChar.fromCharUnsafe(annotation.prefix()));
 			if (!annotation.description().isEmpty()) argumentBuilder.withDescription(annotation.description());

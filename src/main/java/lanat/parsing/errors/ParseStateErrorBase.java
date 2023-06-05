@@ -1,9 +1,5 @@
 package lanat.parsing.errors;
 
-import fade.mirror.MClass;
-import fade.mirror.MMethod;
-import fade.mirror.exception.MirrorException;
-import fade.mirror.filter.Filter;
 import lanat.ErrorFormatter;
 import lanat.ErrorLevel;
 import lanat.parsing.Token;
@@ -17,7 +13,6 @@ import java.lang.annotation.Target;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static fade.mirror.Mirror.mirror;
 
 /**
  * Provides a {@link ParseStateErrorBase#handle(ErrorHandler)} method that when called, automatically invokes the

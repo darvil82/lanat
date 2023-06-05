@@ -1,7 +1,5 @@
 package lanat;
 
-import fade.mirror.MClass;
-import fade.mirror.filter.Filter;
 import lanat.exceptions.ArgumentAlreadyExistsException;
 import lanat.exceptions.ArgumentGroupAlreadyExistsException;
 import lanat.exceptions.CommandAlreadyExistsException;
@@ -13,6 +11,9 @@ import lanat.parsing.Tokenizer;
 import lanat.parsing.errors.CustomError;
 import lanat.utils.*;
 import lanat.utils.displayFormatter.Color;
+import net.auoeke.reflect.Fields;
+import net.auoeke.reflect.Methods;
+import net.auoeke.reflect.Types;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,13 +21,9 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
 import java.util.function.Consumer;
-
-import static fade.mirror.Mirror.mirror;
 
 /**
  * <h2>Command</h2>
@@ -290,35 +287,34 @@ public class Command
 			this.addNames(clazz.getAnnotation(Command.Define.class).names());
 		}
 
-		this.from(mirror(clazz));
+		this.from$recursive(clazz);
 	}
 
-	@SuppressWarnings("unchecked")
-	private <T extends CommandTemplate>
-	void from(@NotNull MClass<T> clazz) {
-		if (!mirror(CommandTemplate.class).isSuperclassOf(clazz)) return;
+	private void from$recursive(@NotNull Class<?> clazz) {
+		if (!Types.isSubtype(clazz, CommandTemplate.class)) return;
 
 		// don't allow classes without the @Command.Define annotation
-		if (!clazz.isAnnotatedWith(Command.Define.class)) {
+		if (!clazz.isAnnotationPresent(Command.Define.class)) {
 			throw new IllegalArgumentException("The class '" + clazz.getName() + "' is not annotated with @Command.Define");
 		}
 
 		// get to the top of the hierarchy
-		clazz.getSuperclass().ifPresent(superClass -> this.from((MClass<T>)superClass));
+		Optional.of(clazz.getSuperclass()).ifPresent(this::from$recursive);
 
-		clazz.getFields(Filter.forFields()
-			.withAnnotation(Argument.Define.class))
-			.forEach(f ->
-				f.getAnnotationOfType(Argument.Define.class)
-					.ifPresent(a -> this.addArgument(Argument.ArgumentBuilder.fromField(f, a)))
+
+		Fields.of(clazz)
+			.forEach(f -> Optional.of(f.getAnnotation(Argument.Define.class))
+				.ifPresent(a -> this.addArgument(Argument.ArgumentBuilder.fromField(f, a)))
 			);
 
-		// TODO: Uncomment this when mirror gets fixed
-//		clazz.getMethod(Filter.forMethods()
-//			.withAnnotation(CommandTemplate.InitDef.class)
-//			.withName("init")
-//			.withParameter(Command.class)
-//		).ifPresent(m -> m.invokeWithNoInstance(this));
+		Optional.of(Methods.of(clazz, "init", Command.class))
+			.ifPresent(m -> {
+				try {
+					m.invoke(null, this);
+				} catch (IllegalAccessException | InvocationTargetException e) {
+					throw new RuntimeException(e);
+				}
+			});
 	}
 
 	void passPropertiesToChildren() {

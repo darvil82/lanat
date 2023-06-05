@@ -3,7 +3,6 @@ package lanat.argumentTypes;
 import fade.mirror.Invokable;
 import fade.mirror.MClass;
 import fade.mirror.MMethod;
-import fade.mirror.Parameterized;
 import fade.mirror.exception.MirrorException;
 import lanat.ArgumentType;
 import lanat.exceptions.ArgumentTypeException;
@@ -29,7 +28,7 @@ public class TryParseArgument<T> extends ArgumentType<T> {
 			);
 	}
 
-	private <I extends Parameterized & Invokable<?>> boolean isValidMethod(I method) {
+	private <I extends Invokable<?>> boolean isValidMethod(I method) {
 		if (method.getParameterCount() != 1) return false;
 		if (method.getReturnType() != this.type.getRawClass()) return false;
 		return method.getParameter(parameter -> parameter.getType().equals(String.class)).isPresent();

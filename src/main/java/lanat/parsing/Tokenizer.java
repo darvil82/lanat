@@ -226,8 +226,8 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	/**
 	 * Returns <code>true</code> if the given string can be an argument name list, eg: <code>"-fbq"</code>.
 	 * <p>
-	 * This returns <code>true</code> if at least the first character is a valid argument prefix and at least one of the next
-	 * characters is a valid argument name.
+	 * This returns <code>true</code> if at least the first character is a valid argument prefix and at least one of the
+	 * next characters is a valid argument name.
 	 * <br><br>
 	 * For a prefix to be valid, it must be a character used as a prefix on the next argument/s specified.
 	 * </p>
@@ -258,8 +258,8 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	}
 
 	/**
-	 * Returns <code>true</code> whether the given string is an argument name {@link Tokenizer#isArgName(String)} or an argument name
-	 * list {@link Tokenizer#isArgNameList(String)}.
+	 * Returns <code>true</code> whether the given string is an argument name {@link Tokenizer#isArgName(String)} or an
+	 * argument name list {@link Tokenizer#isArgNameList(String)}.
 	 */
 	private boolean isArgumentSpecifier(@NotNull String str) {
 		return this.isArgName(str) || this.isArgNameList(str);

@@ -18,6 +18,7 @@ public final class CommandRepr {
 	 * <pre>
 	 * {&lt;sub-command1&gt; | &lt;sub-command2&gt; | ...}
 	 * </pre>
+	 *
 	 * @param cmd the command
 	 * @return the representation of the sub-commands of the command
 	 */
@@ -33,6 +34,7 @@ public final class CommandRepr {
 	 * {@code <names>}
 	 * <p>
 	 * The names are separated by a slash.
+	 *
 	 * @param cmd the command
 	 * @return the representation of the command
 	 */
@@ -45,6 +47,7 @@ public final class CommandRepr {
 
 	/**
 	 * Returns the parsed description of the given command.
+	 *
 	 * @param cmd the command
 	 * @return the parsed description of the command
 	 */
@@ -64,6 +67,7 @@ public final class CommandRepr {
 	 *
 	 * ...
 	 * </pre>
+	 *
 	 * @param cmd the command
 	 * @return the name and representation of the sub-commands of the command
 	 */

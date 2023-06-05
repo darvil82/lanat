@@ -6,6 +6,7 @@ package lanat;
 public interface CommandUser {
 	/**
 	 * Gets the Command object that this object belongs to.
+	 *
 	 * @return The parent command of this object.
 	 */
 	Command getParentCommand();

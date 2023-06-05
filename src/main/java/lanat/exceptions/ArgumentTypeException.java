@@ -7,6 +7,7 @@ public class ArgumentTypeException extends LanatException {
 	public ArgumentTypeException(@NotNull String message, @NotNull Throwable cause) {
 		super(message, cause);
 	}
+
 	public ArgumentTypeException(@NotNull String message) {
 		super(message);
 	}

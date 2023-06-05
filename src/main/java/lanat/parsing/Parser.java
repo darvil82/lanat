@@ -156,9 +156,9 @@ public class Parser extends ParsingStateBase<ParseError> {
 		) {
 			final Token currentToken = this.tokens.get(i);
 			if (!isInTuple && (
-					currentToken.type().isArgumentSpecifier() || i - this.currentTokenIndex >= argumentValuesRange.max()
-				)
-					|| currentToken.type().isTuple()
+				currentToken.type().isArgumentSpecifier() || i - this.currentTokenIndex >= argumentValuesRange.max()
+			)
+				|| currentToken.type().isTuple()
 			) break;
 			tempArgs.add(currentToken);
 		}

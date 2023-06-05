@@ -34,13 +34,13 @@ import java.util.stream.Stream;
 public class Command
 	extends ErrorsContainerImpl<CustomError>
 	implements ErrorCallbacks<ParsedArguments, Command>,
-		ArgumentAdder,
-		ArgumentGroupAdder,
-		CommandAdder,
-		Resettable,
-		MultipleNamesAndDescription,
-		ParentElementGetter<Command>,
-		CommandUser
+	ArgumentAdder,
+	ArgumentGroupAdder,
+	CommandAdder,
+	Resettable,
+	MultipleNamesAndDescription,
+	ParentElementGetter<Command>,
+	CommandUser
 {
 	private final @NotNull List<@NotNull String> names = new ArrayList<>();
 	public @Nullable String description;
@@ -116,6 +116,7 @@ public class Command
 
 	/**
 	 * Returns a list of all the Sub-Commands that belong to this command.
+	 *
 	 * @return a list of all the Sub-Commands in this command
 	 */
 	@Override
@@ -395,10 +396,11 @@ public class Command
 	}
 
 	/**
-	 * Get the error code of this Command. This is the OR of all the error codes of all the Sub-Commands that
-	 * have failed.
-	 * @see #setErrorCode(int)
+	 * Get the error code of this Command. This is the OR of all the error codes of all the Sub-Commands that have
+	 * failed.
+	 *
 	 * @return The error code of this command.
+	 * @see #setErrorCode(int)
 	 */
 	public int getErrorCode() {
 		int errCode = this.subCommands.stream()
@@ -456,6 +458,7 @@ public class Command
 	 * <p>
 	 * Equality is determined by the argument's name and the command it belongs to.
 	 * </p>
+	 *
 	 * @param obj the argument to compare to
 	 * @return <code>true</code> if the argument specified by the given name is equal to this argument
 	 */
@@ -498,7 +501,8 @@ public class Command
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.TYPE)
 	public @interface Define {
-		String[] names() default {};
+		String[] names() default { };
+
 		String description() default "";
 	}
 }

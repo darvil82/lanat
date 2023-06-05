@@ -13,7 +13,8 @@ public class ObjectNotFoundException extends LanatException {
 		@NotNull String typeName,
 		@NotNull NamedWithDescription obj,
 		@NotNull NamedWithDescription container
-	) {
+	)
+	{
 		super(
 			typeName
 				+ " "

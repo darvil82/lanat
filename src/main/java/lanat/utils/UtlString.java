@@ -179,6 +179,7 @@ public final class UtlString {
 
 	/**
 	 * Remove all leading and trailing occurrences of the given regex from the string.
+	 *
 	 * @param str the string to strip
 	 * @param regex the regex to remove
 	 * @return the stripped string
@@ -196,8 +197,9 @@ public final class UtlString {
 	}
 
 	/**
-	 * Returns the count given appended to the string given. An <code>'s'</code> will be appended at the end if
-	 * the count is not 1.
+	 * Returns the count given appended to the string given. An <code>'s'</code> will be appended at the end if the
+	 * count is not 1.
+	 *
 	 * @param str the string to append to
 	 * @param count the count
 	 * @return "count str" or "count strs" depending on the count
@@ -208,6 +210,7 @@ public final class UtlString {
 
 	/**
 	 * Returns the string given if it is not null, otherwise returns an empty string.
+	 *
 	 * @param str the string to check
 	 * @return the string given or an empty string
 	 */
@@ -217,6 +220,7 @@ public final class UtlString {
 
 	/**
 	 * Returns true if the string given is null or empty.
+	 *
 	 * @param str the string to check
 	 * @return true if the string is null or empty
 	 */
@@ -225,8 +229,9 @@ public final class UtlString {
 	}
 
 	/**
-	 * Split a string by the given splitter. This is similar to {@link String#split(String)} but it will also
-	 * ignore spaces around the splitter.
+	 * Split a string by the given splitter. This is similar to {@link String#split(String)} but it will also ignore
+	 * spaces around the splitter.
+	 *
 	 * @param str the string to split
 	 * @param splitter the splitter
 	 * @param max the maximum amount of splits
@@ -238,6 +243,7 @@ public final class UtlString {
 
 	/**
 	 * {@link UtlString#split(String, String, int)} with max set to -1. (Default of {@link String#split(String)})
+	 *
 	 * @see UtlString#split(String, String, int)
 	 */
 	public static @NotNull String @NotNull [] split(@NotNull String str, @NotNull String splitter) {
@@ -245,8 +251,9 @@ public final class UtlString {
 	}
 
 	/**
-	 * Split a string by the given splitter. This is similar to {@link String#split(String)} but it will also
-	 * ignore spaces around the splitter.
+	 * Split a string by the given splitter. This is similar to {@link String#split(String)} but it will also ignore
+	 * spaces around the splitter.
+	 *
 	 * @param str the string to split
 	 * @param splitter the splitter
 	 * @return the split string
@@ -257,6 +264,7 @@ public final class UtlString {
 
 	/**
 	 * {@link UtlString#split(String, char, int)} with max set to -1. (Default of {@link String#split(String)})
+	 *
 	 * @see UtlString#split(String, char, int)
 	 */
 	public static @NotNull String @NotNull [] split(@NotNull String str, char splitter) {

@@ -6,8 +6,9 @@ import java.util.function.Predicate;
 
 /**
  * A class that allows you to compare two objects using a list of predicates.
+ *
  * @param <T> The type of the objects to compare.
- * */
+ */
 public class MultiComparator<T> {
 	private final ArrayList<Pred<T>> predicates = new ArrayList<>();
 
@@ -20,8 +21,10 @@ public class MultiComparator<T> {
 
 	/**
 	 * Adds a predicate to the list of predicates to be used when comparing.
+	 *
 	 * @param p The predicate to add.
-	 * @param priority The priority of the predicate. The higher the priority, the earlier the predicate will be checked.
+	 * @param priority The priority of the predicate. The higher the priority, the earlier the predicate will be
+	 * 	checked.
 	 */
 	public MultiComparator<T> addPredicate(Predicate<T> p, int priority) {
 		this.predicates.add(new Pred<>(priority, p));
@@ -30,6 +33,7 @@ public class MultiComparator<T> {
 
 	/**
 	 * Adds a predicate to the list of predicates to be used when comparing. The priority of the predicate will be 0.
+	 *
 	 * @param p The predicate to add.
 	 */
 	public MultiComparator<T> addPredicate(Predicate<T> p) {
@@ -38,10 +42,11 @@ public class MultiComparator<T> {
 
 	/**
 	 * Compares the two objects given using the predicates added to this comparator.
+	 *
 	 * @param first The first object to compare.
 	 * @param second The second object to compare.
 	 * @return -1 if the first object is "greater" than the second, 1 if the second object is "greater" than the first,
-	 * 0 if they are equal.
+	 * 	0 if they are equal.
 	 */
 	public int compare(T first, T second) {
 		this.predicates.sort(Comparator.comparingInt(Pred::priority));

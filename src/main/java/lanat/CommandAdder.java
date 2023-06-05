@@ -10,12 +10,14 @@ public interface CommandAdder {
 
 	/**
 	 * Returns a list of all the Sub-Commands that belong to this command.
+	 *
 	 * @return a list of all the Sub-Commands in this command
 	 */
 	@NotNull List<@NotNull Command> getCommands();
 
 	/**
 	 * Returns the Sub-Command with the specified name.
+	 *
 	 * @param name the name of the command to get
 	 * @return the command with the specified name
 	 * @throws CommandNotFoundException if no command with the specified name exists

@@ -17,6 +17,7 @@ public interface Parseable<T> extends NamedWithDescription {
 
 	/**
 	 * Parses the received values and returns the result. If the values are invalid, this method shall return null.
+	 *
 	 * @param args The values that were received.
 	 * @return The parsed value.
 	 */

@@ -33,8 +33,8 @@ public class ArgumentParser extends Command {
 	}
 
 	/**
-	 * Constructs a new {@link ArgumentParser} based on the given {@link CommandTemplate}, parses the given input,
-	 * and populates the template with the parsed values.
+	 * Constructs a new {@link ArgumentParser} based on the given {@link CommandTemplate}, parses the given input, and
+	 * populates the template with the parsed values.
 	 * <p>
 	 * This is basically a shortcut for the following code:
 	 * <pre>{@code
@@ -58,18 +58,20 @@ public class ArgumentParser extends Command {
 	 * MyTemplate parsed = ArgumentParser.parseFromInto(MyTemplate.class, input);
 	 * }
 	 * </pre>
+	 *
 	 * @param templateClass The class to use as a template.
 	 * @param input The input to parse.
 	 * @param options A consumer that can be used for configuring the parsing process.
-	 * @return The parsed template.
 	 * @param <T> The type of the template.
+	 * @return The parsed template.
 	 * @see #parseFromInto(Class, CLInput)
 	 */
 	public static <T extends CommandTemplate> @NotNull T parseFromInto(
 		@NotNull Class<T> templateClass,
 		@NotNull CLInput input,
 		@NotNull Consumer<@NotNull AfterParseOptions> options
-	) {
+	)
+	{
 		final var argParser = new ArgumentParser(templateClass);
 
 		// add all commands recursively
@@ -82,12 +84,13 @@ public class ArgumentParser extends Command {
 	}
 
 	/**
-	 * Constructs a new {@link ArgumentParser} based on the given {@link CommandTemplate}, parses the given input,
-	 * and populates the template with the parsed values.
+	 * Constructs a new {@link ArgumentParser} based on the given {@link CommandTemplate}, parses the given input, and
+	 * populates the template with the parsed values.
+	 *
 	 * @param templateClass The class to use as a template.
 	 * @param input The input to parse.
-	 * @return The parsed template.
 	 * @param <T> The type of the template.
+	 * @return The parsed template.
 	 */
 	public static <T extends CommandTemplate>
 	@NotNull T parseFromInto(@NotNull Class<T> templateClass, @NotNull CLInput input) {
@@ -95,8 +98,9 @@ public class ArgumentParser extends Command {
 	}
 
 	/**
-	 * Adds all commands defined with {@link Command.Define} in the given class to the given parent command.
-	 * This method is recursive and will add all sub-commands of the given class.
+	 * Adds all commands defined with {@link Command.Define} in the given class to the given parent command. This method
+	 * is recursive and will add all sub-commands of the given class.
+	 *
 	 * @param templateClass The class to search for commands in.
 	 * @param parentCommand The command to add the found commands to.
 	 * @param <T> The type of the class to search for commands in.
@@ -226,7 +230,8 @@ public class ArgumentParser extends Command {
 			@NotNull Class<T> clazz,
 			@NotNull ParsedArguments parsedArgs,
 			@NotNull Command cmd
-		) {
+		)
+		{
 			final T instance = UtlReflection.instantiate(clazz);
 
 //			assert instance != null : "Could not instantiate class " + clazz.getName() + "!";
@@ -266,7 +271,8 @@ public class ArgumentParser extends Command {
 			@NotNull Field field,
 			@NotNull ParsedArguments parsedArgs,
 			@NotNull Command cmd
-		) {
+		)
+		{
 			final Class<?> fieldType = field.getType();
 
 			if (!CommandTemplate.class.isAssignableFrom(fieldType))

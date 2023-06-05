@@ -20,7 +20,8 @@ public class TestHelpFormatting extends UnitTests {
 		this.parser = new TestingParser(
 			"TestHelpFormatting",
 			"description of <link=args.arg1>: (<desc=args.arg1>)"
-		) {{
+		)
+		{{
 			this.addArgument(Argument.create("arg1", "a1")
 				.withDescription("description of arg2: (<desc=args.arg2>)"));
 			this.addArgument(Argument.create("arg2", ArgumentType.COUNTER())

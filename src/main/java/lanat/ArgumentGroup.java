@@ -12,11 +12,11 @@ import java.util.List;
 
 public class ArgumentGroup
 	implements ArgumentAdder,
-		ArgumentGroupAdder,
-		Resettable,
-		CommandUser,
-		NamedWithDescription,
-		ParentElementGetter<ArgumentGroup>
+	ArgumentGroupAdder,
+	Resettable,
+	CommandUser,
+	NamedWithDescription,
+	ParentElementGetter<ArgumentGroup>
 {
 	public final @NotNull String name;
 	public @Nullable String description;
@@ -41,8 +41,8 @@ public class ArgumentGroup
 	private boolean isExclusive = false;
 
 	/**
-	 * When set to <code>true</code>, indicates that one argument in this group has been used. This is used when later checking for
-	 * exclusivity in the groups tree at {@link ArgumentGroup#checkExclusivity(ArgumentGroup)}
+	 * When set to <code>true</code>, indicates that one argument in this group has been used. This is used when later
+	 * checking for exclusivity in the groups tree at {@link ArgumentGroup#checkExclusivity(ArgumentGroup)}
 	 */
 	private boolean argumentUsed = false;
 
@@ -125,12 +125,13 @@ public class ArgumentGroup
 	}
 
 	/**
-	 * Checks if there is any violation of exclusivity in this group's tree, from this group to the root.
-	 * This is done by checking if this or any of the group's siblings have been used (except for the childCallee, which is
-	 * the group that called this method). If none of them have been used, the parent group is checked, and so on.
+	 * Checks if there is any violation of exclusivity in this group's tree, from this group to the root. This is done
+	 * by checking if this or any of the group's siblings have been used (except for the childCallee, which is the group
+	 * that called this method). If none of them have been used, the parent group is checked, and so on.
+	 *
 	 * @param childCallee The group that called this method. This is used to avoid checking the group that called this
-	 * 	method, because it is the one that is being checked for exclusivity. This can be <code>null</code> if this is the
-	 * 	first call to this method.
+	 * 	method, because it is the one that is being checked for exclusivity. This can be <code>null</code> if this is
+	 * 	the first call to this method.
 	 * @return The group that caused the violation, or <code>null</code> if there is no violation.
 	 */
 	@Nullable ArgumentGroup checkExclusivity(@Nullable ArgumentGroup childCallee) {
@@ -175,7 +176,7 @@ public class ArgumentGroup
 	public void setDescription(@NotNull String description) {
 		this.description = description;
 	}
-	
+
 	@Override
 	public @Nullable String getDescription() {
 		return this.description;

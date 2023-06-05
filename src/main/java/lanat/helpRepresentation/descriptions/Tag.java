@@ -13,11 +13,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Hashtable;
 
 
-
 /**
- * Class for handling parsing of the simple tags used in descriptions. (e.g. {@code <a-tag=the-value>}).
- * Tags may receive no value, in which case the value received by the {@link #parse(NamedWithDescription, String)}
- * method will be {@code null}.
+ * Class for handling parsing of the simple tags used in descriptions. (e.g. {@code <a-tag=the-value>}). Tags may
+ * receive no value, in which case the value received by the {@link #parse(NamedWithDescription, String)} method will be
+ * {@code null}.
+ *
  * @see #parse(NamedWithDescription, String)
  */
 public abstract class Tag {
@@ -26,6 +26,7 @@ public abstract class Tag {
 
 	/**
 	 * This method will parse the tag value and return the parsed value.
+	 *
 	 * @param user user that is parsing the tag
 	 * @param value value of the tag. May be {@code null} if the tag has no value specified. (e.g. {@code <a-tag>})
 	 * @return parsed value of the tag
@@ -43,8 +44,9 @@ public abstract class Tag {
 	}
 
 	/**
-	 * Register a tag class to be used in descriptions. This class will be instantiated to parse
-	 * the tags encountered in the descriptions being parsed.
+	 * Register a tag class to be used in descriptions. This class will be instantiated to parse the tags encountered in
+	 * the descriptions being parsed.
+	 *
 	 * @param name name of the tag (case-insensitive)
 	 * @param tag tag object that will be used to parse the tag
 	 */
@@ -55,6 +57,7 @@ public abstract class Tag {
 
 	/**
 	 * Parse a tag value. This method will parse the tag value using the tag registered with the given name.
+	 *
 	 * @param user user that is parsing the tag
 	 * @param tagName name of the tag
 	 * @param value value of the tag
@@ -64,7 +67,8 @@ public abstract class Tag {
 		@NotNull NamedWithDescription user,
 		@NotNull String tagName,
 		@Nullable String value
-	) {
+	)
+	{
 		final var tagClass = Tag.registeredTags.get(tagName.toLowerCase());
 
 		if (tagClass == null)

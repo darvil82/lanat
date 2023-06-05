@@ -24,6 +24,7 @@ public final class ArgumentRepr {
 	 * or
 	 * <p>
 	 * {@code <type_representation> (<names>)}: if the argument is positional
+	 *
 	 * @param arg the argument
 	 * @return the representation of the argument
 	 */
@@ -58,6 +59,7 @@ public final class ArgumentRepr {
 	 * &lt;representation&gt;:
 	 *   &lt;description&gt;
 	 * </pre>
+	 *
 	 * @param arg the argument
 	 * @return the representation and description of the argument
 	 */
@@ -79,6 +81,7 @@ public final class ArgumentRepr {
 	 *
 	 * ...
 	 * </pre>
+	 *
 	 * @param arguments the arguments
 	 * @return the descriptions of the arguments
 	 */

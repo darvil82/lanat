@@ -77,11 +77,11 @@ import java.util.function.Consumer;
  */
 public class Argument<Type extends ArgumentType<TInner>, TInner>
 	implements ErrorsContainer<CustomError>,
-		ErrorCallbacks<TInner,
+	ErrorCallbacks<TInner,
 		Argument<Type, TInner>>,
-		Resettable,
-		CommandUser,
-		MultipleNamesAndDescription
+	Resettable,
+	CommandUser,
+	MultipleNamesAndDescription
 {
 	/**
 	 * The type of this argument. This is the subParser that will be used to parse the value/s this argument should
@@ -123,8 +123,9 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * <p>
 	 * The {@link PrefixChar#AUTO} prefix will be automatically set depending on the Operating System.
 	 * </p>
+	 *
 	 * @see PrefixChar#AUTO
-	 * */
+	 */
 	public static class PrefixChar {
 		public static final PrefixChar MINUS = new PrefixChar('-');
 		public static final PrefixChar PLUS = new PrefixChar('+');
@@ -139,9 +140,9 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		public static final PrefixChar COLON = new PrefixChar(':');
 
 		/**
-		 * This prefix will be automatically set depending on the Operating System.
-		 * On Linux, it will be {@link PrefixChar#MINUS}, and on Windows, it will be {@link PrefixChar#SLASH}.
-		 * */
+		 * This prefix will be automatically set depending on the Operating System. On Linux, it will be
+		 * {@link PrefixChar#MINUS}, and on Windows, it will be {@link PrefixChar#SLASH}.
+		 */
 		public static final PrefixChar AUTO = System.getProperty("os.name").toLowerCase().contains("win") ? SLASH : MINUS;
 
 
@@ -156,9 +157,11 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		 * Creates a new PrefixChar with the specified non-whitespace character.
 		 * <p>
 		 * <strong>NOTE:<br></strong>
-		 * The constant fields of this class should be used instead of this method. Other characters
-		 * could break compatibility with shells using special characters as prefixes, such as the <code>|</code> or <code>;</code> characters.
+		 * The constant fields of this class should be used instead of this method. Other characters could break
+		 * compatibility with shells using special characters as prefixes, such as the <code>|</code> or <code>;</code>
+		 * characters.
 		 * </p>
+		 *
 		 * @param character the character that will be used as a prefix
 		 */
 		public static @NotNull PrefixChar fromCharUnsafe(char character) {
@@ -232,6 +235,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		 * By default this callback is called only if all commands succeed, but you can change this behavior with
 		 * {@link Command#invokeCallbacksWhen(CallbacksInvocationOption)}
 		 * </p>
+		 *
 		 * @param callback the function that will be called with the value introduced by the user.
 		 */
 		public ArgumentBuilder<Type, TInner> onOk(Consumer<TInner> callback) {
@@ -242,11 +246,12 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		/**
 		 * Specify a function that will be called if an error occurs when parsing this argument.
 		 * <p>
-		 * <strong>Note</strong> that this callback is only called if the error was dispatched by this argument's type. That
-		 * is,
-		 * if the argument, for example, is obligatory, and the user does not specify a value, an error will be thrown, but
-		 * this callback will not be called, as the error was not dispatched by this argument's type.
+		 * <strong>Note</strong> that this callback is only called if the error was dispatched by this argument's type.
+		 * That
+		 * is, if the argument, for example, is obligatory, and the user does not specify a value, an error will be
+		 * thrown, but this callback will not be called, as the error was not dispatched by this argument's type.
 		 * </p>
+		 *
 		 * @param callback the function that will be called if an error occurs when parsing this argument.
 		 */
 		public ArgumentBuilder<Type, TInner> onErr(Consumer<Argument<Type, TInner>> callback) {
@@ -301,49 +306,57 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 	/**
 	 * Creates an argument with a {@link BooleanArgument} type.
+	 *
 	 * @param names the names of the argument. See {@link Argument#addNames(String...)} for more information.
 	 */
 	public static ArgumentBuilder<BooleanArgument, Boolean> create(@NotNull String... names) {
 		return Argument.<BooleanArgument, Boolean>create().withNames(names).withArgType(new BooleanArgument());
 	}
 
-	/** Creates an argument with the specified name and type.
+	/**
+	 * Creates an argument with the specified name and type.
+	 *
 	 * @param name the name of the argument. See {@link Argument#addNames(String...)} for more information.
 	 * @param argType the type of the argument. This is the subParser that will be used to parse the value/s this
 	 * 	argument should receive.
-	 * */
+	 */
 	public static <Type extends ArgumentType<TInner>, TInner>
 	ArgumentBuilder<Type, TInner> create(@NotNull String name, @NotNull Type argType) {
 		return Argument.create(argType, name);
 	}
 
-	/** Creates an argument with the specified type and names.
-	 *  @param argType the type of the argument. This is the subParser that will be used to parse the value/s this
-	 *  argument should receive.
-	 *  @param names the names of the argument. See {@link Argument#addNames(String...)} for more information.
-	 * */
+	/**
+	 * Creates an argument with the specified type and names.
+	 *
+	 * @param argType the type of the argument. This is the subParser that will be used to parse the value/s this
+	 * 	argument should receive.
+	 * @param names the names of the argument. See {@link Argument#addNames(String...)} for more information.
+	 */
 	public static <Type extends ArgumentType<TInner>, TInner>
 	ArgumentBuilder<Type, TInner> create(@NotNull Type argType, @NotNull String... names) {
 		return Argument.<Type, TInner>create().withNames(names).withArgType(argType);
 	}
 
-	/** Creates an argument with the specified single character name and type.
+	/**
+	 * Creates an argument with the specified single character name and type.
+	 *
 	 * @param name the name of the argument. See {@link Argument#addNames(String...)} for more information.
 	 * @param argType the type of the argument. This is the subParser that will be used to parse the value/s this
-	 * */
+	 */
 	public static <Type extends ArgumentType<TInner>, TInner>
 	ArgumentBuilder<Type, TInner> create(char name, @NotNull Type argType) {
 		return Argument.create(argType, String.valueOf(name));
 	}
 
-	/** Creates an argument with the specified single character name, full name and type.
+	/**
+	 * Creates an argument with the specified single character name, full name and type.
 	 * <p>
 	 * This is equivalent to calling <pre>{@code Argument.create(charName, argType).addNames(fullName)}</pre>
 	 *
 	 * @param charName the single character name of the argument.
 	 * @param fullName the full name of the argument.
 	 * @param argType the type of the argument. This is the subParser that will be used to parse the value/s this
-	 * */
+	 */
 	public static <Type extends ArgumentType<TInner>, TInner>
 	ArgumentBuilder<Type, TInner> create(char charName, @NotNull String fullName, @NotNull Type argType) {
 		return Argument.create(argType).withNames(fullName, String.valueOf(charName));
@@ -394,6 +407,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 	/**
 	 * Returns the prefix of this argument.
+	 *
 	 * @return the prefix of this argument.
 	 */
 	public PrefixChar getPrefix() {
@@ -417,8 +431,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * The value that should be used if the user does not specify a value for this argument. If the argument does not
 	 * accept values, this value will be ignored.
 	 *
-	 * @param value the value that should be used if the user does not specify a value for this argument. If the
-	 *  value is null, then no default value will be used.
+	 * @param value the value that should be used if the user does not specify a value for this argument. If the value
+	 * 	is null, then no default value will be used.
 	 */
 	public void setDefaultValue(@Nullable TInner value) {
 		this.defaultValue = value;
@@ -452,9 +466,11 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		return Collections.unmodifiableList(this.names);
 	}
 
-	/** Sets the description of this argument. This description will be shown in the help message.
+	/**
+	 * Sets the description of this argument. This description will be shown in the help message.
+	 *
 	 * @param description the description of this argument.
-	 * */
+	 */
 	public void setDescription(@Nullable String description) {
 		this.description = description;
 	}
@@ -494,6 +510,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 	/**
 	 * Returns the {@link ArgumentGroup} that contains this argument, or null if it does not have one.
+	 *
 	 * @return the parent group of this argument, or null if it does not have one.
 	 */
 	public @Nullable ArgumentGroup getParentGroup() {
@@ -502,6 +519,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 	/**
 	 * The number of times this argument has been used in a command during parsing.
+	 *
 	 * @return the number of times this argument has been used in a command.
 	 */
 	public short getUsageCount() {
@@ -510,6 +528,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 	/**
 	 * The color that will be used to represent this argument in the help message.
+	 *
 	 * @return the color that will be used to represent this argument in the help message.
 	 */
 	public @NotNull Color getRepresentationColor() {
@@ -518,6 +537,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 	/**
 	 * Sets the color that will be used to represent this argument in the help message.
+	 *
 	 * @param color the color that will be used to represent this argument in the help message.
 	 */
 	public void setRepresentationColor(@NotNull Color color) {
@@ -526,8 +546,9 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 
 	/**
-	 * Returns <code>true</code> if this argument is the help argument of its parent command.
-	 * This just checks if the argument's name is "help" and if it is marked with {@link #setAllowUnique(boolean)}.
+	 * Returns <code>true</code> if this argument is the help argument of its parent command. This just checks if the
+	 * argument's name is "help" and if it is marked with {@link #setAllowUnique(boolean)}.
+	 *
 	 * @return <code>true</code> if this argument is the help argument of its parent command.
 	 */
 	public boolean isHelpArgument() {
@@ -564,8 +585,9 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	/**
-	 * This method is called when the command is finished parsing. <strong>And should only ever be called once
-	 * (per parse).</strong>
+	 * This method is called when the command is finished parsing. <strong>And should only ever be called once (per
+	 * parse).</strong>
+	 *
 	 * @return the final value parsed by the argument type, or the default value if the argument was not used.
 	 */
 	public @Nullable TInner finishParsing() {
@@ -587,6 +609,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 	/**
 	 * Checks if the argument was used the correct amount of times.
+	 *
 	 * @return <code>true</code> if the argument was used the correct amount of times.
 	 */
 	private boolean finishParsing$checkUsageCount() {
@@ -597,7 +620,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 				);
 				return false;
 			}
-		// make sure that the argument was used the minimum amount of times specified
+			// make sure that the argument was used the minimum amount of times specified
 		} else if (this.argType.usageCount < this.argType.getRequiredUsageCount().min()) {
 			this.parentCommand.getParser()
 				.addError(ParseError.ParseErrorType.ARG_INCORRECT_USAGES_COUNT, this, 0);
@@ -609,6 +632,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	/**
 	 * Checks if the argument is part of an exclusive group, and if so, checks if there is any violation of exclusivity
 	 * in the group hierarchy.
+	 *
 	 * @return <code>true</code> if there is no violation of exclusivity in the group hierarchy.
 	 */
 	private boolean finishParsing$checkExclusivity() {
@@ -634,9 +658,10 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	/**
 	 * Checks if this argument matches the given name, including the prefix.
 	 * <p>
-	 * For example, if the prefix is <code>'-'</code> and the argument has the name <code>"help"</code>, this method will
-	 * return <code>true</code> if the name is <code>"--help"</code>.
+	 * For example, if the prefix is <code>'-'</code> and the argument has the name <code>"help"</code>, this method
+	 * will return <code>true</code> if the name is <code>"--help"</code>.
 	 * </p>
+	 *
 	 * @param name the name to check
 	 * @return <code>true</code> if the name matches, <code>false</code> otherwise.
 	 */
@@ -648,9 +673,10 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 	/**
 	 * Checks if this argument matches the given single character name.
-	 * @see #checkMatch(String)
+	 *
 	 * @param name the name to check
 	 * @return <code>true</code> if the name matches, <code>false</code> otherwise.
+	 * @see #checkMatch(String)
 	 */
 	public boolean checkMatch(char name) {
 		return this.hasName(Character.toString(name));
@@ -681,6 +707,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * <p>
 	 * Equality is determined by the argument's name and the command it belongs to.
 	 * </p>
+	 *
 	 * @param obj the argument to compare to
 	 * @return <code>true</code> if the argument specified by the given name is equal to this argument
 	 */
@@ -709,6 +736,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 	/**
 	 * Sorts the given list of arguments by the synopsis view priority order.
+	 *
 	 * @param args the arguments to sort
 	 * @return the sorted list
 	 * @see #compareByPriority(Argument, Argument)
@@ -736,12 +764,18 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.FIELD)
 	public @interface Define {
-		String[] names() default {};
+		String[] names() default { };
+
 		String description() default "";
+
 		Class<? extends ArgumentType<?>> type();
+
 		char prefix() default '-';
+
 		boolean obligatory() default false;
+
 		boolean positional() default false;
+
 		boolean allowUnique() default false;
 	}
 

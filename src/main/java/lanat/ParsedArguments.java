@@ -9,7 +9,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.regex.Pattern;
 
 /**
  * Container for all the parsed arguments and their respective values.
@@ -32,6 +31,7 @@ public class ParsedArguments {
 
 	/**
 	 * Returns the parsed value of the argument with the given name.
+	 *
 	 * @param arg The argument to get the value of
 	 * @param <T> The type of the value of the argument
 	 */
@@ -59,7 +59,7 @@ public class ParsedArguments {
 	 *
 	 * @param argRoute The route to the argument, separated by the <code>.</code> character.
 	 * @param <T> The type of the value of the argument. This is used to avoid casting. A type that does not match the
-	 *  argument's type will result in a {@link ClassCastException}.
+	 * 	argument's type will result in a {@link ClassCastException}.
 	 * @throws CommandNotFoundException If the command specified in the route does not exist
 	 * @throws ArgumentNotFoundException If the argument specified in the route does not exist
 	 */
@@ -89,6 +89,7 @@ public class ParsedArguments {
 	 *         </ul>
 	 *     </ul>
 	 * </ul>
+	 *
 	 * @throws CommandNotFoundException If the command specified in the route does not exist
 	 */
 	@SuppressWarnings("unchecked") // we'll just have to trust the user
@@ -110,6 +111,7 @@ public class ParsedArguments {
 
 	/**
 	 * Returns the argument in {@link #parsedArgs} with the given name.
+	 *
 	 * @throws ArgumentNotFoundException If no argument with the given name is found
 	 */
 	private @NotNull Argument<?, ?> getArgument(@NotNull String name) {
@@ -124,6 +126,7 @@ public class ParsedArguments {
 	/**
 	 * Returns the sub {@link ParsedArguments} with the given name. If none is found with the given name, returns
 	 * <code>null</code>.
+	 *
 	 * @param name The name of the sub command
 	 * @return The sub {@link ParsedArguments} with the given name, or <code>null</code> if none is found
 	 */

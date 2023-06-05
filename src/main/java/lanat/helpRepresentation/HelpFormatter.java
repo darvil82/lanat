@@ -16,13 +16,14 @@ import java.util.*;
  * Manager for generating the help message of a command. It is possible to customize the layout of the help message by
  * overriding the {@link #initLayout()} method.
  * <p>
- * The layout is a list of {@link LayoutItem} objects, which are used to generate the help message.
- * Each {@link LayoutItem} has a layout generator, which is a function that may take a {@link Command} as parameter and
+ * The layout is a list of {@link LayoutItem} objects, which are used to generate the help message. Each
+ * {@link LayoutItem} has a layout generator, which is a function that may take a {@link Command} as parameter and
  * returns a string.
  * </p>
  * <p>
  * To generate the help message, use {@link #toString()}.
  * </p>
+ *
  * @see LayoutItem
  */
 public class HelpFormatter {
@@ -91,6 +92,7 @@ public class HelpFormatter {
 
 	/**
 	 * Moves a {@link LayoutItem} from one position to another.
+	 *
 	 * @param from the index of the item to move
 	 * @param to the index to move the item to
 	 */
@@ -109,6 +111,7 @@ public class HelpFormatter {
 
 	/**
 	 * Adds one or more {@link LayoutItem} to the layout.
+	 *
 	 * @param layoutItems the {@link LayoutItem} to add
 	 */
 	public final void addToLayout(@NotNull LayoutItem... layoutItems) {
@@ -117,6 +120,7 @@ public class HelpFormatter {
 
 	/**
 	 * Adds one or more {@link LayoutItem} to the layout at the specified position.
+	 *
 	 * @param at the position to add the item/s at
 	 * @param layoutItems the item/s to add
 	 */
@@ -126,6 +130,7 @@ public class HelpFormatter {
 
 	/**
 	 * Sets the layout to the specified {@link LayoutItem} objects.
+	 *
 	 * @param layoutItems the items to set the layout to
 	 */
 	public final void setLayout(@NotNull LayoutItem... layoutItems) {
@@ -134,6 +139,7 @@ public class HelpFormatter {
 
 	/**
 	 * Removes one or more {@link LayoutItem} from the layout.
+	 *
 	 * @param positions the positions of the items to remove
 	 */
 	public final void removeFromLayout(int... positions) {
@@ -147,6 +153,7 @@ public class HelpFormatter {
 
 	/**
 	 * Generates the help message.
+	 *
 	 * @return the help message
 	 */
 	@Override

@@ -1,25 +1,27 @@
 package lanat.argumentTypes;
 
-import fade.mirror.Invokable;
-import fade.mirror.MClass;
-import fade.mirror.MMethod;
-import fade.mirror.exception.MirrorException;
 import lanat.ArgumentType;
 import lanat.exceptions.ArgumentTypeException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Executable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
-import static fade.mirror.Mirror.mirror;
 
 public class TryParseArgument<T> extends ArgumentType<T> {
 	private final Function<String, Object> parseMethod;
-	private final @NotNull MClass<T> type;
+	private final @NotNull Class<T> type;
+	private static final String[] tryParseMethodNames = new String[] { "valueOf", "from", "parse" };
 
 
 	public TryParseArgument(@NotNull Class<T> type) {
-		this.type = mirror(type);
+		this.type = type;
 
 		if ((this.parseMethod = this.getParseMethod()) == null)
 			throw new ArgumentTypeException(
@@ -28,11 +30,18 @@ public class TryParseArgument<T> extends ArgumentType<T> {
 			);
 	}
 
-	private <I extends Invokable<?>> boolean isValidMethod(I method) {
-		if (method.getParameterCount() != 1) return false;
-		if (method.getReturnType() != this.type.getRawClass()) return false;
-		return method.getParameter(parameter -> parameter.getType().equals(String.class)).isPresent();
+	private static boolean isValidExecutable(Executable executable) {
+		return Modifier.isStatic(executable.getModifiers())
+			&& executable.getParameterCount() == 1
+			&& executable.getParameterTypes()[0] == String.class
+			&& Arrays.asList(TryParseArgument.tryParseMethodNames).contains(executable.getName());
 	}
+
+	private boolean isValidMethod(Method method) {
+		return TryParseArgument.isValidExecutable(method)
+			&& method.getReturnType() == this.type;
+	}
+
 
 	@Override
 	protected void addError(@NotNull String value) {
@@ -41,18 +50,16 @@ public class TryParseArgument<T> extends ArgumentType<T> {
 
 	private @Nullable Function<String, Object> getParseMethod() {
 		// Get a static valueOf(String), a parse(String), or a from(String) method.
-		final var method = this.type.getMethods()
-			.filter(MMethod::isStatic)
+		final var method = Stream.of(this.type.getMethods())
 			.filter(this::isValidMethod)
-			.filter(m -> (m.getName().equals("valueOf") || m.getName().equals("from") || m.getName().equals("parse")))
 			.findFirst();
 
 		// if we found a method, return that.
 		if (method.isPresent()) {
 			return input -> {
 				try {
-					return method.get().invokeWithNoInstance(input);
-				} catch (MirrorException exception) {
+					return method.get().invoke(null, input);
+				} catch (IllegalAccessException | InvocationTargetException exception) {
 					this.addError(input);
 				}
 				return null;
@@ -60,17 +67,18 @@ public class TryParseArgument<T> extends ArgumentType<T> {
 		}
 
 		// Otherwise, try to find a constructor that takes a string.
-		return this.type.getConstructors()
-			.filter(this::isValidMethod)
-			.findFirst()
-			.<Function<String, Object>>map(constructor -> s -> {
-				try {
-					return constructor.invokeWithNoInstance(s);
-				} catch (MirrorException exception) {
-					this.addError(s);
-				}
-				return null;
-			}).orElse(null);
+		final var ctor = Stream.of(this.type.getConstructors())
+			.filter(TryParseArgument::isValidExecutable)
+			.findFirst();
+
+		return ctor.<Function<String, Object>>map(tConstructor -> input -> {
+			try {
+				return tConstructor.newInstance(input);
+			} catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
+				this.addError(input);
+			}
+			return null;
+		}).orElse(null);
 	}
 
 	@Override

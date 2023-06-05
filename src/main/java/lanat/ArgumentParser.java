@@ -1,20 +1,18 @@
 package lanat;
 
-
-import fade.mirror.MClass;
-import fade.mirror.MField;
-import fade.mirror.filter.Filter;
 import lanat.parsing.TokenType;
 import lanat.parsing.errors.ErrorHandler;
+import lanat.utils.UtlReflection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
-import static fade.mirror.Mirror.mirror;
 
 public class ArgumentParser extends Command {
 	private boolean isParsed = false;
@@ -220,77 +218,81 @@ public class ArgumentParser extends Command {
 		}
 
 		public <T extends CommandTemplate> T into(@NotNull Class<T> clazz) {
-			return AfterParseOptions.into(mirror(clazz), this.getParsedArguments(), ArgumentParser.this);
+			return AfterParseOptions.into(clazz, this.getParsedArguments(), ArgumentParser.this);
 		}
 
 
-		@SuppressWarnings("unchecked")
 		private static <T extends CommandTemplate> T into(
-			@NotNull MClass<T> clazz,
+			@NotNull Class<T> clazz,
 			@NotNull ParsedArguments parsedArgs,
 			@NotNull Command cmd
 		) {
-			final var ctor = clazz.getConstructor();
+			final T instance = UtlReflection.instantiate(clazz);
 
-			if (ctor.isEmpty())
-				throw new IllegalArgumentException("the given class does not have a public constructor without parameters");
+//			assert instance != null : "Could not instantiate class " + clazz.getName() + "!";
 
-			final T instance = ctor.get().invokeWithNoInstance();
+			Stream.of(clazz.getFields())
+				.filter(f -> f.isAnnotationPresent(Argument.Define.class))
+				.forEach(f -> {
+					final var annotation = f.getAnnotation(Argument.Define.class);
 
-			assert instance != null;
+					// get the name of the argument from the annotation or field name
+					final String argName = annotation.names().length == 0 ? f.getName() : annotation.names()[0];
 
-			clazz.getFields(
-				Filter.forFields().withAnnotation(Argument.Define.class), MClass.IncludeSuperclasses.Yes
-			).forEach(f -> {
-				@SuppressWarnings("OptionalGetWithoutIsPresent") // we know that the field has the annotation (see above)
-				final var annotation = f.getAnnotationOfType(Argument.Define.class).get();
+					final @Nullable Object parsedValue = parsedArgs.get(argName).get();
 
-				// get the name of the argument from the annotation or field name
-				final String argName = annotation.names().length == 0 ? f.getName() : annotation.names()[0];
-
-				final @Nullable Object parsedValue = parsedArgs.get(argName).get();
-
-				// if the type of the field is a ParsedArgumentValue, wrap the value in it.
-				// otherwise, just set the value
-				((MField<Object>)f).setValue(
-					instance,
-					mirror(ParsedArgumentValue.class).isSuperclassOf(f.getType())
-						? new ParsedArgumentValue<>(parsedValue)
-						: parsedValue
-				);
-			});
+					// if the type of the field is a ParsedArgumentValue, wrap the value in it.
+					// otherwise, just set the value
+					try {
+						f.set(instance, f.getType().isAssignableFrom(ParsedArgumentValue.class)
+							? new ParsedArgumentValue<>(parsedValue)
+							: parsedValue);
+					} catch (IllegalAccessException e) {
+						throw new RuntimeException(e);
+					}
+				});
 
 			// now handle the sub-command attribute accessors (if any)
-			clazz.getFields(Filter.forFields().withAnnotation(CommandTemplate.CommandAccessor.class))
-				.forEach(f -> AfterParseOptions.into$handleCommandAccessor(instance, (MField<T>)f, parsedArgs, cmd));
+			Stream.of(clazz.getFields())
+				.filter(f -> f.isAnnotationPresent(CommandTemplate.CommandAccessor.class))
+				.forEach(f -> AfterParseOptions.into$handleCommandAccessor(instance, f, parsedArgs, cmd));
 
 			return instance;
 		}
 
+		@SuppressWarnings("unchecked")
 		private static <T extends CommandTemplate> void into$handleCommandAccessor(
 			@NotNull T instance,
-			@NotNull MField<T> field,
+			@NotNull Field field,
 			@NotNull ParsedArguments parsedArgs,
 			@NotNull Command cmd
 		) {
-			final MClass<T> fieldType = mirror(field.getType());
+			final Class<?> fieldType = field.getType();
 
-			if (!mirror(CommandTemplate.class).isSuperclassOf(fieldType))
+			if (!CommandTemplate.class.isAssignableFrom(fieldType))
 				throw new IllegalArgumentException(
 					"The field '" + field.getName() + "' is annotated with @CommandAccessor but its type is not a subclass of CommandTemplate"
 				);
 
-			final Command.Define annotation = fieldType.getAnnotationOfType(Command.Define.class).orElseThrow(
-				() -> new IllegalArgumentException(
+			final Command.Define annotation = fieldType.getAnnotation(Command.Define.class);
+
+			if (annotation == null) {
+				throw new IllegalArgumentException(
 					"The field '" + field.getName() + "' is annotated with @CommandAccessor but the type of the field is not annotated with @Command"
-				)
-			);
+				);
+			}
+
 			final String cmdName = annotation.names().length == 0 ? field.getName() : annotation.names()[0];
 
-			field.setValue(
-				instance,
-				AfterParseOptions.into(fieldType, parsedArgs.getSubParsedArgs(cmdName), cmd.getCommand(cmdName))
-			);
+			try {
+				field.set(instance, AfterParseOptions.into(
+					(Class<T>)fieldType,
+					parsedArgs.getSubParsedArgs(cmdName),
+					cmd.getCommand(cmdName))
+				);
+			} catch (IllegalAccessException e) {
+				throw new RuntimeException(e);
+			}
 		}
 	}
 }

@@ -6,7 +6,6 @@ import lanat.parsing.errors.CustomError;
 import lanat.parsing.errors.ParseError;
 import lanat.utils.*;
 import lanat.utils.displayFormatter.Color;
-import net.auoeke.reflect.Constructors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -191,7 +190,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 			final var argumentBuilder = new ArgumentBuilder<Type, TInner>()
 				.withNames(names.length == 0 ? new String[] { field.getName() } : names);
 
-			argumentBuilder.withArgType((Type)Constructors.construct(annotation.type()));
+			argumentBuilder.withArgType((Type)UtlReflection.instantiate(annotation.type()));
 
 			argumentBuilder.withPrefixChar(PrefixChar.fromCharUnsafe(annotation.prefix()));
 			if (!annotation.description().isEmpty()) argumentBuilder.withDescription(annotation.description());

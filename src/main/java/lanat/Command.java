@@ -11,9 +11,6 @@ import lanat.parsing.Tokenizer;
 import lanat.parsing.errors.CustomError;
 import lanat.utils.*;
 import lanat.utils.displayFormatter.Color;
-import net.auoeke.reflect.Fields;
-import net.auoeke.reflect.Methods;
-import net.auoeke.reflect.Types;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,6 +21,7 @@ import java.lang.annotation.Target;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 /**
  * <h2>Command</h2>
@@ -291,7 +289,7 @@ public class Command
 	}
 
 	private void from$recursive(@NotNull Class<?> clazz) {
-		if (!Types.isSubtype(clazz, CommandTemplate.class)) return;
+		if (!CommandTemplate.class.isAssignableFrom(clazz)) return;
 
 		// don't allow classes without the @Command.Define annotation
 		if (!clazz.isAnnotationPresent(Command.Define.class)) {
@@ -299,15 +297,19 @@ public class Command
 		}
 
 		// get to the top of the hierarchy
-		Optional.of(clazz.getSuperclass()).ifPresent(this::from$recursive);
+		Optional.ofNullable(clazz.getSuperclass()).ifPresent(this::from$recursive);
 
 
-		Fields.of(clazz)
-			.forEach(f -> Optional.of(f.getAnnotation(Argument.Define.class))
+		Stream.of(clazz.getDeclaredFields())
+			.forEach(f -> Optional.ofNullable(f.getAnnotation(Argument.Define.class))
 				.ifPresent(a -> this.addArgument(Argument.ArgumentBuilder.fromField(f, a)))
 			);
 
-		Optional.of(Methods.of(clazz, "init", Command.class))
+		Stream.of(clazz.getDeclaredMethods())
+			.filter(m -> UtlReflection.hasParameters(m, Command.class))
+			.filter(m -> m.isAnnotationPresent(CommandTemplate.InitDef.class))
+			.filter(m -> m.getName().equals("init"))
+			.findFirst()
 			.ifPresent(m -> {
 				try {
 					m.invoke(null, this);

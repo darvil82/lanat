@@ -6,13 +6,13 @@ import lanat.helpRepresentation.descriptions.tags.ColorTag;
 import lanat.helpRepresentation.descriptions.tags.DescTag;
 import lanat.helpRepresentation.descriptions.tags.FormatTag;
 import lanat.helpRepresentation.descriptions.tags.LinkTag;
+import lanat.utils.UtlReflection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Hashtable;
-import java.util.Objects;
 
-import static fade.mirror.Mirror.mirror;
+
 
 /**
  * Class for handling parsing of the simple tags used in descriptions. (e.g. {@code <a-tag=the-value>}).
@@ -70,9 +70,6 @@ public abstract class Tag {
 		if (tagClass == null)
 			throw new UnknownTagException(tagName);
 
-		final var tagCtor = mirror(tagClass).getConstructor();
-		assert tagCtor.isPresent() : "Tag class " + tagClass.getName() + " has no default constructor";
-
-		return Objects.requireNonNull(tagCtor.get().invokeWithNoInstance()).parse(user, value);
+		return UtlReflection.instantiate(tagClass).parse(user, value);
 	}
 }

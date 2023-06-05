@@ -1,6 +1,11 @@
 package lanat.utils;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.function.Predicate;
 
 public final class UtlReflection {
 	private UtlReflection() {}
@@ -21,4 +26,70 @@ public final class UtlReflection {
 
 		return name;
 	}
+
+	/**
+	 * Returns the superclass of the given class that matches the given predicate.
+	 * @param clazz The class to get the superclass of.
+	 * @param pred The predicate to match.
+	 * @param inclusive Whether to include the given class in the search.
+	 * @return The class that matches the given predicate, or null if none was found.
+	 * @param <T> The type of the class.
+	 */
+	public static <T>
+	@Nullable Class<? super T> getSuperclassUntil(
+		@NotNull Class<T> clazz,
+		@NotNull Predicate<Class<? super T>> pred,
+		boolean inclusive
+	) {
+		if (inclusive && pred.test(clazz))
+			return clazz;
+
+		var superclass = clazz.getSuperclass();
+
+		while (superclass != null && !pred.test(superclass))
+			superclass = superclass.getSuperclass();
+
+		return superclass;
+	}
+
+	/**
+	 * Returns the superclass of the given class that matches the given predicate.
+	 * @param clazz The class to get the superclass of.
+	 * @param pred The predicate to match.
+	 * @return The class that matches the given predicate, or null if none was found.
+	 * @param <T> The type of the class.
+	 */
+	public static <T> @Nullable Class<? super T> getSuperclassUntil(
+		@NotNull Class<T> clazz,
+		@NotNull Predicate<Class<? super T>> pred
+	) {
+		return UtlReflection.getSuperclassUntil(clazz, pred, false);
+	}
+
+
+	/**
+	 * Returns whether the given method has the given parameters in the given order.
+	 * @param method The method to check.
+	 * @param parameters The parameters to check.
+	 * @return Whether the given method has the given parameters in the given order.
+	 */
+	public static boolean hasParameters(Method method, Class<?>... parameters) {
+		return Arrays.equals(method.getParameterTypes(), parameters);
+	}
+
+	/**
+	 * Instantiates the given class with the given arguments.
+	 * @param clazz The class to instantiate.
+	 * @param args The arguments to pass to the constructor.
+	 * @return The instantiated class. If the class could not be instantiated, a {@link RuntimeException} is thrown.
+	 * @param <T> The type of the class.
+	 */
+	public static <T> T instantiate(Class<T> clazz, Object... args) {
+		try {
+			return clazz.getDeclaredConstructor().newInstance(args);
+		} catch (ReflectiveOperationException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 }

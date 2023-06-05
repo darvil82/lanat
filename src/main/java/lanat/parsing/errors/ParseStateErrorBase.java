@@ -10,8 +10,11 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 /**
@@ -60,7 +63,7 @@ import java.util.stream.Collectors;
  */
 abstract class ParseStateErrorBase<T extends Enum<T> & ErrorLevelProvider> implements ErrorLevelProvider {
 	public final @NotNull T errorType;
-	private final List<MMethod<?>> methods;
+	private final List<Method> methods;
 	public int tokenIndex;
 	private ErrorHandler errorHandler;
 	private ErrorFormatter formatter;
@@ -81,21 +84,17 @@ abstract class ParseStateErrorBase<T extends Enum<T> & ErrorLevelProvider> imple
 		}
 	}
 
-	private @NotNull List<@NotNull MMethod<?>> getAnnotatedMethods() {
-		return mirror(this.getClass())
-			.getSuperclassUntil(MClass::hasMethods, MClass.IncludeSelf.Yes)
-			.<List<MMethod<?>>>map(objectMClass -> objectMClass.getMethods(Filter.forMethods().withAnnotation(Handler.class))
-			.collect(Collectors.toList()))
-			.orElseGet(List::of);
+	private @NotNull List<@NotNull Method> getAnnotatedMethods() {
+		return Stream.of(this.getClass().getDeclaredMethods())
+			.filter(m -> m.isAnnotationPresent(Handler.class))
+			.collect(Collectors.toList());
 	}
 
-	private boolean isHandlerMethod(@NotNull MMethod<?> method, @NotNull String handlerName) {
-		return method.getAnnotationOfType(Handler.class)
-			.map(handler -> handler.value().equals(handlerName))
-			.orElse(false);
+	private boolean isHandlerMethod(@NotNull Method method, @NotNull String handlerName) {
+		return method.getAnnotation(Handler.class).value().equals(handlerName);
 	}
 
-	private boolean isHandlerMethod(@NotNull MMethod<?> method) {
+	private boolean isHandlerMethod(@NotNull Method method) {
 		return this.isHandlerMethod(method, this.errorType.name());
 	}
 
@@ -108,8 +107,8 @@ abstract class ParseStateErrorBase<T extends Enum<T> & ErrorLevelProvider> imple
 			if (!this.isHandlerMethod(method)) continue;
 
 			try {
-				method.requireAccessible(this).invokeWithInstance(this);
-			} catch (MirrorException e) {
+				method.invoke(this);
+			} catch (InvocationTargetException | IllegalAccessException e) {
 				throw new RuntimeException(e);
 			}
 			return this.formatter.toString();

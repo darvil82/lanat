@@ -1,4 +1,4 @@
-package lanat.test;
+package lanat.test.manualTests;
 
 import lanat.*;
 import lanat.argumentTypes.CounterArgument;
@@ -6,46 +6,10 @@ import lanat.argumentTypes.IntArgument;
 import lanat.argumentTypes.StringArgument;
 import lanat.commandTemplates.DefaultCommandTemplate;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.Test;
-
-public final class ManualTests {
-	@Test
-	public void main() {
-//		HelpFormatter.lineWrapMax = 110;
-//		HelpFormatter.debugLayout = true;
-//		TextFormatter.debug = true;
-
-		enum TestEnum {
-			ONE, TWO, THREE
-		}
-
-//		var parser = new TestingParser(MyProgram.class) {{
-//			final var that = this;
-//
-//			this.addGroup(new ArgumentGroup("test-group") {{
-//				this.addArgument(that.getArgument("string"));
-//				this.addArgument(that.getArgument("number"));
-//			}});
-//
-//			this.addCommand(new Command(MyProgram.MySubCommand.class));
-//		}};
-
-		String input = "--string hello --number 67 sub-command -ccc";
-
-		var parsed = ArgumentParser.parseFromInto(MyProgram.class, CLInput.from(input));
-
-		parsed.string
-			.defined(s -> System.out.println("Value is defined: " + s))
-			.undefined(() -> System.out.println("undefined!"));
-		System.out.println(parsed.number);
-		System.out.println(parsed.subCommand.counter);
-		System.out.println(parsed.subCommand.anotherSubCommand.counter);
-	}
-}
 
 @Command.Define(names = "my-program", description = "This is a test program.")
-class MyProgram extends DefaultCommandTemplate {
-	public MyProgram() {}
+public class TestCommandTemplate extends DefaultCommandTemplate {
+	public TestCommandTemplate() {}
 
 	@Argument.Define(type = StringArgument.class, description = "This is a string argument.")
 	public ParsedArgumentValue<String> string;

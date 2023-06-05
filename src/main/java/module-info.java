@@ -1,6 +1,5 @@
 module lanat {
 	requires org.jetbrains.annotations;
-	requires reflect;
 
 	exports lanat;
 	exports lanat.argumentTypes;

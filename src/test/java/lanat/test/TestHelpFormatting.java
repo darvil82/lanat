@@ -16,8 +16,17 @@ public class TestHelpFormatting extends UnitTests {
 	private HelpFormatter helpFormatter;
 
 	@Override
-	public void setParser() {
-		this.parser = new TestingParser(
+	protected TestingParser setParser() {
+		this.helpFormatter = new HelpFormatter() {
+			@Override
+			protected void initLayout() {
+				this.setLayout(
+					LayoutItem.of(DescriptionFormatter::parse)
+				);
+			}
+		};
+
+		return new TestingParser(
 			"TestHelpFormatting",
 			"description of <link=args.arg1>: (<desc=args.arg1>)"
 		)
@@ -27,15 +36,6 @@ public class TestHelpFormatting extends UnitTests {
 			this.addArgument(Argument.create("arg2", ArgumentType.COUNTER())
 				.withDescription("description of my type: (<desc=!.type>) i am in the command <link>"));
 		}};
-
-		this.helpFormatter = new HelpFormatter(this.parser) {
-			@Override
-			protected void initLayout() {
-				this.setLayout(
-					LayoutItem.of(DescriptionFormatter::parse)
-				);
-			}
-		};
 	}
 
 	@Test
@@ -44,7 +44,7 @@ public class TestHelpFormatting extends UnitTests {
 		assertEquals(
 			"description of --arg1/a1: (description of arg2: (description of my type: "
 				+ "(Counts the number of times this argument is used.) i am in the command TestHelpFormatting))",
-			this.helpFormatter.toString()
+			this.helpFormatter.generate(this.parser)
 		);
 	}
 

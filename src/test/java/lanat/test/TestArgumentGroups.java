@@ -10,13 +10,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestArgumentGroups extends UnitTests {
 	@Override
-	public void setParser() {
-		super.setParser();
-		this.parser.addGroup(new ArgumentGroup("group") {{
+	protected TestingParser setParser() {
+		final var parser = super.setParser();
+
+		parser.addGroup(new ArgumentGroup("group") {{
 			this.setExclusive(true);
 			this.addArgument(Argument.create("group-arg", ArgumentType.BOOLEAN()));
 			this.addArgument(Argument.create("group-arg2", ArgumentType.BOOLEAN()));
 		}});
+
+		return parser;
 	}
 
 	@Test

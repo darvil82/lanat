@@ -134,8 +134,8 @@ public class LayoutItem {
 	 * @param helpFormatter the help formatter that is generating the help message
 	 * @return the content of the layout item
 	 */
-	public @Nullable String generate(HelpFormatter helpFormatter) {
-		final var content = this.layoutGenerator.apply(helpFormatter.parentCmd);
+	public @Nullable String generate(@NotNull HelpFormatter helpFormatter, @NotNull Command cmd) {
+		final var content = this.layoutGenerator.apply(cmd);
 		return content == null ? null : (
 			"\n".repeat(this.marginTop)
 				+ (this.title == null ? "" : this.title + "\n\n")

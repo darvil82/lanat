@@ -8,8 +8,8 @@ import lanat.commandTemplates.DefaultCommandTemplate;
 import org.jetbrains.annotations.NotNull;
 
 @Command.Define(names = "my-program", description = "This is a test program.")
-public class TestCommandTemplate extends DefaultCommandTemplate {
-	public TestCommandTemplate() {}
+public class CommandTemplateExample extends DefaultCommandTemplate {
+	public CommandTemplateExample() {}
 
 	@Argument.Define(type = StringArgument.class, description = "This is a string argument.")
 	public ParsedArgumentValue<String> string;

@@ -44,8 +44,8 @@ public class TestErrors extends UnitTests {
 	}
 
 	@Override
-	public void setParser() {
-		this.parser = this.addCallbacks(new TestingParser("TestCallbacks") {{
+	protected TestingParser setParser() {
+		return this.addCallbacks(new TestingParser("TestCallbacks") {{
 			this.setErrorCode(5);
 
 			this.addArgument(TestErrors.this.addCallbacks(Argument.create("bool-arg", ArgumentType.BOOLEAN()).build()));

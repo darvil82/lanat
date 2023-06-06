@@ -55,7 +55,7 @@ public class Command
 	private @Nullable Consumer<Command> onErrorCallback;
 	private @Nullable Consumer<ParsedArguments> onCorrectCallback;
 
-	private final @NotNull ModifyRecord<HelpFormatter> helpFormatter = new ModifyRecord<>(new HelpFormatter(this));
+	private final @NotNull ModifyRecord<HelpFormatter> helpFormatter = new ModifyRecord<>(new HelpFormatter());
 	private final @NotNull ModifyRecord<@NotNull CallbacksInvocationOption> callbackInvocationOption =
 		new ModifyRecord<>(CallbacksInvocationOption.NO_ERROR_IN_ALL_COMMANDS);
 
@@ -175,7 +175,6 @@ public class Command
 	}
 
 	public void setHelpFormatter(@NotNull HelpFormatter helpFormatter) {
-		helpFormatter.setParentCmd(this);
 		this.helpFormatter.set(helpFormatter);
 	}
 
@@ -202,7 +201,7 @@ public class Command
 	}
 
 	public @NotNull String getHelp() {
-		return this.helpFormatter.get().toString();
+		return this.helpFormatter.get().generate(this);
 	}
 
 	@Override
@@ -266,16 +265,7 @@ public class Command
 		this.getMinimumExitErrorLevel().setIfNotModified(parent.getMinimumExitErrorLevel());
 		this.getMinimumDisplayErrorLevel().setIfNotModified(parent.getMinimumDisplayErrorLevel());
 		this.errorCode.setIfNotModified(parent.errorCode);
-		this.helpFormatter.setIfNotModified(() -> {
-			/* NEED TO BE COPIED!! If we don't then all commands will have the same formatter,
-			 * which causes lots of problems.
-			 *
-			 * Stuff like the layout generators closures are capturing the reference to the previous Command
-			 * and will not be updated properly when the parent command is updated. */
-			return new HelpFormatter(parent.helpFormatter.get()) {{
-				this.setParentCmd(Command.this); // we need to update the parent command!
-			}};
-		});
+		this.helpFormatter.setIfNotModified(parent.helpFormatter);
 		this.callbackInvocationOption.setIfNotModified(parent.callbackInvocationOption);
 
 		this.passPropertiesToChildren();

@@ -1,6 +1,8 @@
 package lanat.test;
 
-import lanat.*;
+import lanat.Argument;
+import lanat.ArgumentType;
+import lanat.Command;
 import lanat.argumentTypes.TupleArgumentType;
 import lanat.helpRepresentation.HelpFormatter;
 import lanat.utils.Range;
@@ -9,9 +11,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 
@@ -43,31 +42,6 @@ class RestrictedDoubleAdder extends ArgumentType<Double> {
 }
 
 
-class TestingParser extends ArgumentParser {
-	public TestingParser(String programName, String description) {
-		super(programName, description);
-	}
-
-	public TestingParser(String programName) {
-		super(programName);
-	}
-
-	public TestingParser(@NotNull Class<? extends CommandTemplate> templateClass) {
-		super(templateClass);
-	}
-
-	public List<String> parseGetErrors(String args) {
-		return this.parse(CLInput.from(args)).getErrors();
-	}
-
-	public @NotNull ParsedArgumentsRoot parseGetValues(@NotNull String args) {
-		var res = this.parse(CLInput.from(args)).getParsedArguments();
-		assertNotNull(res, "The result of the parsing was null (Arguments have failed)");
-		return res;
-	}
-}
-
-
 public class UnitTests {
 	protected TestingParser parser;
 
@@ -76,8 +50,8 @@ public class UnitTests {
 		TextFormatter.enableSequences = false; // just so we don't have to worry about color codes
 	}
 
-	public void setParser() {
-		this.parser = new TestingParser("Testing") {{
+	protected TestingParser setParser() {
+		return new TestingParser("Testing") {{
 			this.addArgument(Argument.create("what", new StringJoiner())
 				.positional()
 				.obligatory()
@@ -97,7 +71,7 @@ public class UnitTests {
 
 	@BeforeEach
 	public final void setup() {
-		this.setParser();
+		this.parser = this.setParser();
 	}
 
 	/**

@@ -9,7 +9,7 @@ public final class ManualTests {
 	public void main() {
 		String input = "--help --string hello --number 67 sub-command -ccc";
 
-		var parsed = ArgumentParser.parseFromInto(TestCommandTemplate.class, CLInput.from(input));
+		var parsed = ArgumentParser.parseFromInto(CommandTemplateExample.class, CLInput.from(input));
 
 		parsed.string
 			.defined(s -> System.out.println("Value is defined: " + s))

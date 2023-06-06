@@ -1,7 +1,9 @@
-package lanat.test;
+package lanat.test.units;
 
 import lanat.Argument;
 import lanat.ArgumentType;
+import lanat.test.TestingParser;
+import lanat.test.UnitTests;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;

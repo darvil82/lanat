@@ -1,6 +1,8 @@
-package lanat.test;
+package lanat.test.units;
 
 import lanat.*;
+import lanat.test.TestingParser;
+import lanat.test.UnitTests;
 import lanat.utils.ErrorCallbacks;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;

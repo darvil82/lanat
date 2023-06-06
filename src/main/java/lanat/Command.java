@@ -274,9 +274,16 @@ public class Command
 	public void from(@NotNull Class<? extends CommandTemplate> clazz) {
 		this.from$recursive(clazz);
 
-		if (this.names.isEmpty()) {
-			this.addNames(clazz.getAnnotation(Command.Define.class).names());
+		final var annotationNames = clazz.getAnnotation(Command.Define.class).names();
+
+		// if the annotation has names specified, use those
+		if (annotationNames.length != 0) {
+			this.addNames(annotationNames);
+			return;
 		}
+
+		// otherwise, use the class name
+		this.addNames(clazz.getSimpleName());
 	}
 
 	private void from$recursive(@NotNull Class<?> clazz) {
@@ -491,7 +498,7 @@ public class Command
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.TYPE)
 	public @interface Define {
-		String[] names() default { };
+		String[] names() default {};
 
 		String description() default "";
 	}

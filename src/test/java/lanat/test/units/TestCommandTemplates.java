@@ -1,6 +1,8 @@
 package lanat.test.units;
 
+import lanat.ArgumentParser;
 import lanat.CLInput;
+import lanat.Command;
 import lanat.exceptions.ArgumentNotFoundException;
 import lanat.test.TestingParser;
 import lanat.test.UnitTests;
@@ -12,7 +14,9 @@ import static org.junit.jupiter.api.Assertions.*;
 public class TestCommandTemplates extends UnitTests {
 	@Override
 	protected TestingParser setParser() {
-		return new TestingParser(CmdTemplate1.class);
+		return new TestingParser(CmdTemplate1.class) {{
+			this.addCommand(new Command(CmdTemplate1.CmdTemplate2.class));
+		}};
 	}
 
 	@Test
@@ -21,17 +25,35 @@ public class TestCommandTemplates extends UnitTests {
 		assertEquals(56, this.<Integer>parseArg("number", "56"));
 		assertEquals("hello", this.<String>parseArg("text", "hello"));
 		assertTrue(this.<Boolean>parseArg("name1", ""));
-		assertTrue(this.<Boolean>parseArg("name2", ""));
+		assertTrue(this.<Boolean>parseArg("f", ""));
 		assertThrows(
 			ArgumentNotFoundException.class,
 			() -> this.parseArg("flag", "")
 		);
+	}
 
-		var result = this.parser.parse(CLInput.from("--number 56 --text hello --name1 --name2"))
+	@Test
+	@DisplayName("test into method")
+	public void testInto() {
+		var result = this.parser.parse(CLInput.from("--number 56 --text hello -f"))
 			.into(CmdTemplate1.class);
 
 		assertTrue(result.flag);
 		assertEquals(56, result.number);
 		assertEquals("hello", result.text);
+		assertNull(result.cmd2.number);
+	}
+
+	@Test
+	@DisplayName("test parseFromInto method")
+	public void testParseFromInto() {
+		var result = ArgumentParser.parseFromInto(
+			CmdTemplate1.class, CLInput.from("--number 56 --text hello -f CmdTemplate2 --number 54.0")
+		);
+
+		assertTrue(result.flag);
+		assertEquals(56, result.number);
+		assertEquals("hello", result.text);
+		assertEquals(54.0f, result.cmd2.number);
 	}
 }

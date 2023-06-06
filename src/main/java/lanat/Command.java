@@ -274,16 +274,7 @@ public class Command
 	public void from(@NotNull Class<? extends CommandTemplate> clazz) {
 		this.from$recursive(clazz);
 
-		final var annotationNames = clazz.getAnnotation(Command.Define.class).names();
-
-		// if the annotation has names specified, use those
-		if (annotationNames.length != 0) {
-			this.addNames(annotationNames);
-			return;
-		}
-
-		// otherwise, use the class name
-		this.addNames(clazz.getSimpleName());
+		this.addNames(Command.getTemplateNames(clazz));
 	}
 
 	private void from$recursive(@NotNull Class<?> clazz) {
@@ -299,8 +290,9 @@ public class Command
 
 
 		Stream.of(clazz.getDeclaredFields())
-			.forEach(f -> Optional.ofNullable(f.getAnnotation(Argument.Define.class))
-				.ifPresent(a -> this.addArgument(Argument.ArgumentBuilder.fromField(f, a)))
+			.filter(f -> f.isAnnotationPresent(Argument.Define.class))
+			.forEach(f ->
+				this.addArgument(Argument.ArgumentBuilder.fromField(f, f.getAnnotation(Argument.Define.class)))
 			);
 
 		Stream.of(clazz.getDeclaredMethods())
@@ -501,5 +493,17 @@ public class Command
 		String[] names() default {};
 
 		String description() default "";
+	}
+
+	static @NotNull String @NotNull [] getTemplateNames(@NotNull Class<? extends CommandTemplate> cmdTemplate) {
+		final var annotationNames = cmdTemplate.getAnnotation(Command.Define.class).names();
+
+		// if the annotation has names specified, use those
+		if (annotationNames.length != 0) {
+			return annotationNames;
+		}
+
+		// otherwise, use the class name
+		return new String[] { cmdTemplate.getSimpleName() };
 	}
 }

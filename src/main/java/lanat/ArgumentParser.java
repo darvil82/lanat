@@ -1,5 +1,6 @@
 package lanat;
 
+import lanat.exceptions.IncompatibleCommandTemplateType;
 import lanat.parsing.TokenType;
 import lanat.parsing.errors.ErrorHandler;
 import lanat.utils.UtlReflection;
@@ -106,12 +107,18 @@ public class ArgumentParser extends Command {
 	 * @param <T> The type of the class to search for commands in.
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T extends CommandTemplate>
+	private static <T extends CommandTemplate>
 	void parseFromInto$setCommands(@NotNull Class<T> templateClass, @NotNull Command parentCommand) {
 		final var commandDefs = Arrays.stream(templateClass.getDeclaredClasses())
 			.filter(c -> c.isAnnotationPresent(Command.Define.class))
 			.filter(c -> Modifier.isStatic(c.getModifiers()))
 			.filter(CommandTemplate.class::isAssignableFrom)
+//			.filter(c -> {
+//				if (Stream.of(templateClass.getDeclaredFields()).noneMatch(f -> f.getType() == c)) {
+//					throw new RuntimeException("Command template class " + templateClass.getSimpleName() + " is present, but no @CommandAccesor has been specified for it.");
+//				}
+//				return true;
+//			})
 			.map(c -> (Class<? extends CommandTemplate>)c)
 			.toList();
 
@@ -234,8 +241,6 @@ public class ArgumentParser extends Command {
 		{
 			final T instance = UtlReflection.instantiate(clazz);
 
-//			assert instance != null : "Could not instantiate class " + clazz.getName() + "!";
-
 			Stream.of(clazz.getFields())
 				.filter(f -> f.isAnnotationPresent(Argument.Define.class))
 				.forEach(f -> {
@@ -252,49 +257,73 @@ public class ArgumentParser extends Command {
 						f.set(instance, f.getType().isAssignableFrom(ParsedArgumentValue.class)
 							? new ParsedArgumentValue<>(parsedValue)
 							: parsedValue);
+
+					} catch (IllegalArgumentException e) {
+						if (parsedValue == null)
+							throw new IncompatibleCommandTemplateType(
+								"Field '" + f.getName() + "' of type '" + f.getType().getSimpleName() + "' does not"
+									+ " accept null values, but the parsed argument '" + argName + "' is null"
+							);
+
+						throw new IncompatibleCommandTemplateType(
+							"Field '" + f.getName() + "' of type '" + f.getType().getSimpleName() + "' is not "
+								+ "compatible with the type (" + parsedValue.getClass().getSimpleName() + ") of the "
+								+ "parsed argument '" + argName + "'"
+						);
+
 					} catch (IllegalAccessException e) {
 						throw new RuntimeException(e);
 					}
 				});
 
 			// now handle the sub-command attribute accessors (if any)
-			Stream.of(clazz.getFields())
-				.filter(f -> f.isAnnotationPresent(CommandTemplate.CommandAccessor.class))
-				.forEach(f -> AfterParseOptions.into$handleCommandAccessor(instance, f, parsedArgs, cmd));
+			final var declaredClasses = Stream.of(clazz.getDeclaredClasses())
+				.filter(c -> c.isAnnotationPresent(Command.Define.class))
+				.toList();
+
+			for (var cls : declaredClasses) {
+				final var field = Stream.of(clazz.getDeclaredFields())
+					.filter(f -> f.isAnnotationPresent(CommandTemplate.CommandAccessor.class))
+					.filter(f -> f.getType() == cls)
+					.findFirst()
+					.orElseThrow(() -> {
+						throw new IllegalArgumentException(
+							"The class '" + cls.getSimpleName() + "' is annotated with @Command.Define but it's "
+								+ "enclosing class does not have a field annotated with @CommandAccessor"
+						);
+					});
+
+				AfterParseOptions.into$handleCommandAccessor(instance, field, parsedArgs, cmd);
+			}
 
 			return instance;
 		}
 
 		@SuppressWarnings("unchecked")
 		private static <T extends CommandTemplate> void into$handleCommandAccessor(
-			@NotNull T instance,
-			@NotNull Field field,
+			@NotNull T parsedTemplateInstance,
+			@NotNull Field commandAccesorField,
 			@NotNull ParsedArguments parsedArgs,
 			@NotNull Command cmd
 		)
 		{
-			final Class<?> fieldType = field.getType();
+			final Class<?> fieldType = commandAccesorField.getType();
 
 			if (!CommandTemplate.class.isAssignableFrom(fieldType))
 				throw new IllegalArgumentException(
-					"The field '" + field.getName() + "' is annotated with @CommandAccessor but its type is not a subclass of CommandTemplate"
+					"The field '" + commandAccesorField.getName() + "' is annotated with @CommandAccessor "
+						+ "but its type is not a subclass of CommandTemplate"
 				);
 
-			final Command.Define annotation = fieldType.getAnnotation(Command.Define.class);
-
-			if (annotation == null) {
-				throw new IllegalArgumentException(
-					"The field '" + field.getName() + "' is annotated with @CommandAccessor but the type of the field is not annotated with @Command"
-				);
-			}
-
-			final String cmdName = annotation.names().length == 0 ? field.getName() : annotation.names()[0];
+			final String cmdName = Command.getTemplateNames((Class<? extends CommandTemplate>)fieldType)[0];
 
 			try {
-				field.set(instance, AfterParseOptions.into(
-					(Class<T>)fieldType,
-					parsedArgs.getSubParsedArgs(cmdName),
-					cmd.getCommand(cmdName))
+				commandAccesorField.set(parsedTemplateInstance,
+					AfterParseOptions.into(
+						(Class<T>)fieldType,
+						parsedArgs.getSubParsedArgs(cmdName),
+						cmd.getCommand(cmdName)
+					)
 				);
 			} catch (IllegalAccessException e) {
 				throw new RuntimeException(e);

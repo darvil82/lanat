@@ -21,7 +21,7 @@ public class CommandTemplateExample extends DefaultCommandTemplate {
 	public MySubCommand subCommand;
 
 	@InitDef
-	public static void init(@NotNull Command cmd) {
+	public static void afterInit(@NotNull Command cmd) {
 		cmd.addGroup(new ArgumentGroup("test-group") {{
 			this.addArgument(cmd.getArgument("string"));
 			this.addArgument(cmd.getArgument("number"));

@@ -14,11 +14,20 @@ public interface ArgumentAdder {
 	<T extends ArgumentType<TInner>, TInner> void addArgument(@NotNull Argument<T, TInner> argument);
 
 	default <T extends ArgumentType<TInner>, TInner>
-	void addArgument(@NotNull Argument.ArgumentBuilder<T, TInner> argument) {
+	void addArgument(@NotNull Argument.Builder<T, TInner> argument) {
 		this.addArgument(argument.build());
 	}
 
 	@NotNull List<@NotNull Argument<?, ?>> getArguments();
+
+	default boolean hasArgument(@NotNull String name) {
+		for (final var argument : this.getArguments()) {
+			if (argument.hasName(name)) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	default @NotNull Argument<?, ?> getArgument(@NotNull String name) {
 		for (final var argument : this.getArguments()) {

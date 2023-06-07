@@ -15,6 +15,15 @@ public interface CommandAdder {
 	 */
 	@NotNull List<@NotNull Command> getCommands();
 
+	default boolean hasCommand(@NotNull String name) {
+		for (final var command : this.getCommands()) {
+			if (command.getName().equals(name)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	/**
 	 * Returns the Sub-Command with the specified name.
 	 *

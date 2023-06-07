@@ -13,6 +13,15 @@ public interface ArgumentGroupAdder {
 
 	@NotNull List<@NotNull ArgumentGroup> getGroups();
 
+	default boolean hasGroup(@NotNull String name) {
+		for (final var group : this.getGroups()) {
+			if (group.getName().equals(name)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	default @NotNull ArgumentGroup getGroup(@NotNull String name) {
 		for (final var group : this.getGroups()) {
 			if (group.getName().equals(name)) {

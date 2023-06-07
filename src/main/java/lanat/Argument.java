@@ -1,6 +1,7 @@
 package lanat;
 
 import lanat.argumentTypes.BooleanArgument;
+import lanat.argumentTypes.DummyArgumentType;
 import lanat.exceptions.ArgumentAlreadyExistsException;
 import lanat.parsing.errors.CustomError;
 import lanat.parsing.errors.ParseError;
@@ -19,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 
 /**
@@ -171,7 +173,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		}
 	}
 
-	public static class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
+	public static class Builder<Type extends ArgumentType<TInner>, TInner> {
 		private @NotNull String @Nullable [] names;
 		private @Nullable String description;
 		private @Nullable Type argType;
@@ -183,17 +185,22 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		private @Nullable Consumer<@NotNull TInner> onCorrectCallback;
 		private @Nullable PrefixChar prefixChar = PrefixChar.defaultPrefix;
 
-		public ArgumentBuilder() {}
+		public Builder() {}
 
 		@SuppressWarnings("unchecked")
 		public static @NotNull <Type extends ArgumentType<TInner>, TInner>
-		ArgumentBuilder<Type, TInner> fromField(@NotNull Field field, @NotNull Argument.Define annotation) {
-			final String[] names = annotation.names();
+		Argument.Builder<Type, TInner> fromField(@NotNull Field field) {
+			final var annotation = field.getAnnotation(Argument.Define.class);
 
-			final var argumentBuilder = new ArgumentBuilder<Type, TInner>()
-				.withNames(names.length == 0 ? new String[] { field.getName() } : names);
+			if (annotation == null)
+				throw new IllegalArgumentException("The field must have an Argument.Define annotation.");
 
-			argumentBuilder.withArgType((Type)UtlReflection.instantiate(annotation.type()));
+			final var argumentBuilder = new Builder<Type, TInner>()
+				.withNames(Builder.getTemplateFieldNames(field));
+
+			// if the type is not DummyArgumentType, instantiate it
+			if (annotation.type() != DummyArgumentType.class)
+				argumentBuilder.withArgType((Type)UtlReflection.instantiate(annotation.type()));
 
 			argumentBuilder.withPrefixChar(PrefixChar.fromCharUnsafe(annotation.prefix()));
 			if (!annotation.description().isEmpty()) argumentBuilder.withDescription(annotation.description());
@@ -204,27 +211,55 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 			return argumentBuilder;
 		}
 
-		public ArgumentBuilder<Type, TInner> withDescription(@NotNull String description) {
+		public static @NotNull <Type extends ArgumentType<TInner>, TInner>
+		Argument.Builder<Type, TInner> fromField(
+			@NotNull Class<? extends CommandTemplate> templateClass,
+			@NotNull String fieldName
+		) {
+			return Builder.fromField(Stream.of(templateClass.getDeclaredFields())
+				.filter(f -> f.isAnnotationPresent(Argument.Define.class))
+				.filter(f -> f.getName().equals(fieldName))
+				.findFirst()
+				.orElseThrow(() -> new IllegalArgumentException("The field " + fieldName + " does not exist in "
+					+ "the template class " + templateClass.getSimpleName())
+				)
+			);
+		}
+
+		static @NotNull String[] getTemplateFieldNames(@NotNull Field field) {
+			final var annotationNames = field.getAnnotation(Argument.Define.class).names();
+
+			// if the names are empty, use the field name
+			return annotationNames.length == 0
+				? new String[] { field.getName() }
+				: annotationNames;
+		}
+
+		boolean hasName(@NotNull String name) {
+			return this.names != null && Arrays.asList(this.names).contains(name);
+		}
+
+		public Builder<Type, TInner> withDescription(@NotNull String description) {
 			this.description = description;
 			return this;
 		}
 
-		public ArgumentBuilder<Type, TInner> obligatory() {
+		public Builder<Type, TInner> obligatory() {
 			this.obligatory = true;
 			return this;
 		}
 
-		public ArgumentBuilder<Type, TInner> positional() {
+		public Builder<Type, TInner> positional() {
 			this.positional = true;
 			return this;
 		}
 
-		public ArgumentBuilder<Type, TInner> allowsUnique() {
+		public Builder<Type, TInner> allowsUnique() {
 			this.allowUnique = true;
 			return this;
 		}
 
-		public ArgumentBuilder<Type, TInner> withDefaultValue(TInner defaultValue) {
+		public Builder<Type, TInner> withDefaultValue(TInner defaultValue) {
 			this.defaultValue = defaultValue;
 			return this;
 		}
@@ -238,7 +273,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		 *
 		 * @param callback the function that will be called with the value introduced by the user.
 		 */
-		public ArgumentBuilder<Type, TInner> onOk(Consumer<TInner> callback) {
+		public Builder<Type, TInner> onOk(Consumer<TInner> callback) {
 			this.onCorrectCallback = callback;
 			return this;
 		}
@@ -254,22 +289,22 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		 *
 		 * @param callback the function that will be called if an error occurs when parsing this argument.
 		 */
-		public ArgumentBuilder<Type, TInner> onErr(Consumer<Argument<Type, TInner>> callback) {
+		public Builder<Type, TInner> onErr(Consumer<Argument<Type, TInner>> callback) {
 			this.onErrorCallback = callback;
 			return this;
 		}
 
-		public ArgumentBuilder<Type, TInner> withPrefixChar(PrefixChar prefixChar) {
+		public Builder<Type, TInner> withPrefixChar(PrefixChar prefixChar) {
 			this.prefixChar = prefixChar;
 			return this;
 		}
 
-		public ArgumentBuilder<Type, TInner> withNames(String... names) {
+		public Builder<Type, TInner> withNames(String... names) {
 			this.names = names;
 			return this;
 		}
 
-		public ArgumentBuilder<Type, TInner> withArgType(Type argType) {
+		public Builder<Type, TInner> withArgType(Type argType) {
 			this.argType = argType;
 			return this;
 		}
@@ -282,14 +317,14 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 				throw new IllegalStateException("The argument must have a type defined.");
 
 			return new Argument<>(this.argType, this.names) {{
-				this.setDescription(ArgumentBuilder.this.description);
-				this.setObligatory(ArgumentBuilder.this.obligatory);
-				this.setPositional(ArgumentBuilder.this.positional);
-				this.setAllowUnique(ArgumentBuilder.this.allowUnique);
-				this.setDefaultValue(ArgumentBuilder.this.defaultValue);
-				this.setPrefix(ArgumentBuilder.this.prefixChar);
-				this.setOnErrorCallback(ArgumentBuilder.this.onErrorCallback);
-				this.setOnCorrectCallback(ArgumentBuilder.this.onCorrectCallback);
+				this.setDescription(Builder.this.description);
+				this.setObligatory(Builder.this.obligatory);
+				this.setPositional(Builder.this.positional);
+				this.setAllowUnique(Builder.this.allowUnique);
+				this.setDefaultValue(Builder.this.defaultValue);
+				this.setPrefix(Builder.this.prefixChar);
+				this.setOnErrorCallback(Builder.this.onErrorCallback);
+				this.setOnCorrectCallback(Builder.this.onCorrectCallback);
 			}};
 		}
 	}
@@ -300,8 +335,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	public static <Type extends ArgumentType<TInner>, TInner>
-	ArgumentBuilder<Type, TInner> create() {
-		return new ArgumentBuilder<>();
+	Builder<Type, TInner> create() {
+		return new Builder<>();
 	}
 
 	/**
@@ -309,7 +344,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 *
 	 * @param names the names of the argument. See {@link Argument#addNames(String...)} for more information.
 	 */
-	public static ArgumentBuilder<BooleanArgument, Boolean> create(@NotNull String... names) {
+	public static Builder<BooleanArgument, Boolean> create(@NotNull String... names) {
 		return Argument.<BooleanArgument, Boolean>create().withNames(names).withArgType(new BooleanArgument());
 	}
 
@@ -321,7 +356,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * 	argument should receive.
 	 */
 	public static <Type extends ArgumentType<TInner>, TInner>
-	ArgumentBuilder<Type, TInner> create(@NotNull String name, @NotNull Type argType) {
+	Builder<Type, TInner> create(@NotNull String name, @NotNull Type argType) {
 		return Argument.create(argType, name);
 	}
 
@@ -333,7 +368,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * @param names the names of the argument. See {@link Argument#addNames(String...)} for more information.
 	 */
 	public static <Type extends ArgumentType<TInner>, TInner>
-	ArgumentBuilder<Type, TInner> create(@NotNull Type argType, @NotNull String... names) {
+	Builder<Type, TInner> create(@NotNull Type argType, @NotNull String... names) {
 		return Argument.<Type, TInner>create().withNames(names).withArgType(argType);
 	}
 
@@ -344,7 +379,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * @param argType the type of the argument. This is the subParser that will be used to parse the value/s this
 	 */
 	public static <Type extends ArgumentType<TInner>, TInner>
-	ArgumentBuilder<Type, TInner> create(char name, @NotNull Type argType) {
+	Builder<Type, TInner> create(char name, @NotNull Type argType) {
 		return Argument.create(argType, String.valueOf(name));
 	}
 
@@ -358,7 +393,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * @param argType the type of the argument. This is the subParser that will be used to parse the value/s this
 	 */
 	public static <Type extends ArgumentType<TInner>, TInner>
-	ArgumentBuilder<Type, TInner> create(char charName, @NotNull String fullName, @NotNull Type argType) {
+	Builder<Type, TInner> create(char charName, @NotNull String fullName, @NotNull Type argType) {
 		return Argument.create(argType).withNames(fullName, String.valueOf(charName));
 	}
 
@@ -768,7 +803,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 		String description() default "";
 
-		Class<? extends ArgumentType<?>> type();
+		Class<? extends ArgumentType<?>> type() default DummyArgumentType.class;
 
 		char prefix() default '-';
 

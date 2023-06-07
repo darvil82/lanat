@@ -14,7 +14,7 @@ public class DefaultCommandTemplate extends CommandTemplate {
 	 * arguments that execute actions, and they not really provide any useful values.
 	 */
 	@InitDef
-	public static void init(@NotNull Command cmd) {
+	public static void afterInit(@NotNull Command cmd) {
 		cmd.addArgument(Argument.create("help")
 			.onOk(t -> System.out.println(cmd.getHelp()))
 			.withDescription("Shows this message.")

@@ -271,34 +271,66 @@ public class Command
 		this.passPropertiesToChildren();
 	}
 
-	public void from(@NotNull Class<? extends CommandTemplate> clazz) {
-		this.from$recursive(clazz);
+	public void from(@NotNull Class<? extends CommandTemplate> cmdTemplate) {
+		this.from$recursive(cmdTemplate);
 
-		this.addNames(Command.getTemplateNames(clazz));
+		this.addNames(Command.getTemplateNames(cmdTemplate));
 	}
 
-	private void from$recursive(@NotNull Class<?> clazz) {
-		if (!CommandTemplate.class.isAssignableFrom(clazz)) return;
+	private void from$recursive(@NotNull Class<?> cmdTemplate) {
+		if (!CommandTemplate.class.isAssignableFrom(cmdTemplate)) return;
 
 		// don't allow classes without the @Command.Define annotation
-		if (!clazz.isAnnotationPresent(Command.Define.class)) {
-			throw new IllegalArgumentException("The class '" + clazz.getName() + "' is not annotated with @Command.Define");
+		if (!cmdTemplate.isAnnotationPresent(Command.Define.class)) {
+			throw new IllegalArgumentException("The class '" + cmdTemplate.getName()
+				+ "' is not annotated with @Command.Define");
 		}
 
 		// get to the top of the hierarchy
-		Optional.ofNullable(clazz.getSuperclass()).ifPresent(this::from$recursive);
+		Optional.ofNullable(cmdTemplate.getSuperclass()).ifPresent(this::from$recursive);
 
+		final var argumentBuilders = new ArrayList<Argument.Builder<?, ?>>();
 
-		Stream.of(clazz.getDeclaredFields())
+		Stream.of(cmdTemplate.getDeclaredFields())
 			.filter(f -> f.isAnnotationPresent(Argument.Define.class))
-			.forEach(f ->
-				this.addArgument(Argument.ArgumentBuilder.fromField(f, f.getAnnotation(Argument.Define.class)))
-			);
+			.forEach(f -> {
+				// if the argument is not already defined, add it
+				argumentBuilders.add(Argument.Builder.fromField(f));
+			});
 
-		Stream.of(clazz.getDeclaredMethods())
+		this.from$invokeBeforeInitMethod(cmdTemplate, argumentBuilders);
+
+		// add the arguments to the command
+		argumentBuilders.forEach(this::addArgument);
+
+		this.from$invokeAfterInitMethod(cmdTemplate);
+	}
+
+	private void from$invokeBeforeInitMethod(
+		@NotNull Class<?> cmdTemplate,
+		@NotNull List<Argument.Builder<?, ?>> argumentBuilders
+	) {
+		Stream.of(cmdTemplate.getDeclaredMethods())
+			.filter(m -> UtlReflection.hasParameters(m, CommandTemplate.CommandBuildHelper.class))
+			.filter(m -> m.isAnnotationPresent(CommandTemplate.InitDef.class))
+			.filter(m -> m.getName().equals("beforeInit"))
+			.findFirst()
+			.ifPresent(m -> {
+				try {
+					m.invoke(null, new CommandTemplate.CommandBuildHelper(
+						this, Collections.unmodifiableList(argumentBuilders)
+					));
+				} catch (IllegalAccessException | InvocationTargetException e) {
+					throw new RuntimeException(e);
+				}
+			});
+	}
+
+	private void from$invokeAfterInitMethod(@NotNull Class<?> cmdTemplate) {
+		Stream.of(cmdTemplate.getDeclaredMethods())
 			.filter(m -> UtlReflection.hasParameters(m, Command.class))
 			.filter(m -> m.isAnnotationPresent(CommandTemplate.InitDef.class))
-			.filter(m -> m.getName().equals("init"))
+			.filter(m -> m.getName().equals("afterInit"))
 			.findFirst()
 			.ifPresent(m -> {
 				try {
@@ -498,12 +530,9 @@ public class Command
 	static @NotNull String @NotNull [] getTemplateNames(@NotNull Class<? extends CommandTemplate> cmdTemplate) {
 		final var annotationNames = cmdTemplate.getAnnotation(Command.Define.class).names();
 
-		// if the annotation has names specified, use those
-		if (annotationNames.length != 0) {
-			return annotationNames;
-		}
-
-		// otherwise, use the class name
-		return new String[] { cmdTemplate.getSimpleName() };
+		// if no names are specified, use the simple name of the class
+		return annotationNames.length == 0 ?
+			new String[] { cmdTemplate.getSimpleName() }
+			: annotationNames;
 	}
 }

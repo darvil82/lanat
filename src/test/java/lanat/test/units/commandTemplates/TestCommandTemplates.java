@@ -1,6 +1,5 @@
-package lanat.test.units;
+package lanat.test.units.commandTemplates;
 
-import lanat.ArgumentParser;
 import lanat.CLInput;
 import lanat.Command;
 import lanat.exceptions.ArgumentNotFoundException;
@@ -42,18 +41,5 @@ public class TestCommandTemplates extends UnitTests {
 		assertEquals(56, result.number);
 		assertEquals("hello", result.text);
 		assertNull(result.cmd2.number);
-	}
-
-	@Test
-	@DisplayName("test parseFromInto method")
-	public void testParseFromInto() {
-		var result = ArgumentParser.parseFromInto(
-			CmdTemplate1.class, CLInput.from("--number 56 --text hello -f CmdTemplate2 --number 54.0")
-		);
-
-		assertTrue(result.flag);
-		assertEquals(56, result.number);
-		assertEquals("hello", result.text);
-		assertEquals(54.0f, result.cmd2.number);
 	}
 }

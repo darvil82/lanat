@@ -1,4 +1,4 @@
-package lanat.test.units;
+package lanat.test.units.commandTemplates;
 
 import lanat.Argument;
 import lanat.Command;

@@ -1,5 +1,6 @@
 package lanat;
 
+import lanat.exceptions.CommandTemplateException;
 import lanat.exceptions.IncompatibleCommandTemplateType;
 import lanat.parsing.TokenType;
 import lanat.parsing.errors.ErrorHandler;
@@ -287,7 +288,7 @@ public class ArgumentParser extends Command {
 					.filter(f -> f.getType() == cls)
 					.findFirst()
 					.orElseThrow(() -> {
-						throw new IllegalArgumentException(
+						throw new CommandTemplateException(
 							"The class '" + cls.getSimpleName() + "' is annotated with @Command.Define but it's "
 								+ "enclosing class does not have a field annotated with @CommandAccessor"
 						);
@@ -310,7 +311,7 @@ public class ArgumentParser extends Command {
 			final Class<?> fieldType = commandAccesorField.getType();
 
 			if (!CommandTemplate.class.isAssignableFrom(fieldType))
-				throw new IllegalArgumentException(
+				throw new CommandTemplateException(
 					"The field '" + commandAccesorField.getName() + "' is annotated with @CommandAccessor "
 						+ "but its type is not a subclass of CommandTemplate"
 				);

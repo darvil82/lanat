@@ -48,7 +48,7 @@ public class ArgumentGroup
 
 
 	public ArgumentGroup(@NotNull String name, @Nullable String description) {
-		this.name = UtlString.sanitizeName(name);
+		this.name = UtlString.requireValidName(name);
 		this.description = description;
 	}
 

@@ -13,8 +13,8 @@ import static org.junit.jupiter.api.Assertions.*;
 public class TestCommandTemplates extends UnitTests {
 	@Override
 	protected TestingParser setParser() {
-		return new TestingParser(CmdTemplate1.class) {{
-			this.addCommand(new Command(CmdTemplate1.CmdTemplate2.class));
+		return new TestingParser(CmdTemplates.CmdTemplate1.class) {{
+			this.addCommand(new Command(CmdTemplates.CmdTemplate1.CmdTemplate1_1.class));
 		}};
 	}
 
@@ -34,8 +34,8 @@ public class TestCommandTemplates extends UnitTests {
 	@Test
 	@DisplayName("test into method")
 	public void testInto() {
-		var result = this.parser.parse(CLInput.from("--number 56 --text hello -f"))
-			.into(CmdTemplate1.class);
+		final var result = this.parser.parse(CLInput.from("--number 56 --text hello -f"))
+			.into(CmdTemplates.CmdTemplate1.class);
 
 		assertTrue(result.flag);
 		assertEquals(56, result.number);

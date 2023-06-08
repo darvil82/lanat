@@ -487,7 +487,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	@Override
 	public void addNames(@NotNull String... names) {
 		Arrays.stream(names)
-			.map(UtlString::sanitizeName)
+			.map(UtlString::requireValidName)
 			.forEach(newName -> {
 				if (this.names.contains(newName)) {
 					throw new IllegalArgumentException("Name '" + newName + "' is already used by this argument.");

@@ -3,6 +3,7 @@ package lanat;
 import lanat.exceptions.ArgumentAlreadyExistsException;
 import lanat.exceptions.ArgumentGroupAlreadyExistsException;
 import lanat.exceptions.CommandAlreadyExistsException;
+import lanat.exceptions.CommandTemplateException;
 import lanat.helpRepresentation.HelpFormatter;
 import lanat.parsing.Parser;
 import lanat.parsing.Token;
@@ -151,12 +152,12 @@ public class Command
 	@Override
 	public void addNames(String... names) {
 		Arrays.stream(names)
-			.map(UtlString::sanitizeName)
-			.forEach(n -> {
-				if (this.hasName(n))
-					throw new IllegalArgumentException("Name " + UtlString.surround(n) + " is already used by this command.");
+			.map(UtlString::requireValidName)
+			.forEach(newName -> {
+				if (this.hasName(newName))
+					throw new IllegalArgumentException("Name " + UtlString.surround(newName) + " is already used by this command.");
 
-				this.names.add(n);
+				this.names.add(newName);
 			});
 	}
 
@@ -282,7 +283,7 @@ public class Command
 
 		// don't allow classes without the @Command.Define annotation
 		if (!cmdTemplate.isAnnotationPresent(Command.Define.class)) {
-			throw new IllegalArgumentException("The class '" + cmdTemplate.getName()
+			throw new CommandTemplateException("The class '" + cmdTemplate.getName()
 				+ "' is not annotated with @Command.Define");
 		}
 

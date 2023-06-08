@@ -46,15 +46,23 @@ public final class UtlString {
 		return Arrays.stream(str.split("\n")).min((a, b) -> b.length() - a.length()).orElse("");
 	}
 
-	public static @NotNull String sanitizeName(@NotNull String name) {
-		// remove all non-alphanumeric characters
-		final var sanitized = UtlString.strip(name.replaceAll("[^a-zA-Z0-9 -]", ""), "[^a-zA-Z0-9]")
-			.replaceAll(" ", "-");
 
-		if (sanitized.isEmpty())
-			throw new IllegalArgumentException("name must contain at least one alphanumeric character");
+	/**
+	 * Check if a string is a valid name for it to be used in an element.
+	 * @param name The name to check.
+	 * @throws IllegalArgumentException if the name is invalid.
+	 */
+	public static @NotNull String requireValidName(@NotNull String name) {
+		if (name.length() == 0)
+			throw new IllegalArgumentException("name must contain at least one character");
 
-		return sanitized;
+		if (!Character.isAlphabetic(name.charAt(0)))
+			throw new IllegalArgumentException("name must start with an alphabetic character or an underscore");
+
+		if (!name.matches("[a-zA-Z0-9_-]+"))
+			throw new IllegalArgumentException("name must only contain alphanumeric characters and underscores and dashes");
+
+		return name;
 	}
 
 	/**

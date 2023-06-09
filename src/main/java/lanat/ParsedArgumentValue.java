@@ -28,7 +28,7 @@ public class ParsedArgumentValue<T> {
 	}
 
 	/**
-	 * @return <code>true</code> if the argument was parsed, <code>false</code> otherwise.
+	 * @return {@code true} if the argument was parsed, {@code false} otherwise.
 	 */
 	public boolean defined() {
 		return this.value != null;
@@ -45,11 +45,11 @@ public class ParsedArgumentValue<T> {
 	}
 
 	/**
-	 * Returns <code>true</code> if the argument was not parsed, <code>false</code> otherwise. If a single value array
+	 * Returns {@code true} if the argument was not parsed, {@code false} otherwise. If a single value array
 	 * is passed, and the argument was parsed, this will set the first value of the array to the parsed value.
 	 *
 	 * @param value A single value array to set the parsed value to if the argument was parsed.
-	 * @return <code>true</code> if the argument was parsed, <code>false</code> otherwise.
+	 * @return {@code true} if the argument was parsed, {@code false} otherwise.
 	 * @throws IllegalArgumentException If the value array is not of length 1
 	 */
 	public boolean defined(@Nullable T @NotNull [] value) {
@@ -66,7 +66,7 @@ public class ParsedArgumentValue<T> {
 	}
 
 	/**
-	 * @return <code>true</code> if the argument was not parsed, <code>false</code> otherwise.
+	 * @return {@code true} if the argument was not parsed, {@code false} otherwise.
 	 */
 	public boolean undefined() {
 		return this.value == null;
@@ -104,13 +104,13 @@ public class ParsedArgumentValue<T> {
 	}
 
 	/**
-	 * Returns <code><code>true</code></code> if the argument was parsed and the value matches the given predicate,
-	 * <code>false</code> otherwise.
+	 * Returns <code>{@code true}</code> if the argument was parsed and the value matches the given predicate,
+	 * {@code false} otherwise.
 	 *
 	 * @param predicate The predicate to test the value against (if the argument was parsed). This predicate will never
 	 * 	receive a <code>null</code> value.
-	 * @return <code><code>true</code></code> if the argument was parsed and the value matches the given predicate,
-	 * 	<code>false</code> otherwise.
+	 * @return <code>{@code true}</code> if the argument was parsed and the value matches the given predicate,
+	 * 	{@code false} otherwise.
 	 */
 	public boolean matches(@NotNull Predicate<@Nullable T> predicate) {
 		return this.defined() && predicate.test(this.value);

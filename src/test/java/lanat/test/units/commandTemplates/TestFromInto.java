@@ -40,4 +40,16 @@ public class TestFromInto {
 			)
 		);
 	}
+
+	@Test
+	@DisplayName("test nested commands")
+	public void testNestedCommands() {
+		final var result = TestFromInto.parseFromInto(
+			CmdTemplates.CmdTemplate3.class, CLInput.from("56 cmd3-1 54 cmd3-1-1 52")
+		);
+
+		assertEquals(56, result.number);
+		assertEquals(54, result.cmd2.number);
+		assertEquals(52, result.cmd2.cmd3.number);
+	}
 }

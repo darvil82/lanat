@@ -153,12 +153,11 @@ public class Command
 	public void addNames(String... names) {
 		Arrays.stream(names)
 			.map(UtlString::requireValidName)
-			.forEach(newName -> {
+			.peek(newName -> {
 				if (this.hasName(newName))
 					throw new IllegalArgumentException("Name " + UtlString.surround(newName) + " is already used by this command.");
-
-				this.names.add(newName);
-			});
+			})
+			.forEach(this.names::add);
 	}
 
 	@Override
@@ -215,7 +214,7 @@ public class Command
 	}
 
 	/**
-	 * Returns <code>true</code> if an argument with {@link Argument#setAllowUnique(boolean)} in the command was used.
+	 * Returns {@code true} if an argument with {@link Argument#setAllowUnique(boolean)} in the command was used.
 	 */
 	public boolean uniqueArgumentReceivedValue() {
 		return this.arguments.stream().anyMatch(a -> a.getUsageCount() >= 1 && a.isUniqueAllowed())
@@ -480,13 +479,13 @@ public class Command
 	}
 
 	/**
-	 * Returns <code>true</code> if the argument specified by the given name is equal to this argument.
+	 * Returns {@code true} if the argument specified by the given name is equal to this argument.
 	 * <p>
 	 * Equality is determined by the argument's name and the command it belongs to.
 	 * </p>
 	 *
 	 * @param obj the argument to compare to
-	 * @return <code>true</code> if the argument specified by the given name is equal to this argument
+	 * @return {@code true} if the argument specified by the given name is equal to this argument
 	 */
 	public boolean equals(@NotNull Command obj) {
 		return Command.equalsByNamesAndParentCmd(this, obj);

@@ -224,9 +224,9 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	}
 
 	/**
-	 * Returns <code>true</code> if the given string can be an argument name list, eg: <code>"-fbq"</code>.
+	 * Returns {@code true} if the given string can be an argument name list, eg: <code>"-fbq"</code>.
 	 * <p>
-	 * This returns <code>true</code> if at least the first character is a valid argument prefix and at least one of the
+	 * This returns {@code true} if at least the first character is a valid argument prefix and at least one of the
 	 * next characters is a valid argument name.
 	 * <br><br>
 	 * For a prefix to be valid, it must be a character used as a prefix on the next argument/s specified.
@@ -247,9 +247,9 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	}
 
 	/**
-	 * Returns <code>true</code> if the given string can be an argument name, eg: <code>"--help"</code>.
+	 * Returns {@code true} if the given string can be an argument name, eg: <code>"--help"</code>.
 	 * <p>
-	 * This returns <code>true</code> if the given string is a valid argument name with a double prefix.
+	 * This returns {@code true} if the given string is a valid argument name with a double prefix.
 	 * </p>
 	 */
 	private boolean isArgName(@NotNull String str) {
@@ -258,23 +258,23 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	}
 
 	/**
-	 * Returns <code>true</code> whether the given string is an argument name {@link Tokenizer#isArgName(String)} or an
+	 * Returns {@code true} whether the given string is an argument name {@link Tokenizer#isArgName(String)} or an
 	 * argument name list {@link Tokenizer#isArgNameList(String)}.
 	 */
 	private boolean isArgumentSpecifier(@NotNull String str) {
 		return this.isArgName(str) || this.isArgNameList(str);
 	}
 
-	/** Returns <code>true</code> if the given string is a Sub-Command name */
+	/** Returns {@code true} if the given string is a Sub-Command name */
 	private boolean isSubCommand(@NotNull String str) {
 		return this.getCommands().stream().anyMatch(c -> c.hasName(str));
 	}
 
 	/**
-	 * Returns <code>true</code> if the character of {@link Tokenizer#inputChars} at a relative index from
+	 * Returns {@code true} if the character of {@link Tokenizer#inputChars} at a relative index from
 	 * {@link Tokenizer#currentCharIndex} is equal to the specified character.
 	 * <p>
-	 * If the index is out of bounds, returns <code>false</code>.
+	 * If the index is out of bounds, returns {@code false}.
 	 * </p>
 	 */
 	private boolean isCharAtRelativeIndex(int index, char character) {

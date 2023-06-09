@@ -41,7 +41,7 @@ public class ArgumentGroup
 	private boolean isExclusive = false;
 
 	/**
-	 * When set to <code>true</code>, indicates that one argument in this group has been used. This is used when later
+	 * When set to {@code true}, indicates that one argument in this group has been used. This is used when later
 	 * checking for exclusivity in the groups tree at {@link ArgumentGroup#checkExclusivity(ArgumentGroup)}
 	 */
 	private boolean argumentUsed = false;
@@ -156,7 +156,7 @@ public class ArgumentGroup
 	void setArgUsed() {
 		this.argumentUsed = true;
 
-		// set argUsed to <code>true</code> on all parents until reaching the groups root
+		// set argUsed to {@code true} on all parents until reaching the groups root
 		if (this.parentGroup != null)
 			this.parentGroup.setArgUsed();
 	}

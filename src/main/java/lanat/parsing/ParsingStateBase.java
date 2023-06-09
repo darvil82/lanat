@@ -38,7 +38,7 @@ public abstract class ParsingStateBase<T extends ErrorLevelProvider> extends Err
 	/**
 	 * Executes a callback for the argument found by the name specified.
 	 *
-	 * @return <code>true</code> if an argument was found
+	 * @return {@code true} if an argument was found
 	 */
 	/* This method right here looks like it could be replaced by just changing it to
 	 *    return this.runForArgument(String.valueOf(argName), f);

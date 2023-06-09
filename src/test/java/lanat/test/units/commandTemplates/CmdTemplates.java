@@ -36,4 +36,28 @@ public class CmdTemplates {
 		@Command.Define
 		public static class CmdTemplate2_1 extends CommandTemplate { }
 	}
+
+	@Command.Define
+	public static class CmdTemplate3 extends CommandTemplate {
+		@Argument.Define(type = IntArgument.class, positional = true)
+		public int number;
+
+		@CommandAccessor
+		public CmdTemplate3_1 cmd2;
+
+		@Command.Define(names = "cmd3-1")
+		public static class CmdTemplate3_1 extends CommandTemplate {
+			@Argument.Define(type = IntArgument.class, positional = true)
+			public int number;
+
+			@CommandAccessor
+			public CmdTemplate3_1_1 cmd3;
+
+			@Command.Define(names = "cmd3-1-1")
+			public static class CmdTemplate3_1_1 extends CommandTemplate {
+				@Argument.Define(type = IntArgument.class, positional = true)
+				public int number;
+			}
+		}
+	}
 }

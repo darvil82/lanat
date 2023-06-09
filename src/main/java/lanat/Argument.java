@@ -185,8 +185,15 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		private @Nullable Consumer<@NotNull TInner> onCorrectCallback;
 		private @Nullable PrefixChar prefixChar = PrefixChar.defaultPrefix;
 
-		public Builder() {}
+		Builder() {}
 
+		/**
+		 * Builds an {@link Argument} from the specified field annotated with {@link Argument.Define}.
+		 * @param field the field that will be used to build the argument
+		 * @return the built argument
+		 * @param <Type> the {@link ArgumentType} subclass that will parse the value passed to the argument
+		 * @param <TInner> the actual type of the value passed to the argument
+		 */
 		@SuppressWarnings("unchecked")
 		public static @NotNull <Type extends ArgumentType<TInner>, TInner>
 		Argument.Builder<Type, TInner> fromField(@NotNull Field field) {
@@ -202,7 +209,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 			if (annotation.type() != DummyArgumentType.class)
 				argumentBuilder.withArgType((Type)UtlReflection.instantiate(annotation.type()));
 
-			argumentBuilder.withPrefixChar(PrefixChar.fromCharUnsafe(annotation.prefix()));
+			argumentBuilder.withPrefix(PrefixChar.fromCharUnsafe(annotation.prefix()));
 			if (!annotation.description().isEmpty()) argumentBuilder.withDescription(annotation.description());
 			if (annotation.obligatory()) argumentBuilder.obligatory();
 			if (annotation.positional()) argumentBuilder.positional();
@@ -211,6 +218,14 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 			return argumentBuilder;
 		}
 
+		/**
+		 * Builds an {@link Argument} from the specified field name in the specified {@link CommandTemplate} subclass.
+		 * @param templateClass the {@link CommandTemplate} subclass that contains the field
+		 * @param fieldName the name of the field that will be used to build the argument
+		 * @return the built argument
+		 * @param <Type> the {@link ArgumentType} subclass that will parse the value passed to the argument
+		 * @param <TInner> the actual type of the value passed to the argument
+		 */
 		public static @NotNull <Type extends ArgumentType<TInner>, TInner>
 		Argument.Builder<Type, TInner> fromField(
 			@NotNull Class<? extends CommandTemplate> templateClass,
@@ -226,6 +241,12 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 			);
 		}
 
+		/**
+		 * Returns the names of the argument, either the ones specified in the {@link Argument.Define} annotation or
+		 * the field name if the names are empty.
+		 * @param field the field that will be used to get the names
+		 * @return the names of the argument
+		 */
 		static @NotNull String[] getTemplateFieldNames(@NotNull Field field) {
 			final var annotationNames = field.getAnnotation(Argument.Define.class).names();
 
@@ -235,80 +256,84 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 				: annotationNames;
 		}
 
+		/**
+		 * Returns {@code true} if the specified name is one of the names of the argument.
+		 * @param name the name that will be checked
+		 * @return {@code true} if the specified name is one of the names of the argument
+		 */
 		boolean hasName(@NotNull String name) {
 			return this.names != null && Arrays.asList(this.names).contains(name);
 		}
 
+		/** @see Argument#setDescription(String) */
 		public Builder<Type, TInner> withDescription(@NotNull String description) {
 			this.description = description;
 			return this;
 		}
 
+		/** @see Argument#setObligatory(boolean) */
 		public Builder<Type, TInner> obligatory() {
 			this.obligatory = true;
 			return this;
 		}
 
+		/** @see Argument#setPositional(boolean) */
 		public Builder<Type, TInner> positional() {
 			this.positional = true;
 			return this;
 		}
 
+		/** @see Argument#setAllowUnique(boolean) */
 		public Builder<Type, TInner> allowsUnique() {
 			this.allowUnique = true;
 			return this;
 		}
 
-		public Builder<Type, TInner> withDefaultValue(TInner defaultValue) {
+		/** @see Argument#setDefaultValue(Object) */
+		public Builder<Type, TInner> withDefaultValue(@NotNull TInner defaultValue) {
 			this.defaultValue = defaultValue;
 			return this;
 		}
 
-		/**
-		 * Specify a function that will be called with the value introduced by the user.
-		 * <p>
-		 * By default this callback is called only if all commands succeed, but you can change this behavior with
-		 * {@link Command#invokeCallbacksWhen(CallbacksInvocationOption)}
-		 * </p>
-		 *
-		 * @param callback the function that will be called with the value introduced by the user.
-		 */
-		public Builder<Type, TInner> onOk(Consumer<TInner> callback) {
+		/** @see Argument#setOnCorrectCallback(Consumer) */
+		public Builder<Type, TInner> onOk(@NotNull Consumer<TInner> callback) {
 			this.onCorrectCallback = callback;
 			return this;
 		}
 
-		/**
-		 * Specify a function that will be called if an error occurs when parsing this argument.
-		 * <p>
-		 * <strong>Note</strong> that this callback is only called if the error was dispatched by this argument's type.
-		 * That
-		 * is, if the argument, for example, is obligatory, and the user does not specify a value, an error will be
-		 * thrown, but this callback will not be called, as the error was not dispatched by this argument's type.
-		 * </p>
-		 *
-		 * @param callback the function that will be called if an error occurs when parsing this argument.
-		 */
-		public Builder<Type, TInner> onErr(Consumer<Argument<Type, TInner>> callback) {
+		/** @see Argument#setOnErrorCallback(Consumer) */
+		public Builder<Type, TInner> onErr(@NotNull Consumer<Argument<Type, TInner>> callback) {
 			this.onErrorCallback = callback;
 			return this;
 		}
 
-		public Builder<Type, TInner> withPrefixChar(PrefixChar prefixChar) {
+		/** @see Argument#setPrefix(PrefixChar) */
+		public Builder<Type, TInner> withPrefix(@NotNull PrefixChar prefixChar) {
 			this.prefixChar = prefixChar;
 			return this;
 		}
 
-		public Builder<Type, TInner> withNames(String... names) {
+		/** @see Argument#addNames(String...) */
+		public Builder<Type, TInner> withNames(@NotNull String... names) {
 			this.names = names;
 			return this;
 		}
 
-		public Builder<Type, TInner> withArgType(Type argType) {
+		/**
+		 * The Argument Type is the class that will be used to parse the argument value.
+		 * It handles the conversion from the input string to the desired type.
+		 * @see ArgumentType
+		 * @see Argument#argType
+		 */
+		public Builder<Type, TInner> withArgType(@NotNull Type argType) {
 			this.argType = argType;
 			return this;
 		}
 
+		/**
+		 * Builds the argument.
+		 * @return the built argument
+		 */
 		public Argument<Type, TInner> build() {
 			if (this.names == null || this.names.length == 0)
 				throw new IllegalStateException("The argument must have at least one name.");
@@ -488,12 +513,11 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	public void addNames(@NotNull String... names) {
 		Arrays.stream(names)
 			.map(UtlString::requireValidName)
-			.forEach(newName -> {
-				if (this.names.contains(newName)) {
-					throw new IllegalArgumentException("Name '" + newName + "' is already used by this argument.");
-				}
-				this.names.add(newName);
-			});
+			.peek(n -> {
+				if (this.names.contains(n))
+					throw new IllegalArgumentException("Name '" + n + "' is already used by this argument.");
+			})
+			.forEach(this.names::add);
 	}
 
 	@Override
@@ -581,10 +605,10 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 
 	/**
-	 * Returns <code>true</code> if this argument is the help argument of its parent command. This just checks if the
+	 * Returns {@code true} if this argument is the help argument of its parent command. This just checks if the
 	 * argument's name is "help" and if it is marked with {@link #setAllowUnique(boolean)}.
 	 *
-	 * @return <code>true</code> if this argument is the help argument of its parent command.
+	 * @return {@code true} if this argument is the help argument of its parent command.
 	 */
 	public boolean isHelpArgument() {
 		return this.getName().equals("help") && this.isUniqueAllowed();
@@ -645,7 +669,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	/**
 	 * Checks if the argument was used the correct amount of times.
 	 *
-	 * @return <code>true</code> if the argument was used the correct amount of times.
+	 * @return {@code true} if the argument was used the correct amount of times.
 	 */
 	private boolean finishParsing$checkUsageCount() {
 		if (this.getUsageCount() == 0) {
@@ -668,7 +692,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * Checks if the argument is part of an exclusive group, and if so, checks if there is any violation of exclusivity
 	 * in the group hierarchy.
 	 *
-	 * @return <code>true</code> if there is no violation of exclusivity in the group hierarchy.
+	 * @return {@code true} if there is no violation of exclusivity in the group hierarchy.
 	 */
 	private boolean finishParsing$checkExclusivity() {
 		// check if the parent group of this argument is exclusive, and if so, check if any other argument in it has been used
@@ -694,11 +718,11 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * Checks if this argument matches the given name, including the prefix.
 	 * <p>
 	 * For example, if the prefix is <code>'-'</code> and the argument has the name <code>"help"</code>, this method
-	 * will return <code>true</code> if the name is <code>"--help"</code>.
+	 * will return {@code true} if the name is <code>"--help"</code>.
 	 * </p>
 	 *
 	 * @param name the name to check
-	 * @return <code>true</code> if the name matches, <code>false</code> otherwise.
+	 * @return {@code true} if the name matches, {@code false} otherwise.
 	 */
 	public boolean checkMatch(@NotNull String name) {
 		final char prefixChar = this.getPrefix().character;
@@ -710,7 +734,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * Checks if this argument matches the given single character name.
 	 *
 	 * @param name the name to check
-	 * @return <code>true</code> if the name matches, <code>false</code> otherwise.
+	 * @return {@code true} if the name matches, {@code false} otherwise.
 	 * @see #checkMatch(String)
 	 */
 	public boolean checkMatch(char name) {
@@ -738,13 +762,13 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	/**
-	 * Returns <code>true</code> if the argument specified by the given name is equal to this argument.
+	 * Returns {@code true} if the argument specified by the given name is equal to this argument.
 	 * <p>
 	 * Equality is determined by the argument's name and the command it belongs to.
 	 * </p>
 	 *
 	 * @param obj the argument to compare to
-	 * @return <code>true</code> if the argument specified by the given name is equal to this argument
+	 * @return {@code true} if the argument specified by the given name is equal to this argument
 	 */
 	public boolean equals(@NotNull Argument<?, ?> obj) {
 		return Command.equalsByNamesAndParentCmd(this, obj);
@@ -800,18 +824,25 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.FIELD)
 	public @interface Define {
+		/** @see Argument#addNames(String...) */
 		String[] names() default { };
 
+		/** @see Argument#setDescription(String) */
 		String description() default "";
 
+		/** @see Argument.Builder#withArgType(ArgumentType) */
 		Class<? extends ArgumentType<?>> type() default DummyArgumentType.class;
 
+		/** @see Argument#setPrefix(PrefixChar) */
 		char prefix() default '-';
 
+		/** @see Argument#setObligatory(boolean) */
 		boolean obligatory() default false;
 
+		/** @see Argument#setPositional(boolean) */
 		boolean positional() default false;
 
+		/** @see Argument#setAllowUnique(boolean) */
 		boolean allowUnique() default false;
 	}
 
@@ -859,11 +890,31 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		return this.argType.getMinimumExitErrorLevel();
 	}
 
+	/**
+	 * Specify a function that will be called if an error occurs when parsing this argument.
+	 * <p>
+	 * <strong>Note</strong> that this callback is only called if the error was dispatched by this argument's type.
+	 * That
+	 * is, if the argument, for example, is obligatory, and the user does not specify a value, an error will be
+	 * thrown, but this callback will not be called, as the error was not dispatched by this argument's type.
+	 * </p>
+	 *
+	 * @param callback the function that will be called if an error occurs when parsing this argument.
+	 */
 	@Override
 	public void setOnErrorCallback(@Nullable Consumer<@NotNull Argument<Type, TInner>> callback) {
 		this.onErrorCallback = callback;
 	}
 
+	/**
+	 * Specify a function that will be called with the value introduced by the user.
+	 * <p>
+	 * By default this callback is called only if all commands succeed, but you can change this behavior with
+	 * {@link Command#invokeCallbacksWhen(CallbacksInvocationOption)}
+	 * </p>
+	 *
+	 * @param callback the function that will be called with the value introduced by the user.
+	 */
 	@Override
 	public void setOnCorrectCallback(@Nullable Consumer<@NotNull TInner> callback) {
 		this.onCorrectCallback = callback;

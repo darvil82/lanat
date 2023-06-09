@@ -249,7 +249,11 @@ public class Parser extends ParsingStateBase<ParseError> {
 		return null;
 	}
 
-	/** Returns a hashmap of Arguments and their corresponding parsed values. */
+	/**
+	 * Returns a hashmap of Arguments and their corresponding parsed values.
+	 * This function invokes the {@link Argument#finishParsing()} method on each argument the first time it is called.
+	 * After that, it will return the same hashmap.
+	 * */
 	public @NotNull HashMap<@NotNull Argument<?, ?>, @Nullable Object> getParsedArgumentsHashMap() {
 		if (this.parsedArguments == null) {
 			this.parsedArguments = new HashMap<>() {{

@@ -754,7 +754,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * Compares two arguments by the synopsis view priority order.
 	 * <p>
 	 * <b>Order:</b>
-	 * Positional > Obligatory > Optional.
+	 * Allows Unique > Positional > Obligatory > Optional.
 	 * </p>
 	 *
 	 * @param first the first argument to compare
@@ -764,6 +764,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 */
 	public static int compareByPriority(@NotNull Argument<?, ?> first, @NotNull Argument<?, ?> second) {
 		return new MultiComparator<Argument<?, ?>>()
+			.addPredicate(Argument::isUniqueAllowed, 2)
 			.addPredicate(Argument::isPositional, 1)
 			.addPredicate(Argument::isObligatory)
 			.compare(first, second);

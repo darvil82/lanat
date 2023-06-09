@@ -6,15 +6,9 @@ import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
+import java.util.Scanner;
 
 public class StdinArgument extends ArgumentType<String> {
-	private final BufferedReader systemIn = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
-
 	@Override
 	public @NotNull Range getRequiredArgValueCount() {
 		return Range.NONE;
@@ -27,15 +21,15 @@ public class StdinArgument extends ArgumentType<String> {
 
 	@Override
 	public String parseValues(@NotNull String @NotNull [] args) {
-		ArrayList<String> input = new ArrayList<>();
+		final var input = new StringBuilder();
 
-		try {
-			String line;
-			while ((line = this.systemIn.readLine()) != null)
-				input.add(line);
-		} catch (IOException ignored) {}
+		try (var scanner = new Scanner(System.in)) {
+			while (scanner.hasNextLine()) {
+				input.append(scanner.nextLine()).append('\n');
+			}
+		}
 
-		return String.join("\n", input);
+		return input.toString();
 	}
 
 	@Override

@@ -375,7 +375,11 @@ public class Command
 			if (this.onErrorCallback != null) this.onErrorCallback.accept(this);
 		}
 
-		this.parser.getParsedArgumentsHashMap().forEach(Argument::invokeCallbacks);
+		this.parser.getParsedArgumentsHashMap()
+			.entrySet()
+			.stream()
+			.sorted((x, y) -> Argument.compareByPriority(x.getKey(), y.getKey())) // sort by priority when invoking callbacks!
+			.forEach(e -> e.getKey().invokeCallbacks(e.getValue()));
 	}
 
 	boolean shouldExecuteCorrectCallback() {

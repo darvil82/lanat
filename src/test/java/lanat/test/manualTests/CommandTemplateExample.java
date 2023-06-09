@@ -3,6 +3,7 @@ package lanat.test.manualTests;
 import lanat.*;
 import lanat.argumentTypes.CounterArgument;
 import lanat.argumentTypes.IntArgument;
+import lanat.argumentTypes.StdinArgument;
 import lanat.argumentTypes.StringArgument;
 import lanat.commandTemplates.DefaultCommandTemplate;
 import org.jetbrains.annotations.NotNull;
@@ -16,6 +17,9 @@ public class CommandTemplateExample extends DefaultCommandTemplate {
 
 	@Argument.Define(type = IntArgument.class, description = "<desc=!.type>")
 	public int number = 12;
+
+	@Argument.Define(type = StdinArgument.class)
+	public String stdin;
 
 	@CommandAccessor
 	public MySubCommand subCommand;

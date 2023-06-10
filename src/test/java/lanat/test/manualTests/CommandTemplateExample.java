@@ -21,6 +21,14 @@ public class CommandTemplateExample extends DefaultCommandTemplate {
 	@Argument.Define(type = StdinArgument.class)
 	public String stdin;
 
+	@Argument.Define(names = "arg1", type = StringArgument.class)
+	public String arg1;
+
+
+	@Argument.Define(names = "arg1a", type = StringArgument.class)
+	public String arg1copy;
+
+
 	@CommandAccessor
 	public MySubCommand subCommand;
 

@@ -2,6 +2,7 @@ package lanat.test.manualTests;
 
 import lanat.ArgumentParser;
 import lanat.CLInput;
+import lanat.Command;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -14,7 +15,13 @@ public final class ManualTests {
 		// write some stuff to stdin
 		System.setIn(new ByteArrayInputStream("hello world\ngoodbye".getBytes()));
 
-		var parsed = ArgumentParser.parseFromInto(CommandTemplateExample.class, CLInput.from(input));
+		var parsed = new ArgumentParser(CommandTemplateExample.class) {{
+			this.addCommand(new Command(CommandTemplateExample.MySubCommand.class) {{
+				this.addCommand(new Command(CommandTemplateExample.MySubCommand.AnotherSubCommand.class));
+			}});
+		}}
+			.parse(CLInput.from(input))
+			.into(CommandTemplateExample.class);
 
 		parsed.string
 			.defined(s -> System.out.println("Value is defined: " + s))

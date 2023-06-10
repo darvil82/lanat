@@ -14,13 +14,11 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 
 /**
@@ -32,32 +30,24 @@ import java.util.stream.Stream;
  * {@link ArgumentParser#parse(CLInput)}.
  *
  * <p>
- * An Argument can be created using the factory methods available, like {@link Argument#create(String...)}.
+ * An Argument can be created using the factory methods available, like {@link Argument#createOfBoolType(String...)}.
  * </p>
  * <br><br>
  * <h3>Example:</h3>
  *
  * <p>
- * An Argument with the names "name" and "n" that will parse an integer value. There are several ways to create this
- * argument.
+ * An Argument with the names "name" and 'n' that will parse an integer value. In order to create an Argument, you need
+ * to call any of the static factory methods available, like {@link Argument#createOfBoolType(String...)}. These methods
+ * will return an {@link ArgumentBuilder} object, which can be used to specify the Argument's properties easily.
  * </p>
- * <h4>Using the factory methods:</h4>
  * <pre>
  * {@code
- *     Argument.create(ArgumentType.INTEGER(), "name", "n");
+ *     Argument.create('n', "name", ArgumentType.INTEGER());
  *     Argument.create("name", ArgumentType.INTEGER())
  *         .addNames("n");
  * }
  * </pre>
  *
- * <h4>Using the constructors:</h4>
- * <pre>
- * {@code
- *     new Argument<>(ArgumentType.INTEGER(), "name", "n");
- *     new Argument<>("name", ArgumentType.INTEGER())
- *         .addNames("n");
- * }
- * </pre>
  *
  * <h3>Argument usage</h3>
  * The argument can be used in the following ways:
@@ -83,6 +73,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		Argument<Type, TInner>>,
 	Resettable,
 	CommandUser,
+	ArgumentGroupUser,
 	MultipleNamesAndDescription
 {
 	/**
@@ -115,7 +106,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	/**
 	 * The color that this Argument will have in places where it is displayed, such as the help message. By default, the
 	 * color will be picked from the {@link Command#colorsPool} of the parent command at
-	 * {@link Argument#setParentCommand(Command)}.
+	 * {@link Argument#registerToCommand(Command)}.
 	 */
 	private final @NotNull ModifyRecord<Color> representationColor = new ModifyRecord<>(null);
 
@@ -173,243 +164,41 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		}
 	}
 
-	public static class Builder<Type extends ArgumentType<TInner>, TInner> {
-		private @NotNull String @Nullable [] names;
-		private @Nullable String description;
-		private @Nullable Type argType;
-		private boolean obligatory = false,
-			positional = false,
-			allowUnique = false;
-		private @Nullable TInner defaultValue;
-		private @Nullable Consumer<@NotNull Argument<Type, TInner>> onErrorCallback;
-		private @Nullable Consumer<@NotNull TInner> onCorrectCallback;
-		private @Nullable PrefixChar prefixChar = PrefixChar.defaultPrefix;
-
-		Builder() {}
-
-		/**
-		 * Builds an {@link Argument} from the specified field annotated with {@link Argument.Define}.
-		 * @param field the field that will be used to build the argument
-		 * @return the built argument
-		 * @param <Type> the {@link ArgumentType} subclass that will parse the value passed to the argument
-		 * @param <TInner> the actual type of the value passed to the argument
-		 */
-		@SuppressWarnings("unchecked")
-		public static @NotNull <Type extends ArgumentType<TInner>, TInner>
-		Argument.Builder<Type, TInner> fromField(@NotNull Field field) {
-			final var annotation = field.getAnnotation(Argument.Define.class);
-
-			if (annotation == null)
-				throw new IllegalArgumentException("The field must have an Argument.Define annotation.");
-
-			final var argumentBuilder = new Builder<Type, TInner>()
-				.withNames(Builder.getTemplateFieldNames(field));
-
-			// if the type is not DummyArgumentType, instantiate it
-			if (annotation.type() != DummyArgumentType.class)
-				argumentBuilder.withArgType((Type)UtlReflection.instantiate(annotation.type()));
-
-			argumentBuilder.withPrefix(PrefixChar.fromCharUnsafe(annotation.prefix()));
-			if (!annotation.description().isEmpty()) argumentBuilder.withDescription(annotation.description());
-			if (annotation.obligatory()) argumentBuilder.obligatory();
-			if (annotation.positional()) argumentBuilder.positional();
-			if (annotation.allowUnique()) argumentBuilder.allowsUnique();
-
-			return argumentBuilder;
-		}
-
-		/**
-		 * Builds an {@link Argument} from the specified field name in the specified {@link CommandTemplate} subclass.
-		 * @param templateClass the {@link CommandTemplate} subclass that contains the field
-		 * @param fieldName the name of the field that will be used to build the argument
-		 * @return the built argument
-		 * @param <Type> the {@link ArgumentType} subclass that will parse the value passed to the argument
-		 * @param <TInner> the actual type of the value passed to the argument
-		 */
-		public static @NotNull <Type extends ArgumentType<TInner>, TInner>
-		Argument.Builder<Type, TInner> fromField(
-			@NotNull Class<? extends CommandTemplate> templateClass,
-			@NotNull String fieldName
-		) {
-			return Builder.fromField(Stream.of(templateClass.getDeclaredFields())
-				.filter(f -> f.isAnnotationPresent(Argument.Define.class))
-				.filter(f -> f.getName().equals(fieldName))
-				.findFirst()
-				.orElseThrow(() -> new IllegalArgumentException("The field " + fieldName + " does not exist in "
-					+ "the template class " + templateClass.getSimpleName())
-				)
-			);
-		}
-
-		/**
-		 * Returns the names of the argument, either the ones specified in the {@link Argument.Define} annotation or
-		 * the field name if the names are empty.
-		 * @param field the field that will be used to get the names
-		 * @return the names of the argument
-		 */
-		static @NotNull String[] getTemplateFieldNames(@NotNull Field field) {
-			final var annotationNames = field.getAnnotation(Argument.Define.class).names();
-
-			// if the names are empty, use the field name
-			return annotationNames.length == 0
-				? new String[] { field.getName() }
-				: annotationNames;
-		}
-
-		/**
-		 * Returns {@code true} if the specified name is one of the names of the argument.
-		 * @param name the name that will be checked
-		 * @return {@code true} if the specified name is one of the names of the argument
-		 */
-		boolean hasName(@NotNull String name) {
-			return this.names != null && Arrays.asList(this.names).contains(name);
-		}
-
-		/** @see Argument#setDescription(String) */
-		public Builder<Type, TInner> withDescription(@NotNull String description) {
-			this.description = description;
-			return this;
-		}
-
-		/** @see Argument#setObligatory(boolean) */
-		public Builder<Type, TInner> obligatory() {
-			this.obligatory = true;
-			return this;
-		}
-
-		/** @see Argument#setPositional(boolean) */
-		public Builder<Type, TInner> positional() {
-			this.positional = true;
-			return this;
-		}
-
-		/** @see Argument#setAllowUnique(boolean) */
-		public Builder<Type, TInner> allowsUnique() {
-			this.allowUnique = true;
-			return this;
-		}
-
-		/** @see Argument#setDefaultValue(Object) */
-		public Builder<Type, TInner> withDefaultValue(@NotNull TInner defaultValue) {
-			this.defaultValue = defaultValue;
-			return this;
-		}
-
-		/** @see Argument#setOnCorrectCallback(Consumer) */
-		public Builder<Type, TInner> onOk(@NotNull Consumer<TInner> callback) {
-			this.onCorrectCallback = callback;
-			return this;
-		}
-
-		/** @see Argument#setOnErrorCallback(Consumer) */
-		public Builder<Type, TInner> onErr(@NotNull Consumer<Argument<Type, TInner>> callback) {
-			this.onErrorCallback = callback;
-			return this;
-		}
-
-		/** @see Argument#setPrefix(PrefixChar) */
-		public Builder<Type, TInner> withPrefix(@NotNull PrefixChar prefixChar) {
-			this.prefixChar = prefixChar;
-			return this;
-		}
-
-		/** @see Argument#addNames(String...) */
-		public Builder<Type, TInner> withNames(@NotNull String... names) {
-			this.names = names;
-			return this;
-		}
-
-		/**
-		 * The Argument Type is the class that will be used to parse the argument value.
-		 * It handles the conversion from the input string to the desired type.
-		 * @see ArgumentType
-		 * @see Argument#argType
-		 */
-		public Builder<Type, TInner> withArgType(@NotNull Type argType) {
-			this.argType = argType;
-			return this;
-		}
-
-		/**
-		 * Builds the argument.
-		 * @return the built argument
-		 */
-		public Argument<Type, TInner> build() {
-			if (this.names == null || this.names.length == 0)
-				throw new IllegalStateException("The argument must have at least one name.");
-
-			if (this.argType == null)
-				throw new IllegalStateException("The argument must have a type defined.");
-
-			return new Argument<>(this.argType, this.names) {{
-				this.setDescription(Builder.this.description);
-				this.setObligatory(Builder.this.obligatory);
-				this.setPositional(Builder.this.positional);
-				this.setAllowUnique(Builder.this.allowUnique);
-				this.setDefaultValue(Builder.this.defaultValue);
-				this.setPrefix(Builder.this.prefixChar);
-				this.setOnErrorCallback(Builder.this.onErrorCallback);
-				this.setOnCorrectCallback(Builder.this.onCorrectCallback);
-			}};
-		}
-	}
-
-	private Argument(@NotNull Type type, @NotNull String... names) {
+	Argument(@NotNull Type type, @NotNull String... names) {
 		this.argType = type;
 		this.addNames(names);
 	}
 
 	public static <Type extends ArgumentType<TInner>, TInner>
-	Builder<Type, TInner> create() {
-		return new Builder<>();
+	ArgumentBuilder<Type, TInner> create() {
+		return new ArgumentBuilder<>();
 	}
 
 	/**
-	 * Creates an argument with a {@link BooleanArgument} type.
-	 *
-	 * @param names the names of the argument. See {@link Argument#addNames(String...)} for more information.
-	 */
-	public static Builder<BooleanArgument, Boolean> create(@NotNull String... names) {
-		return Argument.<BooleanArgument, Boolean>create().withNames(names).withArgType(new BooleanArgument());
-	}
-
-	/**
-	 * Creates an argument with the specified name and type.
-	 *
-	 * @param name the name of the argument. See {@link Argument#addNames(String...)} for more information.
-	 * @param argType the type of the argument. This is the subParser that will be used to parse the value/s this
-	 * 	argument should receive.
-	 */
-	public static <Type extends ArgumentType<TInner>, TInner>
-	Builder<Type, TInner> create(@NotNull String name, @NotNull Type argType) {
-		return Argument.create(argType, name);
-	}
-
-	/**
-	 * Creates an argument with the specified type and names.
+	 * Creates an argument builder with the specified type and names.
 	 *
 	 * @param argType the type of the argument. This is the subParser that will be used to parse the value/s this
 	 * 	argument should receive.
 	 * @param names the names of the argument. See {@link Argument#addNames(String...)} for more information.
 	 */
 	public static <Type extends ArgumentType<TInner>, TInner>
-	Builder<Type, TInner> create(@NotNull Type argType, @NotNull String... names) {
+	ArgumentBuilder<Type, TInner> create(@NotNull Type argType, @NotNull String... names) {
 		return Argument.<Type, TInner>create().withNames(names).withArgType(argType);
 	}
 
 	/**
-	 * Creates an argument with the specified single character name and type.
+	 * Creates an argument builder with the specified single character name and type.
 	 *
 	 * @param name the name of the argument. See {@link Argument#addNames(String...)} for more information.
 	 * @param argType the type of the argument. This is the subParser that will be used to parse the value/s this
 	 */
 	public static <Type extends ArgumentType<TInner>, TInner>
-	Builder<Type, TInner> create(char name, @NotNull Type argType) {
+	ArgumentBuilder<Type, TInner> create(@NotNull Type argType, char name) {
 		return Argument.create(argType, String.valueOf(name));
 	}
 
 	/**
-	 * Creates an argument with the specified single character name, full name and type.
+	 * Creates an argument builder with the specified single character name, full name and type.
 	 * <p>
 	 * This is equivalent to calling <pre>{@code Argument.create(charName, argType).addNames(fullName)}</pre>
 	 *
@@ -418,8 +207,17 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * @param argType the type of the argument. This is the subParser that will be used to parse the value/s this
 	 */
 	public static <Type extends ArgumentType<TInner>, TInner>
-	Builder<Type, TInner> create(char charName, @NotNull String fullName, @NotNull Type argType) {
+	ArgumentBuilder<Type, TInner> create(@NotNull Type argType, char charName, @NotNull String fullName) {
 		return Argument.create(argType).withNames(fullName, String.valueOf(charName));
+	}
+
+	/**
+	 * Creates an argument builder with a {@link BooleanArgument} type.
+	 *
+	 * @param names the names of the argument. See {@link Argument#addNames(String...)} for more information.
+	 */
+	public static ArgumentBuilder<BooleanArgument, Boolean> createOfBoolType(@NotNull String... names) {
+		return Argument.create(new BooleanArgument()).withNames(names);
 	}
 
 
@@ -518,6 +316,15 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 					throw new IllegalArgumentException("Name '" + n + "' is already used by this argument.");
 			})
 			.forEach(this.names::add);
+
+		// now let the parent command and group know that this argument has been modified. This is necessary to check
+		// for duplicate names
+
+		if (this.parentCommand != null)
+			this.parentCommand.checkUniqueArguments();
+
+		if (this.parentGroup != null)
+			this.parentGroup.checkUniqueArguments();
 	}
 
 	@Override
@@ -543,7 +350,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * Sets the parent command of this argument. This is called when adding the Argument to a command at
 	 * {@link Command#addArgument(Argument)}
 	 */
-	void setParentCommand(@NotNull Command parentCommand) {
+	@Override
+	public void registerToCommand(@NotNull Command parentCommand) {
 		if (this.parentCommand != null) {
 			throw new ArgumentAlreadyExistsException(this, this.parentCommand);
 		}
@@ -560,7 +368,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * Sets the parent group of this argument. This is called when adding the Argument to a group at
 	 * {@link ArgumentGroup#addArgument(Argument)}
 	 */
-	void setParentGroup(@NotNull ArgumentGroup parentGroup) {
+	@Override
+	public void registerToGroup(@NotNull ArgumentGroup parentGroup) {
 		if (this.parentGroup != null) {
 			throw new ArgumentAlreadyExistsException(this, this.parentGroup);
 		}
@@ -572,6 +381,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 *
 	 * @return the parent group of this argument, or null if it does not have one.
 	 */
+	@Override
 	public @Nullable ArgumentGroup getParentGroup() {
 		return this.parentGroup;
 	}
@@ -770,8 +580,11 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * @param obj the argument to compare to
 	 * @return {@code true} if the argument specified by the given name is equal to this argument
 	 */
-	public boolean equals(@NotNull Argument<?, ?> obj) {
-		return Command.equalsByNamesAndParentCmd(this, obj);
+	@Override
+	public boolean equals(@NotNull Object obj) {
+		if (obj instanceof Argument<?, ?> arg)
+			return UtlMisc.equalsByNamesAndParentCmd(this, arg);
+		return false;
 	}
 
 	/**
@@ -830,7 +643,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		/** @see Argument#setDescription(String) */
 		String description() default "";
 
-		/** @see Argument.Builder#withArgType(ArgumentType) */
+		/** @see ArgumentBuilder#withArgType(ArgumentType) */
 		Class<? extends ArgumentType<?>> type() default DummyArgumentType.class;
 
 		/** @see Argument#setPrefix(PrefixChar) */

@@ -13,8 +13,9 @@ import java.util.List;
 public class ArgumentGroup
 	implements ArgumentAdder,
 	ArgumentGroupAdder,
-	Resettable,
 	CommandUser,
+	ArgumentGroupUser,
+	Resettable,
 	NamedWithDescription,
 	ParentElementGetter<ArgumentGroup>
 {
@@ -61,7 +62,8 @@ public class ArgumentGroup
 	public <T extends ArgumentType<TInner>, TInner>
 	void addArgument(@NotNull Argument<T, TInner> argument) {
 		this.arguments.add(argument);
-		argument.setParentGroup(this);
+		argument.registerToGroup(this);
+		this.checkUniqueArguments();
 	}
 
 	@Override
@@ -76,34 +78,30 @@ public class ArgumentGroup
 
 	@Override
 	public void addGroup(@NotNull ArgumentGroup group) {
+		if (group == this) {
+			throw new IllegalArgumentException("A group cannot be added to itself");
+		}
+
 		if (group.parentGroup != null) {
 			throw new ArgumentGroupAlreadyExistsException(group, group.parentGroup);
 		}
 
-		if (this.subGroups.stream().anyMatch(g -> g.name.equals(group.name))) {
-			throw new ArgumentGroupAlreadyExistsException(group, group);
-		}
-
-		group.parentGroup = this;
-		group.parentCommand = this.parentCommand;
 		this.subGroups.add(group);
+		group.registerToGroup(this);
+		this.checkUniqueGroups();
 	}
 
-	/**
-	 * Sets this group to be exclusive, meaning that only one argument in it can be used.
-	 */
-	public void setExclusive(boolean isExclusive) {
-		this.isExclusive = isExclusive;
-	}
-
-	public boolean isExclusive() {
-		return this.isExclusive;
+	@Override
+	public void registerToGroup(@NotNull ArgumentGroup parentGroup) {
+		this.parentGroup = parentGroup;
+		this.parentCommand = parentGroup.parentCommand;
 	}
 
 	/**
 	 * Sets this group's parent command, and also passes all its arguments to the command.
 	 */
-	void registerGroup(@NotNull Command parentCommand) {
+	@Override
+	public void registerToCommand(@NotNull Command parentCommand) {
 		if (this.parentCommand != null) {
 			throw new ArgumentGroupAlreadyExistsException(this, this.parentCommand);
 		}
@@ -116,12 +114,28 @@ public class ArgumentGroup
 			.filter(a -> a.getParentCommand() == null)
 			.forEach(parentCommand::addArgument);
 
-		this.subGroups.forEach(g -> g.registerGroup(parentCommand));
+		this.subGroups.forEach(g -> g.registerToCommand(parentCommand));
 	}
 
 	@Override
 	public Command getParentCommand() {
 		return this.parentCommand;
+	}
+
+	@Override
+	public @Nullable ArgumentGroup getParentGroup() {
+		return this.parentGroup;
+	}
+
+	/**
+	 * Sets this group to be exclusive, meaning that only one argument in it can be used.
+	 */
+	public void setExclusive(boolean isExclusive) {
+		this.isExclusive = isExclusive;
+	}
+
+	public boolean isExclusive() {
+		return this.isExclusive;
 	}
 
 	/**
@@ -185,6 +199,13 @@ public class ArgumentGroup
 	@Override
 	public ArgumentGroup getParent() {
 		return this.parentGroup;
+	}
+
+	@Override
+	public boolean equals(@NotNull Object obj) {
+		if (obj instanceof ArgumentGroup group)
+			return this.parentCommand == group.parentCommand && this.name.equals(group.name);
+		return false;
 	}
 }
 

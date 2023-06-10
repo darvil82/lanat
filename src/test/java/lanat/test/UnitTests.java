@@ -52,18 +52,18 @@ public class UnitTests {
 
 	protected TestingParser setParser() {
 		return new TestingParser("Testing") {{
-			this.addArgument(Argument.create("what", new StringJoiner())
+			this.addArgument(Argument.create(new StringJoiner(), "what")
 				.positional()
 				.obligatory()
 			);
-			this.addArgument(Argument.create("double-adder", new RestrictedDoubleAdder()));
-			this.addArgument(Argument.create("a", ArgumentType.STRING()));
+			this.addArgument(Argument.create(new RestrictedDoubleAdder(), "double-adder"));
+			this.addArgument(Argument.create(ArgumentType.STRING(), "a"));
 			this.addCommand(new Command("subCommand") {{
-				this.addArgument(Argument.create("c", ArgumentType.COUNTER()));
-				this.addArgument(Argument.create('s', "more-strings", new StringJoiner()));
+				this.addArgument(Argument.create(ArgumentType.COUNTER(), "c"));
+				this.addArgument(Argument.create(new StringJoiner(), 's', "more-strings"));
 				this.addCommand(new Command("another") {{
-					this.addArgument(Argument.create("ball", new StringJoiner()));
-					this.addArgument(Argument.create("number", ArgumentType.INTEGER()).positional().obligatory());
+					this.addArgument(Argument.create(new StringJoiner(), "ball"));
+					this.addArgument(Argument.create(ArgumentType.INTEGER(), "number").positional().obligatory());
 				}});
 			}});
 		}};

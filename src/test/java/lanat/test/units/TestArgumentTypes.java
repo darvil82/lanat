@@ -19,17 +19,17 @@ public class TestArgumentTypes extends UnitTests {
 	@Override
 	protected TestingParser setParser() {
 		return new TestingParser("TestArgumentTypes") {{
-			this.addArgument(Argument.create("boolean", ArgumentType.BOOLEAN()));
+			this.addArgument(Argument.create(ArgumentType.BOOLEAN(), "boolean"));
 			this.addArgument(Argument.create(ArgumentType.COUNTER(), "counter", "c"));
-			this.addArgument(Argument.create("integer", ArgumentType.INTEGER()));
-			this.addArgument(Argument.create("float", ArgumentType.FLOAT()));
-			this.addArgument(Argument.create("string", ArgumentType.STRING()));
-			this.addArgument(Argument.create("multiple-strings", ArgumentType.STRINGS()));
-			this.addArgument(Argument.create("file", ArgumentType.FILE()));
-			this.addArgument(Argument.create("enum", ArgumentType.ENUM(TestEnum.TWO)));
-			this.addArgument(Argument.create("key-value", ArgumentType.KEY_VALUES(ArgumentType.INTEGER())));
-			this.addArgument(Argument.create("int-range", ArgumentType.INTEGER_RANGE(3, 10)));
-			this.addArgument(Argument.create("try-parse", ArgumentType.TRY_PARSE(Double.class)));
+			this.addArgument(Argument.create(ArgumentType.INTEGER(), "integer"));
+			this.addArgument(Argument.create(ArgumentType.FLOAT(), "float"));
+			this.addArgument(Argument.create(ArgumentType.STRING(), "string"));
+			this.addArgument(Argument.create(ArgumentType.STRINGS(), "multiple-strings"));
+			this.addArgument(Argument.create(ArgumentType.FILE(), "file"));
+			this.addArgument(Argument.create(ArgumentType.ENUM(TestEnum.TWO), "enum"));
+			this.addArgument(Argument.create(ArgumentType.KEY_VALUES(ArgumentType.INTEGER()), "key-value"));
+			this.addArgument(Argument.create(ArgumentType.INTEGER_RANGE(3, 10), "int-range"));
+			this.addArgument(Argument.create(ArgumentType.TRY_PARSE(Double.class), "try-parse"));
 		}};
 	}
 

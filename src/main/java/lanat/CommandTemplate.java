@@ -19,11 +19,11 @@ public abstract class CommandTemplate {
 	@Target(ElementType.FIELD)
 	protected @interface CommandAccessor {}
 
-	protected record CommandBuildHelper(@NotNull Command cmd, @NotNull List<Argument.Builder<?, ?>> args) {
+	protected record CommandBuildHelper(@NotNull Command cmd, @NotNull List<ArgumentBuilder<?, ?>> args) {
 		@SuppressWarnings("unchecked")
 		public <T extends ArgumentType<TInner>, TInner>
-		Argument.Builder<T, TInner> getArgument(@NotNull String name) {
-			return (Argument.Builder<T, TInner>)this.args.stream()
+		ArgumentBuilder<T, TInner> getArgument(@NotNull String name) {
+			return (ArgumentBuilder<T, TInner>)this.args.stream()
 				.filter(a -> a.hasName(name))
 				.findFirst()
 				.orElseThrow(() -> new ArgumentNotFoundException(name));

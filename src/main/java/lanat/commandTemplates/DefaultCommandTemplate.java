@@ -15,14 +15,14 @@ public class DefaultCommandTemplate extends CommandTemplate {
 	 */
 	@InitDef
 	public static void afterInit(@NotNull Command cmd) {
-		cmd.addArgument(Argument.create("help")
+		cmd.addArgument(Argument.createOfBoolType("help")
 			.onOk(t -> System.out.println(cmd.getHelp()))
 			.withDescription("Shows this message.")
 			.allowsUnique()
 		);
 
 		if (cmd instanceof ArgumentParser ap) {
-			cmd.addArgument(Argument.create("version")
+			cmd.addArgument(Argument.createOfBoolType("version")
 				.onOk(t -> System.out.println("Version: " + ap.getVersion()))
 				.withDescription("Shows the version of this program.")
 				.allowsUnique()

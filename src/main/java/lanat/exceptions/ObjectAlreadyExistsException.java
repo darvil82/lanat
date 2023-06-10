@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Thrown when an object is added to a container that already contains an object equal to the added one.
  */
-abstract class ObjectAlreadyExistsException extends LanatException {
+public abstract class ObjectAlreadyExistsException extends LanatException {
 	public ObjectAlreadyExistsException(
 		@NotNull String typeName,
 		@NotNull NamedWithDescription obj,

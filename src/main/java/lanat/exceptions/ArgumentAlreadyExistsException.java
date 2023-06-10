@@ -1,7 +1,7 @@
 package lanat.exceptions;
 
 import lanat.Argument;
-import lanat.ArgumentGroupAdder;
+import lanat.ArgumentAdder;
 import lanat.NamedWithDescription;
 import org.jetbrains.annotations.NotNull;
 
@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
  * name.
  */
 public class ArgumentAlreadyExistsException extends ObjectAlreadyExistsException {
-	public <T extends NamedWithDescription & ArgumentGroupAdder>
+	public <T extends NamedWithDescription & ArgumentAdder>
 	ArgumentAlreadyExistsException(@NotNull Argument<?, ?> argument, @NotNull T container) {
 		super("Argument", argument, container);
 	}

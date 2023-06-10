@@ -17,8 +17,8 @@ public class TestArgumentGroups extends UnitTests {
 
 		parser.addGroup(new ArgumentGroup("group") {{
 			this.setExclusive(true);
-			this.addArgument(Argument.create("group-arg", ArgumentType.BOOLEAN()));
-			this.addArgument(Argument.create("group-arg2", ArgumentType.BOOLEAN()));
+			this.addArgument(Argument.create(ArgumentType.BOOLEAN(), "group-arg"));
+			this.addArgument(Argument.create(ArgumentType.BOOLEAN(), "group-arg2"));
 		}});
 
 		return parser;

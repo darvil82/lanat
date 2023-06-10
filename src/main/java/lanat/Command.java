@@ -1,7 +1,5 @@
 package lanat;
 
-import lanat.exceptions.ArgumentAlreadyExistsException;
-import lanat.exceptions.ArgumentGroupAlreadyExistsException;
 import lanat.exceptions.CommandAlreadyExistsException;
 import lanat.exceptions.CommandTemplateException;
 import lanat.helpRepresentation.HelpFormatter;
@@ -38,10 +36,10 @@ public class Command
 	ArgumentAdder,
 	ArgumentGroupAdder,
 	CommandAdder,
+	CommandUser,
 	Resettable,
 	MultipleNamesAndDescription,
-	ParentElementGetter<Command>,
-	CommandUser
+	ParentElementGetter<Command>
 {
 	private final @NotNull List<@NotNull String> names = new ArrayList<>();
 	public @Nullable String description;
@@ -80,20 +78,16 @@ public class Command
 	@Override
 	public <T extends ArgumentType<TInner>, TInner>
 	void addArgument(@NotNull Argument<T, TInner> argument) {
-		argument.setParentCommand(this); // has to be done before checking for duplicates
-		if (this.arguments.stream().anyMatch(a -> a.equals(argument))) {
-			throw new ArgumentAlreadyExistsException(argument, this);
-		}
 		this.arguments.add(argument);
+		argument.registerToCommand(this);
+		this.checkUniqueArguments();
 	}
 
 	@Override
 	public void addGroup(@NotNull ArgumentGroup group) {
-		if (this.argumentGroups.stream().anyMatch(g -> g.name.equals(group.name))) {
-			throw new ArgumentGroupAlreadyExistsException(group, this);
-		}
-		group.registerGroup(this);
 		this.argumentGroups.add(group);
+		group.registerToCommand(this);
+		this.checkUniqueGroups();
 	}
 
 	@Override
@@ -103,16 +97,22 @@ public class Command
 
 	@Override
 	public void addCommand(@NotNull Command cmd) {
-		if (this.subCommands.stream().anyMatch(a -> a.hasName(cmd.names.get(0)))) {
-			throw new CommandAlreadyExistsException(cmd, this);
-		}
-
 		if (cmd instanceof ArgumentParser) {
 			throw new IllegalArgumentException("cannot add root command as Sub-Command");
 		}
 
+		if (cmd == this) {
+			throw new IllegalArgumentException("cannot add command to itself");
+		}
+
 		this.subCommands.add(cmd);
-		cmd.parentCommand = this;
+		cmd.registerToCommand(this);
+		this.checkUniqueSubCommands();
+	}
+
+	@Override
+	public void registerToCommand(@NotNull Command parentCommand) {
+		this.parentCommand = parentCommand;
 	}
 
 	/**
@@ -158,6 +158,11 @@ public class Command
 					throw new IllegalArgumentException("Name " + UtlString.surround(newName) + " is already used by this command.");
 			})
 			.forEach(this.names::add);
+
+		// now let the parent command know that this command has been modified. This is necessary to check
+		// for duplicate names
+		if (this.parentCommand != null)
+			this.parentCommand.checkUniqueSubCommands();
 	}
 
 	@Override
@@ -272,9 +277,8 @@ public class Command
 	}
 
 	public void from(@NotNull Class<? extends CommandTemplate> cmdTemplate) {
-		this.from$recursive(cmdTemplate);
-
 		this.addNames(Command.getTemplateNames(cmdTemplate));
+		this.from$recursive(cmdTemplate);
 	}
 
 	private void from$recursive(@NotNull Class<?> cmdTemplate) {
@@ -289,13 +293,13 @@ public class Command
 		// get to the top of the hierarchy
 		Optional.ofNullable(cmdTemplate.getSuperclass()).ifPresent(this::from$recursive);
 
-		final var argumentBuilders = new ArrayList<Argument.Builder<?, ?>>();
+		final var argumentBuilders = new ArrayList<ArgumentBuilder<?, ?>>();
 
 		Stream.of(cmdTemplate.getDeclaredFields())
 			.filter(f -> f.isAnnotationPresent(Argument.Define.class))
 			.forEach(f -> {
 				// if the argument is not already defined, add it
-				argumentBuilders.add(Argument.Builder.fromField(f));
+				argumentBuilders.add(ArgumentBuilder.fromField(f));
 			});
 
 		this.from$invokeBeforeInitMethod(cmdTemplate, argumentBuilders);
@@ -308,7 +312,7 @@ public class Command
 
 	private void from$invokeBeforeInitMethod(
 		@NotNull Class<?> cmdTemplate,
-		@NotNull List<Argument.Builder<?, ?>> argumentBuilders
+		@NotNull List<ArgumentBuilder<?, ?>> argumentBuilders
 	) {
 		Stream.of(cmdTemplate.getDeclaredMethods())
 			.filter(m -> UtlReflection.hasParameters(m, CommandTemplate.CommandBuildHelper.class))
@@ -344,6 +348,27 @@ public class Command
 	void passPropertiesToChildren() {
 		this.subCommands.forEach(c -> c.inheritProperties(this));
 	}
+
+	/**
+	 * Returns {@code true} if the argument specified by the given name is equal to this argument.
+	 * <p>
+	 * Equality is determined by the argument's name and the command it belongs to.
+	 * </p>
+	 *
+	 * @param obj the argument to compare to
+	 * @return {@code true} if the argument specified by the given name is equal to this argument
+	 */
+	@Override
+	public boolean equals(@NotNull Object obj) {
+		if (obj instanceof Command cmd)
+			return UtlMisc.equalsByNamesAndParentCmd(this, cmd);
+		return false;
+	}
+
+	void checkUniqueSubCommands() {
+		UtlMisc.requireUniqueElements(this.subCommands, c -> new CommandAlreadyExistsException(c, this));
+	}
+
 
 	// ------------------------------------------------ Error Handling ------------------------------------------------
 
@@ -476,31 +501,6 @@ public class Command
 
 		// this parses recursively!
 		this.parser.parseTokens();
-	}
-
-	/**
-	 * Returns {@code true} if the argument specified by the given name is equal to this argument.
-	 * <p>
-	 * Equality is determined by the argument's name and the command it belongs to.
-	 * </p>
-	 *
-	 * @param obj the argument to compare to
-	 * @return {@code true} if the argument specified by the given name is equal to this argument
-	 */
-	public boolean equals(@NotNull Command obj) {
-		return Command.equalsByNamesAndParentCmd(this, obj);
-	}
-
-	public static <T extends MultipleNamesAndDescription & CommandUser>
-	boolean equalsByNamesAndParentCmd(@NotNull T a, @NotNull T b) {
-		return a.getParentCommand() == b.getParentCommand() && (
-			a.getNames().stream().anyMatch(name -> {
-				for (var otherName : b.getNames()) {
-					if (name.equals(otherName)) return true;
-				}
-				return false;
-			})
-		);
 	}
 
 	@Override

@@ -114,12 +114,6 @@ public class ArgumentParser extends Command {
 			.filter(c -> c.isAnnotationPresent(Command.Define.class))
 			.filter(c -> Modifier.isStatic(c.getModifiers()))
 			.filter(CommandTemplate.class::isAssignableFrom)
-//			.filter(c -> {
-//				if (Stream.of(templateClass.getDeclaredFields()).noneMatch(f -> f.argType == c)) {
-//					throw new RuntimeException("Command template class " + templateClass.getSimpleName() + " is present, but no @CommandAccesor has been specified for it.");
-//				}
-//				return true;
-//			})
 			.map(c -> (Class<? extends CommandTemplate>)c)
 			.toList();
 

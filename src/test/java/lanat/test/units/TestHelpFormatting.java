@@ -33,9 +33,9 @@ public class TestHelpFormatting extends UnitTests {
 			"description of <link=args.arg1>: (<desc=args.arg1>)"
 		)
 		{{
-			this.addArgument(Argument.create("arg1", "a1")
+			this.addArgument(Argument.createOfBoolType("arg1", "a1")
 				.withDescription("description of arg2: (<desc=args.arg2>)"));
-			this.addArgument(Argument.create("arg2", ArgumentType.COUNTER())
+			this.addArgument(Argument.create(ArgumentType.COUNTER(), "arg2")
 				.withDescription("description of my type: (<desc=!.type>) i am in the command <link>"));
 		}};
 	}

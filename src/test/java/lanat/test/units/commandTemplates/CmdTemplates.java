@@ -3,6 +3,7 @@ package lanat.test.units.commandTemplates;
 import lanat.Argument;
 import lanat.Command;
 import lanat.CommandTemplate;
+import lanat.ParsedArgumentValue;
 import lanat.argumentTypes.BooleanArgument;
 import lanat.argumentTypes.FloatArgument;
 import lanat.argumentTypes.IntArgument;
@@ -12,7 +13,7 @@ public class CmdTemplates {
 	@Command.Define(names = "cmd1")
 	public static class CmdTemplate1 extends CommandTemplate {
 		@Argument.Define(type = IntArgument.class)
-		public int number;
+		public Integer number;
 
 		@Argument.Define(type = StringArgument.class)
 		public String text;
@@ -28,6 +29,9 @@ public class CmdTemplates {
 		public static class CmdTemplate1_1 extends CommandTemplate {
 			@Argument.Define(type = FloatArgument.class)
 			public Float number;
+
+			@Argument.Define(type = IntArgument.class)
+			public ParsedArgumentValue<Integer> number2;
 		}
 	}
 

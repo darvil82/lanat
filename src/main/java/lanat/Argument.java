@@ -355,6 +355,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		if (this.parentCommand != null) {
 			throw new ArgumentAlreadyExistsException(this, this.parentCommand);
 		}
+
 		this.parentCommand = parentCommand;
 		this.representationColor.setIfNotModified(parentCommand.colorsPool.next());
 	}
@@ -373,6 +374,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		if (this.parentGroup != null) {
 			throw new ArgumentAlreadyExistsException(this, this.parentGroup);
 		}
+
 		this.parentGroup = parentGroup;
 	}
 

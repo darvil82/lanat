@@ -61,8 +61,8 @@ public class ArgumentGroup
 	@Override
 	public <T extends ArgumentType<TInner>, TInner>
 	void addArgument(@NotNull Argument<T, TInner> argument) {
-		this.arguments.add(argument);
 		argument.registerToGroup(this);
+		this.arguments.add(argument);
 		this.checkUniqueArguments();
 	}
 
@@ -82,17 +82,17 @@ public class ArgumentGroup
 			throw new IllegalArgumentException("A group cannot be added to itself");
 		}
 
-		if (group.parentGroup != null) {
-			throw new ArgumentGroupAlreadyExistsException(group, group.parentGroup);
-		}
-
-		this.subGroups.add(group);
 		group.registerToGroup(this);
+		this.subGroups.add(group);
 		this.checkUniqueGroups();
 	}
 
 	@Override
 	public void registerToGroup(@NotNull ArgumentGroup parentGroup) {
+		if (this.parentGroup != null) {
+			throw new ArgumentGroupAlreadyExistsException(this, this.parentGroup);
+		}
+
 		this.parentGroup = parentGroup;
 		this.parentCommand = parentGroup.parentCommand;
 	}

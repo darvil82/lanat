@@ -78,15 +78,15 @@ public class Command
 	@Override
 	public <T extends ArgumentType<TInner>, TInner>
 	void addArgument(@NotNull Argument<T, TInner> argument) {
-		this.arguments.add(argument);
 		argument.registerToCommand(this);
+		this.arguments.add(argument);
 		this.checkUniqueArguments();
 	}
 
 	@Override
 	public void addGroup(@NotNull ArgumentGroup group) {
-		this.argumentGroups.add(group);
 		group.registerToCommand(this);
+		this.argumentGroups.add(group);
 		this.checkUniqueGroups();
 	}
 
@@ -105,13 +105,17 @@ public class Command
 			throw new IllegalArgumentException("cannot add command to itself");
 		}
 
-		this.subCommands.add(cmd);
 		cmd.registerToCommand(this);
+		this.subCommands.add(cmd);
 		this.checkUniqueSubCommands();
 	}
 
 	@Override
 	public void registerToCommand(@NotNull Command parentCommand) {
+		if (this.parentCommand != null) {
+			throw new CommandAlreadyExistsException(this, this.parentCommand);
+		}
+
 		this.parentCommand = parentCommand;
 	}
 
@@ -277,7 +281,7 @@ public class Command
 	}
 
 	public void from(@NotNull Class<? extends CommandTemplate> cmdTemplate) {
-		this.addNames(Command.getTemplateNames(cmdTemplate));
+		this.addNames(CommandTemplate.getTemplateNames(cmdTemplate));
 		this.from$recursive(cmdTemplate);
 	}
 
@@ -529,14 +533,5 @@ public class Command
 		String[] names() default {};
 
 		String description() default "";
-	}
-
-	static @NotNull String @NotNull [] getTemplateNames(@NotNull Class<? extends CommandTemplate> cmdTemplate) {
-		final var annotationNames = cmdTemplate.getAnnotation(Command.Define.class).names();
-
-		// if no names are specified, use the simple name of the class
-		return annotationNames.length == 0 ?
-			new String[] { cmdTemplate.getSimpleName() }
-			: annotationNames;
 	}
 }

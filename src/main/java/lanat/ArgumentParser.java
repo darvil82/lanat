@@ -310,7 +310,7 @@ public class ArgumentParser extends Command {
 						+ "but its type is not a subclass of CommandTemplate"
 				);
 
-			final String cmdName = Command.getTemplateNames((Class<? extends CommandTemplate>)fieldType)[0];
+			final String cmdName = CommandTemplate.getTemplateNames((Class<? extends CommandTemplate>)fieldType)[0];
 
 			try {
 				commandAccesorField.set(parsedTemplateInstance,

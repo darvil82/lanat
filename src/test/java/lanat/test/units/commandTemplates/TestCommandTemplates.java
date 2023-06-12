@@ -42,4 +42,19 @@ public class TestCommandTemplates extends UnitTests {
 		assertEquals("hello", result.text);
 		assertNull(result.cmd2.number);
 	}
+
+	@Test
+	@DisplayName("test ParsedArgumentValue wrapper")
+	public void testParsedArgumentValue() {
+		final var result = this.parser.parse(CLInput.from("cmd1-1 --number2 14"))
+			.into(CmdTemplates.CmdTemplate1.class);
+
+		assertTrue(result.cmd2.number2.defined());
+		assertEquals(14, result.cmd2.number2.get());
+
+		assertTrue(
+			this.parser.parse(CLInput.from(""))
+				.into(CmdTemplates.CmdTemplate1.class).cmd2.number2.undefined()
+		);
+	}
 }

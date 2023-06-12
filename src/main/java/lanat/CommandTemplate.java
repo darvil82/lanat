@@ -30,8 +30,19 @@ public abstract class CommandTemplate {
 		}
 	}
 
-	// Dummy method so that we prevent the user from creating an instance method with the same name.
+	// Dummy methods so that we prevent the user from creating an instance method with the same name.
 	@InitDef
 	public static void beforeInit(@NotNull CommandBuildHelper cmd) {}
+
+	@InitDef
 	public static void afterInit(@NotNull Command cmd) {}
+
+	public static @NotNull String @NotNull [] getTemplateNames(@NotNull Class<? extends CommandTemplate> cmdTemplate) {
+		final var annotationNames = cmdTemplate.getAnnotation(Command.Define.class).names();
+
+		// if no names are specified, use the simple name of the class
+		return annotationNames.length == 0 ?
+			new String[] { cmdTemplate.getSimpleName() }
+			: annotationNames;
+	}
 }

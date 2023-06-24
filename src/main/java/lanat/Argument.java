@@ -337,6 +337,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 *
 	 * @param description the description of this argument.
 	 */
+	@Override
 	public void setDescription(@Nullable String description) {
 		this.description = description;
 	}
@@ -646,7 +647,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		String description() default "";
 
 		/** @see ArgumentBuilder#withArgType(ArgumentType) */
-		Class<? extends ArgumentType<?>> type() default DummyArgumentType.class;
+		Class<? extends ArgumentType<?>> argType() default DummyArgumentType.class;
 
 		/** @see Argument#setPrefix(PrefixChar) */
 		char prefix() default '-';

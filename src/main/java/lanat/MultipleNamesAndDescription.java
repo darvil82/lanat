@@ -46,4 +46,10 @@ public interface MultipleNamesAndDescription extends NamedWithDescription {
 	default boolean hasName(String name) {
 		return this.getNames().contains(name);
 	}
+
+	/**
+	 * Sets the description of this object. The description is used to be displayed in the help message.
+	 * @param description The description to set
+	 */
+	void setDescription(@NotNull String description);
 }

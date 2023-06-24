@@ -61,7 +61,7 @@ public class HelpFormatter {
 	 */
 	protected void initLayout() {
 		this.setLayout(
-			LayoutItem.of(LayoutGenerators::title),
+			LayoutItem.of(LayoutGenerators::titleAndDescription),
 			LayoutItem.of(LayoutGenerators::synopsis)
 				.indent(1)
 				.margin(1),

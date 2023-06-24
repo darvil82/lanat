@@ -62,17 +62,34 @@ public class Command
 	final @NotNull LoopPool<@NotNull Color> colorsPool = LoopPool.atRandomIndex(Color.getBrightColors());
 
 
+	/**
+	 * Creates a new command with the given name and description.
+	 * @param name The name of the command. This is the name the user will use to indicate that they want to use this
+	 * 		   command.
+	 * @param description The description of the command.
+	 * @see #setDescription(String)
+	 */
 	public Command(@NotNull String name, @Nullable String description) {
 		this.addNames(name);
 		this.description = description;
 	}
 
+	/**
+	 * Creates a new command with the given name and no description. This is the name the user will use to
+	 * indicate that they want to use this command.
+	 * @param name The name of the command.
+	 */
 	public Command(@NotNull String name) {
 		this(name, null);
 	}
 
+	/**
+	 * Creates a new command based on the given {@link CommandTemplate}. This does not take Sub-Commands into account.
+	 * @param templateClass The class of the template to use.
+	 */
 	public Command(@NotNull Class<? extends CommandTemplate> templateClass) {
-		this.from(templateClass);
+		this.addNames(CommandTemplate.getTemplateNames(templateClass));
+		this.from$recursive(templateClass);
 	}
 
 	@Override
@@ -174,6 +191,7 @@ public class Command
 		return this.names;
 	}
 
+	@Override
 	public void setDescription(@NotNull String description) {
 		this.description = description;
 	}
@@ -239,6 +257,10 @@ public class Command
 			);
 	}
 
+	/**
+	 * Returns a new {@link ParsedArguments} object that contains all the parsed arguments of this command and all its
+	 * Sub-Commands.
+	 */
 	@NotNull ParsedArguments getParsedArguments() {
 		return new ParsedArguments(
 			this,
@@ -278,11 +300,6 @@ public class Command
 		this.callbackInvocationOption.setIfNotModified(parent.callbackInvocationOption);
 
 		this.passPropertiesToChildren();
-	}
-
-	public void from(@NotNull Class<? extends CommandTemplate> cmdTemplate) {
-		this.addNames(CommandTemplate.getTemplateNames(cmdTemplate));
-		this.from$recursive(cmdTemplate);
 	}
 
 	private void from$recursive(@NotNull Class<?> cmdTemplate) {

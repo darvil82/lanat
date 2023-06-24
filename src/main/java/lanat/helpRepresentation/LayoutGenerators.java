@@ -9,7 +9,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * This contains methods that may be used in {@link LayoutItem}s to generate the content of the help message.
@@ -25,11 +24,23 @@ public final class LayoutGenerators {
 	 * @param cmd The command to generate the title for.
 	 * @return the generated title and description.
 	 */
-	public static @NotNull String title(@NotNull Command cmd) {
-		return CommandRepr.getRepresentation(cmd)
-			+ (cmd.getDescription() == null
-			? ""
-			: ":\n\n" + HelpFormatter.indent(Objects.requireNonNull(DescriptionFormatter.parse(cmd)), cmd));
+	public static @NotNull String titleAndDescription(@NotNull Command cmd) {
+		final var description = DescriptionFormatter.parse(cmd);
+		final var buff = new StringBuilder(CommandRepr.getRepresentation(cmd));
+
+		if (cmd instanceof ArgumentParser ap) {
+			final var version = ap.getVersion();
+			if (version != null) {
+				buff.append(" (").append(version).append(')');
+			}
+		}
+
+		if (description != null) {
+			buff.append(":\n\n");
+			buff.append(HelpFormatter.indent(description, cmd));
+		}
+
+		return buff.toString();
 	}
 
 	/**

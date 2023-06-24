@@ -49,8 +49,8 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
 			.withNames(ArgumentBuilder.getTemplateFieldNames(field));
 
 		// if the type is not DummyArgumentType, instantiate it
-		if (annotation.type() != DummyArgumentType.class)
-			argumentBuilder.withArgType((Type)UtlReflection.instantiate(annotation.type()));
+		if (annotation.argType() != DummyArgumentType.class)
+			argumentBuilder.withArgType((Type)UtlReflection.instantiate(annotation.argType()));
 
 		argumentBuilder.withPrefix(Argument.PrefixChar.fromCharUnsafe(annotation.prefix()));
 		if (!annotation.description().isEmpty()) argumentBuilder.withDescription(annotation.description());
@@ -90,10 +90,13 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
 	 * Returns the names of the argument, either the ones specified in the {@link Argument.Define} annotation or the
 	 * field name if the names are empty.
 	 *
-	 * @param field the field that will be used to get the names
+	 * @param field the field that will be used to get the names. It must have an {@link Argument.Define} annotation.
 	 * @return the names of the argument
 	 */
 	static @NotNull String[] getTemplateFieldNames(@NotNull Field field) {
+		assert field.isAnnotationPresent(Argument.Define.class)
+			: "The field must have an Argument.Define annotation.";
+
 		final var annotationNames = field.getAnnotation(Argument.Define.class).names();
 
 		// if the names are empty, use the field name

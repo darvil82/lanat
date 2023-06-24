@@ -16,6 +16,11 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 
+/**
+ * <h2>Argument Parser</h2>
+ * <p>
+ * Provides the ability to parse a command line input and later gather the values of the parsed arguments.
+ */
 public class ArgumentParser extends Command {
 	private boolean isParsed = false;
 	private @Nullable String license;
@@ -32,6 +37,21 @@ public class ArgumentParser extends Command {
 
 	public ArgumentParser(@NotNull Class<? extends CommandTemplate> templateClass) {
 		super(templateClass);
+	}
+
+	/**
+	 * Constructs a new {@link ArgumentParser} based on the given {@link CommandTemplate}, taking Sub-Commands into
+	 * account.
+	 * @param templateClass The class of the {@link CommandTemplate} to use.
+	 * @return A new {@link ArgumentParser} based on the given {@link CommandTemplate}.
+	 */
+	public static ArgumentParser from(@NotNull Class<? extends CommandTemplate> templateClass) {
+		final var argParser = new ArgumentParser(templateClass);
+
+		// add all commands recursively
+		ArgumentParser.from$setCommands(templateClass, argParser);
+
+		return argParser;
 	}
 
 	/**
@@ -74,12 +94,7 @@ public class ArgumentParser extends Command {
 		@NotNull Consumer<@NotNull AfterParseOptions> options
 	)
 	{
-		final var argParser = new ArgumentParser(templateClass);
-
-		// add all commands recursively
-		ArgumentParser.parseFromInto$setCommands(templateClass, argParser);
-
-		final AfterParseOptions opts = argParser.parse(input);
+		final AfterParseOptions opts = ArgumentParser.from(templateClass).parse(input);
 		options.accept(opts);
 
 		return opts.into(templateClass);
@@ -109,7 +124,7 @@ public class ArgumentParser extends Command {
 	 */
 	@SuppressWarnings("unchecked")
 	private static <T extends CommandTemplate>
-	void parseFromInto$setCommands(@NotNull Class<T> templateClass, @NotNull Command parentCommand) {
+	void from$setCommands(@NotNull Class<T> templateClass, @NotNull Command parentCommand) {
 		final var commandDefs = Arrays.stream(templateClass.getDeclaredClasses())
 			.filter(c -> c.isAnnotationPresent(Command.Define.class))
 			.filter(c -> Modifier.isStatic(c.getModifiers()))
@@ -120,17 +135,18 @@ public class ArgumentParser extends Command {
 		for (var commandDef : commandDefs) {
 			var command = new Command(commandDef);
 			parentCommand.addCommand(command);
-			ArgumentParser.parseFromInto$setCommands(commandDef, command);
+			ArgumentParser.from$setCommands(commandDef, command);
 		}
 	}
 
 
 	/**
-	 * Parses the given command line arguments and returns a {@link ParsedArguments} object.
+	 * Parses the given command line arguments and returns a {@link AfterParseOptions} object.
 	 *
 	 * @param input The command line arguments to parse.
+	 * @see AfterParseOptions
 	 */
-	public @NotNull ArgumentParser.AfterParseOptions parse(@NotNull CLInput input) {
+	public @NotNull AfterParseOptions parse(@NotNull CLInput input) {
 		if (this.isParsed) {
 			// reset all parsing related things to the initial state
 			this.resetState();
@@ -151,8 +167,7 @@ public class ArgumentParser extends Command {
 
 
 	@Override
-	@NotNull
-	ParsedArgumentsRoot getParsedArguments() {
+	@NotNull ParsedArgumentsRoot getParsedArguments() {
 		return new ParsedArgumentsRoot(
 			this,
 			this.getParser().getParsedArgumentsHashMap(),
@@ -161,6 +176,9 @@ public class ArgumentParser extends Command {
 		);
 	}
 
+	/**
+	 * Returns the forward value token (if any) of the full token list.
+	 */
 	private @Nullable String getForwardValue() {
 		final var tokens = this.getFullTokenList();
 		final var lastToken = tokens.get(tokens.size() - 1);
@@ -171,20 +189,28 @@ public class ArgumentParser extends Command {
 		return null;
 	}
 
-	public @Nullable String getLicense() {
-		return this.license;
-	}
-
+	/**
+	 * Sets the license of this program. By default, this is shown in the help message.
+	 * @param license The license information to set.
+	 */
 	public void setLicense(@NotNull String license) {
 		this.license = license;
 	}
 
-	public @Nullable String getVersion() {
-		return this.version;
+	public @Nullable String getLicense() {
+		return this.license;
 	}
 
+	/**
+	 * Sets the version of this program. By default, this is shown in the help message.
+	 * @param version The version information to set.
+	 */
 	public void setVersion(@NotNull String version) {
 		this.version = version;
+	}
+
+	public @Nullable String getVersion() {
+		return this.version;
 	}
 
 

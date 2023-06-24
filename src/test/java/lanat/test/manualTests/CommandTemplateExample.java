@@ -12,20 +12,20 @@ import org.jetbrains.annotations.NotNull;
 public class CommandTemplateExample extends DefaultCommandTemplate {
 	public CommandTemplateExample() {}
 
-	@Argument.Define(type = StringArgument.class, description = "This is a string argument.")
+	@Argument.Define(argType = StringArgument.class, description = "This is a string argument.")
 	public ParsedArgumentValue<String> string;
 
-	@Argument.Define(type = IntArgument.class, description = "<desc=!.type>")
+	@Argument.Define(argType = IntArgument.class, description = "<desc=!.type>")
 	public int number = 12;
 
-	@Argument.Define(type = StdinArgument.class)
+	@Argument.Define(argType = StdinArgument.class)
 	public String stdin;
 
-	@Argument.Define(names = "arg1", type = StringArgument.class)
+	@Argument.Define(names = "arg1", argType = StringArgument.class)
 	public String arg1;
 
 
-	@Argument.Define(names = "arg1a", type = StringArgument.class)
+	@Argument.Define(names = "arg1a", argType = StringArgument.class)
 	public String arg1copy;
 
 
@@ -45,7 +45,7 @@ public class CommandTemplateExample extends DefaultCommandTemplate {
 	public static class MySubCommand extends CommandTemplate {
 		public MySubCommand() {}
 
-		@Argument.Define(type = CounterArgument.class, description = "This is a counter", names = "c")
+		@Argument.Define(argType = CounterArgument.class, description = "This is a counter", names = "c")
 		public int counter = 0;
 
 		@CommandAccessor
@@ -55,7 +55,7 @@ public class CommandTemplateExample extends DefaultCommandTemplate {
 		public static class AnotherSubCommand extends CommandTemplate {
 			public AnotherSubCommand() {}
 
-			@Argument.Define(type = CounterArgument.class, description = "This is a counter", names = "c")
+			@Argument.Define(argType = CounterArgument.class, description = "This is a counter", names = "c")
 			public int counter = 0;
 		}
 	}

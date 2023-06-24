@@ -12,13 +12,13 @@ import lanat.argumentTypes.StringArgument;
 public class CmdTemplates {
 	@Command.Define(names = "cmd1")
 	public static class CmdTemplate1 extends CommandTemplate {
-		@Argument.Define(type = IntArgument.class)
+		@Argument.Define(argType = IntArgument.class)
 		public Integer number;
 
-		@Argument.Define(type = StringArgument.class)
+		@Argument.Define(argType = StringArgument.class)
 		public String text;
 
-		@Argument.Define(names = { "name1", "f" }, type = BooleanArgument.class)
+		@Argument.Define(names = { "name1", "f" }, argType = BooleanArgument.class)
 		public boolean flag;
 
 
@@ -27,10 +27,10 @@ public class CmdTemplates {
 
 		@Command.Define(names = "cmd1-1")
 		public static class CmdTemplate1_1 extends CommandTemplate {
-			@Argument.Define(type = FloatArgument.class)
+			@Argument.Define(argType = FloatArgument.class)
 			public Float number;
 
-			@Argument.Define(type = IntArgument.class)
+			@Argument.Define(argType = IntArgument.class)
 			public ParsedArgumentValue<Integer> number2;
 		}
 	}
@@ -43,7 +43,7 @@ public class CmdTemplates {
 
 	@Command.Define
 	public static class CmdTemplate3 extends CommandTemplate {
-		@Argument.Define(type = IntArgument.class, positional = true)
+		@Argument.Define(argType = IntArgument.class, positional = true)
 		public int number;
 
 		@CommandAccessor
@@ -51,7 +51,7 @@ public class CmdTemplates {
 
 		@Command.Define(names = "cmd3-1")
 		public static class CmdTemplate3_1 extends CommandTemplate {
-			@Argument.Define(type = IntArgument.class, positional = true)
+			@Argument.Define(argType = IntArgument.class, positional = true)
 			public int number;
 
 			@CommandAccessor
@@ -59,7 +59,7 @@ public class CmdTemplates {
 
 			@Command.Define(names = "cmd3-1-1")
 			public static class CmdTemplate3_1_1 extends CommandTemplate {
-				@Argument.Define(type = IntArgument.class, positional = true)
+				@Argument.Define(argType = IntArgument.class, positional = true)
 				public int number;
 			}
 		}

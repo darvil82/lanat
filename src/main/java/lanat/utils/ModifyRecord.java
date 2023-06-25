@@ -11,11 +11,17 @@ public class ModifyRecord<T> {
 	private T value;
 	private boolean modified;
 
-	public ModifyRecord(T value) {
+	private ModifyRecord(T value) {
 		this.value = value;
 	}
 
-	public ModifyRecord() {}
+	public static <T> ModifyRecord<T> of(@NotNull T value) {
+		return new ModifyRecord<>(value);
+	}
+
+	public static <T> ModifyRecord<T> empty() {
+		return new ModifyRecord<>(null);
+	}
 
 	public T get() {
 		return this.value;

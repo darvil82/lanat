@@ -108,7 +108,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * color will be picked from the {@link Command#colorsPool} of the parent command at
 	 * {@link Argument#registerToCommand(Command)}.
 	 */
-	private final @NotNull ModifyRecord<Color> representationColor = new ModifyRecord<>(null);
+	private final @NotNull ModifyRecord<Color> representationColor = ModifyRecord.empty();
 
 
 	/**

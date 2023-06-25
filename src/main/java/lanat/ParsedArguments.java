@@ -20,7 +20,7 @@ public class ParsedArguments {
 
 	ParsedArguments(
 		@NotNull Command cmd,
-		@NotNull HashMap<Argument<?, ?>, Object> parsedArgs,
+		@NotNull HashMap<Argument<?, ?>, @Nullable Object> parsedArgs,
 		@NotNull List<ParsedArguments> subParsedArguments
 	)
 	{

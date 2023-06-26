@@ -24,8 +24,10 @@ public final class ManualTests {
 			.into(CommandTemplateExample.class);
 
 		parsed.string
-			.defined(s -> System.out.println("Value is defined: " + s))
-			.undefined(() -> System.out.println("undefined!"));
+			.ifPresentOrElse(
+				s -> System.out.println("String is present: " + s),
+				() -> System.out.println("String is not present")
+			);
 
 		System.out.println(parsed.number);
 		System.out.println(parsed.subCommand.counter);

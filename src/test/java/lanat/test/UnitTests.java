@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 class StringJoiner extends TupleArgumentType<String> {
@@ -81,7 +81,7 @@ public class UnitTests {
 	 * </pre>
 	 */
 	protected <T> T parseArg(@NotNull String arg, @NotNull String values) {
-		return this.parser.parseGetValues("--%s %s".formatted(arg.strip(), values)).<T>get(arg).get();
+		return this.parser.parseGetValues("--%s %s".formatted(arg.strip(), values)).<T>get(arg).orElse(null);
 	}
 
 	/**
@@ -91,6 +91,6 @@ public class UnitTests {
 	 * </pre>
 	 */
 	protected void assertNotPresent(@NotNull String arg) {
-		assertNull(this.parser.parseGetValues("").get(arg).get());
+		assertTrue(this.parser.parseGetValues("").get(arg).isEmpty());
 	}
 }

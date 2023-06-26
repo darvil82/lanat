@@ -49,12 +49,32 @@ public class TestCommandTemplates extends UnitTests {
 		final var result = this.parser.parse(CLInput.from("cmd1-1 --number2 14"))
 			.into(CmdTemplates.CmdTemplate1.class);
 
-		assertTrue(result.cmd2.number2.defined());
+		assertTrue(result.cmd2.number2.isPresent());
 		assertEquals(14, result.cmd2.number2.get());
 
 		assertTrue(
 			this.parser.parse(CLInput.from(""))
-				.into(CmdTemplates.CmdTemplate1.class).cmd2.number2.undefined()
+				.into(CmdTemplates.CmdTemplate1.class).cmd2.number2.isEmpty()
 		);
+	}
+
+	@Test
+	@DisplayName("test default values for arguments")
+	public void testDefaultValues() {
+		{
+			final var result = this.parser.parse(CLInput.from(""))
+				.into(CmdTemplates.CmdTemplate1.class);
+
+			assertTrue(result.numberParsedArgValue.isPresent());
+			assertEquals(0, result.numberParsedArgValue.get());
+		}
+
+		{
+			final var result = this.parser.parse(CLInput.from("--numberParsedArgValue 56"))
+				.into(CmdTemplates.CmdTemplate1.class);
+
+			assertTrue(result.numberParsedArgValue.isPresent());
+			assertEquals(56, result.numberParsedArgValue.get());
+		}
 	}
 }

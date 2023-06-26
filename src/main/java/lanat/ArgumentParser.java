@@ -12,6 +12,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -270,17 +271,23 @@ public class ArgumentParser extends Command {
 					// get the name of the argument from the annotation or field name
 					final String argName = annotation.names().length == 0 ? f.getName() : annotation.names()[0];
 
-					final @Nullable Object parsedValue = parsedArgs.get(argName).get();
+					final @NotNull Optional<Object> parsedValue = parsedArgs.get(argName);
 
-					// if the type of the field is a ParsedArgumentValue, wrap the value in it.
-					// otherwise, just set the value
 					try {
-						f.set(instance, f.getType().isAssignableFrom(ParsedArgumentValue.class)
-							? new ParsedArgumentValue<>(parsedValue)
-							: parsedValue);
+						// if the field has a value already set and the parsed value is empty, skip it (keep the old value)
+						if (parsedValue.isEmpty() && f.get(instance) != null)
+							return;
 
+						// if the type of the field is an Optional, wrap the value in it.
+						// otherwise, just set the value
+						f.set(
+							instance,
+							f.getType().isAssignableFrom(Optional.class)
+								? parsedValue
+								: parsedValue.orElse(null)
+						);
 					} catch (IllegalArgumentException e) {
-						if (parsedValue == null)
+						if (parsedValue.isEmpty())
 							throw new IncompatibleCommandTemplateType(
 								"Field '" + f.getName() + "' of type '" + f.getType().getSimpleName() + "' does not"
 									+ " accept null values, but the parsed argument '" + argName + "' is null"

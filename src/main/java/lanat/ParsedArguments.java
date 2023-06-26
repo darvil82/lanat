@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Container for all the parsed arguments and their respective values.
@@ -36,12 +37,12 @@ public class ParsedArguments {
 	 * @param <T> The type of the value of the argument
 	 */
 	@SuppressWarnings("unchecked") // we'll just have to trust the user
-	public <T> @NotNull ParsedArgumentValue<T> get(@NotNull Argument<?, T> arg) {
+	public <T> @NotNull Optional<T> get(@NotNull Argument<?, T> arg) {
 		if (!this.parsedArgs.containsKey(arg)) {
 			throw new ArgumentNotFoundException(arg);
 		}
 
-		return new ParsedArgumentValue<>((T)this.parsedArgs.get(arg));
+		return Optional.ofNullable((T)this.parsedArgs.get(arg));
 	}
 
 	/**
@@ -63,7 +64,7 @@ public class ParsedArguments {
 	 * @throws CommandNotFoundException If the command specified in the route does not exist
 	 * @throws ArgumentNotFoundException If the argument specified in the route does not exist
 	 */
-	public <T> @NotNull ParsedArgumentValue<T> get(@NotNull String argRoute) {
+	public <T> @NotNull Optional<T> get(@NotNull String argRoute) {
 		return this.get(UtlString.split(argRoute, '.'));
 	}
 
@@ -93,7 +94,7 @@ public class ParsedArguments {
 	 * @throws CommandNotFoundException If the command specified in the route does not exist
 	 */
 	@SuppressWarnings("unchecked") // we'll just have to trust the user
-	public <T> @NotNull ParsedArgumentValue<T> get(@NotNull String... argRoute) {
+	public <T> @NotNull Optional<T> get(@NotNull String... argRoute) {
 		if (argRoute.length == 0) {
 			throw new IllegalArgumentException("argument route must not be empty");
 		}
@@ -101,7 +102,7 @@ public class ParsedArguments {
 		ParsedArguments matchedParsedArgs;
 
 		if (argRoute.length == 1) {
-			return (ParsedArgumentValue<T>)this.get(this.getArgument(argRoute[0]));
+			return (Optional<T>)this.get(this.getArgument(argRoute[0]));
 		} else if ((matchedParsedArgs = this.getSubParsedArgs(argRoute[0])) != null) {
 			return matchedParsedArgs.get(Arrays.copyOfRange(argRoute, 1, argRoute.length));
 		} else {

@@ -1,6 +1,9 @@
 package lanat.test.manualTests;
 
-import lanat.*;
+import lanat.Argument;
+import lanat.ArgumentGroup;
+import lanat.Command;
+import lanat.CommandTemplate;
 import lanat.argumentTypes.CounterArgument;
 import lanat.argumentTypes.IntArgument;
 import lanat.argumentTypes.StdinArgument;
@@ -8,12 +11,14 @@ import lanat.argumentTypes.StringArgument;
 import lanat.commandTemplates.DefaultCommandTemplate;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
+
 @Command.Define(names = "my-program", description = "This is a test program.")
 public class CommandTemplateExample extends DefaultCommandTemplate {
 	public CommandTemplateExample() {}
 
 	@Argument.Define(argType = StringArgument.class, description = "This is a string argument.")
-	public ParsedArgumentValue<String> string;
+	public Optional<String> string;
 
 	@Argument.Define(argType = IntArgument.class, description = "<desc=!.type>")
 	public int number = 12;

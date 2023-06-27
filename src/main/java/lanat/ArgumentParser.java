@@ -28,14 +28,31 @@ public class ArgumentParser extends Command {
 	private @Nullable String version;
 
 
+	/**
+	 * Creates a new command with the given name and description.
+	 * @param programName The name of the command. This is the name the user will use to indicate that they want to use this
+	 * 		   command.
+	 * @param description The description of the command.
+	 * @see #setDescription(String)
+	 */
 	public ArgumentParser(@NotNull String programName, @Nullable String description) {
 		super(programName, description);
 	}
 
+	/**
+	 * Creates a new command with the given name and no description. This is the name the user will use to
+	 * indicate that they want to use this command.
+	 * @param programName The name of the command.
+	 */
 	public ArgumentParser(@NotNull String programName) {
 		this(programName, null);
 	}
 
+	/**
+	 * Creates a new command based on the given {@link CommandTemplate}. This does not take Sub-Commands into account.
+	 * If you want to add Sub-Commands, use {@link #from(Class)} instead.
+	 * @param templateClass The class of the template to use.
+	 */
 	public ArgumentParser(@NotNull Class<? extends CommandTemplate> templateClass) {
 		super(templateClass);
 	}
@@ -228,6 +245,10 @@ public class ArgumentParser extends Command {
 			return this.errors;
 		}
 
+		public int getErrorCode() {
+			return this.errorCode;
+		}
+
 		public boolean hasErrors() {
 			return this.errorCode != 0;
 		}
@@ -253,7 +274,6 @@ public class ArgumentParser extends Command {
 		public <T extends CommandTemplate> T into(@NotNull Class<T> clazz) {
 			return AfterParseOptions.into(clazz, this.getParsedArguments(), ArgumentParser.this);
 		}
-
 
 		private static <T extends CommandTemplate> T into(
 			@NotNull Class<T> clazz,

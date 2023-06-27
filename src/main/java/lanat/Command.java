@@ -215,7 +215,7 @@ public class Command
 	 *
 	 * @see CallbacksInvocationOption
 	 */
-	public void invokeCallbacksWhen(@NotNull CallbacksInvocationOption option) {
+	public void setCallbackInvocationOption(@NotNull CallbacksInvocationOption option) {
 		this.callbackInvocationOption.set(option);
 	}
 
@@ -402,7 +402,7 @@ public class Command
 	 * {@inheritDoc}
 	 * <p>
 	 * By default this callback is called only if all commands succeed, but you can change this behavior with
-	 * {@link Command#invokeCallbacksWhen(CallbacksInvocationOption)}
+	 * {@link Command#setCallbackInvocationOption(CallbacksInvocationOption)}
 	 * </p>
 	 */
 	@Override
@@ -474,22 +474,21 @@ public class Command
 	 * @see #setErrorCode(int)
 	 */
 	public int getErrorCode() {
-		int errCode = this.subCommands.stream()
+		final int thisErrorCode = this.errorCode.get();
+
+		// get all the error codes of the Sub-Commands recursively
+		int finalErrorCode = this.subCommands.stream()
 			.filter(c -> c.tokenizer.isFinishedTokenizing())
-			.map(sc ->
-				sc.getMinimumExitErrorLevel().get().isInErrorMinimum(this.getMinimumExitErrorLevel().get())
-					? sc.getErrorCode()
-					: 0
-			)
+			.map(Command::getErrorCode)
 			.reduce(0, (a, b) -> a | b);
 
 		/* If we have errors, or the Sub-Commands had errors, do OR with our own error level.
 		 * By doing this, the error code of a Sub-Command will be OR'd with the error codes of all its parents. */
-		if (this.hasExitErrors() || errCode != 0) {
-			errCode |= this.errorCode.get();
+		if (thisErrorCode != 0 && this.hasExitErrors()) {
+			finalErrorCode |= thisErrorCode;
 		}
 
-		return errCode;
+		return finalErrorCode;
 	}
 
 

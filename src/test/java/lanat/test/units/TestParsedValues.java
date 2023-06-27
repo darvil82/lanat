@@ -42,7 +42,7 @@ public class TestParsedValues extends UnitTests {
 	}
 
 	@Test
-	@DisplayName("Test the defined() callbacks")
+	@DisplayName("Test values present or not")
 	public void testDefinedCallbacks() {
 		var parsedArgs = this.parseArgs("smth subCommand -cccc");
 		final byte[] called = { 0 };

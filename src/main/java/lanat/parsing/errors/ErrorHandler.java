@@ -23,7 +23,7 @@ public class ErrorHandler {
 	}
 
 	/**
-	 * Handles all errors and returns a list of them.
+	 * Handles all errors and returns a list of error messages generated.
 	 */
 	public @NotNull List<@NotNull String> handleErrors() {
 		final List<Command> commands = this.rootCmd.getTokenizer().getTokenizedCommands();

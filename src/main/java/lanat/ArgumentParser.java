@@ -263,6 +263,7 @@ public class ArgumentParser extends Command {
 
 		/**
 		 * Returns whether any errors occurred during parsing.
+		 * @return {@code true} if any errors occurred, {@code false} otherwise.
 		 */
 		public boolean hasErrors() {
 			return this.errorCode != 0;

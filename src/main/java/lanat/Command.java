@@ -157,6 +157,7 @@ public class Command
 	 *     <li>Command 'bar' has a return value of 5. <code>(0b101)</code></li>
 	 * </ul>
 	 * Both commands failed, so in this case the resultant return value would be 7 <code>(0b111)</code>.
+	 * @param errorCode The error code to return when this command fails.
 	 */
 	public void setErrorCode(int errorCode) {
 		if (errorCode <= 0) throw new IllegalArgumentException("error code cannot be 0 or below");
@@ -214,6 +215,7 @@ public class Command
 	 * Specifies in which cases the {@link Argument#setOnCorrectCallback(Consumer)} should be invoked.
 	 * <p>By default, this is set to {@link CallbacksInvocationOption#NO_ERROR_IN_ALL_COMMANDS}.</p>
 	 *
+	 * @param option The option to set.
 	 * @see CallbacksInvocationOption
 	 */
 	public void setCallbackInvocationOption(@NotNull CallbacksInvocationOption option) {
@@ -242,7 +244,8 @@ public class Command
 	}
 
 	/**
-	 * Returns {@code true} if an argument with {@link Argument#setAllowUnique(boolean)} in the command was used.
+	 * Returns {@code true} if an argument with allowsUnique set in the command was used.
+	 * @return {@code true} if an argument with {@link Argument#setAllowUnique(boolean)} in the command was used.
 	 */
 	public boolean uniqueArgumentReceivedValue() {
 		return this.arguments.stream().anyMatch(a -> a.getUsageCount() >= 1 && a.isUniqueAllowed())
@@ -273,6 +276,7 @@ public class Command
 	/**
 	 * Get all the tokens of all Sub-Commands (the ones that we can get without errors) into one single list. This
 	 * includes the {@link TokenType#COMMAND} tokens.
+	 * @return A list of all the tokens of all Sub-Commands.
 	 */
 	public @NotNull ArrayList<@NotNull Token> getFullTokenList() {
 		final ArrayList<Token> list = new ArrayList<>() {{

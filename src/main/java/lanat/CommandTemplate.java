@@ -91,7 +91,6 @@ import java.util.List;
  *     <li>{@link CommandTemplate#beforeInit(CommandBuildHelper)}: Called before adding the Arguments to the Command.</li>
  *     <li>{@link CommandTemplate#afterInit(Command)}: Called after the Command is initialized.</li>
  * </ul>
- * <p>
  * @see CommandTemplate.Default
  */
 @Command.Define

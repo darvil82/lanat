@@ -8,13 +8,12 @@ import lanat.argumentTypes.CounterArgument;
 import lanat.argumentTypes.IntArgument;
 import lanat.argumentTypes.StdinArgument;
 import lanat.argumentTypes.StringArgument;
-import lanat.commandTemplates.DefaultCommandTemplate;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
 @Command.Define(names = "my-program", description = "This is a test program.")
-public class CommandTemplateExample extends DefaultCommandTemplate {
+public class CommandTemplateExample extends CommandTemplate.Default {
 	public CommandTemplateExample() {}
 
 	@Argument.Define(argType = StringArgument.class, description = "This is a string argument.")

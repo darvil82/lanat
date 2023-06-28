@@ -10,5 +10,4 @@ module lanat {
 	exports lanat.parsing;
 	exports lanat.utils;
 	exports lanat.exceptions;
-	exports lanat.commandTemplates;
 }

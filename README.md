@@ -12,39 +12,44 @@ possibilities in mind.
 Here is an example of a simple argument parser definition.
 
 ```java
+@Command.Define
+class MyProgram {
+	@Argument.Define(
+		argType = StringArgumentType.class,
+		obligatory = true,
+		positional = true,
+		description = "The name of the user."
+	)
+	public String name;
+
+	@Argument.Define(argType = StringArgumentType.class, description = "The surname of the user.")
+	public Optional<String> surname;
+
+	@Argument.Define(names = {"age", "a"}, description = "The age of the user.", prefix = '+')
+	public int age = 18;
+	
+	@InitDef
+	public static void beforeInit(@NotNull CommandBuildHelper cmdBuildHelper) {
+		// configure the argument "age" to have an argument type of
+		// IntRangeArgument and set the range to 1-100
+		cmdBuildHelper.<IntRangeArgument, Integer>getArgument("age")
+			.withArgType(ArgumentType.INTEGER_RANGE(1, 100))
+			.onOk(v -> System.out.println("The age is valid!"));
+	}
+}
+
 class Test {
 	public static void main(String[] args) {
-		final var myParser = new ArgumentParser("MyProgram") {{
-			this.addArgument(Argument.create("name", ArgumentType.STRING())
-				.obligatory()
-				.positional() // doesn't need the name to be specified
-				.description("The name of the user.")
-			);
-
-			this.addArgument(Argument.create("surname", ArgumentType.STRING())
-				.description("The surname of the user.")
-			);
-
-			this.addArgument(Argument.create("age", ArgumentType.INTEGER())
-				.defaultValue(18)
-				.description("The age of the user.")
-				.addNames("a")
-				.prefixChar(Argument.PrefixChar.PLUS)
-			);
-		}};
-
 		// example: david +a20
-		final var parsedArguments = myParser.parseArgs(args);
-
+		var myProgram = ArgumentParser.parseFromInto(MyProgram.class, CLInput.from(args));
+		
 		System.out.printf(
 			"Welcome %s! You are %d years old.%n",
-			parsedArguments.get("name").get(), parsedArguments.<Integer>get("age").get()
+			myProgram.name, myProgram.age
 		);
 
-		// if no surname was specified, we'll assume it is "Lewis". (Don't ask why)
-		System.out.println(
-			"The surname of the user is " + parsedArguments.get("surname").undefined("Lewis")
-		);
+		// if no surname was specified, we'll show "none" instead
+		System.out.println("The surname of the user is " + myProgram.surname.orElse("none"));
 	}
 }
 ```

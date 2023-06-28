@@ -86,6 +86,7 @@ public class Command
 	/**
 	 * Creates a new command based on the given {@link CommandTemplate}. This does not take Sub-Commands into account.
 	 * @param templateClass The class of the template to use.
+	 * @see CommandTemplate
 	 */
 	public Command(@NotNull Class<? extends CommandTemplate> templateClass) {
 		this.addNames(CommandTemplate.getTemplateNames(templateClass));

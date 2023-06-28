@@ -62,6 +62,7 @@ public class ArgumentParser extends Command {
 	 * account.
 	 * @param templateClass The class of the {@link CommandTemplate} to use.
 	 * @return A new {@link ArgumentParser} based on the given {@link CommandTemplate}.
+	 * @see CommandTemplate
 	 */
 	public static ArgumentParser from(@NotNull Class<? extends CommandTemplate> templateClass) {
 		final var argParser = new ArgumentParser(templateClass);
@@ -105,6 +106,7 @@ public class ArgumentParser extends Command {
 	 * @param <T> The type of the template.
 	 * @return The parsed template.
 	 * @see #parseFromInto(Class, CLInput)
+	 * @see CommandTemplate
 	 */
 	public static <T extends CommandTemplate> @NotNull T parseFromInto(
 		@NotNull Class<T> templateClass,
@@ -126,6 +128,7 @@ public class ArgumentParser extends Command {
 	 * @param input The input to parse.
 	 * @param <T> The type of the template.
 	 * @return The parsed template.
+	 * @see CommandTemplate
 	 */
 	public static <T extends CommandTemplate>
 	@NotNull T parseFromInto(@NotNull Class<T> templateClass, @NotNull CLInput input) {
@@ -232,6 +235,9 @@ public class ArgumentParser extends Command {
 	}
 
 
+	/**
+	 * Provides utilities for the parsed arguments after parsing is done.
+	 */
 	public class AfterParseOptions {
 		private final List<@NotNull String> errors;
 		private final int errorCode;
@@ -241,18 +247,30 @@ public class ArgumentParser extends Command {
 			this.errors = errorHandler.handleErrors();
 		}
 
+		/**
+		 * Returns a list of all the error messages that occurred during parsing.
+		 */
 		public @NotNull List<@NotNull String> getErrors() {
 			return this.errors;
 		}
 
+		/**
+		 * @see Command#getErrorCode()
+		 */
 		public int getErrorCode() {
 			return this.errorCode;
 		}
 
+		/**
+		 * Returns whether any errors occurred during parsing.
+		 */
 		public boolean hasErrors() {
 			return this.errorCode != 0;
 		}
 
+		/**
+		 * Prints all errors that occurred during parsing to {@link System#err}.
+		 */
 		public AfterParseOptions printErrors() {
 			for (var error : this.errors) {
 				System.err.println(error);
@@ -260,25 +278,45 @@ public class ArgumentParser extends Command {
 			return this;
 		}
 
+		/**
+		 * Exits the program with the error code returned by {@link #getErrorCode()} if any errors occurred during
+		 * parsing.
+		 */
 		public AfterParseOptions exitIfErrors() {
-			if (this.errorCode != 0)
+			if (this.hasErrors())
 				System.exit(this.errorCode);
 
 			return this;
 		}
 
+		/**
+		 * Returns a {@link ParsedArgumentsRoot} object that contains all the parsed arguments.
+		 */
 		public @NotNull ParsedArgumentsRoot getParsedArguments() {
 			return ArgumentParser.this.getParsedArguments();
 		}
 
+		/**
+		 * Instantiates the given Command Template class and sets all the fields annotated with {@link Argument.Define}
+		 * corresponding to their respective parsed arguments.
+		 * This method will also instantiate all the sub-commands recursively if defined in the template class properly.
+		 * @param clazz The Command Template class to instantiate.
+		 * @return The instantiated Command Template class.
+		 * @param <T> The type of the Command Template class.
+		 * @see CommandTemplate
+		 */
 		public <T extends CommandTemplate> T into(@NotNull Class<T> clazz) {
-			return AfterParseOptions.into(clazz, this.getParsedArguments(), ArgumentParser.this);
+			return AfterParseOptions.into(clazz, this.getParsedArguments());
 		}
 
+		/**
+		 * {@link #into(Class)} helper method.
+		 * @param clazz The Command Template class to instantiate.
+		 * @param parsedArgs The parsed arguments to set the fields of the Command Template class.
+		 */
 		private static <T extends CommandTemplate> T into(
 			@NotNull Class<T> clazz,
-			@NotNull ParsedArguments parsedArgs,
-			@NotNull Command cmd
+			@NotNull ParsedArguments parsedArgs
 		)
 		{
 			final T instance = UtlReflection.instantiate(clazz);
@@ -341,18 +379,23 @@ public class ArgumentParser extends Command {
 						);
 					});
 
-				AfterParseOptions.into$handleCommandAccessor(instance, field, parsedArgs, cmd);
+				AfterParseOptions.into$handleCommandAccessor(instance, field, parsedArgs);
 			}
 
 			return instance;
 		}
 
+		/**
+		 * {@link #into(Class)} helper method. Handles the {@link CommandTemplate.CommandAccessor} annotation.
+		 * @param parsedTemplateInstance The instance of the current Command Template class.
+		 * @param commandAccesorField The field annotated with {@link CommandTemplate.CommandAccessor}.
+		 * @param parsedArgs The parsed arguments to set the fields of the Command Template class.
+		 */
 		@SuppressWarnings("unchecked")
 		private static <T extends CommandTemplate> void into$handleCommandAccessor(
 			@NotNull T parsedTemplateInstance,
 			@NotNull Field commandAccesorField,
-			@NotNull ParsedArguments parsedArgs,
-			@NotNull Command cmd
+			@NotNull ParsedArguments parsedArgs
 		)
 		{
 			final Class<?> fieldType = commandAccesorField.getType();
@@ -369,8 +412,7 @@ public class ArgumentParser extends Command {
 				commandAccesorField.set(parsedTemplateInstance,
 					AfterParseOptions.into(
 						(Class<T>)fieldType,
-						parsedArgs.getSubParsedArgs(cmdName),
-						cmd.getCommand(cmdName)
+						parsedArgs.getSubParsedArgs(cmdName)
 					)
 				);
 			} catch (IllegalAccessException e) {

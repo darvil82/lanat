@@ -6,8 +6,8 @@ import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class BooleanArgument extends ArgumentType<Boolean> {
-	public BooleanArgument() {
+public class BooleanArgumentType extends ArgumentType<Boolean> {
+	public BooleanArgumentType() {
 		super(false);
 	}
 

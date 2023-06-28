@@ -1,6 +1,6 @@
 package lanat;
 
-import lanat.argumentTypes.BooleanArgument;
+import lanat.argumentTypes.BooleanArgumentType;
 import lanat.argumentTypes.DummyArgumentType;
 import lanat.exceptions.ArgumentAlreadyExistsException;
 import lanat.parsing.errors.CustomError;
@@ -212,12 +212,12 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	/**
-	 * Creates an argument builder with a {@link BooleanArgument} type.
+	 * Creates an argument builder with a {@link BooleanArgumentType} type.
 	 *
 	 * @param names the names of the argument. See {@link Argument#addNames(String...)} for more information.
 	 */
-	public static ArgumentBuilder<BooleanArgument, Boolean> createOfBoolType(@NotNull String... names) {
-		return Argument.create(new BooleanArgument()).withNames(names);
+	public static ArgumentBuilder<BooleanArgumentType, Boolean> createOfBoolType(@NotNull String... names) {
+		return Argument.create(new BooleanArgumentType()).withNames(names);
 	}
 
 

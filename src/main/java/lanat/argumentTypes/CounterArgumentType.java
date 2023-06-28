@@ -6,8 +6,8 @@ import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class CounterArgument extends ArgumentType<Integer> {
-	public CounterArgument() {
+public class CounterArgumentType extends ArgumentType<Integer> {
+	public CounterArgumentType() {
 		super(0);
 	}
 

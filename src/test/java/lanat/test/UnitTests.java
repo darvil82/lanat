@@ -3,7 +3,7 @@ package lanat.test;
 import lanat.Argument;
 import lanat.ArgumentType;
 import lanat.Command;
-import lanat.argumentTypes.TupleArgumentType;
+import lanat.argumentTypes.TupleArgumentTypeType;
 import lanat.helpRepresentation.HelpFormatter;
 import lanat.utils.Range;
 import lanat.utils.displayFormatter.TextFormatter;
@@ -14,7 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-class StringJoiner extends TupleArgumentType<String> {
+class StringJoiner extends TupleArgumentTypeType<String> {
 	public StringJoiner() {
 		super(Range.from(1).to(3), "");
 	}

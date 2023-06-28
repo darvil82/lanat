@@ -252,55 +252,55 @@ public abstract class ArgumentType<T>
 	}
 
 	// Easy to access values. These are methods because we don't want to use the same instance everywhere.
-	public static IntArgument INTEGER() {
-		return new IntArgument();
+	public static IntArgumentType INTEGER() {
+		return new IntArgumentType();
 	}
 
-	public static IntRangeArgument INTEGER_RANGE(int min, int max) {
-		return new IntRangeArgument(min, max);
+	public static IntRangeArgumentType INTEGER_RANGE(int min, int max) {
+		return new IntRangeArgumentType(min, max);
 	}
 
-	public static FloatArgument FLOAT() {
-		return new FloatArgument();
+	public static FloatArgumentType FLOAT() {
+		return new FloatArgumentType();
 	}
 
-	public static BooleanArgument BOOLEAN() {
-		return new BooleanArgument();
+	public static BooleanArgumentType BOOLEAN() {
+		return new BooleanArgumentType();
 	}
 
-	public static CounterArgument COUNTER() {
-		return new CounterArgument();
+	public static CounterArgumentType COUNTER() {
+		return new CounterArgumentType();
 	}
 
-	public static FileArgument FILE() {
-		return new FileArgument();
+	public static FileArgumentType FILE() {
+		return new FileArgumentType();
 	}
 
-	public static StringArgument STRING() {
-		return new StringArgument();
+	public static StringArgumentType STRING() {
+		return new StringArgumentType();
 	}
 
-	public static MultipleStringsArgument STRINGS() {
-		return new MultipleStringsArgument();
+	public static MultipleStringsArgumentType STRINGS() {
+		return new MultipleStringsArgumentType();
 	}
 
-	public static <T extends ArgumentType<Ti>, Ti> KeyValuesArgument<T, Ti> KEY_VALUES(T valueType) {
-		return new KeyValuesArgument<>(valueType);
+	public static <T extends ArgumentType<Ti>, Ti> KeyValuesArgumentType<T, Ti> KEY_VALUES(T valueType) {
+		return new KeyValuesArgumentType<>(valueType);
 	}
 
-	public static <T extends Enum<T>> EnumArgument<T> ENUM(T enumDefault) {
-		return new EnumArgument<>(enumDefault);
+	public static <T extends Enum<T>> EnumArgumentType<T> ENUM(T enumDefault) {
+		return new EnumArgumentType<>(enumDefault);
 	}
 
-	public static StdinArgument STDIN() {
-		return new StdinArgument();
+	public static StdinArgumentType STDIN() {
+		return new StdinArgumentType();
 	}
 
-	public static <T extends Parseable<Ti>, Ti> FromParseableArgument<T, Ti> FROM_PARSEABLE(T parseable) {
-		return new FromParseableArgument<>(parseable);
+	public static <T extends Parseable<Ti>, Ti> FromParseableArgumentType<T, Ti> FROM_PARSEABLE(T parseable) {
+		return new FromParseableArgumentType<>(parseable);
 	}
 
-	public static <T> TryParseArgument<T> TRY_PARSE(Class<T> type) {
-		return new TryParseArgument<>(type);
+	public static <T> TryParseArgumentType<T> TRY_PARSE(Class<T> type) {
+		return new TryParseArgumentType<>(type);
 	}
 }

@@ -5,24 +5,24 @@ import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class FloatArgument extends ArgumentType<Float> {
+public class IntArgumentType extends ArgumentType<Integer> {
 	@Override
-	public Float parseValues(@NotNull String @NotNull [] args) {
+	public Integer parseValues(String @NotNull [] args) {
 		try {
-			return Float.parseFloat(args[0]);
+			return Integer.parseInt(args[0]);
 		} catch (NumberFormatException e) {
-			this.addError("Invalid float value: '" + args[0] + "'.");
+			this.addError("Invalid integer value: '" + args[0] + "'.");
 			return null;
 		}
 	}
 
 	@Override
 	public @NotNull TextFormatter getRepresentation() {
-		return new TextFormatter("float");
+		return new TextFormatter("int");
 	}
 
 	@Override
 	public @Nullable String getDescription() {
-		return "A floating point number.";
+		return "An integer value.";
 	}
 }

@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Scanner;
 
-public class StdinArgument extends ArgumentType<String> {
+public class StdinArgumentType extends ArgumentType<String> {
 	@Override
 	public @NotNull Range getRequiredArgValueCount() {
 		return Range.NONE;

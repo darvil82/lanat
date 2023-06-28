@@ -5,7 +5,7 @@ import lanat.utils.Range;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class MultipleStringsArgument extends ArgumentType<String[]> {
+public class MultipleStringsArgumentType extends ArgumentType<String[]> {
 	@Override
 	public @NotNull Range getRequiredArgValueCount() {
 		return Range.AT_LEAST_ONE;

@@ -14,13 +14,13 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 
-public class TryParseArgument<T> extends ArgumentType<T> {
+public class TryParseArgumentType<T> extends ArgumentType<T> {
 	private final Function<String, Object> parseMethod;
 	private final @NotNull Class<T> type;
 	private static final String[] tryParseMethodNames = new String[] { "valueOf", "from", "parse" };
 
 
-	public TryParseArgument(@NotNull Class<T> type) {
+	public TryParseArgumentType(@NotNull Class<T> type) {
 		this.type = type;
 
 		if ((this.parseMethod = this.getParseMethod()) == null)
@@ -34,11 +34,11 @@ public class TryParseArgument<T> extends ArgumentType<T> {
 		return Modifier.isStatic(executable.getModifiers())
 			&& executable.getParameterCount() == 1
 			&& executable.getParameterTypes()[0] == String.class
-			&& Arrays.asList(TryParseArgument.tryParseMethodNames).contains(executable.getName());
+			&& Arrays.asList(TryParseArgumentType.tryParseMethodNames).contains(executable.getName());
 	}
 
 	private boolean isValidMethod(Method method) {
-		return TryParseArgument.isValidExecutable(method)
+		return TryParseArgumentType.isValidExecutable(method)
 			&& method.getReturnType() == this.type;
 	}
 
@@ -68,7 +68,7 @@ public class TryParseArgument<T> extends ArgumentType<T> {
 
 		// Otherwise, try to find a constructor that takes a string.
 		final var ctor = Stream.of(this.type.getConstructors())
-			.filter(TryParseArgument::isValidExecutable)
+			.filter(TryParseArgumentType::isValidExecutable)
 			.findFirst();
 
 		return ctor.<Function<String, Object>>map(tConstructor -> input -> {

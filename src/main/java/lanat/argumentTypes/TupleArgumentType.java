@@ -8,10 +8,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 
-public abstract class TupleArgumentTypeType<T> extends ArgumentType<T> {
+public abstract class TupleArgumentType<T> extends ArgumentType<T> {
 	private final @NotNull Range argCount;
 
-	public TupleArgumentTypeType(@NotNull Range range, @NotNull T initialValue) {
+	public TupleArgumentType(@NotNull Range range, @NotNull T initialValue) {
 		super(initialValue);
 		this.argCount = range;
 	}

@@ -56,7 +56,7 @@ import java.util.List;
  *   @Argument.Define(names = {"name", "n"}, argType = StringArgumentType.class)
  *   public String name;
  *
- *   @Argument.Define(argType = IntArgument.class, obligatory = true)
+ *   @Argument.Define(argType = IntegerArgumentType.class, obligatory = true)
  *   public Integer number;
  * }
  * }</pre>
@@ -144,8 +144,8 @@ public abstract class CommandTemplate {
 	 *
 	 *   @InitDef
 	 *   public static void beforeInit(CommandBuildHelper cmdBuildHelper) {
-	 *      // set the argument type to IntRangeArgument
-	 *      cmdBuildHelper.<IntRangeArgument, Integer>getArgument("numberRange")
+	 *      // set the argument type to IntegerRangeArgumentType
+	 *      cmdBuildHelper.<IntegerRangeArgumentType, Integer>getArgument("numberRange")
 	 * 			.withArgType(ArgumentType.INTEGER_RANGE(0, 10));
 	 *   }
 	 * }

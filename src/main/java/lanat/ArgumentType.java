@@ -252,12 +252,12 @@ public abstract class ArgumentType<T>
 	}
 
 	// Easy to access values. These are methods because we don't want to use the same instance everywhere.
-	public static IntArgumentType INTEGER() {
-		return new IntArgumentType();
+	public static IntegerArgumentType INTEGER() {
+		return new IntegerArgumentType();
 	}
 
-	public static IntRangeArgumentType INTEGER_RANGE(int min, int max) {
-		return new IntRangeArgumentType(min, max);
+	public static IntegerRangeArgumentType INTEGER_RANGE(int min, int max) {
+		return new IntegerRangeArgumentType(min, max);
 	}
 
 	public static FloatArgumentType FLOAT() {

@@ -5,7 +5,7 @@ import lanat.Command;
 import lanat.CommandTemplate;
 import lanat.argumentTypes.BooleanArgumentType;
 import lanat.argumentTypes.FloatArgumentType;
-import lanat.argumentTypes.IntArgumentType;
+import lanat.argumentTypes.IntegerArgumentType;
 import lanat.argumentTypes.StringArgumentType;
 
 import java.util.Optional;
@@ -13,7 +13,7 @@ import java.util.Optional;
 public class CmdTemplates {
 	@Command.Define(names = "cmd1")
 	public static class CmdTemplate1 extends CommandTemplate {
-		@Argument.Define(argType = IntArgumentType.class)
+		@Argument.Define(argType = IntegerArgumentType.class)
 		public Integer number;
 
 		@Argument.Define(argType = StringArgumentType.class)
@@ -22,7 +22,7 @@ public class CmdTemplates {
 		@Argument.Define(names = { "name1", "f" }, argType = BooleanArgumentType.class)
 		public boolean flag;
 
-		@Argument.Define(argType = IntArgumentType.class)
+		@Argument.Define(argType = IntegerArgumentType.class)
 		public Optional<Integer> numberParsedArgValue = Optional.of(0);
 
 
@@ -34,7 +34,7 @@ public class CmdTemplates {
 			@Argument.Define(argType = FloatArgumentType.class)
 			public Float number;
 
-			@Argument.Define(argType = IntArgumentType.class)
+			@Argument.Define(argType = IntegerArgumentType.class)
 			public Optional<Integer> number2;
 		}
 	}
@@ -47,7 +47,7 @@ public class CmdTemplates {
 
 	@Command.Define
 	public static class CmdTemplate3 extends CommandTemplate {
-		@Argument.Define(argType = IntArgumentType.class, positional = true)
+		@Argument.Define(argType = IntegerArgumentType.class, positional = true)
 		public int number;
 
 		@CommandAccessor
@@ -55,7 +55,7 @@ public class CmdTemplates {
 
 		@Command.Define(names = "cmd3-1")
 		public static class CmdTemplate3_1 extends CommandTemplate {
-			@Argument.Define(argType = IntArgumentType.class, positional = true)
+			@Argument.Define(argType = IntegerArgumentType.class, positional = true)
 			public int number;
 
 			@CommandAccessor
@@ -63,7 +63,7 @@ public class CmdTemplates {
 
 			@Command.Define(names = "cmd3-1-1")
 			public static class CmdTemplate3_1_1 extends CommandTemplate {
-				@Argument.Define(argType = IntArgumentType.class, positional = true)
+				@Argument.Define(argType = IntegerArgumentType.class, positional = true)
 				public int number;
 			}
 		}

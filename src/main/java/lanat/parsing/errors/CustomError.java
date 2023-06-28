@@ -39,7 +39,7 @@ public class CustomError extends ParseStateErrorBase<CustomError.CustomParseErro
 	protected void handleDefault() {
 		this.fmt()
 			.setErrorLevel(this.level)
-			.setContents(this.message);
+			.setContent(this.message);
 
 		if (this.showTokens)
 			this.fmt().displayTokens(this.tokenIndex, 0, false);

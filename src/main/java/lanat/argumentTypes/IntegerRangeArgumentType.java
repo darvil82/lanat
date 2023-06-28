@@ -5,10 +5,10 @@ import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class IntRangeArgumentType extends IntArgumentType {
+public class IntegerRangeArgumentType extends IntegerArgumentType {
 	private final int min, max;
 
-	public IntRangeArgumentType(int min, int max) {
+	public IntegerRangeArgumentType(int min, int max) {
 		if (min > max) {
 			throw new IllegalArgumentException("min must be less than or equal to max");
 		}

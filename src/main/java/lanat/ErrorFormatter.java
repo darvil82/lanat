@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ErrorFormatter {
-	private @NotNull String contents = "";
+	private @NotNull String content = "";
 	private DisplayTokensOptions tokensViewOptions;
 	private @NotNull ErrorLevel errorLevel;
 	private final @NotNull ErrorHandler mainErrorHandler;
@@ -24,8 +24,8 @@ public class ErrorFormatter {
 		ErrorFormatter.generator.setErrorFormatter(this);
 	}
 
-	public ErrorFormatter setContents(@NotNull String contents) {
-		this.contents = contents;
+	public ErrorFormatter setContent(@NotNull String content) {
+		this.content = content;
 		return this;
 	}
 
@@ -135,7 +135,7 @@ public class ErrorFormatter {
 		}
 
 		protected final @NotNull String getContents() {
-			return this.errorFormatter.contents;
+			return this.errorFormatter.content;
 		}
 
 		protected final @NotNull String getContentsWrapped() {

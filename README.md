@@ -31,8 +31,8 @@ class MyProgram {
 	@InitDef
 	public static void beforeInit(@NotNull CommandBuildHelper cmdBuildHelper) {
 		// configure the argument "age" to have an argument type of
-		// IntRangeArgument and set the range to 1-100
-		cmdBuildHelper.<IntRangeArgument, Integer>getArgument("age")
+		// IntegerRangeArgumentType and set the range to 1-100
+		cmdBuildHelper.<IntegerRangeArgumentType, Integer>getArgument("age")
 			.withArgType(ArgumentType.INTEGER_RANGE(1, 100))
 			.onOk(v -> System.out.println("The age is valid!"));
 	}

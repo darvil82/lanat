@@ -3,15 +3,20 @@ package lanat.exceptions;
 import lanat.NamedWithDescription;
 import lanat.utils.UtlReflection;
 import lanat.utils.UtlString;
+import org.jetbrains.annotations.NotNull;
 
 /**
- * Thrown when an object is added to a container that
- * already contains an object equal to the added one.
- * */
-class ObjectAlreadyExistsException extends LanatException {
-	public ObjectAlreadyExistsException(NamedWithDescription obj, NamedWithDescription container) {
+ * Thrown when an object is added to a container that already contains an object equal to the added one.
+ */
+public abstract class ObjectAlreadyExistsException extends LanatException {
+	public ObjectAlreadyExistsException(
+		@NotNull String typeName,
+		@NotNull NamedWithDescription obj,
+		@NotNull NamedWithDescription container
+	)
+	{
 		super(
-			UtlReflection.getSimpleName(obj.getClass())
+			typeName
 				+ " "
 				+ UtlString.surround(obj.getName())
 				+ " already exists in "

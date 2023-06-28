@@ -10,8 +10,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Changes the format of the text. (e.g. {@code <format=bold>}).
- * The available formats are the ones defined in {@link FormatOption}. The format name is case-insensitive.
+ * Changes the format of the text. (e.g. {@code <format=bold>}). The available formats are the ones defined in
+ * {@link FormatOption}. The format name is case-insensitive.
  * <p>
  * The names that may be used are:
  * <ul>
@@ -61,7 +61,8 @@ public class FormatTag extends Tag {
 			case "reverse", "re" -> FormatOption.REVERSE;
 			case "hidden", "h" -> FormatOption.HIDDEN;
 			case "strike", "s" -> FormatOption.STRIKE_THROUGH;
-			default -> throw new MalformedTagException("format", "unknown format name " + UtlString.surround(formatName));
+			default ->
+				throw new MalformedTagException("format", "unknown format name " + UtlString.surround(formatName));
 		};
 	}
 }

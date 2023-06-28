@@ -10,10 +10,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Objects;
 
-public class KeyValuesArgument<T extends ArgumentType<Ts>, Ts> extends ArgumentType<HashMap<String, Ts>> {
+public class KeyValuesArgumentType<T extends ArgumentType<Ts>, Ts> extends ArgumentType<HashMap<String, Ts>> {
 	private final @NotNull ArgumentType<Ts> valueType;
 
-	public KeyValuesArgument(@NotNull T type) {
+	public KeyValuesArgumentType(@NotNull T type) {
 		if (type.getRequiredArgValueCount().min() != 1)
 			throw new IllegalArgumentException("The value type must at least accept one value.");
 

@@ -1,6 +1,8 @@
-package lanat.test;
+package lanat.test.units;
 
 import lanat.*;
+import lanat.test.TestingParser;
+import lanat.test.UnitTests;
 import lanat.utils.ErrorCallbacks;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,17 +46,17 @@ public class TestErrors extends UnitTests {
 	}
 
 	@Override
-	public void setParser() {
-		this.parser = this.addCallbacks(new TestingParser("TestCallbacks") {{
+	protected TestingParser setParser() {
+		return this.addCallbacks(new TestingParser("TestCallbacks") {{
 			this.setErrorCode(5);
 
-			this.addArgument(TestErrors.this.addCallbacks(Argument.create("bool-arg", ArgumentType.BOOLEAN())));
-			this.addArgument(TestErrors.this.addCallbacks(Argument.create("int-arg", ArgumentType.INTEGER())));
-			this.addArgument(TestErrors.this.addCallbacks(Argument.create("counter", ArgumentType.COUNTER())));
-			this.addArgument(TestErrors.this.addCallbacks(Argument.create("float", ArgumentType.FLOAT())));
+			this.addArgument(TestErrors.this.addCallbacks(Argument.create(ArgumentType.BOOLEAN(), "bool-arg").build()));
+			this.addArgument(TestErrors.this.addCallbacks(Argument.create(ArgumentType.INTEGER(), "int-arg").build()));
+			this.addArgument(TestErrors.this.addCallbacks(Argument.create(ArgumentType.COUNTER(), "counter").build()));
+			this.addArgument(TestErrors.this.addCallbacks(Argument.create(ArgumentType.FLOAT(), "float").build()));
 
-			this.addSubCommand(TestErrors.this.addCallbacks(new Command("sub") {{
-				this.addArgument(TestErrors.this.addCallbacks(Argument.create("sub-float", ArgumentType.FLOAT())));
+			this.addCommand(TestErrors.this.addCallbacks(new Command("sub") {{
+				this.addArgument(TestErrors.this.addCallbacks(Argument.create(ArgumentType.FLOAT(), "sub-float").build()));
 				this.setErrorCode(2);
 			}}));
 		}});
@@ -62,9 +64,9 @@ public class TestErrors extends UnitTests {
 
 	@Test
 	@DisplayName("Test the argument callbacks (onOk and onErr) (ArgumentCallbacksOption.NO_ERROR_IN_ARGUMENT)")
-	public void testArgumentCallbacks__NoErrorInArg() {
-		this.parser.invokeCallbacksWhen(CallbacksInvocationOption.NO_ERROR_IN_ARGUMENT);
-		this.parser.parseArgs("--bool-arg --int-arg foo --float 55.0 sub --sub-float bar");
+	public void testArgumentCallbacks$NoErrorInArg() {
+		this.parser.setCallbackInvocationOption(CallbacksInvocationOption.NO_ERROR_IN_ARGUMENT);
+		this.parser.parseGetValues("--bool-arg --int-arg foo --float 55.0 sub --sub-float bar");
 
 		this.assertOk("bool-arg", true);
 		this.assertErr("int-arg");
@@ -76,7 +78,7 @@ public class TestErrors extends UnitTests {
 	@Test
 	@DisplayName("Test the argument callbacks (onOk and onErr) (ArgumentCallbacksOption.(DEFAULT)))")
 	public void testArgumentCallbacks() {
-		this.parser.parseArgs("--bool-arg --float foo sub --sub-float 5.23");
+		this.parser.parseGetValues("--bool-arg --float foo sub --sub-float 5.23");
 
 		this.assertNotPresent("bool-arg");
 		this.assertNotPresent("counter");
@@ -87,7 +89,7 @@ public class TestErrors extends UnitTests {
 	@Test
 	@DisplayName("Test the command callbacks (onOk and onErr)")
 	public void testCommandCallbacks() {
-		this.parser.parseArgs("sub --sub-float bar");
+		this.parser.parseGetValues("sub --sub-float bar");
 		this.assertErr("sub-float");
 		this.assertErr(this.parser.getName());
 	}
@@ -95,7 +97,7 @@ public class TestErrors extends UnitTests {
 	@Test
 	@DisplayName("The error code must be the result of 5 | 2 = 7")
 	public void testCommandsErrorCode() {
-		this.parser.parseArgs("sub --sub-float bar");
+		this.parser.parseGetValues("sub --sub-float bar");
 		assertEquals(this.parser.getErrorCode(), 7);
 	}
 }

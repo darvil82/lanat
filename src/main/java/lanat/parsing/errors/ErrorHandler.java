@@ -23,10 +23,10 @@ public class ErrorHandler {
 	}
 
 	/**
-	 * Handles all errors and returns a list of them.
+	 * Handles all errors and returns a list of error messages generated.
 	 */
-	public @NotNull List<@NotNull String> handleErrorsGetMessages() {
-		final List<Command> commands = this.rootCmd.getTokenizer().getTokenizedSubCommands();
+	public @NotNull List<@NotNull String> handleErrors() {
+		final List<Command> commands = this.rootCmd.getTokenizer().getTokenizedCommands();
 		final ArrayList<String> errors = new ArrayList<>();
 
 		for (int i = 0; i < commands.size(); i++) {
@@ -59,16 +59,16 @@ public class ErrorHandler {
 	 * token list like this:<br>
 	 * <pre>{@code
 	 * {
-	 *   SUB_COMMAND,
+	 *   COMMAND,
 	 *   ARGUMENT_NAME,
 	 *   ARGUMENT_VALUE,
-	 *   SUB_COMMAND, // <- here
+	 *   COMMAND, // <- here
 	 *   ARGUMENT_NAME_LIST,
-	 *   SUB_COMMAND,
+	 *   COMMAND,
 	 *   ARGUMENT_NAME
 	 * }}</pre>
-	 * The nesting level of the second Sub-Command is <strong>1</strong> (starting at 0), and its index in the token list
-	 * is <strong>3</strong>.
+	 * The nesting level of the second Sub-Command is <strong>1</strong> (starting at 0), and its index in the token
+	 * list is <strong>3</strong>.
 	 *
 	 * @return <code>-1</code> if the command is not found.
 	 */
@@ -85,10 +85,6 @@ public class ErrorHandler {
 		}
 
 		return -1;
-	}
-
-	public int getErrorCode() {
-		return this.rootCmd.getErrorCode();
 	}
 
 	public @NotNull Command getRootCmd() {

@@ -11,7 +11,7 @@ public class NoDescriptionDefinedException extends LanatException {
 	public NoDescriptionDefinedException(@NotNull NamedWithDescription user) {
 		super(
 			"No description defined for "
-			+ UtlReflection.getSimpleName(user.getClass()) + " " + UtlString.surround(user.getName())
+				+ UtlReflection.getSimpleName(user.getClass()) + " " + UtlString.surround(user.getName())
 		);
 	}
 }

@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class ErrorsContainerImpl<T extends ErrorLevelProvider> implements ErrorsContainer<T> {
-	private @NotNull ModifyRecord<ErrorLevel> minimumExitErrorLevel = new ModifyRecord<>(ErrorLevel.ERROR);
-	private @NotNull ModifyRecord<ErrorLevel> minimumDisplayErrorLevel = new ModifyRecord<>(ErrorLevel.INFO);
+	private @NotNull ModifyRecord<ErrorLevel> minimumExitErrorLevel = ModifyRecord.of(ErrorLevel.ERROR);
+	private @NotNull ModifyRecord<ErrorLevel> minimumDisplayErrorLevel = ModifyRecord.of(ErrorLevel.INFO);
 	private final @NotNull List<T> errors = new ArrayList<>();
 
 	public ErrorsContainerImpl() {}

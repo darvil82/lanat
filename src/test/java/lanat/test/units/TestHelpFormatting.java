@@ -1,4 +1,4 @@
-package lanat.test;
+package lanat.test.units;
 
 import lanat.Argument;
 import lanat.ArgumentType;
@@ -6,6 +6,8 @@ import lanat.helpRepresentation.HelpFormatter;
 import lanat.helpRepresentation.LayoutItem;
 import lanat.helpRepresentation.descriptions.DescriptionFormatter;
 import lanat.helpRepresentation.descriptions.exceptions.InvalidRouteException;
+import lanat.test.TestingParser;
+import lanat.test.UnitTests;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -16,18 +18,8 @@ public class TestHelpFormatting extends UnitTests {
 	private HelpFormatter helpFormatter;
 
 	@Override
-	public void setParser() {
-		this.parser = new TestingParser(
-			"TestHelpFormatting",
-			"description of <link=args.arg1>: (<desc=args.arg1>)"
-		) {{
-			this.addArgument(Argument.create("arg1", "a1")
-				.description("description of arg2: (<desc=args.arg2>)"));
-			this.addArgument(Argument.create("arg2", ArgumentType.COUNTER())
-				.description("description of my type: (<desc=!.type>) i am in the command <link>"));
-		}};
-
-		this.helpFormatter = new HelpFormatter(this.parser) {
+	protected TestingParser setParser() {
+		this.helpFormatter = new HelpFormatter() {
 			@Override
 			protected void initLayout() {
 				this.setLayout(
@@ -35,6 +27,17 @@ public class TestHelpFormatting extends UnitTests {
 				);
 			}
 		};
+
+		return new TestingParser(
+			"TestHelpFormatting",
+			"description of <link=args.arg1>: (<desc=args.arg1>)"
+		)
+		{{
+			this.addArgument(Argument.createOfBoolType("arg1", "a1")
+				.withDescription("description of arg2: (<desc=args.arg2>)"));
+			this.addArgument(Argument.create(ArgumentType.COUNTER(), "arg2")
+				.withDescription("description of my type: (<desc=!.type>) i am in the command <link>"));
+		}};
 	}
 
 	@Test
@@ -43,7 +46,7 @@ public class TestHelpFormatting extends UnitTests {
 		assertEquals(
 			"description of --arg1/a1: (description of arg2: (description of my type: "
 				+ "(Counts the number of times this argument is used.) i am in the command TestHelpFormatting))",
-			this.helpFormatter.toString()
+			this.helpFormatter.generate(this.parser)
 		);
 	}
 

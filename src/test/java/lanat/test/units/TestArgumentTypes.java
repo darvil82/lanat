@@ -1,7 +1,9 @@
-package lanat.test;
+package lanat.test.units;
 
 import lanat.Argument;
 import lanat.ArgumentType;
+import lanat.test.TestingParser;
+import lanat.test.UnitTests;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -15,33 +17,33 @@ public class TestArgumentTypes extends UnitTests {
 	}
 
 	@Override
-	public void setParser() {
-		this.parser = new TestingParser("TestArgumentTypes") {{
-			this.addArgument(Argument.create("boolean", ArgumentType.BOOLEAN()));
+	protected TestingParser setParser() {
+		return new TestingParser("TestArgumentTypes") {{
+			this.addArgument(Argument.create(ArgumentType.BOOLEAN(), "boolean"));
 			this.addArgument(Argument.create(ArgumentType.COUNTER(), "counter", "c"));
-			this.addArgument(Argument.create("integer", ArgumentType.INTEGER()));
-			this.addArgument(Argument.create("float", ArgumentType.FLOAT()));
-			this.addArgument(Argument.create("string", ArgumentType.STRING()));
-			this.addArgument(Argument.create("multiple-strings", ArgumentType.STRINGS()));
-			this.addArgument(Argument.create("file", ArgumentType.FILE()));
-			this.addArgument(Argument.create("enum", ArgumentType.ENUM(TestEnum.TWO)));
-			this.addArgument(Argument.create("key-value", ArgumentType.KEY_VALUES(ArgumentType.INTEGER())));
-			this.addArgument(Argument.create("int-range", ArgumentType.INTEGER_RANGE(3, 10)));
-			this.addArgument(Argument.create("try-parse", ArgumentType.TRY_PARSE(Double.class)));
+			this.addArgument(Argument.create(ArgumentType.INTEGER(), "integer"));
+			this.addArgument(Argument.create(ArgumentType.FLOAT(), "float"));
+			this.addArgument(Argument.create(ArgumentType.STRING(), "string"));
+			this.addArgument(Argument.create(ArgumentType.STRINGS(), "multiple-strings"));
+			this.addArgument(Argument.create(ArgumentType.FILE(), "file"));
+			this.addArgument(Argument.create(ArgumentType.ENUM(TestEnum.TWO), "enum"));
+			this.addArgument(Argument.create(ArgumentType.KEY_VALUES(ArgumentType.INTEGER()), "key-value"));
+			this.addArgument(Argument.create(ArgumentType.INTEGER_RANGE(3, 10), "int-range"));
+			this.addArgument(Argument.create(ArgumentType.TRY_PARSE(Double.class), "try-parse"));
 		}};
 	}
 
 	@Test
 	public void testBoolean() {
-		assertEquals(Boolean.TRUE, this.parser.parseArgs("--boolean").<Boolean>get("boolean").get());
-		assertEquals(Boolean.FALSE, this.parser.parseArgs("").<Boolean>get("boolean").get());
+		assertEquals(Boolean.TRUE, this.parser.parseGetValues("--boolean").<Boolean>get("boolean").get());
+		assertEquals(Boolean.FALSE, this.parser.parseGetValues("").<Boolean>get("boolean").get());
 	}
 
 	@Test
 	public void testCounter() {
-		assertEquals(0, this.parser.parseArgs("").<Integer>get("counter").get());
-		assertEquals(1, this.parser.parseArgs("-c").<Integer>get("counter").get());
-		assertEquals(4, this.parser.parseArgs("-cccc").<Integer>get("counter").get());
+		assertEquals(0, this.parser.parseGetValues("").<Integer>get("counter").get());
+		assertEquals(1, this.parser.parseGetValues("-c").<Integer>get("counter").get());
+		assertEquals(4, this.parser.parseGetValues("-cccc").<Integer>get("counter").get());
 	}
 
 	@Test
@@ -84,7 +86,7 @@ public class TestArgumentTypes extends UnitTests {
 		assertEquals(TestEnum.ONE, this.parseArg("enum", "ONE"));
 		assertEquals(TestEnum.TWO, this.parseArg("enum", "TWO"));
 		assertEquals(TestEnum.THREE, this.parseArg("enum", "THREE"));
-		assertEquals(TestEnum.TWO, this.parser.parseArgs("").get("enum").get());
+		assertEquals(TestEnum.TWO, this.parser.parseGetValues("").get("enum").get());
 	}
 
 	@Test

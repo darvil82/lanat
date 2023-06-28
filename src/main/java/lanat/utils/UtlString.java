@@ -12,7 +12,7 @@ public final class UtlString {
 	private UtlString() {}
 
 	/**
-	 * Apply a predicate for each character in the string, if any fails, return <code>false</code>.
+	 * Apply a predicate for each character in the string, if any fails, return {@code false}.
 	 *
 	 * @param str The string to check.
 	 * @param fn The predicate to apply to each character.
@@ -25,10 +25,11 @@ public final class UtlString {
 	}
 
 	/**
-	 * Wrap a string in two strings at both sides.
+	 * Wrap a string in two strings at both sides. If the string is <code>null</code>, it will be replaced with
+	 * <code>"null"</code>.
 	 */
 	public static @NotNull String surround(@Nullable String str, @NotNull String wrapper) {
-		return wrapper + str + wrapper;
+		return str == null ? "null" : wrapper + str + wrapper;
 	}
 
 	/**
@@ -45,15 +46,23 @@ public final class UtlString {
 		return Arrays.stream(str.split("\n")).min((a, b) -> b.length() - a.length()).orElse("");
 	}
 
-	public static @NotNull String sanitizeName(@NotNull String name) {
-		// remove all non-alphanumeric characters
-		final var sanitized = UtlString.strip(name.replaceAll("[^a-zA-Z0-9 -]", ""), "[^a-zA-Z0-9]")
-			.replaceAll(" ", "-");
 
-		if (sanitized.isEmpty())
-			throw new IllegalArgumentException("name must contain at least one alphanumeric character");
+	/**
+	 * Check if a string is a valid name for it to be used in an element.
+	 * @param name The name to check.
+	 * @throws IllegalArgumentException if the name is invalid.
+	 */
+	public static @NotNull String requireValidName(@NotNull String name) {
+		if (name.length() == 0)
+			throw new IllegalArgumentException("name must contain at least one character");
 
-		return sanitized;
+		if (!Character.isAlphabetic(name.charAt(0)))
+			throw new IllegalArgumentException("name must start with an alphabetic character or an underscore");
+
+		if (!name.matches("[a-zA-Z0-9_-]+"))
+			throw new IllegalArgumentException("name must only contain alphanumeric characters and underscores and dashes");
+
+		return name;
 	}
 
 	/**
@@ -178,6 +187,7 @@ public final class UtlString {
 
 	/**
 	 * Remove all leading and trailing occurrences of the given regex from the string.
+	 *
 	 * @param str the string to strip
 	 * @param regex the regex to remove
 	 * @return the stripped string
@@ -195,8 +205,9 @@ public final class UtlString {
 	}
 
 	/**
-	 * Returns the count given appended to the string given. An <code>'s'</code> will be appended at the end if
-	 * the count is not 1.
+	 * Returns the count given appended to the string given. An <code>'s'</code> will be appended at the end if the
+	 * count is not 1.
+	 *
 	 * @param str the string to append to
 	 * @param count the count
 	 * @return "count str" or "count strs" depending on the count
@@ -207,6 +218,7 @@ public final class UtlString {
 
 	/**
 	 * Returns the string given if it is not null, otherwise returns an empty string.
+	 *
 	 * @param str the string to check
 	 * @return the string given or an empty string
 	 */
@@ -216,6 +228,7 @@ public final class UtlString {
 
 	/**
 	 * Returns true if the string given is null or empty.
+	 *
 	 * @param str the string to check
 	 * @return true if the string is null or empty
 	 */
@@ -224,8 +237,9 @@ public final class UtlString {
 	}
 
 	/**
-	 * Split a string by the given splitter. This is similar to {@link String#split(String)} but it will also
-	 * ignore spaces around the splitter.
+	 * Split a string by the given splitter. This is similar to {@link String#split(String)} but it will also ignore
+	 * spaces around the splitter.
+	 *
 	 * @param str the string to split
 	 * @param splitter the splitter
 	 * @param max the maximum amount of splits
@@ -237,6 +251,7 @@ public final class UtlString {
 
 	/**
 	 * {@link UtlString#split(String, String, int)} with max set to -1. (Default of {@link String#split(String)})
+	 *
 	 * @see UtlString#split(String, String, int)
 	 */
 	public static @NotNull String @NotNull [] split(@NotNull String str, @NotNull String splitter) {
@@ -244,8 +259,9 @@ public final class UtlString {
 	}
 
 	/**
-	 * Split a string by the given splitter. This is similar to {@link String#split(String)} but it will also
-	 * ignore spaces around the splitter.
+	 * Split a string by the given splitter. This is similar to {@link String#split(String)} but it will also ignore
+	 * spaces around the splitter.
+	 *
 	 * @param str the string to split
 	 * @param splitter the splitter
 	 * @return the split string
@@ -256,6 +272,7 @@ public final class UtlString {
 
 	/**
 	 * {@link UtlString#split(String, char, int)} with max set to -1. (Default of {@link String#split(String)})
+	 *
 	 * @see UtlString#split(String, char, int)
 	 */
 	public static @NotNull String @NotNull [] split(@NotNull String str, char splitter) {

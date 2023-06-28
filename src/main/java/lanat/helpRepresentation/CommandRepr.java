@@ -18,12 +18,13 @@ public final class CommandRepr {
 	 * <pre>
 	 * {&lt;sub-command1&gt; | &lt;sub-command2&gt; | ...}
 	 * </pre>
+	 *
 	 * @param cmd the command
 	 * @return the representation of the sub-commands of the command
 	 */
 	public static @NotNull String getSubCommandsRepresentation(@NotNull Command cmd) {
 		return '{'
-			+ String.join(" | ", cmd.getSubCommands().stream().map(CommandRepr::getRepresentation).toList())
+			+ String.join(" | ", cmd.getCommands().stream().map(CommandRepr::getRepresentation).toList())
 			+ '}';
 	}
 
@@ -33,6 +34,7 @@ public final class CommandRepr {
 	 * {@code <names>}
 	 * <p>
 	 * The names are separated by a slash.
+	 *
 	 * @param cmd the command
 	 * @return the representation of the command
 	 */
@@ -45,6 +47,7 @@ public final class CommandRepr {
 
 	/**
 	 * Returns the parsed description of the given command.
+	 *
 	 * @param cmd the command
 	 * @return the parsed description of the command
 	 */
@@ -64,11 +67,12 @@ public final class CommandRepr {
 	 *
 	 * ...
 	 * </pre>
+	 *
 	 * @param cmd the command
 	 * @return the name and representation of the sub-commands of the command
 	 */
 	public static @Nullable String getSubCommandsDescriptions(@NotNull Command cmd) {
-		final var subCommands = cmd.getSubCommands();
+		final var subCommands = cmd.getCommands();
 		if (subCommands.isEmpty()) return null;
 		final var buff = new StringBuilder();
 

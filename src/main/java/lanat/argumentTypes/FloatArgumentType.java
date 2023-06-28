@@ -5,7 +5,7 @@ import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class FloatArgument extends ArgumentType<Float> {
+public class FloatArgumentType extends ArgumentType<Float> {
 	@Override
 	public Float parseValues(@NotNull String @NotNull [] args) {
 		try {

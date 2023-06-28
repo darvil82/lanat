@@ -6,10 +6,10 @@ import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class FromParseableArgument<T extends Parseable<TInner>, TInner> extends ArgumentType<TInner> {
+public class FromParseableArgumentType<T extends Parseable<TInner>, TInner> extends ArgumentType<TInner> {
 	private final @NotNull T parseable;
 
-	public FromParseableArgument(@NotNull T parseable) {
+	public FromParseableArgumentType(@NotNull T parseable) {
 		this.parseable = parseable;
 	}
 

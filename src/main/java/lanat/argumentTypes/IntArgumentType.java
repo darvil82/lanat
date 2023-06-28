@@ -5,7 +5,7 @@ import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class IntArgument extends ArgumentType<Integer> {
+public class IntArgumentType extends ArgumentType<Integer> {
 	@Override
 	public Integer parseValues(String @NotNull [] args) {
 		try {
@@ -23,6 +23,6 @@ public class IntArgument extends ArgumentType<Integer> {
 
 	@Override
 	public @Nullable String getDescription() {
-		return "An integer.";
+		return "An integer value.";
 	}
 }

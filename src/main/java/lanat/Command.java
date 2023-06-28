@@ -1,9 +1,7 @@
 package lanat;
 
-import lanat.commandTemplates.DefaultCommandTemplate;
-import lanat.exceptions.ArgumentAlreadyExistsException;
-import lanat.exceptions.ArgumentGroupAlreadyExistsException;
 import lanat.exceptions.CommandAlreadyExistsException;
+import lanat.exceptions.CommandTemplateException;
 import lanat.helpRepresentation.HelpFormatter;
 import lanat.parsing.Parser;
 import lanat.parsing.Token;
@@ -15,11 +13,14 @@ import lanat.utils.displayFormatter.Color;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 /**
  * <h2>Command</h2>
@@ -32,12 +33,13 @@ import java.util.function.Consumer;
 public class Command
 	extends ErrorsContainerImpl<CustomError>
 	implements ErrorCallbacks<ParsedArguments, Command>,
-		ArgumentAdder,
-		ArgumentGroupAdder,
-		Resettable,
-		MultipleNamesAndDescription<Command>,
-		ParentElementGetter<Command>,
-		CommandUser
+	ArgumentAdder,
+	ArgumentGroupAdder,
+	CommandAdder,
+	CommandUser,
+	Resettable,
+	MultipleNamesAndDescription,
+	ParentElementGetter<Command>
 {
 	private final @NotNull List<@NotNull String> names = new ArrayList<>();
 	public @Nullable String description;
@@ -45,75 +47,106 @@ public class Command
 	final @NotNull ArrayList<@NotNull Command> subCommands = new ArrayList<>();
 	private Command parentCommand;
 	final @NotNull ArrayList<@NotNull ArgumentGroup> argumentGroups = new ArrayList<>();
-	private final @NotNull ModifyRecord<@NotNull TupleCharacter> tupleChars = new ModifyRecord<>(TupleCharacter.SQUARE_BRACKETS);
-	private final @NotNull ModifyRecord<@NotNull Integer> errorCode = new ModifyRecord<>(1);
+	private final @NotNull ModifyRecord<@NotNull TupleCharacter> tupleChars = ModifyRecord.of(TupleCharacter.SQUARE_BRACKETS);
+	private final @NotNull ModifyRecord<@NotNull Integer> errorCode = ModifyRecord.of(1);
 
 	// error handling callbacks
 	private @Nullable Consumer<Command> onErrorCallback;
 	private @Nullable Consumer<ParsedArguments> onCorrectCallback;
 
-	private final @NotNull ModifyRecord<HelpFormatter> helpFormatter = new ModifyRecord<>(new HelpFormatter(this));
+	private final @NotNull ModifyRecord<HelpFormatter> helpFormatter = ModifyRecord.of(new HelpFormatter());
 	private final @NotNull ModifyRecord<@NotNull CallbacksInvocationOption> callbackInvocationOption =
-		new ModifyRecord<>(CallbacksInvocationOption.NO_ERROR_IN_ALL_COMMANDS);
+		ModifyRecord.of(CallbacksInvocationOption.NO_ERROR_IN_ALL_COMMANDS);
 
 	/** A pool of the colors that an argument may have when being represented on the help. */
 	final @NotNull LoopPool<@NotNull Color> colorsPool = LoopPool.atRandomIndex(Color.getBrightColors());
 
 
-	public Command(@NotNull String name, @Nullable String description, CommandTemplate template) {
+	/**
+	 * Creates a new command with the given name and description.
+	 * @param name The name of the command. This is the name the user will use to indicate that they want to use this
+	 * 		   command.
+	 * @param description The description of the command.
+	 * @see #setDescription(String)
+	 */
+	public Command(@NotNull String name, @Nullable String description) {
 		this.addNames(name);
 		this.description = description;
-		template.applyTo(this);
 	}
 
-	public Command(@NotNull String name, @Nullable String description) {
-		this(name, description, new DefaultCommandTemplate());
-	}
-
+	/**
+	 * Creates a new command with the given name and no description. This is the name the user will use to
+	 * indicate that they want to use this command.
+	 * @param name The name of the command.
+	 */
 	public Command(@NotNull String name) {
 		this(name, null);
+	}
+
+	/**
+	 * Creates a new command based on the given {@link CommandTemplate}. This does not take Sub-Commands into account.
+	 * @param templateClass The class of the template to use.
+	 * @see CommandTemplate
+	 */
+	public Command(@NotNull Class<? extends CommandTemplate> templateClass) {
+		this.addNames(CommandTemplate.getTemplateNames(templateClass));
+		this.from$recursive(templateClass);
 	}
 
 	@Override
 	public <T extends ArgumentType<TInner>, TInner>
 	void addArgument(@NotNull Argument<T, TInner> argument) {
-		argument.setParentCommand(this); // has to be done before checking for duplicates
-		if (this.arguments.stream().anyMatch(a -> a.equals(argument))) {
-			throw new ArgumentAlreadyExistsException(argument, this);
-		}
+		argument.registerToCommand(this);
 		this.arguments.add(argument);
+		this.checkUniqueArguments();
 	}
 
 	@Override
 	public void addGroup(@NotNull ArgumentGroup group) {
-		if (this.argumentGroups.stream().anyMatch(g -> g.name.equals(group.name))) {
-			throw new ArgumentGroupAlreadyExistsException(group, this);
-		}
-		group.registerGroup(this);
+		group.registerToCommand(this);
 		this.argumentGroups.add(group);
+		this.checkUniqueGroups();
 	}
 
 	@Override
-	public @NotNull List<@NotNull ArgumentGroup> getSubGroups() {
+	public @NotNull List<@NotNull ArgumentGroup> getGroups() {
 		return Collections.unmodifiableList(this.argumentGroups);
 	}
 
-	public void addSubCommand(@NotNull Command cmd) {
-		if (this.subCommands.stream().anyMatch(a -> a.hasName(cmd.names.get(0)))) {
-			throw new CommandAlreadyExistsException(cmd, this);
-		}
-
+	@Override
+	public void addCommand(@NotNull Command cmd) {
 		if (cmd instanceof ArgumentParser) {
 			throw new IllegalArgumentException("cannot add root command as Sub-Command");
 		}
 
+		if (cmd == this) {
+			throw new IllegalArgumentException("cannot add command to itself");
+		}
+
+		cmd.registerToCommand(this);
 		this.subCommands.add(cmd);
-		cmd.parentCommand = this;
+		this.checkUniqueSubCommands();
 	}
 
-	public @NotNull List<@NotNull Command> getSubCommands() {
+	@Override
+	public void registerToCommand(@NotNull Command parentCommand) {
+		if (this.parentCommand != null) {
+			throw new CommandAlreadyExistsException(this, this.parentCommand);
+		}
+
+		this.parentCommand = parentCommand;
+	}
+
+	/**
+	 * Returns a list of all the Sub-Commands that belong to this command.
+	 *
+	 * @return a list of all the Sub-Commands in this command
+	 */
+	@Override
+	public @NotNull List<@NotNull Command> getCommands() {
 		return Collections.unmodifiableList(this.subCommands);
 	}
+
 
 	/**
 	 * Specifies the error code that the program should return when this command failed to parse. When multiple commands
@@ -124,6 +157,7 @@ public class Command
 	 *     <li>Command 'bar' has a return value of 5. <code>(0b101)</code></li>
 	 * </ul>
 	 * Both commands failed, so in this case the resultant return value would be 7 <code>(0b111)</code>.
+	 * @param errorCode The error code to return when this command fails.
 	 */
 	public void setErrorCode(int errorCode) {
 		if (errorCode <= 0) throw new IllegalArgumentException("error code cannot be 0 or below");
@@ -139,18 +173,19 @@ public class Command
 	}
 
 	@Override
-	public Command addNames(String... names) {
+	public void addNames(String... names) {
 		Arrays.stream(names)
-			.forEach(n -> {
-				if (!UtlString.matchCharacters(n, Character::isAlphabetic))
-					throw new IllegalArgumentException("Name " + UtlString.surround(n) + " contains non-alphabetic characters.");
+			.map(UtlString::requireValidName)
+			.peek(newName -> {
+				if (this.hasName(newName))
+					throw new IllegalArgumentException("Name " + UtlString.surround(newName) + " is already used by this command.");
+			})
+			.forEach(this.names::add);
 
-				if (this.hasName(n))
-					throw new IllegalArgumentException("Name " + UtlString.surround(n) + " is already used by this command.");
-
-				this.names.add(n);
-			});
-		return this;
+		// now let the parent command know that this command has been modified. This is necessary to check
+		// for duplicate names
+		if (this.parentCommand != null)
+			this.parentCommand.checkUniqueSubCommands();
 	}
 
 	@Override
@@ -158,6 +193,7 @@ public class Command
 		return this.names;
 	}
 
+	@Override
 	public void setDescription(@NotNull String description) {
 		this.description = description;
 	}
@@ -168,7 +204,6 @@ public class Command
 	}
 
 	public void setHelpFormatter(@NotNull HelpFormatter helpFormatter) {
-		helpFormatter.setParentCmd(this);
 		this.helpFormatter.set(helpFormatter);
 	}
 
@@ -177,12 +212,13 @@ public class Command
 	}
 
 	/**
-	 * Specifies in which cases the {@link Argument#onOk(Consumer)} should be invoked.
+	 * Specifies in which cases the {@link Argument#setOnCorrectCallback(Consumer)} should be invoked.
 	 * <p>By default, this is set to {@link CallbacksInvocationOption#NO_ERROR_IN_ALL_COMMANDS}.</p>
 	 *
+	 * @param option The option to set.
 	 * @see CallbacksInvocationOption
 	 */
-	public void invokeCallbacksWhen(@NotNull CallbacksInvocationOption option) {
+	public void setCallbackInvocationOption(@NotNull CallbacksInvocationOption option) {
 		this.callbackInvocationOption.set(option);
 	}
 
@@ -195,7 +231,7 @@ public class Command
 	}
 
 	public @NotNull String getHelp() {
-		return this.helpFormatter.get().toString();
+		return this.helpFormatter.get().generate(this);
 	}
 
 	@Override
@@ -208,7 +244,8 @@ public class Command
 	}
 
 	/**
-	 * Returns <code>true</code> if an argument with {@link Argument#allowUnique()} in the command was used.
+	 * Returns {@code true} if an argument with allowsUnique set in the command was used.
+	 * @return {@code true} if an argument with {@link Argument#setAllowUnique(boolean)} in the command was used.
 	 */
 	public boolean uniqueArgumentReceivedValue() {
 		return this.arguments.stream().anyMatch(a -> a.getUsageCount() >= 1 && a.isUniqueAllowed())
@@ -224,6 +261,10 @@ public class Command
 			);
 	}
 
+	/**
+	 * Returns a new {@link ParsedArguments} object that contains all the parsed arguments of this command and all its
+	 * Sub-Commands.
+	 */
 	@NotNull ParsedArguments getParsedArguments() {
 		return new ParsedArguments(
 			this,
@@ -235,6 +276,7 @@ public class Command
 	/**
 	 * Get all the tokens of all Sub-Commands (the ones that we can get without errors) into one single list. This
 	 * includes the {@link TokenType#COMMAND} tokens.
+	 * @return A list of all the tokens of all Sub-Commands.
 	 */
 	public @NotNull ArrayList<@NotNull Token> getFullTokenList() {
 		final ArrayList<Token> list = new ArrayList<>() {{
@@ -259,29 +301,105 @@ public class Command
 		this.getMinimumExitErrorLevel().setIfNotModified(parent.getMinimumExitErrorLevel());
 		this.getMinimumDisplayErrorLevel().setIfNotModified(parent.getMinimumDisplayErrorLevel());
 		this.errorCode.setIfNotModified(parent.errorCode);
-		this.helpFormatter.setIfNotModified(() -> {
-			/* NEED TO BE COPIED!! If we don't then all commands will have the same formatter,
-			 * which causes lots of problems.
-			 *
-			 * Stuff like the layout generators closures are capturing the reference to the previous Command
-			 * and will not be updated properly when the parent command is updated. */
-			return new HelpFormatter(parent.helpFormatter.get()) {{
-				this.setParentCmd(Command.this); // we need to update the parent command!
-			}};
-		});
+		this.helpFormatter.setIfNotModified(parent.helpFormatter);
 		this.callbackInvocationOption.setIfNotModified(parent.callbackInvocationOption);
 
 		this.passPropertiesToChildren();
+	}
+
+	private void from$recursive(@NotNull Class<?> cmdTemplate) {
+		if (!CommandTemplate.class.isAssignableFrom(cmdTemplate)) return;
+
+		// don't allow classes without the @Command.Define annotation
+		if (!cmdTemplate.isAnnotationPresent(Command.Define.class)) {
+			throw new CommandTemplateException("The class '" + cmdTemplate.getName()
+				+ "' is not annotated with @Command.Define");
+		}
+
+		// get to the top of the hierarchy
+		Optional.ofNullable(cmdTemplate.getSuperclass()).ifPresent(this::from$recursive);
+
+		final var argumentBuilders = new ArrayList<ArgumentBuilder<?, ?>>();
+
+		Stream.of(cmdTemplate.getDeclaredFields())
+			.filter(f -> f.isAnnotationPresent(Argument.Define.class))
+			.forEach(f -> {
+				// if the argument is not already defined, add it
+				argumentBuilders.add(ArgumentBuilder.fromField(f));
+			});
+
+		this.from$invokeBeforeInitMethod(cmdTemplate, argumentBuilders);
+
+		// add the arguments to the command
+		argumentBuilders.forEach(this::addArgument);
+
+		this.from$invokeAfterInitMethod(cmdTemplate);
+	}
+
+	private void from$invokeBeforeInitMethod(
+		@NotNull Class<?> cmdTemplate,
+		@NotNull List<ArgumentBuilder<?, ?>> argumentBuilders
+	) {
+		Stream.of(cmdTemplate.getDeclaredMethods())
+			.filter(m -> UtlReflection.hasParameters(m, CommandTemplate.CommandBuildHelper.class))
+			.filter(m -> m.isAnnotationPresent(CommandTemplate.InitDef.class))
+			.filter(m -> m.getName().equals("beforeInit"))
+			.findFirst()
+			.ifPresent(m -> {
+				try {
+					m.invoke(null, new CommandTemplate.CommandBuildHelper(
+						this, Collections.unmodifiableList(argumentBuilders)
+					));
+				} catch (IllegalAccessException | InvocationTargetException e) {
+					throw new RuntimeException(e);
+				}
+			});
+	}
+
+	private void from$invokeAfterInitMethod(@NotNull Class<?> cmdTemplate) {
+		Stream.of(cmdTemplate.getDeclaredMethods())
+			.filter(m -> UtlReflection.hasParameters(m, Command.class))
+			.filter(m -> m.isAnnotationPresent(CommandTemplate.InitDef.class))
+			.filter(m -> m.getName().equals("afterInit"))
+			.findFirst()
+			.ifPresent(m -> {
+				try {
+					m.invoke(null, this);
+				} catch (IllegalAccessException | InvocationTargetException e) {
+					throw new RuntimeException(e);
+				}
+			});
 	}
 
 	void passPropertiesToChildren() {
 		this.subCommands.forEach(c -> c.inheritProperties(this));
 	}
 
+	/**
+	 * Returns {@code true} if the argument specified by the given name is equal to this argument.
+	 * <p>
+	 * Equality is determined by the argument's name and the command it belongs to.
+	 * </p>
+	 *
+	 * @param obj the argument to compare to
+	 * @return {@code true} if the argument specified by the given name is equal to this argument
+	 */
+	@Override
+	public boolean equals(@NotNull Object obj) {
+		if (obj instanceof Command cmd)
+			return UtlMisc.equalsByNamesAndParentCmd(this, cmd);
+		return false;
+	}
+
+	void checkUniqueSubCommands() {
+		UtlMisc.requireUniqueElements(this.subCommands, c -> new CommandAlreadyExistsException(c, this));
+	}
+
+
 	// ------------------------------------------------ Error Handling ------------------------------------------------
 
 	@Override
-	public void setOnErrorCallback(@NotNull Consumer<@NotNull Command> callback) {
+	public void setOnErrorCallback(@Nullable Consumer<@NotNull Command> callback) {
 		this.onErrorCallback = callback;
 	}
 
@@ -289,11 +407,11 @@ public class Command
 	 * {@inheritDoc}
 	 * <p>
 	 * By default this callback is called only if all commands succeed, but you can change this behavior with
-	 * {@link Command#invokeCallbacksWhen(CallbacksInvocationOption)}
+	 * {@link Command#setCallbackInvocationOption(CallbacksInvocationOption)}
 	 * </p>
 	 */
 	@Override
-	public void setOnCorrectCallback(@NotNull Consumer<@NotNull ParsedArguments> callback) {
+	public void setOnCorrectCallback(@Nullable Consumer<@NotNull ParsedArguments> callback) {
 		this.onCorrectCallback = callback;
 	}
 
@@ -307,7 +425,11 @@ public class Command
 			if (this.onErrorCallback != null) this.onErrorCallback.accept(this);
 		}
 
-		this.parser.getParsedArgumentsHashMap().forEach(Argument::invokeCallbacks);
+		this.parser.getParsedArgumentsHashMap()
+			.entrySet()
+			.stream()
+			.sorted((x, y) -> Argument.compareByPriority(x.getKey(), y.getKey())) // sort by priority when invoking callbacks!
+			.forEach(e -> e.getKey().invokeCallbacks(e.getValue()));
 	}
 
 	boolean shouldExecuteCorrectCallback() {
@@ -350,28 +472,28 @@ public class Command
 	}
 
 	/**
-	 * Get the error code of this Command. This is the OR of all the error codes of all the Sub-Commands that
-	 * have failed.
-	 * @see #setErrorCode(int) 
+	 * Get the error code of this Command. This is the OR of all the error codes of all the Sub-Commands that have
+	 * failed.
+	 *
 	 * @return The error code of this command.
+	 * @see #setErrorCode(int)
 	 */
 	public int getErrorCode() {
-		int errCode = this.subCommands.stream()
+		final int thisErrorCode = this.errorCode.get();
+
+		// get all the error codes of the Sub-Commands recursively
+		int finalErrorCode = this.subCommands.stream()
 			.filter(c -> c.tokenizer.isFinishedTokenizing())
-			.map(sc ->
-				sc.getMinimumExitErrorLevel().get().isInErrorMinimum(this.getMinimumExitErrorLevel().get())
-					? sc.getErrorCode()
-					: 0
-			)
+			.map(Command::getErrorCode)
 			.reduce(0, (a, b) -> a | b);
 
 		/* If we have errors, or the Sub-Commands had errors, do OR with our own error level.
 		 * By doing this, the error code of a Sub-Command will be OR'd with the error codes of all its parents. */
-		if (this.hasExitErrors() || errCode != 0) {
-			errCode |= this.errorCode.get();
+		if (thisErrorCode != 0 && this.hasExitErrors()) {
+			finalErrorCode |= thisErrorCode;
 		}
 
-		return errCode;
+		return finalErrorCode;
 	}
 
 
@@ -395,7 +517,7 @@ public class Command
 		this.tokenizer.tokenize(input);
 	}
 
-	void parse() {
+	void parseTokens() {
 		// first we need to set the tokens of all tokenized subCommands
 		Command cmd = this;
 		do {
@@ -404,30 +526,6 @@ public class Command
 
 		// this parses recursively!
 		this.parser.parseTokens();
-	}
-
-	/**
-	 * Returns <code>true</code> if the argument specified by the given name is equal to this argument.
-	 * <p>
-	 * Equality is determined by the argument's name and the command it belongs to.
-	 * </p>
-	 * @param obj the argument to compare to
-	 * @return <code>true</code> if the argument specified by the given name is equal to this argument
-	 */
-	public boolean equals(@NotNull Command obj) {
-		return Command.equalsByNamesAndParentCmd(this, obj);
-	}
-
-	public static <T extends MultipleNamesAndDescription<?> & CommandUser>
-	boolean equalsByNamesAndParentCmd(@NotNull T a, @NotNull T b) {
-		return a.getParentCommand() == b.getParentCommand() && (
-			a.getNames().stream().anyMatch(name -> {
-				for (var otherName : b.getNames()) {
-					if (name.equals(otherName)) return true;
-				}
-				return false;
-			})
-		);
 	}
 
 	@Override
@@ -449,5 +547,12 @@ public class Command
 	public @Nullable Command getParentCommand() {
 		return this.getParent();
 	}
-}
 
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(ElementType.TYPE)
+	public @interface Define {
+		String[] names() default {};
+
+		String description() default "";
+	}
+}

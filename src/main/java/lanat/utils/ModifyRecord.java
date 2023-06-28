@@ -2,8 +2,6 @@ package lanat.utils;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.function.Supplier;
-
 /**
  * Provides a way to see if the inner value has been modified since the constructor was called.
  *
@@ -13,11 +11,17 @@ public class ModifyRecord<T> {
 	private T value;
 	private boolean modified;
 
-	public ModifyRecord(T value) {
+	private ModifyRecord(T value) {
 		this.value = value;
 	}
 
-	public ModifyRecord() {}
+	public static <T> ModifyRecord<T> of(@NotNull T value) {
+		return new ModifyRecord<>(value);
+	}
+
+	public static <T> ModifyRecord<T> empty() {
+		return new ModifyRecord<>(null);
+	}
 
 	public T get() {
 		return this.value;
@@ -45,23 +49,13 @@ public class ModifyRecord<T> {
 
 	/**
 	 * Sets the value to the specified value if it has not been modified.
+	 * The value is provided by the specified {@link ModifyRecord}.
 	 *
 	 * @param value The value to set.
 	 */
 	public void setIfNotModified(@NotNull ModifyRecord<T> value) {
 		if (!this.modified) {
 			this.set(value);
-		}
-	}
-
-	/**
-	 * Sets the value to the supplied value from the callback if it has not been modified.
-	 *
-	 * @param cb The callback that supplies the value to set.
-	 */
-	public void setIfNotModified(@NotNull Supplier<T> cb) {
-		if (!this.modified) {
-			this.set(cb.get());
 		}
 	}
 

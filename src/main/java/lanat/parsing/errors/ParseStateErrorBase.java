@@ -1,23 +1,20 @@
 package lanat.parsing.errors;
 
-import fade.mirror.MClass;
-import fade.mirror.MMethod;
-import fade.mirror.exception.MirrorException;
-import fade.mirror.filter.Filter;
 import lanat.ErrorFormatter;
 import lanat.ErrorLevel;
 import lanat.parsing.Token;
 import lanat.utils.ErrorLevelProvider;
+import lanat.utils.UtlReflection;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Optional;
 
-import static fade.mirror.Mirror.mirror;
 
 /**
  * Provides a {@link ParseStateErrorBase#handle(ErrorHandler)} method that when called, automatically invokes the
@@ -65,62 +62,35 @@ import static fade.mirror.Mirror.mirror;
  */
 abstract class ParseStateErrorBase<T extends Enum<T> & ErrorLevelProvider> implements ErrorLevelProvider {
 	public final @NotNull T errorType;
-	private final List<MMethod<?>> methods;
 	public int tokenIndex;
 	private ErrorHandler errorHandler;
 	private ErrorFormatter formatter;
 
+
 	public ParseStateErrorBase(@NotNull T errorType, int tokenIndex) {
 		this.errorType = errorType;
 		this.tokenIndex = tokenIndex;
-
-		// check if there are methods defined for all error types
-		this.methods = this.getAnnotatedMethods();
-
-		for (final var handlerName : this.errorType.getClass().getEnumConstants()) {
-			final var handlerNameStr = handlerName.name();
-
-			// throw an exception if there is no method defined for the error type
-			if (this.methods.stream().noneMatch(m -> this.isHandlerMethod(m, handlerNameStr)))
-				throw new IllegalStateException("No method defined for error type " + handlerNameStr);
-		}
 	}
 
-	private @NotNull List<@NotNull MMethod<?>> getAnnotatedMethods() {
-		return mirror(this.getClass())
-			.getSuperclassUntil(MClass::hasMethods, MClass.IncludeSelf.Yes)
-			.<List<MMethod<?>>>map(objectMClass -> objectMClass.getMethods(Filter.forMethods().withAnnotation(Handler.class))
-			.collect(Collectors.toList()))
-			.orElseGet(List::of);
-	}
 
-	private boolean isHandlerMethod(@NotNull MMethod<?> method, @NotNull String handlerName) {
-		return method.getAnnotationOfType(Handler.class)
-			.map(handler -> handler.value().equals(handlerName))
-			.orElse(false);
-	}
-
-	private boolean isHandlerMethod(@NotNull MMethod<?> method) {
-		return this.isHandlerMethod(method, this.errorType.name());
+	private @NotNull Method getHandlerMethod() {
+		return UtlReflection.getMethods(this.getClass())
+			.filter(m -> Optional.ofNullable(m.getAnnotation(Handler.class))
+				.map(a -> a.value().equals(this.errorType.name()))
+				.orElse(false)
+			)
+			.findFirst()
+			.orElseThrow(() -> new RuntimeException("No handler method defined for error type " + this.errorType.name()));
 	}
 
 	public final @NotNull String handle(@NotNull ErrorHandler handler) {
 		this.errorHandler = handler;
 		this.formatter = new ErrorFormatter(handler, this.errorType.getErrorLevel());
 
-		// invoke the method if it is defined
-		for (final var method : this.methods) {
-			if (!this.isHandlerMethod(method)) continue;
-
-			try {
-				method.bindToObject(this)
-					.requireAccessible()
-					.invoke();
-
-			} catch (MirrorException e) {
-				throw new RuntimeException(e);
-			}
-			return this.formatter.toString();
+		try {
+			this.getHandlerMethod().invoke(this);
+		} catch (InvocationTargetException | IllegalAccessException e) {
+			throw new RuntimeException(e);
 		}
 
 		return this.formatter.toString();

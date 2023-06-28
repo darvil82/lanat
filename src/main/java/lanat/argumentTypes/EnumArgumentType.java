@@ -9,10 +9,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 
-public class EnumArgument<T extends Enum<T>> extends ArgumentType<T> {
+public class EnumArgumentType<T extends Enum<T>> extends ArgumentType<T> {
 	private final @NotNull T @NotNull [] values;
 
-	public EnumArgument(@NotNull T defaultValue) {
+	public EnumArgumentType(@NotNull T defaultValue) {
 		super(defaultValue);
 		this.values = defaultValue.getDeclaringClass().getEnumConstants();
 	}

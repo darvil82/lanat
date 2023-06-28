@@ -11,8 +11,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Changes the color of the text. (e.g. {@code <color=red>}).
- * The available colors are the ones defined in {@link Color}. The color name is case-insensitive.
+ * Changes the color of the text. (e.g. {@code <color=red>}). The available colors are the ones defined in
+ * {@link Color}. The color name is case-insensitive.
  * <p>
  * The names that may be used are:
  * <ul>
@@ -43,7 +43,7 @@ import org.jetbrains.annotations.Nullable;
  * If the color name is invalid, a {@link MalformedTagException} is thrown.
  * If no color is specified, the reset sequence is returned. (e.g. {@code <color>}).
  * </p>
- * */
+ */
 public class ColorTag extends Tag {
 	@Override
 	protected @NotNull String parse(@NotNull NamedWithDescription user, @Nullable String value) {

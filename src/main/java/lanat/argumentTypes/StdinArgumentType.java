@@ -6,19 +6,12 @@ import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class CounterArgument extends ArgumentType<Integer> {
-	public CounterArgument() {
-		super(0);
-	}
+import java.util.Scanner;
 
+public class StdinArgumentType extends ArgumentType<String> {
 	@Override
 	public @NotNull Range getRequiredArgValueCount() {
 		return Range.NONE;
-	}
-
-	@Override
-	public @NotNull Range getRequiredUsageCount() {
-		return Range.AT_LEAST_ONE;
 	}
 
 	@Override
@@ -27,12 +20,20 @@ public class CounterArgument extends ArgumentType<Integer> {
 	}
 
 	@Override
-	public Integer parseValues(String @NotNull [] args) {
-		return this.getValue() + 1;
+	public String parseValues(@NotNull String @NotNull [] args) {
+		final var input = new StringBuilder();
+
+		try (var scanner = new Scanner(System.in)) {
+			while (scanner.hasNextLine()) {
+				input.append(scanner.nextLine()).append('\n');
+			}
+		}
+
+		return input.toString();
 	}
 
 	@Override
 	public @Nullable String getDescription() {
-		return "Counts the number of times this argument is used.";
+		return "Accepts input from stdin (Standard Input).";
 	}
 }

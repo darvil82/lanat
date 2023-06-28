@@ -82,12 +82,8 @@ public class Parser extends ParsingStateBase<ParseError> {
 	}
 
 	public void parseTokens() {
-		if (this.tokens == null)
-			throw new IllegalStateException("Tokens have not been set yet.");
-
-		if (this.hasFinished)
-			throw new IllegalStateException("This parser has already finished parsing.");
-
+		assert this.tokens != null : "Tokens have not been set yet";
+		assert !this.hasFinished : "This parser has already finished parsing.";
 
 		short argumentNameCount = 0;
 		boolean foundNonPositionalArg = false;
@@ -121,7 +117,7 @@ public class Parser extends ParsingStateBase<ParseError> {
 		this.hasFinished = true;
 
 		// now parse the Sub-Commands
-		this.getSubCommands().stream()
+		this.getCommands().stream()
 			.filter(sb -> sb.getTokenizer().isFinishedTokenizing()) // only get the commands that were actually tokenized
 			.forEach(sb -> sb.getParser().parseTokens()); // now parse them
 	}
@@ -160,9 +156,9 @@ public class Parser extends ParsingStateBase<ParseError> {
 		) {
 			final Token currentToken = this.tokens.get(i);
 			if (!isInTuple && (
-					currentToken.type().isArgumentSpecifier() || i - this.currentTokenIndex >= argumentValuesRange.max()
-				)
-					|| currentToken.type().isTuple()
+				currentToken.type().isArgumentSpecifier() || i - this.currentTokenIndex >= argumentValuesRange.max()
+			)
+				|| currentToken.type().isTuple()
 			) break;
 			tempArgs.add(currentToken);
 		}
@@ -253,7 +249,11 @@ public class Parser extends ParsingStateBase<ParseError> {
 		return null;
 	}
 
-	/** Returns a hashmap of Arguments and their corresponding parsed values. */
+	/**
+	 * Returns a hashmap of Arguments and their corresponding parsed values.
+	 * This function invokes the {@link Argument#finishParsing()} method on each argument the first time it is called.
+	 * After that, it will return the same hashmap.
+	 * */
 	public @NotNull HashMap<@NotNull Argument<?, ?>, @Nullable Object> getParsedArgumentsHashMap() {
 		if (this.parsedArguments == null) {
 			this.parsedArguments = new HashMap<>() {{

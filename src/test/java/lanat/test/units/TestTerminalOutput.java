@@ -1,5 +1,6 @@
-package lanat.test;
+package lanat.test.units;
 
+import lanat.test.UnitTests;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -7,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestTerminalOutput extends UnitTests {
 	private void assertErrorOutput(String args, String expected) {
-		final var errors = this.parser.parseArgsExpectError(args);
+		final var errors = this.parser.parseGetErrors(args);
 		// remove all the decorations to not make the tests a pain to write
 		assertEquals(
 			expected,

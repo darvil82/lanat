@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 
-public class FileArgument extends ArgumentType<File> {
+public class FileArgumentType extends ArgumentType<File> {
 	@Override
 	public File parseValues(@NotNull String @NotNull [] args) {
 		try {

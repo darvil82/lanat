@@ -15,9 +15,10 @@ import java.util.function.BiFunction;
 /**
  * Parser for simple route syntax used in description tags (e.g. <code>args.myArg1.type</code>).
  * <p>
- * The route syntax is very simple. It is a dot-separated list of names indicating the path to the object to be returned.
- * By default, the route initial target is the command the user belongs to. If the route starts with <code>!</code>, the
- * user itself becomes the initial target. If the route is empty or null, the command the user belongs to is returned.
+ * The route syntax is very simple. It is a dot-separated list of names indicating the path to the object to be
+ * returned. By default, the route initial target is the command the user belongs to. If the route starts with
+ * <code>!</code>, the user itself becomes the initial target. If the route is empty or null, the command the user
+ * belongs to is returned.
  * </p>
  * <p>
  * These are the objects that can be accessed using the route syntax:
@@ -59,7 +60,7 @@ import java.util.function.BiFunction;
  * <code>"!.type"</code>
  * </li>
  * </ol>
- * */
+ */
 public class RouteParser {
 	/** The current object being handled in the route */
 	private NamedWithDescription currentTarget;
@@ -89,12 +90,13 @@ public class RouteParser {
 	}
 
 	/**
-	 * Parses a route and returns the object it points to. If the route is empty or null, the command the user belongs to
-	 * is returned.
+	 * Parses a route and returns the object it points to. If the route is empty or null, the command the user belongs
+	 * to is returned.
 	 * <p>
-	 * The reason why the user is needed is because its likely that it will be needed to gather the Command it belongs to,
-	 * and also if the route starts with <code>!</code>, the user itself becomes the initial target.
+	 * The reason why the user is needed is because its likely that it will be needed to gather the Command it belongs
+	 * to, and also if the route starts with <code>!</code>, the user itself becomes the initial target.
 	 * </p>
+	 *
 	 * @param user the user that is requesting to parse the route
 	 * @param route the route to parse
 	 * @return the object the route points to
@@ -105,9 +107,10 @@ public class RouteParser {
 	}
 
 	/**
-	 * Returns the command the object belongs to. If the object is a {@link Command}, it is returned.
-	 * If it is a {@link CommandUser}, the command it belongs to is returned. Otherwise,
-	 * an {@link InvalidRouteException} is thrown.
+	 * Returns the command the object belongs to. If the object is a {@link Command}, it is returned. If it is a
+	 * {@link CommandUser}, the command it belongs to is returned. Otherwise, an {@link InvalidRouteException} is
+	 * thrown.
+	 *
 	 * @param obj the object to get the command of
 	 * @return the command the object belongs to
 	 * @throws InvalidRouteException if the object is not a {@link Command} or a {@link CommandUser}
@@ -123,8 +126,9 @@ public class RouteParser {
 	}
 
 	/**
-	 * Advances through the route and sets the current target to each element in the route. If the route is invalid,
-	 * an {@link InvalidRouteException} is thrown.
+	 * Advances through the route and sets the current target to each element in the route. If the route is invalid, an
+	 * {@link InvalidRouteException} is thrown.
+	 *
 	 * @return the object the route points to
 	 */
 	private NamedWithDescription parse() {
@@ -134,9 +138,9 @@ public class RouteParser {
 			if (token.equals("args") && this.currentTarget instanceof ArgumentAdder argsContainer)
 				this.setCurrentTarget(argsContainer.getArguments(), MultipleNamesAndDescription::hasName);
 			else if (token.equals("groups") && this.currentTarget instanceof ArgumentGroupAdder groupsContainer)
-				this.setCurrentTarget(groupsContainer.getSubGroups(), (g, name) -> g.getName().equals(name));
+				this.setCurrentTarget(groupsContainer.getGroups(), (g, name) -> g.getName().equals(name));
 			else if (token.equals("cmds") && this.currentTarget instanceof Command cmdsContainer)
-				this.setCurrentTarget(cmdsContainer.getSubCommands(), MultipleNamesAndDescription::hasName);
+				this.setCurrentTarget(cmdsContainer.getCommands(), MultipleNamesAndDescription::hasName);
 			else if (token.equals("type") && this.currentTarget instanceof Argument<?, ?> arg)
 				this.currentTarget = arg.argType;
 			else
@@ -148,9 +152,10 @@ public class RouteParser {
 
 	/**
 	 * Sets the current target to the first element in the list that matches the given predicate.
+	 *
 	 * @param list the list to search in
-	 * @param predicate the predicate to use to match the elements. The first parameter is the element, the second is the
-	 *  name to match against.
+	 * @param predicate the predicate to use to match the elements. The first parameter is the element, the second is
+	 * 	the name to match against.
 	 * @param <E> the type of the elements in the list
 	 */
 	private <E extends NamedWithDescription>

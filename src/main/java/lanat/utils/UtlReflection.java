@@ -1,11 +1,9 @@
 package lanat.utils;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 public final class UtlReflection {
@@ -27,50 +25,6 @@ public final class UtlReflection {
 
 		return name;
 	}
-
-	/**
-	 * Returns the superclass of the given class that matches the given predicate.
-	 *
-	 * @param clazz The class to get the superclass of.
-	 * @param pred The predicate to match.
-	 * @param inclusive Whether to include the given class in the search.
-	 * @param <T> The type of the class.
-	 * @return The class that matches the given predicate, or null if none was found.
-	 */
-	public static <T>
-	@Nullable Class<? super T> getSuperclassUntil(
-		@NotNull Class<T> clazz,
-		@NotNull Predicate<Class<? super T>> pred,
-		boolean inclusive
-	)
-	{
-		if (inclusive && pred.test(clazz))
-			return clazz;
-
-		var superclass = clazz.getSuperclass();
-
-		while (superclass != null && !pred.test(superclass))
-			superclass = superclass.getSuperclass();
-
-		return superclass;
-	}
-
-	/**
-	 * Returns the superclass of the given class that matches the given predicate.
-	 *
-	 * @param clazz The class to get the superclass of.
-	 * @param pred The predicate to match.
-	 * @param <T> The type of the class.
-	 * @return The class that matches the given predicate, or null if none was found.
-	 */
-	public static <T> @Nullable Class<? super T> getSuperclassUntil(
-		@NotNull Class<T> clazz,
-		@NotNull Predicate<Class<? super T>> pred
-	)
-	{
-		return UtlReflection.getSuperclassUntil(clazz, pred, false);
-	}
-
 
 	/**
 	 * Returns whether the given method has the given parameters in the given order.

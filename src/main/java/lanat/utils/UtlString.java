@@ -5,24 +5,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
-import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 public final class UtlString {
 	private UtlString() {}
-
-	/**
-	 * Apply a predicate for each character in the string, if any fails, return {@code false}.
-	 *
-	 * @param str The string to check.
-	 * @param fn The predicate to apply to each character.
-	 */
-	public static boolean matchCharacters(@NotNull String str, @NotNull Predicate<Character> fn) {
-		for (char chr : str.toCharArray()) {
-			if (!fn.test(chr)) return false;
-		}
-		return true;
-	}
 
 	/**
 	 * Wrap a string in two strings at both sides. If the string is <code>null</code>, it will be replaced with
@@ -45,7 +31,6 @@ public final class UtlString {
 	public static @NotNull String getLongestLine(@NotNull String str) {
 		return Arrays.stream(str.split("\n")).min((a, b) -> b.length() - a.length()).orElse("");
 	}
-
 
 	/**
 	 * Check if a string is a valid name for it to be used in an element.
@@ -186,18 +171,6 @@ public final class UtlString {
 	}
 
 	/**
-	 * Remove all leading and trailing occurrences of the given regex from the string.
-	 *
-	 * @param str the string to strip
-	 * @param regex the regex to remove
-	 * @return the stripped string
-	 */
-	public static @NotNull String strip(@NotNull String str, @NotNull String regex) {
-		return str.replaceAll("^" + regex + "+", "")
-			.replaceAll(regex + "+$", "");
-	}
-
-	/**
 	 * Remove all formatting colors or format from the string
 	 */
 	public static @NotNull String removeSequences(@NotNull String str) {
@@ -214,16 +187,6 @@ public final class UtlString {
 	 */
 	public static @NotNull String plural(@NotNull String str, int count) {
 		return count + " " + (count == 1 ? str : str + "s");
-	}
-
-	/**
-	 * Returns the string given if it is not null, otherwise returns an empty string.
-	 *
-	 * @param str the string to check
-	 * @return the string given or an empty string
-	 */
-	public static @NotNull String fromNullable(@Nullable String str) {
-		return str == null ? "" : str;
 	}
 
 	/**
@@ -247,15 +210,6 @@ public final class UtlString {
 	 */
 	public static @NotNull String @NotNull [] split(@NotNull String str, @NotNull String splitter, int max) {
 		return str.split(" *" + Pattern.quote(splitter) + " *", max);
-	}
-
-	/**
-	 * {@link UtlString#split(String, String, int)} with max set to -1. (Default of {@link String#split(String)})
-	 *
-	 * @see UtlString#split(String, String, int)
-	 */
-	public static @NotNull String @NotNull [] split(@NotNull String str, @NotNull String splitter) {
-		return UtlString.split(str, splitter, -1);
 	}
 
 	/**

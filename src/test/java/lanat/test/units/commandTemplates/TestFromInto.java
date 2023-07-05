@@ -3,6 +3,10 @@ package lanat.test.units.commandTemplates;
 import lanat.ArgumentParser;
 import lanat.CLInput;
 import lanat.CommandTemplate;
+import lanat.argumentTypes.BooleanArgumentType;
+import lanat.argumentTypes.DoubleArgumentType;
+import lanat.argumentTypes.IntegerArgumentType;
+import lanat.argumentTypes.StringArgumentType;
 import lanat.exceptions.CommandTemplateException;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.DisplayName;
@@ -51,5 +55,17 @@ public class TestFromInto {
 		assertEquals(56, result.number);
 		assertEquals(54, result.cmd2.number);
 		assertEquals(52, result.cmd2.cmd3.number);
+	}
+
+
+	@Test
+	@DisplayName("test type inference for fields argument types")
+	public void testTypeInference() {
+		final var result = ArgumentParser.from(CmdTemplates.CmdTemplate4.class);
+
+		assertTrue(result.getArgument("number").argType instanceof IntegerArgumentType);
+		assertTrue(result.getArgument("text").argType instanceof StringArgumentType);
+		assertTrue(result.getArgument("flag").argType instanceof BooleanArgumentType);
+		assertTrue(result.getArgument("number2").argType instanceof DoubleArgumentType);
 	}
 }

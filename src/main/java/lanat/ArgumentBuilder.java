@@ -1,12 +1,13 @@
 package lanat;
 
-import lanat.argumentTypes.DummyArgumentType;
+import lanat.argumentTypes.*;
 import lanat.utils.UtlReflection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -29,6 +30,54 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
 
 	ArgumentBuilder() {}
 
+	// mapping of types to their corresponding argument types
+	private static final HashMap<Class<?>, Class<? extends ArgumentType<?>>> INFER_ARGUMENT_TYPES_MAP = new HashMap<>() {
+		private void put(
+			Class<?> boxed,
+			Class<?> primitive,
+			Class<? extends ArgumentType<?>> value
+		) {
+			// I wish I didn't have to do this
+			this.put(boxed, value);
+			this.put(primitive, value);
+		}
+
+		{
+			this.put(String.class, StringArgumentType.class);
+			this.put(int.class, Integer.class, IntegerArgumentType.class);
+			this.put(boolean.class, Boolean.class, BooleanArgumentType.class);
+			this.put(float.class, Float.class, FloatArgumentType.class);
+			this.put(double.class, Double.class, DoubleArgumentType.class);
+			this.put(long.class, Long.class, LongArgumentType.class);
+			this.put(short.class, Short.class, ShortArgumentType.class);
+			this.put(byte.class, Byte.class, ByteArgumentType.class);
+		}
+	};
+
+	/**
+	 * Returns an {@link ArgumentType} instance based on the specified field. If the annotation specifies a type,
+	 * it will be used. Otherwise, the type will be inferred from the field type. If the type cannot be inferred,
+	 * null will be returned.
+	 *
+	 * @param field the field that will be used to build the argument
+	 * @return the built argument type
+	 * @implNote expects the field to be annotated with {@link Argument.Define}
+	 */
+	private static @Nullable ArgumentType<?> getArgumentTypeFromField(@NotNull Field field) {
+		final var annotation = field.getAnnotation(Argument.Define.class);
+		assert annotation != null : "The field must have an Argument.Define annotation.";
+
+		// if the type is not a dummy type (it was specified on the annotation), instantiate it and return it
+		if (annotation.argType() != DummyArgumentType.class)
+			return UtlReflection.instantiate(annotation.argType());
+
+		// try to infer the type from the field type
+		var argTypeMap = INFER_ARGUMENT_TYPES_MAP.get(field.getType());
+
+		// if the type was not found, return null
+		return argTypeMap == null ? null : UtlReflection.instantiate(argTypeMap);
+	}
+
 	/**
 	 * Builds an {@link Argument} from the specified field annotated with {@link Argument.Define}.
 	 *
@@ -49,8 +98,8 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
 			.withNames(ArgumentBuilder.getTemplateFieldNames(field));
 
 		// if the type is not DummyArgumentType, instantiate it
-		if (annotation.argType() != DummyArgumentType.class)
-			argumentBuilder.withArgType((Type)UtlReflection.instantiate(annotation.argType()));
+		var argType = ArgumentBuilder.getArgumentTypeFromField(field);
+		if (argType != null) argumentBuilder.withArgType((Type)argType);
 
 		argumentBuilder.withPrefix(Argument.PrefixChar.fromCharUnsafe(annotation.prefix()));
 		if (!annotation.description().isEmpty()) argumentBuilder.withDescription(annotation.description());
@@ -92,12 +141,13 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
 	 *
 	 * @param field the field that will be used to get the names. It must have an {@link Argument.Define} annotation.
 	 * @return the names of the argument
+	 * @implNote expects the field to be annotated with {@link Argument.Define}
 	 */
 	static @NotNull String[] getTemplateFieldNames(@NotNull Field field) {
-		assert field.isAnnotationPresent(Argument.Define.class)
-			: "The field must have an Argument.Define annotation.";
+		final var annotation = field.getAnnotation(Argument.Define.class);
+		assert annotation != null : "The field must have an Argument.Define annotation.";
 
-		final var annotationNames = field.getAnnotation(Argument.Define.class).names();
+		final var annotationNames = annotation.names();
 
 		// if the names are empty, use the field name
 		return annotationNames.length == 0

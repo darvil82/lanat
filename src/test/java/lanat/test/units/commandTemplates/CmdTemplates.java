@@ -68,4 +68,19 @@ public class CmdTemplates {
 			}
 		}
 	}
+
+	@Command.Define
+	public static class CmdTemplate4 extends CommandTemplate {
+		@Argument.Define
+		public int number;
+
+		@Argument.Define
+		public String text;
+
+		@Argument.Define
+		public boolean flag;
+
+		@Argument.Define
+		public Double number2;
+	}
 }

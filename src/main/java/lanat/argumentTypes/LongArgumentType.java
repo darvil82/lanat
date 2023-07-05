@@ -5,24 +5,24 @@ import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class IntegerArgumentType extends ArgumentType<Integer> {
+public class LongArgumentType extends ArgumentType<Long> {
 	@Override
-	public Integer parseValues(String @NotNull [] args) {
+	public Long parseValues(@NotNull String @NotNull [] args) {
 		try {
-			return Integer.parseInt(args[0]);
+			return Long.parseLong(args[0]);
 		} catch (NumberFormatException e) {
-			this.addError("Invalid integer value: '" + args[0] + "'.");
+			this.addError("Invalid long value: '" + args[0] + "'.");
 			return null;
 		}
 	}
 
 	@Override
 	public @NotNull TextFormatter getRepresentation() {
-		return new TextFormatter("int");
+		return new TextFormatter("long");
 	}
 
 	@Override
 	public @Nullable String getDescription() {
-		return "An integer number.";
+		return "A large integer number.";
 	}
 }

@@ -170,12 +170,13 @@ public abstract class CommandTemplate {
 	 * class will be used.
 	 * @param cmdTemplate The command template class. Must be annotated with {@link Command.Define}.
 	 * @return The names of the command template.
+	 * @implNote expects the field to be annotated with {@link Command.Define}
 	 */
 	public static @NotNull String @NotNull [] getTemplateNames(@NotNull Class<? extends CommandTemplate> cmdTemplate) {
-		assert cmdTemplate.isAnnotationPresent(Command.Define.class)
-			: "Command Template class must be annotated with @Command.Define";
+		final var annotation = cmdTemplate.getAnnotation(Command.Define.class);
+		assert annotation != null : "Command Template class must be annotated with @Command.Define";
 
-		final var annotationNames = cmdTemplate.getAnnotation(Command.Define.class).names();
+		final var annotationNames = annotation.names();
 
 		// if no names are specified, use the simple name of the class
 		return annotationNames.length == 0 ?

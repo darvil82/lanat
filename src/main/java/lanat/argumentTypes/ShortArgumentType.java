@@ -5,24 +5,24 @@ import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class IntegerArgumentType extends ArgumentType<Integer> {
+public class ShortArgumentType extends ArgumentType<Short> {
 	@Override
-	public Integer parseValues(String @NotNull [] args) {
+	public Short parseValues(@NotNull String @NotNull [] args) {
 		try {
-			return Integer.parseInt(args[0]);
+			return Short.parseShort(args[0]);
 		} catch (NumberFormatException e) {
-			this.addError("Invalid integer value: '" + args[0] + "'.");
+			this.addError("Invalid short value: '" + args[0] + "'.");
 			return null;
 		}
 	}
 
 	@Override
 	public @NotNull TextFormatter getRepresentation() {
-		return new TextFormatter("int");
+		return new TextFormatter("short");
 	}
 
 	@Override
 	public @Nullable String getDescription() {
-		return "An integer number.";
+		return "An integer number (-32,768 to 32,767)";
 	}
 }

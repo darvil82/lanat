@@ -58,10 +58,10 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
 	 * Returns an {@link ArgumentType} instance based on the specified field. If the annotation specifies a type,
 	 * it will be used. Otherwise, the type will be inferred from the field type. If the type cannot be inferred,
 	 * null will be returned.
+	 * <strong>Note: </strong> Expects the field to be annotated with {@link Argument.Define}
 	 *
 	 * @param field the field that will be used to build the argument
 	 * @return the built argument type
-	 * @implNote expects the field to be annotated with {@link Argument.Define}
 	 */
 	private static @Nullable ArgumentType<?> getArgumentTypeFromField(@NotNull Field field) {
 		final var annotation = field.getAnnotation(Argument.Define.class);
@@ -138,10 +138,10 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
 	/**
 	 * Returns the names of the argument, either the ones specified in the {@link Argument.Define} annotation or the
 	 * field name if the names are empty.
+	 * <strong>Note: </strong> Expects the field to be annotated with {@link Argument.Define}
 	 *
 	 * @param field the field that will be used to get the names. It must have an {@link Argument.Define} annotation.
 	 * @return the names of the argument
-	 * @implNote expects the field to be annotated with {@link Argument.Define}
 	 */
 	static @NotNull String[] getTemplateFieldNames(@NotNull Field field) {
 		final var annotation = field.getAnnotation(Argument.Define.class);

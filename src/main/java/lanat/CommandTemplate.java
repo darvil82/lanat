@@ -168,9 +168,10 @@ public abstract class CommandTemplate {
 	/**
 	 * Returns the names of the command template. If no names are specified in the annotation, the simple name of the
 	 * class will be used.
+	 * <strong>Note: </strong> Expects the field to be annotated with {@link Command.Define}
+	 *
 	 * @param cmdTemplate The command template class. Must be annotated with {@link Command.Define}.
 	 * @return The names of the command template.
-	 * @implNote expects the field to be annotated with {@link Command.Define}
 	 */
 	public static @NotNull String @NotNull [] getTemplateNames(@NotNull Class<? extends CommandTemplate> cmdTemplate) {
 		final var annotation = cmdTemplate.getAnnotation(Command.Define.class);

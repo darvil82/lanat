@@ -144,9 +144,9 @@ public class ArgumentGroup
 	 * that called this method). If none of them have been used, the parent group is checked, and so on.
 	 *
 	 * @param childCallee The group that called this method. This is used to avoid checking the group that called this
-	 * 	method, because it is the one that is being checked for exclusivity. This can be <code>null</code> if this is
+	 * 	method, because it is the one that is being checked for exclusivity. This can be {@code null} if this is
 	 * 	the first call to this method.
-	 * @return The group that caused the violation, or <code>null</code> if there is no violation.
+	 * @return The group that caused the violation, or {@code null} if there is no violation.
 	 */
 	@Nullable ArgumentGroup checkExclusivity(@Nullable ArgumentGroup childCallee) {
 		if (

@@ -181,7 +181,7 @@ public class Parser extends ParsingStateBase<ParseError> {
 	/**
 	 * Parses the given string as an argument value for the given argument.
 	 * <p>
-	 * If the value passed in is present (not empty or null), the argument should only require 0 or 1 values.
+	 * If the value passed in is present (not empty or {@code null}), the argument should only require 0 or 1 values.
 	 * </p>
 	 */
 	private void executeArgParse(@NotNull Argument<?, ?> arg, @Nullable String value) {

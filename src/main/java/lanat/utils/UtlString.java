@@ -11,7 +11,7 @@ public final class UtlString {
 	private UtlString() {}
 
 	/**
-	 * Wrap a string in two strings at both sides. If the string is <code>null</code>, it will be replaced with
+	 * Wrap a string in two strings at both sides. If the string is {@code null}, it will be replaced with
 	 * <code>"null"</code>.
 	 */
 	public static @NotNull String surround(@Nullable String str, @NotNull String wrapper) {
@@ -190,10 +190,10 @@ public final class UtlString {
 	}
 
 	/**
-	 * Returns true if the string given is null or empty.
+	 * Returns true if the string given is {@code null} or empty.
 	 *
 	 * @param str the string to check
-	 * @return true if the string is null or empty
+	 * @return true if the string is {@code null} or empty
 	 */
 	public static boolean isNullOrEmpty(@Nullable String str) {
 		return str == null || str.isEmpty();

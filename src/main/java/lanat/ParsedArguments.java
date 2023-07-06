@@ -126,10 +126,10 @@ public class ParsedArguments {
 
 	/**
 	 * Returns the sub {@link ParsedArguments} with the given name. If none is found with the given name, returns
-	 * <code>null</code>.
+	 * {@code null}.
 	 *
 	 * @param name The name of the sub command
-	 * @return The sub {@link ParsedArguments} with the given name, or <code>null</code> if none is found
+	 * @return The sub {@link ParsedArguments} with the given name, or {@code null} if none is found
 	 */
 	public ParsedArguments getSubParsedArgs(@NotNull String name) {
 		for (var sub : this.subParsedArguments)

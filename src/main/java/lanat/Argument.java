@@ -90,12 +90,12 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 	private @Nullable TInner defaultValue;
 
-	/** The Command that this Argument belongs to. This should never be null after initialization. */
+	/** The Command that this Argument belongs to. This should never be {@code null} after initialization. */
 	private Command parentCommand;
 
 	/**
 	 * The ArgumentGroup that this Argument belongs to. If this Argument does not belong to any group, this may be
-	 * null.
+	 * {@code null}.
 	 */
 	private @Nullable ArgumentGroup parentGroup;
 
@@ -290,7 +290,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * accept values, this value will be ignored.
 	 *
 	 * @param value the value that should be used if the user does not specify a value for this argument. If the value
-	 * 	is null, then no default value will be used.
+	 * 	is {@code null}, then no default value will be used.
 	 */
 	public void setDefaultValue(@Nullable TInner value) {
 		this.defaultValue = value;
@@ -380,9 +380,9 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	/**
-	 * Returns the {@link ArgumentGroup} that contains this argument, or null if it does not have one.
+	 * Returns the {@link ArgumentGroup} that contains this argument, or {@code null} if it does not have one.
 	 *
-	 * @return the parent group of this argument, or null if it does not have one.
+	 * @return the parent group of this argument, or {@code null} if it does not have one.
 	 */
 	@Override
 	public @Nullable ArgumentGroup getParentGroup() {

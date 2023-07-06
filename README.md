@@ -14,11 +14,7 @@ Here is an example of a simple argument parser definition.
 ```java
 @Command.Define
 class MyProgram {
-	@Argument.Define(
-		obligatory = true,
-		positional = true,
-		description = "The name of the user."
-	)
+	@Argument.Define(obligatory = true, positional = true, description = "The name of the user.")
 	public String name;
 
 	@Argument.Define(argType = StringArgumentType.class, description = "The surname of the user.")

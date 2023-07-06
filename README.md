@@ -15,7 +15,6 @@ Here is an example of a simple argument parser definition.
 @Command.Define
 class MyProgram {
 	@Argument.Define(
-		argType = StringArgumentType.class,
 		obligatory = true,
 		positional = true,
 		description = "The name of the user."

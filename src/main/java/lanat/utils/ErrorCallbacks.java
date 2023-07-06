@@ -18,7 +18,7 @@ public interface ErrorCallbacks<TOk, TErr> {
 	 *
 	 * @param callback The function to be called on success.
 	 */
-	void setOnCorrectCallback(@Nullable Consumer<@NotNull TOk> callback);
+	void setOnOkCallback(@Nullable Consumer<@NotNull TOk> callback);
 
 	/** Executes the correct or error callback. */
 	void invokeCallbacks();

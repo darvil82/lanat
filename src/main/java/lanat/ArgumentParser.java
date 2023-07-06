@@ -363,7 +363,7 @@ public class ArgumentParser extends Command {
 					}
 				});
 
-			// now handle the sub-command attribute accessors (if any)
+			// now handle the sub-command field accessors (if any)
 			final var declaredClasses = Stream.of(clazz.getDeclaredClasses())
 				.filter(c -> c.isAnnotationPresent(Command.Define.class))
 				.toList();

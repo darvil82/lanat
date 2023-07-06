@@ -24,7 +24,7 @@ public class TestErrors extends UnitTests {
 	}
 
 	private <T extends ErrorCallbacks<?, ?> & NamedWithDescription> @NotNull T addCallbacks(@NotNull T obj) {
-		obj.setOnCorrectCallback(v -> this.correct.put(obj.getName(), v));
+		obj.setOnOkCallback(v -> this.correct.put(obj.getName(), v));
 		obj.setOnErrorCallback(a -> this.invalid.put(obj.getName(), a));
 		return obj;
 	}

@@ -17,16 +17,16 @@ import java.util.stream.Stream;
  * @param <TInner> the actual type of the value passed to the argument
  */
 public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
-	private @NotNull String @Nullable [] names;
-	private @Nullable String description;
-	private @Nullable Type argType;
-	private boolean obligatory = false,
+	public @NotNull String @Nullable [] names;
+	public @Nullable String description;
+	public @Nullable Type argType;
+	public boolean obligatory = false,
 		positional = false,
 		allowUnique = false;
-	private @Nullable TInner defaultValue;
-	private @Nullable Consumer<@NotNull Argument<Type, TInner>> onErrorCallback;
-	private @Nullable Consumer<@NotNull TInner> onCorrectCallback;
-	private @Nullable Argument.PrefixChar prefixChar = Argument.PrefixChar.defaultPrefix;
+	public @Nullable TInner defaultValue;
+	public @Nullable Consumer<@NotNull Argument<Type, TInner>> onErrorCallback;
+	public @Nullable Consumer<@NotNull TInner> onCorrectCallback;
+	public @Nullable Argument.PrefixChar prefixChar = Argument.PrefixChar.defaultPrefix;
 
 	ArgumentBuilder() {}
 
@@ -63,7 +63,7 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
 	 * @param field the field that will be used to build the argument
 	 * @return the built argument type
 	 */
-	private static @Nullable ArgumentType<?> getArgumentTypeFromField(@NotNull Field field) {
+	public static @Nullable ArgumentType<?> getArgumentTypeFromField(@NotNull Field field) {
 		final var annotation = field.getAnnotation(Argument.Define.class);
 		assert annotation != null : "The field must have an Argument.Define annotation.";
 
@@ -80,13 +80,13 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
 
 	/**
 	 * Builds an {@link Argument} from the specified field annotated with {@link Argument.Define}.
+	 * Note that this doesn't set the argument type.
 	 *
 	 * @param field the field that will be used to build the argument
 	 * @param <Type> the {@link ArgumentType} subclass that will parse the value passed to the argument
 	 * @param <TInner> the actual type of the value passed to the argument
 	 * @return the built argument
 	 */
-	@SuppressWarnings("unchecked")
 	public static @NotNull <Type extends ArgumentType<TInner>, TInner>
 	ArgumentBuilder<Type, TInner> fromField(@NotNull Field field) {
 		final var annotation = field.getAnnotation(Argument.Define.class);
@@ -98,14 +98,14 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
 			.withNames(ArgumentBuilder.getTemplateFieldNames(field));
 
 		// if the type is not DummyArgumentType, instantiate it
-		var argType = ArgumentBuilder.getArgumentTypeFromField(field);
-		if (argType != null) argumentBuilder.withArgType((Type)argType);
+//		var argType = ArgumentBuilder.getArgumentTypeFromField(field);
+//		if (argType != null) argumentBuilder.withArgType((Type)argType);
 
 		argumentBuilder.withPrefix(Argument.PrefixChar.fromCharUnsafe(annotation.prefix()));
 		if (!annotation.description().isEmpty()) argumentBuilder.withDescription(annotation.description());
 		if (annotation.obligatory()) argumentBuilder.obligatory();
 		if (annotation.positional()) argumentBuilder.positional();
-		if (annotation.allowUnique()) argumentBuilder.allowsUnique();
+		if (annotation.allowsUnique()) argumentBuilder.allowsUnique();
 
 		return argumentBuilder;
 	}
@@ -195,7 +195,7 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
 		return this;
 	}
 
-	/** @see Argument#setOnCorrectCallback(Consumer) */
+	/** @see Argument#setOnOkCallback(Consumer) */
 	public ArgumentBuilder<Type, TInner> onOk(@NotNull Consumer<TInner> callback) {
 		this.onCorrectCallback = callback;
 		return this;
@@ -232,6 +232,18 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
 	}
 
 	/**
+	 * Sets the argument type from the specified field. If the argument type is already set, this method does nothing.
+	 */
+	@SuppressWarnings("unchecked")
+	void setArgTypeFromField(@NotNull Field field) {
+		// if the argType is already set, don't change it
+		if (this.argType != null) return;
+
+		var argType = ArgumentBuilder.getArgumentTypeFromField(field);
+		if (argType != null) this.withArgType((Type)argType);
+	}
+
+	/**
 	 * Builds the argument.
 	 *
 	 * @return the built argument
@@ -251,7 +263,7 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
 			this.setDefaultValue(ArgumentBuilder.this.defaultValue);
 			this.setPrefix(ArgumentBuilder.this.prefixChar);
 			this.setOnErrorCallback(ArgumentBuilder.this.onErrorCallback);
-			this.setOnCorrectCallback(ArgumentBuilder.this.onCorrectCallback);
+			this.setOnOkCallback(ArgumentBuilder.this.onCorrectCallback);
 		}};
 	}
 }

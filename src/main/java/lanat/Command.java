@@ -212,7 +212,7 @@ public class Command
 	}
 
 	/**
-	 * Specifies in which cases the {@link Argument#setOnCorrectCallback(Consumer)} should be invoked.
+	 * Specifies in which cases the {@link Argument#setOnOkCallback(Consumer)} should be invoked.
 	 * <p>By default, this is set to {@link CallbacksInvocationOption#NO_ERROR_IN_ALL_COMMANDS}.</p>
 	 *
 	 * @param option The option to set.
@@ -319,16 +319,18 @@ public class Command
 		// get to the top of the hierarchy
 		Optional.ofNullable(cmdTemplate.getSuperclass()).ifPresent(this::from$recursive);
 
-		final var argumentBuilders = new ArrayList<ArgumentBuilder<?, ?>>();
 
-		Stream.of(cmdTemplate.getDeclaredFields())
+		var argumentBuildersFieldPairs = Stream.of(cmdTemplate.getDeclaredFields())
 			.filter(f -> f.isAnnotationPresent(Argument.Define.class))
-			.forEach(f -> {
-				// if the argument is not already defined, add it
-				argumentBuilders.add(ArgumentBuilder.fromField(f));
-			});
+			.map(f -> new Pair<>(f, ArgumentBuilder.fromField(f)))
+			.toList();
+
+		var argumentBuilders = argumentBuildersFieldPairs.stream().map(Pair::second).toList();
 
 		this.from$invokeBeforeInitMethod(cmdTemplate, argumentBuilders);
+
+		// set the argument types from the fields (if they are not already set)
+		argumentBuildersFieldPairs.forEach(pair -> pair.second().setArgTypeFromField(pair.first()));
 
 		// add the arguments to the command
 		argumentBuilders.forEach(this::addArgument);
@@ -338,7 +340,7 @@ public class Command
 
 	private void from$invokeBeforeInitMethod(
 		@NotNull Class<?> cmdTemplate,
-		@NotNull List<ArgumentBuilder<?, ?>> argumentBuilders
+		@NotNull List<? extends ArgumentBuilder<?, ?>> argumentBuilders
 	) {
 		Stream.of(cmdTemplate.getDeclaredMethods())
 			.filter(m -> UtlReflection.hasParameters(m, CommandTemplate.CommandBuildHelper.class))
@@ -411,7 +413,7 @@ public class Command
 	 * </p>
 	 */
 	@Override
-	public void setOnCorrectCallback(@Nullable Consumer<@NotNull ParsedArguments> callback) {
+	public void setOnOkCallback(@Nullable Consumer<@NotNull ParsedArguments> callback) {
 		this.onCorrectCallback = callback;
 	}
 

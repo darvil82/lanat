@@ -649,7 +649,10 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		/** @see ArgumentBuilder#withArgType(ArgumentType) */
 		Class<? extends ArgumentType<?>> argType() default DummyArgumentType.class;
 
-		/** @see Argument#setPrefix(PrefixChar) */
+		/**
+		 * Specifies the prefix character for this argument. This uses {@link PrefixChar#fromCharUnsafe(char)}.
+		 * @see Argument#setPrefix(PrefixChar)
+		 * */
 		char prefix() default '-';
 
 		/** @see Argument#setObligatory(boolean) */
@@ -659,7 +662,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		boolean positional() default false;
 
 		/** @see Argument#setAllowUnique(boolean) */
-		boolean allowUnique() default false;
+		boolean allowsUnique() default false;
 	}
 
 
@@ -732,7 +735,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * @param callback the function that will be called with the value introduced by the user.
 	 */
 	@Override
-	public void setOnCorrectCallback(@Nullable Consumer<@NotNull TInner> callback) {
+	public void setOnOkCallback(@Nullable Consumer<@NotNull TInner> callback) {
 		this.onCorrectCallback = callback;
 	}
 

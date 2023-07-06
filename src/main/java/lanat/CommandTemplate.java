@@ -34,11 +34,11 @@ import java.util.List;
  * }</pre>
  *
  * <h4>Defining the Arguments</h4>
- * To define an argument that will belong to the command, create a public attribute with the
+ * To define an argument that will belong to the command, create a public field with the
  * type that the parsed argument value should be. Annotate it with {@link Argument.Define}.
  * <p>
  * The name of the argument may be specified in the annotation with the {@link Argument.Define#names()} parameter.
- * If no name is specified, the name of the attribute will be used.
+ * If no name is specified, the name of the field will be used.
  * </p>
  * <p>
  * The type of the argument (that extends {@link ArgumentType}) may be specified in the annotation with the
@@ -46,7 +46,12 @@ import java.util.List;
  * no-argument constructor. If the Argument Type to use has a constructor with arguments, the type must be then
  * specified in {@link CommandTemplate#beforeInit(CommandBuildHelper)} instead, by setting
  * {@link ArgumentBuilder#withArgType(ArgumentType)} to the argument builder corresponding to the argument
- * being defined. A type must always be specified in one of the two ways.
+ * being defined.
+ * </p>
+ * <p>
+ * If no Argument Type is specified on the annotation, the Argument Type will be attempted to be inferred from the
+ * field type if possible, which is the case for some built-in types, such as
+ * {@link String}, {@link Integer}, {@link Double}, etc.
  * </p>
  *
  * <strong>Example:</strong>
@@ -65,7 +70,7 @@ import java.util.List;
  * <p>
  * To define a sub-command, create a new inner class inside the parent Command Template class already defined
  * (with same rules as for any Command Template class).
- * Then, create a public attribute in the parent command template class with the type of the sub-command
+ * Then, create a public field in the parent command template class with the type of the sub-command
  * Command Template just created. Annotate it with {@link CommandAccessor}. This will properly link the sub-command
  * to the parent command when the parent command is initialized.
  * </p>
@@ -105,7 +110,7 @@ public abstract class CommandTemplate {
 	protected @interface InitDef {}
 
 	/**
-	 * Annotation used to define a sub-command attribute in a Command Template.
+	 * Annotation used to define a sub-command field in a Command Template.
 	 * @see CommandTemplate
 	 */
 	@Retention(RetentionPolicy.RUNTIME)
@@ -132,7 +137,7 @@ public abstract class CommandTemplate {
 	// Dummy methods so that we prevent the user from creating an instance method with the same name.
 
 	/**
-	 * This method is called after the Command Template builder reads all the attribute arguments defined.
+	 * This method is called after the Command Template builder reads all the field arguments defined.
 	 * This is before the Arguments are instantiated and finally added to the command.
 	 * <p>
 	 * <strong>Example:</strong>

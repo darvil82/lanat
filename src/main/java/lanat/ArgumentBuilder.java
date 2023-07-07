@@ -97,10 +97,6 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
 		final var argumentBuilder = new ArgumentBuilder<Type, TInner>()
 			.withNames(ArgumentBuilder.getTemplateFieldNames(field));
 
-		// if the type is not DummyArgumentType, instantiate it
-//		var argType = ArgumentBuilder.getArgumentTypeFromField(field);
-//		if (argType != null) argumentBuilder.withArgType((Type)argType);
-
 		argumentBuilder.withPrefix(Argument.PrefixChar.fromCharUnsafe(annotation.prefix()));
 		if (!annotation.description().isEmpty()) argumentBuilder.withDescription(annotation.description());
 		if (annotation.obligatory()) argumentBuilder.obligatory();

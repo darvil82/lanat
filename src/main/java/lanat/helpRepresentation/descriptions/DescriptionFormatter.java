@@ -35,7 +35,9 @@ public final class DescriptionFormatter {
 		for (int i = 0; i < chars.length; i++) {
 			final char chr = chars[i];
 
-			if (chr == TAG_END && inTag) {
+			if (chr == '\\') {
+				(inTag ? current : out).append(chars[i == chars.length - 1 ? i : ++i]);
+			} else if (chr == TAG_END && inTag) {
 				if (current.length() == 0)
 					throw new MalformedTagException("empty tag at index " + lastTagOpen);
 
@@ -47,8 +49,6 @@ public final class DescriptionFormatter {
 				lastTagOpen = i;
 			} else if (inTag) {
 				current.append(chr);
-			} else if (chr == '\\') {
-				out.append(chars[i == chars.length - 1 ? i : ++i]);
 			} else {
 				out.append(chr);
 			}

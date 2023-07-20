@@ -27,35 +27,33 @@ public final class DescriptionFormatter {
 
 		final var chars = desc.toCharArray();
 
-		final var out = new StringBuilder();
-		final var current = new StringBuilder();
-		boolean inTag = false;
-		int lastTagOpen = -1;
+		final var out = new StringBuilder(); // the output string
+		final var currentTag = new StringBuilder(); // the current tag being parsed
+		boolean inTag = false; // whether we are currently parsing a tag
+		int lastTagOpenIndex = -1; // the index of the last tag start character
 
 		for (int i = 0; i < chars.length; i++) {
 			final char chr = chars[i];
 
 			if (chr == '\\') {
-				(inTag ? current : out).append(chars[i == chars.length - 1 ? i : ++i]);
+				(inTag ? currentTag : out).append(chars[i == chars.length - 1 ? i : ++i]);
 			} else if (chr == TAG_END && inTag) {
-				if (current.length() == 0)
-					throw new MalformedTagException("empty tag at index " + lastTagOpen);
+				if (currentTag.length() == 0)
+					throw new MalformedTagException("empty tag at index " + lastTagOpenIndex);
 
-				out.append(DescriptionFormatter.parseTag(current.toString(), user));
-				current.setLength(0);
+				out.append(DescriptionFormatter.parseTag(currentTag.toString(), user));
+				currentTag.setLength(0);
 				inTag = false;
 			} else if (chr == TAG_START && !inTag) {
 				inTag = true;
-				lastTagOpen = i;
-			} else if (inTag) {
-				current.append(chr);
+				lastTagOpenIndex = i;
 			} else {
-				out.append(chr);
+				(inTag ? currentTag : out).append(chr);
 			}
 		}
 
 		if (inTag) {
-			throw new IllegalArgumentException("unclosed tag at index " + lastTagOpen);
+			throw new IllegalArgumentException("unclosed tag at index " + lastTagOpenIndex);
 		}
 
 		return out.toString();

@@ -7,10 +7,13 @@ import lanat.helpRepresentation.descriptions.tags.DescTag;
 import lanat.helpRepresentation.descriptions.tags.FormatTag;
 import lanat.helpRepresentation.descriptions.tags.LinkTag;
 import lanat.utils.UtlReflection;
+import lanat.utils.UtlString;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Hashtable;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 
 /**
@@ -22,6 +25,7 @@ import java.util.Hashtable;
  */
 public abstract class Tag {
 	private static final Hashtable<String, Class<? extends Tag>> registeredTags = new Hashtable<>();
+	private static final Pattern TAG_REGEX = Pattern.compile("[a-z][a-z-]+[a-z]", Pattern.CASE_INSENSITIVE);
 
 
 	/**
@@ -43,15 +47,26 @@ public abstract class Tag {
 		Tag.registerTag("format", FormatTag.class);
 	}
 
+	public static String getTagNameFromTagClass(Class<? extends Tag> tagClass) {
+		return registeredTags.entrySet().stream()
+			.filter(entry -> entry.getValue() == tagClass)
+			.findFirst()
+			.map(Map.Entry::getKey)
+			.orElseThrow(() ->
+				new IllegalStateException("Tag class " + UtlString.surround(tagClass.getName()) + " is not registered")
+			);
+	}
+
 	/**
 	 * Register a tag class to be used in descriptions. This class will be instantiated to parse the tags encountered in
 	 * the descriptions being parsed.
 	 *
-	 * @param name name of the tag (case-insensitive)
+	 * @param name name of the tag (case-insensitive). Must only contain lowercase letters and dashes.
 	 * @param tag tag object that will be used to parse the tag
 	 */
 	public static void registerTag(@NotNull String name, @NotNull Class<? extends Tag> tag) {
-		if (name.isEmpty()) throw new IllegalArgumentException("Tag name cannot be empty");
+		if (!Tag.TAG_REGEX.matcher(name).matches())
+			throw new IllegalArgumentException("Tag name must only contain lowercase letters and dashes");
 		Tag.registeredTags.put(name, tag);
 	}
 

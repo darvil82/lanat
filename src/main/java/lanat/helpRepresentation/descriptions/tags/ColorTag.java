@@ -50,16 +50,16 @@ public class ColorTag extends Tag {
 		if (!TextFormatter.enableSequences) return "";
 		if (value == null) return FormatOption.RESET_ALL.toString();
 
-		if (!value.contains(":")) return getColor(value).toString();
+		if (!value.contains(":")) return ColorTag.getColor(value).toString();
 
 		final String[] split = UtlString.split(value, ':');
 		if (split.length != 2)
 			throw new MalformedTagException(
-				"color", "invalid color format " + UtlString.surround(value)
+				ColorTag.class, "invalid color format " + UtlString.surround(value)
 				+ " (expected format: 'foreground:background')"
 			);
 
-		return getColor(split[0]).toString() + getColor(split[1]).toStringBackground();
+		return ColorTag.getColor(split[0]).toString() + ColorTag.getColor(split[1]).toStringBackground();
 	}
 
 	private static Color getColor(@NotNull String colorName) {
@@ -80,7 +80,7 @@ public class ColorTag extends Tag {
 			case "dark magenta", "dm" -> Color.MAGENTA;
 			case "dark cyan", "dc" -> Color.CYAN;
 			case "dark white", "dw" -> Color.WHITE;
-			default -> throw new MalformedTagException("color", "unknown color name " + UtlString.surround(colorName));
+			default -> throw new MalformedTagException(ColorTag.class, "unknown color name " + UtlString.surround(colorName));
 		};
 	}
 }

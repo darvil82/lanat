@@ -62,7 +62,7 @@ public class FormatTag extends Tag {
 			case "hidden", "h" -> FormatOption.HIDDEN;
 			case "strike", "s" -> FormatOption.STRIKE_THROUGH;
 			default ->
-				throw new MalformedTagException("format", "unknown format name " + UtlString.surround(formatName));
+				throw new MalformedTagException(FormatTag.class, "unknown format name " + UtlString.surround(formatName));
 		};
 	}
 }

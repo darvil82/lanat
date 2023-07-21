@@ -41,10 +41,10 @@ public abstract class Tag {
 
 	/** Initialize the tags. This method will register the default tags that are used in descriptions. */
 	public static void initTags() {
-		Tag.registerTag("link", LinkTag.class);
-		Tag.registerTag("desc", DescTag.class);
-		Tag.registerTag("color", ColorTag.class);
-		Tag.registerTag("format", FormatTag.class);
+		Tag.register("link", LinkTag.class);
+		Tag.register("desc", DescTag.class);
+		Tag.register("color", ColorTag.class);
+		Tag.register("format", FormatTag.class);
 	}
 
 	public static String getTagNameFromTagClass(Class<? extends Tag> tagClass) {
@@ -64,7 +64,7 @@ public abstract class Tag {
 	 * @param name name of the tag (case-insensitive). Must only contain lowercase letters and dashes.
 	 * @param tag tag object that will be used to parse the tag
 	 */
-	public static void registerTag(@NotNull String name, @NotNull Class<? extends Tag> tag) {
+	public static void register(@NotNull String name, @NotNull Class<? extends Tag> tag) {
 		if (!Tag.TAG_REGEX.matcher(name).matches())
 			throw new IllegalArgumentException("Tag name must only contain lowercase letters and dashes");
 		Tag.registeredTags.put(name, tag);

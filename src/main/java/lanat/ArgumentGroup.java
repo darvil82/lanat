@@ -50,6 +50,7 @@ import java.util.List;
  * If {@code Argument 2.1} is used, {@code Argument 2.2} can still be used, because {@code Group 2} is not exclusive.
  * No other arguments in the tree can be used though.
  * </li>
+ * </ul>
  */
 public class ArgumentGroup
 	implements ArgumentAdder,

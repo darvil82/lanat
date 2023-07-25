@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+/**
+ * Represents an object that has multiple names and a description.
+ */
 public interface MultipleNamesAndDescription extends NamedWithDescription {
 	/**
 	 * Add one or more names to this object.

@@ -3,6 +3,9 @@ package lanat;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Represents an object that has a name and a description.
+ */
 public interface NamedWithDescription {
 	/**
 	 * Returns the name of this object.

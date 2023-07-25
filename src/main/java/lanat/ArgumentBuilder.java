@@ -17,16 +17,16 @@ import java.util.stream.Stream;
  * @param <TInner> the actual type of the value passed to the argument
  */
 public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
-	public @NotNull String @Nullable [] names;
-	public @Nullable String description;
-	public @Nullable Type argType;
-	public boolean obligatory = false,
+	private @NotNull String @Nullable [] names;
+	private @Nullable String description;
+	private @Nullable Type argType;
+	private boolean obligatory = false,
 		positional = false,
 		allowUnique = false;
-	public @Nullable TInner defaultValue;
-	public @Nullable Consumer<@NotNull Argument<Type, TInner>> onErrorCallback;
-	public @Nullable Consumer<@NotNull TInner> onCorrectCallback;
-	public @Nullable Argument.PrefixChar prefixChar = Argument.PrefixChar.defaultPrefix;
+	private @Nullable TInner defaultValue;
+	private @Nullable Consumer<@NotNull Argument<Type, TInner>> onErrorCallback;
+	private @Nullable Consumer<@NotNull TInner> onCorrectCallback;
+	private @Nullable Argument.PrefixChar prefixChar = Argument.PrefixChar.defaultPrefix;
 
 	ArgumentBuilder() {}
 

@@ -125,7 +125,7 @@ public class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 	protected void handleMultipleArgsInExclusiveGroupUsed() {
 		this.fmt()
 			.setContent("Multiple arguments in exclusive group '%s' used."
-				.formatted(this.argumentGroup.name)
+				.formatted(this.argumentGroup.getName())
 			)
 			.displayTokens(this.tokenIndex, this.valueCount, false);
 	}

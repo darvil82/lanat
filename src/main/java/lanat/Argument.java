@@ -169,6 +169,11 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		this.addNames(names);
 	}
 
+	/**
+	 * Creates an argument builder with no type or names.
+	 * @param <Type> the {@link ArgumentType} subclass that will parse the value passed to the argument
+	 * @param <TInner> the actual type of the value passed to the argument
+	 */
 	public static <Type extends ArgumentType<TInner>, TInner>
 	ArgumentBuilder<Type, TInner> create() {
 		return new ArgumentBuilder<>();
@@ -637,6 +642,10 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 			);
 	}
 
+	/**
+	 * Used in {@link CommandTemplate}s to specify the properties of an argument belonging to the command.
+	 * @see CommandTemplate
+	 */
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.FIELD)
 	public @interface Define {

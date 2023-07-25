@@ -31,7 +31,7 @@ public final class ArgumentGroupRepr {
 		if (description == null)
 			return null;
 
-		final var name = new TextFormatter(group.name + ':').addFormat(FormatOption.BOLD);
+		final var name = new TextFormatter(group.getName() + ':').addFormat(FormatOption.BOLD);
 		if (group.isExclusive())
 			name.addFormat(FormatOption.UNDERLINE);
 
@@ -55,7 +55,7 @@ public final class ArgumentGroupRepr {
 	public static @NotNull String getDescriptions(@NotNull ArgumentGroup group) {
 		final var arguments = Argument.sortByPriority(group.getArguments());
 		final var buff = new StringBuilder();
-		final var name = new TextFormatter(group.name + ':').addFormat(FormatOption.BOLD);
+		final var name = new TextFormatter(group.getName() + ':').addFormat(FormatOption.BOLD);
 		final var description = DescriptionFormatter.parse(group);
 		final var argumentDescriptions = ArgumentRepr.getDescriptions(arguments);
 

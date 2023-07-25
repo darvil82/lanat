@@ -10,6 +10,47 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * <h2>Argument Group</h2>
+ * <p>
+ * Represents a group of arguments. This is used to group arguments together, and to set exclusivity between them.
+ * When a group is exclusive, it means that only one argument in it can be used at a time.
+ * <p>
+ * Groups can also be used to simply indicate arguments that are related to each other, and to set a description
+ * to this relation. This is useful for the help message representation.
+ * <p>
+ * Groups can be nested, meaning that a group can contain other groups. This is useful for setting exclusivity between
+ * arguments that are in different groups. For example, given the following group tree:
+ * <pre>
+ *            +-----------------------+
+ *            |  Group 1 (exclusive)  |
+ *            |-----------------------|
+ *            | Argument 1            |
+ *            +-----------------------+
+ *                       |
+ *          +---------------------------+
+ *          |                           |
+ *  +---------------+      +-------------------------+
+ *  |    Group 2    |      |   Group 3 (exclusive)   |
+ *  |---------------|      |-------------------------|
+ *  | Argument 2.1  |      | Argument 3.1            |
+ *  | Argument 2.2  |      | Argument 3.2            |
+ *  +---------------+      +-------------------------+
+ * </pre>
+ * <ul>
+ * <li>
+ * If {@code Argument 1} is used, then none of the arguments in the child groups can be used, because {@code Group 1}
+ * is exclusive.
+ * </li>
+ * <li>
+ * If {@code Argument 3.1} is used, then none of the arguments in the rest of the tree can be used, because
+ * both {@code Group 3} and its parent {@code Group 1} are exclusive.
+ * </li>
+ * <li>
+ * If {@code Argument 2.1} is used, {@code Argument 2.2} can still be used, because {@code Group 2} is not exclusive.
+ * No other arguments in the tree can be used though.
+ * </li>
+ */
 public class ArgumentGroup
 	implements ArgumentAdder,
 	ArgumentGroupAdder,
@@ -19,9 +60,13 @@ public class ArgumentGroup
 	NamedWithDescription,
 	ParentElementGetter<ArgumentGroup>
 {
-	public final @NotNull String name;
-	public @Nullable String description;
+	private final @NotNull String name;
+	private @Nullable String description;
+
+	/** The parent command of this group. This is set when the group is added to a command. */
 	private Command parentCommand;
+
+	/** The parent group of this group. This is set when the group is added to another group. */
 	private @Nullable ArgumentGroup parentGroup;
 
 	/**
@@ -48,11 +93,21 @@ public class ArgumentGroup
 	private boolean argumentUsed = false;
 
 
+	/**
+	 * Creates a new Argument Group with the given name and description.
+	 * The name and descriptions are basically only used for the help message.
+	 * @param name The name of the group. Must be a unique name among all groups in the same command.
+	 * @param description The description of the group.
+	 */
 	public ArgumentGroup(@NotNull String name, @Nullable String description) {
 		this.name = UtlString.requireValidName(name);
 		this.description = description;
 	}
 
+	/**
+	 * Creates a new Argument Group with the given name and no description.
+	 * @param name The name of the group. Must be a unique name among all groups in the same command.
+	 */
 	public ArgumentGroup(@NotNull String name) {
 		this(name, null);
 	}
@@ -128,7 +183,7 @@ public class ArgumentGroup
 	}
 
 	/**
-	 * Sets this group to be exclusive, meaning that only one argument in it can be used.
+	 * Sets this group to be exclusive, meaning that only one argument in it can be used at a time.
 	 */
 	public void setExclusive(boolean isExclusive) {
 		this.isExclusive = isExclusive;
@@ -167,6 +222,11 @@ public class ArgumentGroup
 	}
 
 
+	/**
+	 * Marks that an argument in this group has been used. This is used to later check for exclusivity.
+	 * This also marks the parent group as used, and so on until reaching the root of the groups tree, thus marking the
+	 * path of the used argument.
+	 */
 	void setArgUsed() {
 		this.argumentUsed = true;
 

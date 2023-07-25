@@ -42,7 +42,7 @@ public class Command
 	ParentElementGetter<Command>
 {
 	private final @NotNull List<@NotNull String> names = new ArrayList<>();
-	public @Nullable String description;
+	private @Nullable String description;
 	final @NotNull ArrayList<@NotNull Argument<?, ?>> arguments = new ArrayList<>();
 	final @NotNull ArrayList<@NotNull Command> subCommands = new ArrayList<>();
 	private Command parentCommand;
@@ -65,7 +65,7 @@ public class Command
 	/**
 	 * Creates a new command with the given name and description.
 	 * @param name The name of the command. This is the name the user will use to indicate that they want to use this
-	 * 		   command.
+	 * 		   command. Must be unique among all the commands in the same parent command.
 	 * @param description The description of the command.
 	 * @see #setDescription(String)
 	 */
@@ -77,7 +77,7 @@ public class Command
 	/**
 	 * Creates a new command with the given name and no description. This is the name the user will use to
 	 * indicate that they want to use this command.
-	 * @param name The name of the command.
+	 * @param name The name of the command. Must be unique among all the commands in the same parent command.
 	 */
 	public Command(@NotNull String name) {
 		this(name, null);
@@ -173,7 +173,7 @@ public class Command
 	}
 
 	@Override
-	public void addNames(String... names) {
+	public void addNames(@NotNull String... names) {
 		Arrays.stream(names)
 			.map(UtlString::requireValidName)
 			.peek(newName -> {

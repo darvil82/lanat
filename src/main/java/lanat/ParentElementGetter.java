@@ -26,8 +26,14 @@ public interface ParentElementGetter<T extends ParentElementGetter<T>> {
 	@SuppressWarnings("unchecked")
 	default @NotNull T getRoot() {
 		T root = (T)this;
-		while (root.getParent() != null)
-			root = root.getParent();
+		T parent = root.getParent();
+
+		while (parent != null) {
+			root = parent;
+			parent = root.getParent();
+		}
+
 		return root;
+
 	}
 }

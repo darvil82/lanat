@@ -11,7 +11,7 @@ public class Range {
 	public static final Range ONE = Range.of(1);
 
 	private final int min, max;
-	public boolean isInfinite;
+	public final boolean isInfinite;
 
 	private Range(int min, int max) {
 		this.isInfinite = max == -1;

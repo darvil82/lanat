@@ -34,6 +34,5 @@ public interface ParentElementGetter<T extends ParentElementGetter<T>> {
 		}
 
 		return root;
-
 	}
 }

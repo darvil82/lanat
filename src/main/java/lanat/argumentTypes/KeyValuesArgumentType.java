@@ -51,8 +51,7 @@ public class KeyValuesArgumentType<T extends ArgumentType<Ts>, Ts> extends Argum
 				return;
 			}
 
-			this.valueType.parseAndUpdateValue(value);
-			tempHashMap.put(key, this.valueType.getFinalValue());
+			tempHashMap.put(key, this.valueType.parseValues(value));
 		});
 
 		if (tempHashMap.isEmpty())

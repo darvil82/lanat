@@ -5,6 +5,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+/**
+ * An interface for objects that can add {@link Command}s to themselves.
+ */
 public interface CommandAdder {
 	void addCommand(@NotNull Command command);
 

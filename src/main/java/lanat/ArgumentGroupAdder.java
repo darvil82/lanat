@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 /**
- * An interface for objects that can add argument groups to themselves.
+ * An interface for objects that can add {@link ArgumentGroup}s to themselves.
  */
 public interface ArgumentGroupAdder extends NamedWithDescription {
 	/**

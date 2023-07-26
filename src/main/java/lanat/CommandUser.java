@@ -3,7 +3,7 @@ package lanat;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * This interface is used for getting the parent Command of an object that is part of a command.
+ * This interface is used for objects that belong to a {@link Command}.
  */
 public interface CommandUser {
 	/**

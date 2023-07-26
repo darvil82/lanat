@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 /**
- * An interface for objects that can add arguments to themselves.
+ * An interface for objects that can add {@link Argument}s to themselves.
  */
 public interface ArgumentAdder extends NamedWithDescription {
 	/**

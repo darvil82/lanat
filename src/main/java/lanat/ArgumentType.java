@@ -11,6 +11,22 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 
+/**
+ * <h2>Argument Type</h2>
+ * <p>
+ * An Argument Type is a handler in charge of parsing a specific kind of input from the command line. For example, the
+ * {@link IntegerArgumentType} is in charge of parsing integers from the command line.
+ * </p>
+ * <h3>Creating custom Argument Types</h3>
+ * <p>
+ * Creating new Argument Types is an easy task. Extending this class already provides you with most of the functionality
+ * that you need. The minimum method that should be implemented is the {@link ArgumentType#parseValues(String[])} method.
+ * Which will be called by the main parser when it needs to parse the values of an argument of this type.
+ * </p>
+ * The custom Argument Type can push errors to the main parser by using the {@link ArgumentType#addError(String)} method
+ * and its overloads.
+ * @param <T> The type of the value that this argument type parses.
+ */
 public abstract class ArgumentType<T>
 	extends ErrorsContainerImpl<CustomError>
 	implements Resettable, Parseable<T>, ParentElementGetter<ArgumentType<?>>
@@ -91,7 +107,7 @@ public abstract class ArgumentType<T>
 
 	/**
 	 * This is called when a subtype of this argument type has an error. By default, this adds the error to the list of
-	 * errors, while also adding the {@link ArgumentType#currentArgValueIndex}.
+	 * errors, while also adding the {@link ArgumentType#currentArgValueIndex} to the error's token index.
 	 *
 	 * @param error The error that occurred in the subtype.
 	 */
@@ -100,6 +116,10 @@ public abstract class ArgumentType<T>
 		this.addError(error);
 	}
 
+	/**
+	 * Dispatches the error to the parent argument type.
+	 * @param error The error to dispatch.
+	 */
 	private void dispatchErrorToParent(@NotNull CustomError error) {
 		if (this.parentArgType != null) {
 			this.parentArgType.onSubTypeError(error);

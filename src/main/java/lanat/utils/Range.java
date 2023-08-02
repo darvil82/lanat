@@ -5,14 +5,25 @@ import org.jetbrains.annotations.NotNull;
 
 /** A range class to contain a minimum and maximum value, or a single value. */
 public class Range {
+	/** A range between 0 and infinity. */
 	public static final Range ANY = Range.from(0).toInfinity();
+	/** A range between 1 and infinity. */
 	public static final Range AT_LEAST_ONE = Range.from(1).toInfinity();
+	/** A range of 0. */
 	public static final Range NONE = Range.of(0);
+	/** A range of 1. */
 	public static final Range ONE = Range.of(1);
 
 	private final int min, max;
+	/** Whether the range is infinite. */
 	public final boolean isInfinite;
 
+	/**
+	 * Creates a new range with the given minimum and maximum values. If the maximum value is -1, the range max value
+	 * will be infinity.
+	 * @param min The minimum value
+	 * @param max The maximum value, or -1 for infinity
+	 */
 	private Range(int min, int max) {
 		this.isInfinite = max == -1;
 		if (min < 0)
@@ -34,6 +45,9 @@ public class Range {
 
 		/** Sets the maximum value. */
 		public @NotNull Range to(int max) {
+			if (max < 0)
+				throw new IllegalArgumentException("max value cannot be negative");
+
 			this.max = max;
 			return this.build();
 		}
@@ -60,6 +74,7 @@ public class Range {
 		return new Range(value, value);
 	}
 
+	/** Returns {@code true} if this is representing a range, and not a single value. */
 	public boolean isRange() {
 		return this.min != this.max;
 	}
@@ -99,15 +114,46 @@ public class Range {
 	 */
 	public @NotNull String getRegexRange() {
 		return this.isRange()
-			? "{%d, %s}".formatted(this.min, "" + (this.max == -1 ? "..." : this.max))
+			? "{%d, %s}".formatted(this.min, "" + (this.isInfinite ? "..." : this.max))
 			: "{%d}".formatted(this.min);
 	}
 
-	public boolean isInRange(int value) {
-		return value >= this.min && (this.isInfinite || value <= this.max);
+	/**
+	 * Returns {@code true} if the given value is in the range.
+	 * @param value The value to check
+	 * @param minInclusive Whether the minimum value is inclusive
+	 * @param maxInclusive Whether the maximum value is inclusive
+	 * @return {@code true} if the value is in the range
+	 */
+	public boolean isInRange(int value, boolean minInclusive, boolean maxInclusive) {
+		boolean isInMin = minInclusive
+			? value >= this.min
+			: value > this.min;
+
+		// if the max value is infinity, it will always be below the max
+		boolean isInMax = this.isInfinite || (maxInclusive
+			? value <= this.max
+			: value < this.max
+		);
+
+		return isInMin && isInMax;
 	}
 
-	public boolean isIndexInRange(int value) {
-		return value >= 0 && (this.isInfinite || value < this.max);
+	/**
+	 * Returns {@code true} if the given value is in the range, inclusive.
+	 * @param value The value to check
+	 * @return {@code true} if the value is in the range
+	 */
+	public boolean isInRangeInclusive(int value) {
+		return this.isInRange(value, true, true);
+	}
+
+	/**
+	 * Returns {@code true} if the given value is in the range, exclusive.
+	 * @param value The value to check
+	 * @return {@code true} if the value is in the range
+	 */
+	public boolean isInRangeExclusive(int value) {
+		return this.isInRange(value, false, false);
 	}
 }

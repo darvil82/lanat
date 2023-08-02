@@ -164,8 +164,7 @@ public abstract class ArgumentType<T>
 	}
 
 	/**
-	 * Adds an error to the list of errors that occurred during parsing.
-	 *
+	 * Adds an error to the list of errors that occurred during parsing at the current token index.
 	 * @param message The message to display related to the error.
 	 */
 	protected void addError(@NotNull String message) {
@@ -174,7 +173,6 @@ public abstract class ArgumentType<T>
 
 	/**
 	 * Adds an error to the list of errors that occurred during parsing.
-	 *
 	 * @param message The message to display related to the error.
 	 * @param index The index of the value that caused the error.
 	 */
@@ -184,7 +182,6 @@ public abstract class ArgumentType<T>
 
 	/**
 	 * Adds an error to the list of errors that occurred during parsing.
-	 *
 	 * @param message The message to display related to the error.
 	 * @param level The level of the error.
 	 */
@@ -194,36 +191,33 @@ public abstract class ArgumentType<T>
 
 	/**
 	 * Adds an error to the list of errors that occurred during parsing.
-	 *
 	 * @param message The message to display related to the error.
 	 * @param index The index of the value that caused the error.
 	 * @param level The level of the error.
 	 */
 	protected void addError(@NotNull String message, int index, @NotNull ErrorLevel level) {
-		if (!this.getRequiredArgValueCount().isIndexInRange(index)) {
-			throw new IndexOutOfBoundsException("Index " + index + " is out of range for " + this.getClass().getName());
-		}
+		this.addError(new CustomError(message, index, level));
+	}
 
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * <strong>Note: </strong> The error is modified to have the correct token index before being added to the list of
+	 * errors.
+	 * </p>
+	 */
+	@Override
+	public void addError(@NotNull CustomError error) {
 		if (this.lastTokenIndex == -1) {
 			throw new IllegalStateException("Cannot add an error to an argument that has not been parsed yet.");
 		}
 
-		var error = new CustomError(
-			message,
-			this.lastTokenIndex + Math.min(index + 1, this.lastReceivedValueCount),
-			level
-		);
-
-		super.addError(error);
-		this.dispatchErrorToParent(error);
-	}
-
-	@Override
-	public void addError(@NotNull CustomError error) {
-		if (!this.getRequiredArgValueCount().isIndexInRange(error.tokenIndex)) {
+		// the index of the error should never be less than 0 or greater than the max value count
+		if (error.tokenIndex < 0 || error.tokenIndex >= this.getRequiredArgValueCount().max()) {
 			throw new IndexOutOfBoundsException("Index " + error.tokenIndex + " is out of range for " + this.getClass().getName());
 		}
 
+		// the index of the error should be relative to the last token index
 		error.tokenIndex = this.lastTokenIndex + Math.min(error.tokenIndex + 1, this.lastReceivedValueCount);
 
 		super.addError(error);

@@ -1,13 +1,12 @@
 package lanat;
 
-import lanat.argumentTypes.*;
+import lanat.argumentTypes.DummyArgumentType;
 import lanat.utils.UtlReflection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -30,29 +29,6 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
 
 	ArgumentBuilder() {}
 
-	// mapping of types to their corresponding argument types
-	private static final HashMap<Class<?>, Class<? extends ArgumentType<?>>> INFER_ARGUMENT_TYPES_MAP = new HashMap<>() {
-		private void put(
-			Class<?> boxed,
-			Class<?> primitive,
-			Class<? extends ArgumentType<?>> value
-		) {
-			// I wish I didn't have to do this
-			this.put(boxed, value);
-			this.put(primitive, value);
-		}
-
-		{
-			this.put(String.class, StringArgumentType.class);
-			this.put(int.class, Integer.class, IntegerArgumentType.class);
-			this.put(boolean.class, Boolean.class, BooleanArgumentType.class);
-			this.put(float.class, Float.class, FloatArgumentType.class);
-			this.put(double.class, Double.class, DoubleArgumentType.class);
-			this.put(long.class, Long.class, LongArgumentType.class);
-			this.put(short.class, Short.class, ShortArgumentType.class);
-			this.put(byte.class, Byte.class, ByteArgumentType.class);
-		}
-	};
 
 	/**
 	 * Returns an {@link ArgumentType} instance based on the specified field. If the annotation specifies a type,
@@ -72,7 +48,7 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
 			return UtlReflection.instantiate(annotation.argType());
 
 		// try to infer the type from the field type
-		var argTypeMap = INFER_ARGUMENT_TYPES_MAP.get(field.getType());
+		var argTypeMap = ArgumentType.getTypeInfer(field.getType());
 
 		// if the type was not found, return null
 		return argTypeMap == null ? null : UtlReflection.instantiate(argTypeMap);

@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.function.Consumer;
 
 /**
@@ -25,6 +26,11 @@ import java.util.function.Consumer;
  * </p>
  * The custom Argument Type can push errors to the main parser by using the {@link ArgumentType#addError(String)} method
  * and its overloads.
+ * <p>
+ * You can also implement {@link Parseable} to create a basic argument type implementation. Note that in order to
+ * use that implementation, you need to wrap it in a {@link FromParseableArgumentType} instance (which provides the
+ * necessary internal functionality).
+ * </p>
  * @param <T> The type of the value that this argument type parses.
  */
 public abstract class ArgumentType<T>
@@ -65,6 +71,10 @@ public abstract class ArgumentType<T>
 	 */
 	private @Nullable ArgumentType<?> parentArgType;
 	private final @NotNull ArrayList<@NotNull ArgumentType<?>> subTypes = new ArrayList<>();
+
+	/** Mapping of types to their corresponding argument types. Used for inferring. */
+	private static final HashMap<Class<?>, Class<? extends ArgumentType<?>>> INFER_ARGUMENT_TYPES_MAP = new HashMap<>();
+
 
 	public ArgumentType(@NotNull T initialValue) {
 		this();
@@ -265,56 +275,38 @@ public abstract class ArgumentType<T>
 		return this.parentArgType;
 	}
 
-	// Easy to access values. These are methods because we don't want to use the same instance everywhere.
-	public static IntegerArgumentType INTEGER() {
-		return new IntegerArgumentType();
+
+	/**
+	 * Registers an argument type to be inferred for the specified type/s.
+	 * @param type The argument type to infer.
+	 * @param infer The types to infer the argument type for.
+	 */
+	public static void registerTypeInfer(@NotNull Class<? extends ArgumentType<?>> type, @NotNull Class<?>... infer) {
+		for (Class<?> clazz : infer) {
+			ArgumentType.INFER_ARGUMENT_TYPES_MAP.put(clazz, type);
+		}
 	}
 
-	public static IntegerRangeArgumentType INTEGER_RANGE(int min, int max) {
-		return new IntegerRangeArgumentType(min, max);
+	/**
+	 * Returns the argument type that should be inferred for the specified type.
+	 * @param clazz The type to infer the argument type for.
+	 * @return The argument type that should be inferred for the specified type. Returns {@code null} if no
+	 * valid argument type was found.
+	 */
+	public static Class<? extends ArgumentType<?>> getTypeInfer(@NotNull Class<?> clazz) {
+		return ArgumentType.INFER_ARGUMENT_TYPES_MAP.get(clazz);
 	}
 
-	public static FloatArgumentType FLOAT() {
-		return new FloatArgumentType();
-	}
-
-	public static BooleanArgumentType BOOLEAN() {
-		return new BooleanArgumentType();
-	}
-
-	public static CounterArgumentType COUNTER() {
-		return new CounterArgumentType();
-	}
-
-	public static FileArgumentType FILE() {
-		return new FileArgumentType();
-	}
-
-	public static StringArgumentType STRING() {
-		return new StringArgumentType();
-	}
-
-	public static MultipleStringsArgumentType STRINGS() {
-		return new MultipleStringsArgumentType();
-	}
-
-	public static <T extends ArgumentType<Ti>, Ti> KeyValuesArgumentType<T, Ti> KEY_VALUES(T valueType) {
-		return new KeyValuesArgumentType<>(valueType);
-	}
-
-	public static <T extends Enum<T>> EnumArgumentType<T> ENUM(T enumDefault) {
-		return new EnumArgumentType<>(enumDefault);
-	}
-
-	public static StdinArgumentType STDIN() {
-		return new StdinArgumentType();
-	}
-
-	public static <T extends Parseable<Ti>, Ti> FromParseableArgumentType<T, Ti> FROM_PARSEABLE(T parseable) {
-		return new FromParseableArgumentType<>(parseable);
-	}
-
-	public static <T> TryParseArgumentType<T> TRY_PARSE(Class<T> type) {
-		return new TryParseArgumentType<>(type);
+	// add some default argument types.
+	static {
+		// we need to also specify the primitives... wish there was a better way to do this.
+		ArgumentType.registerTypeInfer(StringArgumentType.class, String.class);
+		ArgumentType.registerTypeInfer(IntegerArgumentType.class, int.class, Integer.class);
+		ArgumentType.registerTypeInfer(BooleanArgumentType.class, boolean.class, Boolean.class);
+		ArgumentType.registerTypeInfer(FloatArgumentType.class, float.class, Float.class);
+		ArgumentType.registerTypeInfer(DoubleArgumentType.class, double.class, Double.class);
+		ArgumentType.registerTypeInfer(LongArgumentType.class, long.class, Long.class);
+		ArgumentType.registerTypeInfer(ShortArgumentType.class, short.class, Short.class);
+		ArgumentType.registerTypeInfer(ByteArgumentType.class, byte.class, Byte.class);
 	}
 }

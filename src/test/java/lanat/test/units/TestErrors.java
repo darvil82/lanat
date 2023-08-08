@@ -1,6 +1,12 @@
 package lanat.test.units;
 
-import lanat.*;
+import lanat.Argument;
+import lanat.CallbacksInvocationOption;
+import lanat.Command;
+import lanat.NamedWithDescription;
+import lanat.argumentTypes.CounterArgumentType;
+import lanat.argumentTypes.FloatArgumentType;
+import lanat.argumentTypes.IntegerArgumentType;
 import lanat.test.TestingParser;
 import lanat.test.UnitTests;
 import lanat.utils.ErrorCallbacks;
@@ -50,13 +56,13 @@ public class TestErrors extends UnitTests {
 		return this.addCallbacks(new TestingParser("TestCallbacks") {{
 			this.setErrorCode(5);
 
-			this.addArgument(TestErrors.this.addCallbacks(Argument.create(ArgumentType.BOOLEAN(), "bool-arg").build()));
-			this.addArgument(TestErrors.this.addCallbacks(Argument.create(ArgumentType.INTEGER(), "int-arg").build()));
-			this.addArgument(TestErrors.this.addCallbacks(Argument.create(ArgumentType.COUNTER(), "counter").build()));
-			this.addArgument(TestErrors.this.addCallbacks(Argument.create(ArgumentType.FLOAT(), "float").build()));
+			this.addArgument(TestErrors.this.addCallbacks(Argument.createOfBoolType("bool-arg").build()));
+			this.addArgument(TestErrors.this.addCallbacks(Argument.create(new IntegerArgumentType(), "int-arg").build()));
+			this.addArgument(TestErrors.this.addCallbacks(Argument.create(new CounterArgumentType(), "counter").build()));
+			this.addArgument(TestErrors.this.addCallbacks(Argument.create(new FloatArgumentType(), "float").build()));
 
 			this.addCommand(TestErrors.this.addCallbacks(new Command("sub") {{
-				this.addArgument(TestErrors.this.addCallbacks(Argument.create(ArgumentType.FLOAT(), "sub-float").build()));
+				this.addArgument(TestErrors.this.addCallbacks(Argument.create(new FloatArgumentType(), "sub-float").build()));
 				this.setErrorCode(2);
 			}}));
 		}});

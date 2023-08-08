@@ -1,7 +1,7 @@
 package lanat.test.units;
 
 import lanat.Argument;
-import lanat.ArgumentType;
+import lanat.argumentTypes.CounterArgumentType;
 import lanat.helpRepresentation.HelpFormatter;
 import lanat.helpRepresentation.LayoutItem;
 import lanat.helpRepresentation.descriptions.DescriptionFormatter;
@@ -35,7 +35,7 @@ public class TestHelpFormatting extends UnitTests {
 		{{
 			this.addArgument(Argument.createOfBoolType("arg1", "a1")
 				.withDescription("description of arg2: (<desc=args.arg2>)"));
-			this.addArgument(Argument.create(ArgumentType.COUNTER(), "arg2")
+			this.addArgument(Argument.create(new CounterArgumentType(), "arg2")
 				.withDescription("description of my type: (<desc=!.type>) i am in the command <link>"));
 		}};
 	}

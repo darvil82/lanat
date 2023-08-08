@@ -3,6 +3,9 @@ package lanat.test;
 import lanat.Argument;
 import lanat.ArgumentType;
 import lanat.Command;
+import lanat.argumentTypes.CounterArgumentType;
+import lanat.argumentTypes.IntegerArgumentType;
+import lanat.argumentTypes.StringArgumentType;
 import lanat.argumentTypes.TupleArgumentType;
 import lanat.helpRepresentation.HelpFormatter;
 import lanat.utils.Range;
@@ -58,23 +61,23 @@ public class UnitTests {
 				.obligatory()
 			);
 			this.addArgument(Argument.create(new RestrictedDoubleAdder(), "double-adder"));
-			this.addArgument(Argument.create(ArgumentType.STRING(), "a"));
+			this.addArgument(Argument.create(new StringArgumentType(), "a"));
 
 			this.addCommand(new Command("subCommand") {{
 				this.setErrorCode(0b0010);
-				this.addArgument(Argument.create(ArgumentType.COUNTER(), "c"));
+				this.addArgument(Argument.create(new CounterArgumentType(), "c"));
 				this.addArgument(Argument.create(new StringJoiner(), 's', "more-strings"));
 
 				this.addCommand(new Command("another") {{
 					this.setErrorCode(0b0001);
 					this.addArgument(Argument.create(new StringJoiner(), "ball"));
-					this.addArgument(Argument.create(ArgumentType.INTEGER(), "number").positional().obligatory());
+					this.addArgument(Argument.create(new IntegerArgumentType(), "number").positional().obligatory());
 				}});
 			}});
 
 			this.addCommand(new Command("subCommand2") {{
 				this.setErrorCode(0b1000);
-				this.addArgument(Argument.create(ArgumentType.INTEGER(), 'c').positional());
+				this.addArgument(Argument.create(new IntegerArgumentType(), 'c').positional());
 			}});
 		}};
 	}

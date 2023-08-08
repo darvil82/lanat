@@ -5,6 +5,9 @@ import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * An argument type that takes a long integer number.
+ */
 public class LongArgumentType extends ArgumentType<Long> {
 	@Override
 	public Long parseValues(@NotNull String @NotNull [] args) {

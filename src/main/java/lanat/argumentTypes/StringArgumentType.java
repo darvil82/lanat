@@ -5,6 +5,9 @@ import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * An argument type that takes a string of characters.
+ */
 public class StringArgumentType extends ArgumentType<String> {
 	@Override
 	public String parseValues(@NotNull String @NotNull [] args) {

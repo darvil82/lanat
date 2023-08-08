@@ -5,6 +5,9 @@ import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * An argument type that takes a byte value.
+ */
 public class ByteArgumentType extends ArgumentType<Byte> {
 	@Override
 	public Byte parseValues(@NotNull String @NotNull [] args) {

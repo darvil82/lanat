@@ -5,6 +5,9 @@ import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * An argument type that takes a floating point number.
+ */
 public class FloatArgumentType extends ArgumentType<Float> {
 	@Override
 	public Float parseValues(@NotNull String @NotNull [] args) {

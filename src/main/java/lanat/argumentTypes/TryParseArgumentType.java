@@ -13,11 +13,18 @@ import java.util.Arrays;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-
+/**
+ * An argument type that attempts to parse a string into the type given in the constructor.
+ * <p>
+ * The type given must have a static {@code valueOf(String)}, {@code parse(String)}, or {@code from(String)} method,
+ * or a constructor that takes a string. If none of these are found, an exception will be thrown.
+ * </p>
+ * @param <T> The type to parse the string into.
+ */
 public class TryParseArgumentType<T> extends ArgumentType<T> {
 	private final Function<String, Object> parseMethod;
 	private final @NotNull Class<T> type;
-	private static final String[] tryParseMethodNames = new String[] { "valueOf", "from", "parse" };
+	private static final String[] TRY_PARSE_METHOD_NAMES = new String[] { "valueOf", "from", "parse" };
 
 
 	public TryParseArgumentType(@NotNull Class<T> type) {
@@ -34,7 +41,7 @@ public class TryParseArgumentType<T> extends ArgumentType<T> {
 		return Modifier.isStatic(executable.getModifiers())
 			&& executable.getParameterCount() == 1
 			&& executable.getParameterTypes()[0] == String.class
-			&& Arrays.asList(TryParseArgumentType.tryParseMethodNames).contains(executable.getName());
+			&& Arrays.asList(TryParseArgumentType.TRY_PARSE_METHOD_NAMES).contains(executable.getName());
 	}
 
 	private boolean isValidMethod(Method method) {

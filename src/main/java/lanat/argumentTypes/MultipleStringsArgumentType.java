@@ -5,6 +5,9 @@ import lanat.utils.Range;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * An argument type that takes multiple strings.
+ */
 public class MultipleStringsArgumentType extends ArgumentType<String[]> {
 	@Override
 	public @NotNull Range getRequiredArgValueCount() {

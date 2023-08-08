@@ -5,6 +5,9 @@ import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * An argument type that takes a double precision floating point number.
+ */
 public class DoubleArgumentType extends ArgumentType<Double> {
 	@Override
 	public Double parseValues(@NotNull String @NotNull [] args) {

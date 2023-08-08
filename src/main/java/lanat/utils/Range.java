@@ -37,7 +37,7 @@ public class Range {
 
 	public static class RangeBuilder {
 		private final int min;
-		private int max = 0;
+		private int max;
 
 		private RangeBuilder(int min) {
 			this.min = min;

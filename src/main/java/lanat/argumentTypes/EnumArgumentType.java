@@ -9,6 +9,14 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 
+/**
+ * An argument type that takes an enum value.
+ * By supplying a default value in the constructor, the enum type is inferred.
+ * <p>
+ * The user can specify the enum value by its name, case insensitive.
+ * </p>
+ * @param <T> The enum type.
+ */
 public class EnumArgumentType<T extends Enum<T>> extends ArgumentType<T> {
 	private final @NotNull T @NotNull [] values;
 

@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
  * @see #parse(NamedWithDescription, String)
  */
 public abstract class Tag {
-	private static final Hashtable<String, Class<? extends Tag>> registeredTags = new Hashtable<>();
+	private static final Hashtable<String, Class<? extends Tag>> REGISTERED_TAGS = new Hashtable<>();
 	private static final Pattern TAG_REGEX = Pattern.compile("[a-z][a-z-]+[a-z]", Pattern.CASE_INSENSITIVE);
 
 
@@ -48,7 +48,7 @@ public abstract class Tag {
 	}
 
 	public static String getTagNameFromTagClass(Class<? extends Tag> tagClass) {
-		return registeredTags.entrySet().stream()
+		return Tag.REGISTERED_TAGS.entrySet().stream()
 			.filter(entry -> entry.getValue() == tagClass)
 			.findFirst()
 			.map(Map.Entry::getKey)
@@ -67,7 +67,7 @@ public abstract class Tag {
 	public static void register(@NotNull String name, @NotNull Class<? extends Tag> tag) {
 		if (!Tag.TAG_REGEX.matcher(name).matches())
 			throw new IllegalArgumentException("Tag name must only contain lowercase letters and dashes");
-		Tag.registeredTags.put(name, tag);
+		Tag.REGISTERED_TAGS.put(name, tag);
 	}
 
 	/**
@@ -84,7 +84,7 @@ public abstract class Tag {
 		@Nullable String value
 	)
 	{
-		final var tagClass = Tag.registeredTags.get(tagName.toLowerCase());
+		final var tagClass = Tag.REGISTERED_TAGS.get(tagName.toLowerCase());
 
 		if (tagClass == null)
 			throw new UnknownTagException(tagName);

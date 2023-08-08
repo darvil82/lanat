@@ -5,6 +5,9 @@ import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * An argument type that takes an integer number.
+ */
 public class IntegerArgumentType extends ArgumentType<Integer> {
 	@Override
 	public Integer parseValues(String @NotNull [] args) {

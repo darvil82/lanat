@@ -5,6 +5,9 @@ import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * An argument type that takes a short integer number.
+ */
 public class ShortArgumentType extends ArgumentType<Short> {
 	@Override
 	public Short parseValues(@NotNull String @NotNull [] args) {

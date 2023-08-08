@@ -5,6 +5,12 @@ import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * An argument type that takes an integer number within a range specified on construction.
+ * <p>
+ * If value given is not in range, an error is added.
+ * </p>
+ */
 public class IntegerRangeArgumentType extends IntegerArgumentType {
 	private final int min, max;
 

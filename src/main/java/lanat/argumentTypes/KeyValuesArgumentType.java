@@ -10,6 +10,15 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Objects;
 
+/**
+ * An argument type that takes key-value pairs. The key is a string and the value is of another type that is specified
+ * in the constructor.
+ * <p>
+ * The final value of this argument type is a {@link HashMap} of the key-value pairs.
+ * </p>
+ * @param <T> The type of the argument type used to parse the values.
+ * @param <Ts> The type of the values.
+ */
 public class KeyValuesArgumentType<T extends ArgumentType<Ts>, Ts> extends ArgumentType<HashMap<String, Ts>> {
 	private final @NotNull ArgumentType<Ts> valueType;
 

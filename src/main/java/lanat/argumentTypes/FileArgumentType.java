@@ -6,6 +6,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 
+/**
+ * An argument type that takes a file path, and returns a {@link File} instance.
+ * If the file could not be found, an error is added.
+ */
 public class FileArgumentType extends ArgumentType<File> {
 	@Override
 	public File parseValues(@NotNull String @NotNull [] args) {

@@ -6,6 +6,9 @@ import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * An argument type that counts the number of times it is used.
+ */
 public class CounterArgumentType extends ArgumentType<Integer> {
 	public CounterArgumentType() {
 		super(0);

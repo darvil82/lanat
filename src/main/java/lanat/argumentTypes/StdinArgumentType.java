@@ -8,6 +8,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Scanner;
 
+/**
+ * An argument type that takes input from stdin (Standard Input).
+ * This waits for the user to input something. May be useful for piping input from other programs.
+ */
 public class StdinArgumentType extends ArgumentType<String> {
 	@Override
 	public @NotNull Range getRequiredArgValueCount() {

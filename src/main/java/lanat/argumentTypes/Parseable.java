@@ -8,6 +8,12 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.regex.Pattern;
 
+/**
+ * The basic interface for all argument types. In order to use a class that implements this interface as an
+ * argument type, you must use {@link FromParseableArgumentType} to wrap it.
+ * @param <T> The type that this argument type parses.
+ * @see FromParseableArgumentType
+ */
 public interface Parseable<T> extends NamedWithDescription {
 	Pattern DEFAULT_NAME_REGEX = Pattern.compile("argument$", Pattern.CASE_INSENSITIVE);
 

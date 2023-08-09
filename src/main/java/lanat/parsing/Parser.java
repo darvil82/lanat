@@ -85,30 +85,38 @@ public class Parser extends ParsingStateBase<ParseError> {
 		assert this.tokens != null : "Tokens have not been set yet";
 		assert !this.hasFinished : "This parser has already finished parsing.";
 
-		short argumentNameCount = 0;
-		boolean foundNonPositionalArg = false;
-		Argument<?, ?> lastPosArgument; // this will never be null when being used
+		// number of positional arguments that have been parsed.
+		// if this becomes -1, then we know that we are no longer parsing positional arguments
+		short positionalArgCount = 0;
+		Argument<?, ?> lastPositionalArgument; // this will never be null when being used
 
 		for (this.currentTokenIndex = 0; this.currentTokenIndex < this.tokens.size(); ) {
 			final Token currentToken = this.tokens.get(this.currentTokenIndex);
 
 			if (currentToken.type() == TokenType.ARGUMENT_NAME) {
+				// encountered an argument name. first skip the token of the name.
 				this.currentTokenIndex++;
+				// find the argument that matches that name and let it parse the values
 				this.runForArgument(currentToken.contents(), this::executeArgParse);
-				foundNonPositionalArg = true;
+				// we encountered an argument name, so we know that we are no longer parsing positional arguments
+				positionalArgCount = -1;
 			} else if (currentToken.type() == TokenType.ARGUMENT_NAME_LIST) {
+				// in a name list, skip the first character because it is the indicator that it is a name list
 				this.parseArgNameList(currentToken.contents().substring(1));
-				foundNonPositionalArg = true;
+				positionalArgCount = -1;
 			} else if (
 				(currentToken.type() == TokenType.ARGUMENT_VALUE || currentToken.type() == TokenType.ARGUMENT_VALUE_TUPLE_START)
-					&& !foundNonPositionalArg
-					&& (lastPosArgument = this.getArgumentByPositionalIndex(argumentNameCount)) != null
-			)
-			{ // this is most likely a positional argument
-				this.executeArgParse(lastPosArgument);
-				argumentNameCount++;
+					&& positionalArgCount != -1
+					&& (lastPositionalArgument = this.getArgumentByPositionalIndex(positionalArgCount)) != null
+			) {
+				// if we are here we encountered an argument value with no prior argument name or name list,
+				// so this must be a positional argument
+				this.executeArgParse(lastPositionalArgument);
+				positionalArgCount++;
 			} else {
+				// addError depends on the currentTokenIndex, so we need to increment it before calling it
 				this.currentTokenIndex++;
+
 				if (currentToken.type() != TokenType.FORWARD_VALUE)
 					this.addError(ParseError.ParseErrorType.UNMATCHED_TOKEN, null, 0);
 			}
@@ -130,10 +138,10 @@ public class Parser extends ParsingStateBase<ParseError> {
 	 * </p>
 	 */
 	private void executeArgParse(@NotNull Argument<?, ?> arg) {
-		final Range argumentValuesRange = arg.argType.getRequiredArgValueCount();
+		final Range argNumValuesRange = arg.argType.getRequiredArgValueCount();
 
 		// just skip the whole thing if it doesn't need any values
-		if (argumentValuesRange.isZero()) {
+		if (argNumValuesRange.isZero()) {
 			arg.parseValues(this.currentTokenIndex);
 			return;
 		}
@@ -144,38 +152,41 @@ public class Parser extends ParsingStateBase<ParseError> {
 		);
 
 		final byte ifTupleOffset = (byte)(isInTuple ? 1 : 0);
-		int skipCount = ifTupleOffset;
 
-		final ArrayList<Token> tempArgs = new ArrayList<>();
+		final ArrayList<Token> values = new ArrayList<>();
+		short numValues = 0;
 
 		// add more values until we get to the max of the type, or we encounter another argument specifier
 		for (
-			int i = this.currentTokenIndex + ifTupleOffset;
-			i < this.tokens.size();
-			i++, skipCount++
+			int tokenIndex = this.currentTokenIndex + ifTupleOffset;
+			tokenIndex < this.tokens.size();
+			numValues++, tokenIndex++
 		) {
-			final Token currentToken = this.tokens.get(i);
+			final Token currentToken = this.tokens.get(tokenIndex);
 			if (!isInTuple && (
-				currentToken.type().isArgumentSpecifier() || i - this.currentTokenIndex >= argumentValuesRange.max()
+				currentToken.type().isArgumentSpecifier() || numValues >= argNumValuesRange.max()
 			)
 				|| currentToken.type().isTuple()
 			) break;
-			tempArgs.add(currentToken);
+			values.add(currentToken);
 		}
 
-		final int tempArgsSize = tempArgs.size();
-		final int newCurrentTokenIndex = skipCount + ifTupleOffset;
+		// add 2 if we are in a tuple, because we need to skip the start and end tuple tokens
+		final int skipIndexCount = numValues + ifTupleOffset*2;
 
-		if (tempArgsSize > argumentValuesRange.max() || tempArgsSize < argumentValuesRange.min()) {
-			this.addError(ParseError.ParseErrorType.ARG_INCORRECT_VALUE_NUMBER, arg, tempArgsSize + ifTupleOffset);
-			this.currentTokenIndex += newCurrentTokenIndex;
+		if (numValues > argNumValuesRange.max() || numValues < argNumValuesRange.min()) {
+			this.addError(ParseError.ParseErrorType.ARG_INCORRECT_VALUE_NUMBER, arg, numValues + ifTupleOffset);
+			this.currentTokenIndex += skipIndexCount;
 			return;
 		}
 
 		// pass the arg values to the argument sub parser
-		arg.parseValues(tempArgs.stream().map(Token::contents).toArray(String[]::new), (short)(this.currentTokenIndex + ifTupleOffset));
+		arg.parseValues(
+			values.stream().map(Token::contents).toArray(String[]::new),
+			(short)(this.currentTokenIndex + ifTupleOffset)
+		);
 
-		this.currentTokenIndex += newCurrentTokenIndex;
+		this.currentTokenIndex += skipIndexCount;
 	}
 
 	/**

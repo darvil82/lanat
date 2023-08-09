@@ -87,20 +87,10 @@ public abstract class ArgumentType<T>
 		}
 	}
 
-	public final void parseAndUpdateValue(@NotNull String @NotNull [] args) {
+	public final void parseAndUpdateValue(@NotNull String... args) {
 		this.lastReceivedValueCount = args.length;
 		this.currentValue = this.parseValues(args);
 	}
-
-	public final void parseAndUpdateValue(@NotNull String arg) {
-		this.lastReceivedValueCount = 1;
-		this.currentValue = this.parseValues(arg);
-	}
-
-	public final @Nullable T parseValues(@NotNull String arg) {
-		return this.parseValues(new String[] { arg });
-	}
-
 
 	/**
 	 * By registering a subtype, this allows you to listen for errors that occurred in this subtype during parsing. The

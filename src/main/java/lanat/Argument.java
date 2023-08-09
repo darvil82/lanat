@@ -435,11 +435,11 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	/**
 	 * Pass the specified values array to the argument type to parse it.
 	 *
-	 * @param values The values array that should be parsed.
 	 * @param tokenIndex This is the global index of the token that is currently being parsed. Used when dispatching
 	 * 	errors.
+	 * @param values The value array that should be parsed.
 	 */
-	public void parseValues(@NotNull String @NotNull [] values, short tokenIndex) {
+	public void parseValues(short tokenIndex, @NotNull String... values) {
 		// check if the argument was used more times than it should
 		if (++this.argType.usageCount > this.argType.getRequiredUsageCount().max()) {
 			this.parentCommand.getParser()
@@ -452,13 +452,6 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 		this.argType.setLastTokenIndex(tokenIndex);
 		this.argType.parseAndUpdateValue(values);
-	}
-
-	/**
-	 * {@link #parseValues(String[], short)} but passes in an empty values array to parse.
-	 */
-	public void parseValues(short tokenIndex) {
-		this.parseValues(new String[0], tokenIndex);
 	}
 
 	/**

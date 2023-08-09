@@ -27,7 +27,7 @@ public interface Parseable<T> extends NamedWithDescription {
 	 * @param args The values that were received.
 	 * @return The parsed value.
 	 */
-	@Nullable T parseValues(@NotNull String @NotNull [] args);
+	@Nullable T parseValues(@NotNull String... args);
 
 	/** Returns the representation of this parseable type. This may appear in places like the help message. */
 	default @Nullable TextFormatter getRepresentation() {

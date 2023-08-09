@@ -182,8 +182,8 @@ public class Parser extends ParsingStateBase<ParseError> {
 
 		// pass the arg values to the argument sub parser
 		arg.parseValues(
-			values.stream().map(Token::contents).toArray(String[]::new),
-			(short)(this.currentTokenIndex + ifTupleOffset)
+			(short)(this.currentTokenIndex + ifTupleOffset),
+			values.stream().map(Token::contents).toArray(String[]::new)
 		);
 
 		this.currentTokenIndex += skipIndexCount;
@@ -215,7 +215,7 @@ public class Parser extends ParsingStateBase<ParseError> {
 		}
 
 		// pass the arg values to the argument subParser
-		arg.parseValues(new String[] { value }, this.currentTokenIndex);
+		arg.parseValues(this.currentTokenIndex, value);
 	}
 
 	/**

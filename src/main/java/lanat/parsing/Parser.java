@@ -143,7 +143,7 @@ public class Parser extends ParsingStateBase<ParseError> {
 				&& this.tokens.get(this.currentTokenIndex).type() == TokenType.ARGUMENT_VALUE_TUPLE_START
 		);
 
-		final int ifTupleOffset = isInTuple ? 1 : 0;
+		final byte ifTupleOffset = (byte)(isInTuple ? 1 : 0);
 		int skipCount = ifTupleOffset;
 
 		final ArrayList<Token> tempArgs = new ArrayList<>();

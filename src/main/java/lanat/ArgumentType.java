@@ -148,6 +148,15 @@ public abstract class ArgumentType<T>
 	}
 
 	/**
+	 * Returns the final value of this argument type. This is the value that this argument type will have after parsing
+	 * is done.
+	 * @return The final value of this argument type.
+	 */
+	public T getFinalValue() {
+		return this.getValue(); // by default, the final value is just the current value. subclasses can override this.
+	}
+
+	/**
 	 * Sets the current value of this argument type.
 	 */
 	protected void setValue(@NotNull T value) {

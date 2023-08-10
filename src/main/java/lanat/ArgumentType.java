@@ -60,7 +60,7 @@ public abstract class ArgumentType<T>
 	/**
 	 * This specifies the number of values that this argument received when being parsed.
 	 */
-	private int lastReceivedValueCount = 0;
+	private int lastReceivedValuesNum = 0;
 
 	/** This specifies the number of times this argument type has been used during parsing. */
 	short usageCount = 0;
@@ -76,20 +76,32 @@ public abstract class ArgumentType<T>
 	private static final HashMap<Class<?>, Class<? extends ArgumentType<?>>> INFER_ARGUMENT_TYPES_MAP = new HashMap<>();
 
 
+	/**
+	 * Constructs a new argument type with the specified initial value.
+	 * @param initialValue The initial value of this argument type.
+	 */
 	public ArgumentType(@NotNull T initialValue) {
 		this();
 		this.setValue(this.initialValue = initialValue);
 	}
 
+	/**
+	 * Constructs a new argument type with no initial value.
+	 */
 	public ArgumentType() {
 		if (this.getRequiredUsageCount().min() == 0) {
 			throw new IllegalArgumentException("The required usage count must be at least 1.");
 		}
 	}
 
+	/**
+	 * Saves the specified tokenIndex and the number of values received, and then parses the values.
+	 * @param tokenIndex The index of the token that caused the parsing of this argument type.
+	 * @param values The values to parse.
+	 */
 	public final void parseAndUpdateValue(short tokenIndex, @NotNull String... values) {
 		this.lastTokenIndex = tokenIndex;
-		this.lastReceivedValueCount = values.length;
+		this.lastReceivedValuesNum = values.length;
 		this.currentValue = this.parseValues(values);
 	}
 
@@ -127,6 +139,10 @@ public abstract class ArgumentType<T>
 		}
 	}
 
+	/**
+	 * Returns the current value of this argument type.
+	 * @return The current value of this argument type.
+	 */
 	public T getValue() {
 		return this.currentValue;
 	}
@@ -134,10 +150,14 @@ public abstract class ArgumentType<T>
 	/**
 	 * Sets the current value of this argument type.
 	 */
-	public void setValue(@NotNull T value) {
+	protected void setValue(@NotNull T value) {
 		this.currentValue = value;
 	}
 
+	/**
+	 * Returns the initial value of this argument type, if specified.
+	 * @return The initial value of this argument type, {@code null} if not specified.
+	 */
 	public T getInitialValue() {
 		return this.initialValue;
 	}
@@ -155,13 +175,6 @@ public abstract class ArgumentType<T>
 	 */
 	public @NotNull Range getRequiredUsageCount() {
 		return Range.ONE;
-	}
-
-	/**
-	 * Returns the final value of this argument type. This is the value that this argument type has after parsing.
-	 */
-	public @Nullable T getFinalValue() {
-		return this.currentValue;
 	}
 
 	/**
@@ -219,18 +232,24 @@ public abstract class ArgumentType<T>
 		}
 
 		// the index of the error should be relative to the last token index
-		error.tokenIndex = this.lastTokenIndex + Math.min(error.tokenIndex + 1, this.lastReceivedValueCount);
+		error.tokenIndex = this.lastTokenIndex + Math.min(error.tokenIndex + 1, this.lastReceivedValuesNum);
 
 		super.addError(error);
 		this.dispatchErrorToParent(error);
 	}
 
+	/**
+	 * Returns the index of the last token that was parsed.
+	 */
 	protected short getLastTokenIndex() {
 		return this.lastTokenIndex;
 	}
 
-	int getLastReceivedValueCount() {
-		return this.lastReceivedValueCount;
+	/**
+	 * Returns the number of values that this argument received when being parsed the last time.
+	 */
+	int getLastReceivedValuesNum() {
+		return this.lastReceivedValuesNum;
 	}
 
 	/**
@@ -252,7 +271,7 @@ public abstract class ArgumentType<T>
 		this.currentValue = this.initialValue;
 		this.lastTokenIndex = -1;
 		this.currentArgValueIndex = 0;
-		this.lastReceivedValueCount = 0;
+		this.lastReceivedValuesNum = 0;
 		this.usageCount = 0;
 		this.subTypes.forEach(ArgumentType::resetState);
 	}

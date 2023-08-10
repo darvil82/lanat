@@ -460,7 +460,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * @return the final value parsed by the argument type, or the default value if the argument was not used.
 	 */
 	public @Nullable TInner finishParsing() {
-		final TInner finalValue = this.argType.getFinalValue();
+		final TInner finalValue = this.argType.getValue();
 		final TInner defaultValue = this.defaultValue == null ? this.argType.getInitialValue() : this.defaultValue;
 
 		/* no, | is not a typo. We don't want the OR operator to short-circuit, we want all of them to be evaluated
@@ -515,7 +515,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 			new ParseError(
 				ParseError.ParseErrorType.MULTIPLE_ARGS_IN_EXCLUSIVE_GROUP_USED,
 				this.argType.getLastTokenIndex(),
-				this, this.argType.getLastReceivedValueCount()
+				this, this.argType.getLastReceivedValuesNum()
 			)
 			{{
 				this.setArgumentGroup(exclusivityResult);

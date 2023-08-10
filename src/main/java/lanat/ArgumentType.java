@@ -87,9 +87,10 @@ public abstract class ArgumentType<T>
 		}
 	}
 
-	public final void parseAndUpdateValue(@NotNull String... args) {
-		this.lastReceivedValueCount = args.length;
-		this.currentValue = this.parseValues(args);
+	public final void parseAndUpdateValue(short tokenIndex, @NotNull String... values) {
+		this.lastTokenIndex = tokenIndex;
+		this.lastReceivedValueCount = values.length;
+		this.currentValue = this.parseValues(values);
 	}
 
 	/**
@@ -226,10 +227,6 @@ public abstract class ArgumentType<T>
 
 	protected short getLastTokenIndex() {
 		return this.lastTokenIndex;
-	}
-
-	void setLastTokenIndex(short lastTokenIndex) {
-		this.lastTokenIndex = lastTokenIndex;
 	}
 
 	int getLastReceivedValueCount() {

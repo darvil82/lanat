@@ -450,8 +450,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 			return;
 		}
 
-		this.argType.setLastTokenIndex(tokenIndex);
-		this.argType.parseAndUpdateValue(values);
+		this.argType.parseAndUpdateValue(tokenIndex, values);
 	}
 
 	/**

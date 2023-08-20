@@ -97,7 +97,7 @@ public class TextFormatter {
 		if (this.foregroundColor != null)
 			buffer.append(this.foregroundColor);
 		if (this.backgroundColor != null)
-			buffer.append(this.backgroundColor.toStringBackground());
+			buffer.append(this.backgroundColor.bg());
 
 		for (var option : this.formatOptions) {
 			buffer.append(option);
@@ -115,7 +115,7 @@ public class TextFormatter {
 		}
 
 		for (var option : this.formatOptions) {
-			buffer.append(option.toStringReset());
+			buffer.append(option.reset());
 		}
 		if (this.foregroundColor != null) {
 			buffer.append(this.getResetColor());

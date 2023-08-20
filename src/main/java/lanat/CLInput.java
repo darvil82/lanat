@@ -15,10 +15,20 @@ public final class CLInput {
 		this.args = args;
 	}
 
+	/**
+	 * Constructs a new {@link CLInput} from the given arguments array.
+	 * @param args The array of arguments.
+	 * @return A new {@link CLInput} from the given arguments array.
+	 */
 	public static @NotNull CLInput from(@NotNull String @NotNull [] args) {
 		return new CLInput(String.join(" ", args));
 	}
 
+	/**
+	 * Constructs a new {@link CLInput} from the given arguments string.
+	 * @param args The arguments string.
+	 * @return A new {@link CLInput} from the given arguments string.
+	 */
 	public static @NotNull CLInput from(@NotNull String args) {
 		return new CLInput(args);
 	}

@@ -233,6 +233,11 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		this.obligatory = obligatory;
 	}
 
+	/**
+	 * Returns {@code true} if this argument is obligatory.
+	 * @return {@code true} if this argument is obligatory.
+	 * @see #setObligatory(boolean)
+	 */
 	public boolean isObligatory() {
 		return this.obligatory;
 	}
@@ -252,6 +257,11 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		this.positional = positional;
 	}
 
+	/**
+	 * Returns {@code true} if this argument is positional.
+	 * @return {@code true} if this argument is positional.
+	 * @see #setPositional(boolean)
+	 */
 	public boolean isPositional() {
 		return this.positional;
 	}
@@ -286,6 +296,11 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		this.allowUnique = allowUnique;
 	}
 
+	/**
+	 * Returns {@code true} if this argument has priority over other arguments, even if they are obligatory.
+	 * @return {@code true} if this argument has priority over other arguments, even if they are obligatory.
+	 * @see #setAllowUnique(boolean)
+	 */
 	public boolean isUniqueAllowed() {
 		return this.allowUnique;
 	}

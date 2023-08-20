@@ -81,7 +81,6 @@ public class ArgumentParser extends Command {
 	 * <pre>{@code
 	 * new ArgumentParser(clazz).parse(input).into(clazz);
 	 * }</pre>
-	 * <p>
 	 * <h4>Example:</h4>
 	 * This code:
 	 * <pre>{@code
@@ -218,6 +217,10 @@ public class ArgumentParser extends Command {
 		this.license = license;
 	}
 
+	/**
+	 * Returns the license of this program.
+	 * @see #setLicense(String)
+	 */
 	public @Nullable String getLicense() {
 		return this.license;
 	}
@@ -230,6 +233,10 @@ public class ArgumentParser extends Command {
 		this.version = version;
 	}
 
+	/**
+	 * Returns the version of this program.
+	 * @see #setVersion(String)
+	 */
 	public @Nullable String getVersion() {
 		return this.version;
 	}

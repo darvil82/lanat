@@ -50,7 +50,7 @@ public class ColorTag extends Tag {
 		if (!TextFormatter.enableSequences) return "";
 		if (value == null) return FormatOption.RESET_ALL.toString();
 
-		if (!value.contains(":")) return ColorTag.getColor(value).toString();
+		if (!value.contains(":")) return ColorTag.getColor(value).fg();
 
 		final String[] split = UtlString.split(value, ':');
 		if (split.length != 2)
@@ -59,7 +59,7 @@ public class ColorTag extends Tag {
 				+ " (expected format: 'foreground:background')"
 			);
 
-		return ColorTag.getColor(split[0]).toString() + ColorTag.getColor(split[1]).toStringBackground();
+		return ColorTag.getColor(split[0]).fg() + ColorTag.getColor(split[1]).bg();
 	}
 
 	private static Color getColor(@NotNull String colorName) {

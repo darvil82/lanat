@@ -15,13 +15,13 @@ import org.jetbrains.annotations.Nullable;
  * <p>
  * The names that may be used are:
  * <ul>
- * <li>reset / r</li>
+ * <li>reset</li>
  * <li>bold / b</li>
  * <li>italic / i</li>
  * <li>dim / d</li>
  * <li>underline / u</li>
  * <li>blink / bl</li>
- * <li>reverse / re</li>
+ * <li>reverse / r</li>
  * <li>hidden / h</li>
  * <li>strike / s</li>
  * </ul>
@@ -45,20 +45,20 @@ public class FormatTag extends Tag {
 		final var buff = new StringBuilder();
 
 		for (String opt : UtlString.split(value, ','))
-			buff.append(opt.startsWith("!") ? getFormat(opt.substring(1)).toStringReset() : getFormat(opt));
+			buff.append(opt.startsWith("!") ? getFormat(opt.substring(1)).reset() : getFormat(opt));
 
 		return buff.toString();
 	}
 
 	private static FormatOption getFormat(@NotNull String formatName) {
 		return switch (formatName.toLowerCase().strip()) {
-			case "reset", "r" -> FormatOption.RESET_ALL;
+			case "reset" -> FormatOption.RESET_ALL;
 			case "bold", "b" -> FormatOption.BOLD;
 			case "italic", "i" -> FormatOption.ITALIC;
 			case "dim", "d" -> FormatOption.DIM;
 			case "underline", "u" -> FormatOption.UNDERLINE;
 			case "blink", "bl" -> FormatOption.BLINK;
-			case "reverse", "re" -> FormatOption.REVERSE;
+			case "reverse", "r" -> FormatOption.REVERSE;
 			case "hidden", "h" -> FormatOption.HIDDEN;
 			case "strike", "s" -> FormatOption.STRIKE_THROUGH;
 			default ->

@@ -61,6 +61,7 @@ public class ParsedArguments {
 	 * @param argRoute The route to the argument, separated by the <code>.</code> character.
 	 * @param <T> The type of the value of the argument. This is used to avoid casting. A type that does not match the
 	 * 	argument's type will result in a {@link ClassCastException}.
+	 * @return The parsed value of the argument with the given name.
 	 * @throws CommandNotFoundException If the command specified in the route does not exist
 	 * @throws ArgumentNotFoundException If the argument specified in the route does not exist
 	 */

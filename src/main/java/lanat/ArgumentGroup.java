@@ -185,11 +185,17 @@ public class ArgumentGroup
 
 	/**
 	 * Sets this group to be exclusive, meaning that only one argument in it can be used at a time.
+	 * @see ArgumentGroup#isExclusive()
 	 */
 	public void setExclusive(boolean isExclusive) {
 		this.isExclusive = isExclusive;
 	}
 
+	/**
+	 * Returns {@code true} if this group is exclusive.
+	 * @return {@code true} if this group is exclusive.
+	 * @see ArgumentGroup#setExclusive(boolean)
+	 */
 	public boolean isExclusive() {
 		return this.isExclusive;
 	}
@@ -218,6 +224,10 @@ public class ArgumentGroup
 		return null;
 	}
 
+	/**
+	 * Returns {@code true} if this group has no arguments and no subgroups.
+	 * @return {@code true} if this group has no arguments and no subgroups.
+	 */
 	public boolean isEmpty() {
 		return this.arguments.isEmpty() && this.subGroups.isEmpty();
 	}

@@ -6,6 +6,12 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A container for errors. This class is used to store errors and their respective minimum error levels.
+ * It also has methods for getting errors under the minimum error level.
+ *
+ * @param <T> The type of the errors to store.
+ */
 public abstract class ErrorsContainerImpl<T extends ErrorLevelProvider> implements ErrorsContainer<T> {
 	private @NotNull ModifyRecord<ErrorLevel> minimumExitErrorLevel = ModifyRecord.of(ErrorLevel.ERROR);
 	private @NotNull ModifyRecord<ErrorLevel> minimumDisplayErrorLevel = ModifyRecord.of(ErrorLevel.INFO);

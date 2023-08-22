@@ -10,7 +10,7 @@ public final class UtlReflection {
 	private UtlReflection() {}
 
 	/**
-	 * This method returns the simple name of the given class. If the class is an anonymous class, then the simple name
+	 * Returns the simple name of the given class. If the class is an anonymous class, then the simple name
 	 * of the superclass is returned.
 	 *
 	 * @param clazz The class to get the simple name of.
@@ -53,6 +53,12 @@ public final class UtlReflection {
 		}
 	}
 
+	/**
+	 * Returns a stream of all methods in the given class.
+	 * If the given class is an anonymous class, then the methods of the superclass are returned.
+	 * @param clazz The class to get the methods of.
+	 * @return A stream of all methods in the given class.
+	 */
 	public static Stream<Method> getMethods(Class<?> clazz) {
 		if (clazz.isAnonymousClass())
 			return UtlReflection.getMethods(clazz.getSuperclass());

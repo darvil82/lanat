@@ -5,6 +5,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
 
+/**
+ * Interface for classes that have error and success callbacks.
+ * @param <TOk> The type the success callback takes.
+ * @param <TErr> The type the error callback takes.
+ */
 public interface ErrorCallbacks<TOk, TErr> {
 	/**
 	 * Specify a function that will be called on error.

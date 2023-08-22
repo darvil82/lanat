@@ -3,6 +3,7 @@ package lanat;
 import lanat.helpRepresentation.HelpFormatter;
 import lanat.parsing.Token;
 import lanat.parsing.errors.ErrorHandler;
+import lanat.utils.ErrorLevelProvider;
 import lanat.utils.UtlString;
 import lanat.utils.displayFormatter.FormatOption;
 import lanat.utils.displayFormatter.TextFormatter;
@@ -54,7 +55,7 @@ public class ErrorFormatter {
 	public record DisplayTokensOptions(int start, int offset, boolean placeArrow) {}
 
 
-	public static class ErrorFormatterGenerator {
+	public static class ErrorFormatterGenerator implements ErrorLevelProvider {
 		private ErrorFormatter errorFormatter;
 
 		private void setErrorFormatter(@NotNull ErrorFormatter errorFormatter) {
@@ -117,7 +118,12 @@ public class ErrorFormatter {
 			return this.errorFormatter.mainErrorHandler.getAbsoluteCmdTokenIndex();
 		}
 
-		protected final @NotNull ErrorLevel getErrorLevel() {
+		/**
+		 * Returns the error level of the inner {@link ErrorFormatter} instance.
+		 * @return The error level of the inner {@link ErrorFormatter} instance.
+		 */
+		@Override
+		public final @NotNull ErrorLevel getErrorLevel() {
 			return this.errorFormatter.errorLevel;
 		}
 

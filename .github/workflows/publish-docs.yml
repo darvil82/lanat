@@ -17,4 +17,9 @@ jobs:
           javadoc-branch: javadoc
           java-version: 17
           project: gradle
-          custom-command: javadoc -d javadoc -sourcepath src/main/java -subpackages . -stylesheetfile javadoc.css
+          custom-command: javadoc
+            -d javadoc
+            -sourcepath src/main/java
+            -subpackages .
+            -stylesheetfile javadoc.css
+            -exclude org.jetbrains.annotations

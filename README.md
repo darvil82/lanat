@@ -48,3 +48,7 @@ class Test {
 	}
 }
 ```
+
+## Documentation
+
+Javadoc documentation for the latest stable version is available [here](https://darvil82.github.io/Lanat/).

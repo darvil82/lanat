@@ -44,7 +44,7 @@ public class EnumArgumentType<T extends Enum<T>> extends ArgumentType<T> {
 
 			if (value == this.getInitialValue())
 				fmt.concat(new TextFormatter(value.name())
-					.setColor(Color.YELLOW)
+					.withForegroundColor(Color.YELLOW)
 					.addFormat(FormatOption.BOLD)
 				);
 			else

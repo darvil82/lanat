@@ -155,7 +155,7 @@ public class HelpFormatter {
 			if (HelpFormatter.debugLayout)
 				buffer.append(new TextFormatter("LayoutItem " + i + ":\n")
 					.addFormat(FormatOption.UNDERLINE)
-					.setColor(Color.GREEN)
+					.withForegroundColor(Color.GREEN)
 				);
 
 			buffer.append(UtlString.wrap(generatedContent, lineWrapMax)).append('\n');

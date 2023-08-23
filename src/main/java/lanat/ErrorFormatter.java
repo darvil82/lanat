@@ -68,17 +68,17 @@ public class ErrorFormatter {
 			final var formatter = this.getErrorLevelFormatter();
 			final String tokensFormatting = this.getTokensViewFormatting();
 
-			return formatter.setContents(" ┌─%s%s".formatted(this.getErrorLevel(), !tokensFormatting.isEmpty() ? "\n" : "")).toString()
+			return formatter.withContents(" ┌─%s%s".formatted(this.getErrorLevel(), !tokensFormatting.isEmpty() ? "\n" : "")).toString()
 				+ tokensFormatting
 				// first insert a vertical bar at the start of each line
-				+ this.getContentsWrapped().replaceAll("^|\\n", formatter.setContents("\n │ ").toString())
+				+ this.getContentsWrapped().replaceAll("^|\\n", formatter.withContents("\n │ ").toString())
 				// then insert a horizontal bar at the end, with the length of the longest line approximately
-				+ formatter.setContents("\n └" + "─".repeat(Math.max(maxLength - 5, 0)) + " ───── ── ─")
+				+ formatter.withContents("\n └" + "─".repeat(Math.max(maxLength - 5, 0)) + " ───── ── ─")
 				+ '\n';
 		}
 
 		protected @NotNull String generateTokensViewFormatting(DisplayTokensOptions options) {
-			final var arrow = TextFormatter.ERROR("<-").setColor(this.getErrorLevel().color);
+			final var arrow = TextFormatter.ERROR("<-").withForegroundColor(this.getErrorLevel().color);
 			final var tokensFormatters = new ArrayList<>(this.getTokensFormatters());
 			final int tokensLength = tokensFormatters.size();
 
@@ -98,7 +98,7 @@ public class ErrorFormatter {
 						tokensFormatters.add(i, arrow);
 					} else {
 						tokensFormatters.get(i)
-							.setColor(this.getErrorLevel().color)
+							.withForegroundColor(this.getErrorLevel().color)
 							.addFormat(FormatOption.REVERSE, FormatOption.BOLD);
 					}
 				}

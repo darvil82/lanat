@@ -10,7 +10,7 @@ import java.io.ByteArrayInputStream;
 public final class ManualTests {
 	@Test
 	public void main() {
-		String input = "--help --stdin --string hello --number 67 sub-command -ccc";
+		String input = "--help --stdin --string hello --number 15 sub-command -ccc";
 
 		// write some stuff to stdin
 		System.setIn(new ByteArrayInputStream("hello world\ngoodbye".getBytes()));
@@ -21,6 +21,7 @@ public final class ManualTests {
 			}});
 		}}
 			.parse(CLInput.from(input))
+			.printErrors()
 			.into(CommandTemplateExample.class);
 
 		parsed.string

@@ -39,12 +39,12 @@ public final class ArgumentRepr {
 			outText.addFormat(FormatOption.BOLD, FormatOption.UNDERLINE);
 		}
 
-		outText.setColor(arg.getRepresentationColor());
+		outText.withForegroundColor(arg.getRepresentationColor());
 
 		if (arg.isPositional() && repr != null) {
 			outText.concat(repr, new TextFormatter("(" + names + ")"));
 		} else {
-			outText.setContents("" + argPrefix + (names.length() > 1 ? argPrefix : "") + names + (repr == null ? "" : " "));
+			outText.withContents("" + argPrefix + (names.length() > 1 ? argPrefix : "") + names + (repr == null ? "" : " "));
 
 			if (repr != null)
 				outText.concat(repr);

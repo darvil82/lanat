@@ -40,7 +40,7 @@ public class IntegerRangeArgumentType extends IntegerArgumentType {
 	@Override
 	public @NotNull TextFormatter getRepresentation() {
 		return super.getRepresentation()
-			.concat(new TextFormatter("[%d-%d]".formatted(this.min, this.max)).setColor(Color.YELLOW));
+			.concat(new TextFormatter("[%d-%d]".formatted(this.min, this.max)).withForegroundColor(Color.YELLOW));
 	}
 
 	@Override

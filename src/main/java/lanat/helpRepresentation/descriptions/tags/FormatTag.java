@@ -40,7 +40,7 @@ public class FormatTag extends Tag {
 	@Override
 	protected @NotNull String parse(@NotNull NamedWithDescription user, @Nullable String value) {
 		if (!TextFormatter.enableSequences) return "";
-		if (value == null) return FormatOption.RESET_ALL.toString();
+		if (value == null) return FormatOption.RESET_ALL.seq();
 
 		final var buff = new StringBuilder();
 

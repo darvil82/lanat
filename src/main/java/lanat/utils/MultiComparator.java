@@ -12,6 +12,12 @@ import java.util.function.Predicate;
 public class MultiComparator<T> {
 	private final ArrayList<Pred<T>> predicates = new ArrayList<>();
 
+	/**
+	 * A record that stores a predicate and its priority.
+	 * @param priority The priority of the predicate.
+	 * @param predicateCb The predicate.
+	 * @param <T> The type of the object the predicate takes.
+	 */
 	private record Pred<T>(int priority, Predicate<T> predicateCb) {
 		Pred {
 			if (priority < 0) throw new IllegalArgumentException("Priority must be >= 0");

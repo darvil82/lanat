@@ -28,7 +28,7 @@ public abstract class TupleArgumentType<T> extends ArgumentType<T> {
 	@Override
 	public @NotNull TextFormatter getRepresentation() {
 		return new TextFormatter(this.getValue().getClass().getSimpleName())
-			.concat(new TextFormatter(this.argCount.getRegexRange()).setColor(Color.BRIGHT_YELLOW));
+			.concat(new TextFormatter(this.argCount.getRegexRange()).withForegroundColor(Color.BRIGHT_YELLOW));
 	}
 
 	@Override

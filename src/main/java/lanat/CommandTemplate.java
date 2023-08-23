@@ -120,13 +120,13 @@ public abstract class CommandTemplate {
 	/**
 	 * Helper class that contains the command being initialized and the list of argument builders that may be altered.
 	 * @param cmd The command being initialized.
-	 * @param args The list of argument builders that may be altered. Use {@link CommandBuildHelper#getArgument(String)}
+	 * @param args The list of argument builders that may be altered. Use {@link CommandBuildHelper#arg(String)}
 	 * 		   to get the argument builder corresponding to an argument with a given name.
 	 */
-	protected record CommandBuildHelper(@NotNull Command cmd, @NotNull List<ArgumentBuilder<?, ?>> args) {
+	public record CommandBuildHelper(@NotNull Command cmd, @NotNull List<ArgumentBuilder<?, ?>> args) {
 		@SuppressWarnings("unchecked")
 		public <T extends ArgumentType<TInner>, TInner>
-		ArgumentBuilder<T, TInner> getArgument(@NotNull String name) {
+		ArgumentBuilder<T, TInner> arg(@NotNull String name) {
 			return (ArgumentBuilder<T, TInner>)this.args.stream()
 				.filter(a -> a.hasName(name))
 				.findFirst()

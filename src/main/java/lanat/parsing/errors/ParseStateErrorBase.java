@@ -61,18 +61,34 @@ import java.util.Optional;
  * @param <T> An enum with the possible error types to handle.
  */
 abstract class ParseStateErrorBase<T extends Enum<T> & ErrorLevelProvider> implements ErrorLevelProvider {
+	/** The type of the error. */
 	public final @NotNull T errorType;
+
+	/** The index of the token that caused the error. */
 	public int tokenIndex;
+
+	/** The error handler that handles the error. */
 	private ErrorHandler errorHandler;
+
+	/** The error formatter that formats the error message. */
 	private ErrorFormatter formatter;
 
 
+	/**
+	 * Creates a new error handler for the specified type of error.
+	 * @param errorType The type of the error.
+	 * @param tokenIndex The index of the token that caused the error.
+	 */
 	public ParseStateErrorBase(@NotNull T errorType, int tokenIndex) {
 		this.errorType = errorType;
 		this.tokenIndex = tokenIndex;
 	}
 
-
+	/**
+	 * Returns the method that should be called to handle the error.
+	 * @throws RuntimeException If no handler method is defined for the error type.
+	 * @return The handler method.
+	 */
 	private @NotNull Method getHandlerMethod() {
 		return UtlReflection.getMethods(this.getClass())
 			.filter(m -> Optional.ofNullable(m.getAnnotation(Handler.class))
@@ -83,6 +99,11 @@ abstract class ParseStateErrorBase<T extends Enum<T> & ErrorLevelProvider> imple
 			.orElseThrow(() -> new RuntimeException("No handler method defined for error type " + this.errorType.name()));
 	}
 
+	/**
+	 * Handles the error by calling the appropriate handler method.
+	 * @param handler The error handler.
+	 * @return The error message.
+	 */
 	public final @NotNull String handle(@NotNull ErrorHandler handler) {
 		this.errorHandler = handler;
 		this.formatter = new ErrorFormatter(handler, this.errorType.getErrorLevel());
@@ -101,6 +122,9 @@ abstract class ParseStateErrorBase<T extends Enum<T> & ErrorLevelProvider> imple
 		return this.errorType.getErrorLevel();
 	}
 
+	/**
+	 * Returns the token at the index of this error.
+	 */
 	protected @NotNull Token getCurrentToken() {
 		return this.errorHandler.getRelativeToken(this.tokenIndex);
 	}
@@ -112,6 +136,7 @@ abstract class ParseStateErrorBase<T extends Enum<T> & ErrorLevelProvider> imple
 		return this.formatter;
 	}
 
+	/** Annotation that defines a handler method for a specific error type. */
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target({ ElementType.METHOD })
 	public @interface Handler {

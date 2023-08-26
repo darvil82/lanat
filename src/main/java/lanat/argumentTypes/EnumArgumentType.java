@@ -42,6 +42,7 @@ public class EnumArgumentType<T extends Enum<T>> extends ArgumentType<T> {
 		for (var i = 0; i < this.values.length; i++) {
 			final var value = this.values[i];
 
+			// if value is the default value, make it bold and yellow
 			if (value == this.getInitialValue())
 				fmt.concat(new TextFormatter(value.name())
 					.withForegroundColor(Color.YELLOW)

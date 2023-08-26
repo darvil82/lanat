@@ -98,7 +98,7 @@ public final class LayoutGenerators {
 	 * @return the generated heading.
 	 */
 	public static @NotNull String heading(@NotNull String content) {
-		return UtlString.center(content, HelpFormatter.lineWrapMax);
+		return UtlString.center(content, HelpFormatter.lineWrapMax, '─');
 	}
 
 	/**

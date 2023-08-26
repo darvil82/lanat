@@ -160,14 +160,34 @@ public final class UtlString {
 		return UtlString.indent(str, padCount, ' ');
 	}
 
+	/**
+	 * Centers a string in a given width. {@code padChar} is used to fill the remaining space.
+	 * <p>
+	 * If the string is longer than the width, it is returned as is.
+	 * </p>
+	 * @param str The string to center.
+	 * @param width The width to center the string in.
+	 * @param padChar The character to use for padding.
+	 * @return The centered string.
+	 */
 	public static @NotNull String center(@NotNull String str, int width, char padChar) {
+		if (str.length() >= width)
+			return str;
+
 		final var paddingString = String.valueOf(padChar).repeat((width / 2) - (str.length() / 2) - 1);
 
 		return paddingString + str + paddingString;
 	}
 
+	/**
+	 * Centers a string in a given width. '-' is used to fill the remaining space.
+	 * @param str The string to center.
+	 * @param width The width to center the string in.
+	 * @return The centered string.
+	 * @see UtlString#center(String, int, char)
+	 */
 	public static @NotNull String center(@NotNull String str, int width) {
-		return UtlString.center(str, width, '─');
+		return UtlString.center(str, width, '-');
 	}
 
 	/**

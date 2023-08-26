@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
  * @see FromParseableArgumentType
  */
 public interface Parseable<T> extends NamedWithDescription {
-	Pattern DEFAULT_NAME_REGEX = Pattern.compile("argument$", Pattern.CASE_INSENSITIVE);
+	Pattern DEFAULT_NAME_REGEX = Pattern.compile("ArgumentType$", Pattern.CASE_INSENSITIVE);
 
 
 	/** Specifies the number of values that this parser should receive when calling {@link #parseValues(String[])}. */

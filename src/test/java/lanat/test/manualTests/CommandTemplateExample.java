@@ -5,7 +5,7 @@ import lanat.ArgumentGroup;
 import lanat.Command;
 import lanat.CommandTemplate;
 import lanat.argumentTypes.CounterArgumentType;
-import lanat.argumentTypes.IntegerRangeArgumentType;
+import lanat.argumentTypes.NumberRangeArgumentType;
 import lanat.argumentTypes.StdinArgumentType;
 import lanat.argumentTypes.StringArgumentType;
 import org.jetbrains.annotations.NotNull;
@@ -20,7 +20,7 @@ public class CommandTemplateExample extends CommandTemplate.Default {
 	public Optional<String> string;
 
 	@Argument.Define(description = "<desc=!.type>")
-	public int number = 12;
+	public double number = 12;
 
 	@Argument.Define(argType = StdinArgumentType.class)
 	public String stdin;
@@ -38,8 +38,8 @@ public class CommandTemplateExample extends CommandTemplate.Default {
 
 	@InitDef
 	public static void beforeInit(@NotNull CommandBuildHelper helper) {
-		helper.<IntegerRangeArgumentType, Integer>arg("number")
-			.withArgType(new IntegerRangeArgumentType(5, 15));
+		helper.<NumberRangeArgumentType<Double>, Double>arg("number")
+			.withArgType(new NumberRangeArgumentType<>(5.5, 15.89));
 	}
 
 	@InitDef

@@ -1,27 +1,17 @@
 package lanat.argumentTypes;
 
-import lanat.ArgumentType;
-import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.function.Function;
 
 /**
  * An argument type that takes a double precision floating point number.
  */
-public class DoubleArgumentType extends ArgumentType<Double> {
+public class DoubleArgumentType extends NumberArgumentType<Double> {
 	@Override
-	public Double parseValues(@NotNull String @NotNull [] args) {
-		try {
-			return Double.parseDouble(args[0]);
-		} catch (NumberFormatException e) {
-			this.addError("Invalid double value: '" + args[0] + "'.");
-			return null;
-		}
-	}
-
-	@Override
-	public @NotNull TextFormatter getRepresentation() {
-		return new TextFormatter("double");
+	protected @NotNull Function<@NotNull String, @NotNull Double> getParseFunction() {
+		return Double::parseDouble;
 	}
 
 	@Override

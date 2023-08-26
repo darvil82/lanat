@@ -149,9 +149,9 @@ public abstract class CommandTemplate {
 	 *
 	 *   @InitDef
 	 *   public static void beforeInit(CommandBuildHelper cmdBuildHelper) {
-	 *      // set the argument type to IntegerRangeArgumentType
-	 *      cmdBuildHelper.<IntegerRangeArgumentType, Integer>getArgument("numberRange")
-	 * 			.withArgType(ArgumentType.INTEGER_RANGE(0, 10));
+	 *      // set the argument type to NumberRangeArgumentType
+	 *      cmdBuildHelper.<NumberRangeArgumentType<Integer>, Integer>getArgument("numberRange")
+	 * 			.withArgType(new NumberRangeArgumentType<>(0, 10);
 	 *   }
 	 * }
 	 * }</pre>

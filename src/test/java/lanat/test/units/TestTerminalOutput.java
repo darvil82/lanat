@@ -85,7 +85,7 @@ public class TestTerminalOutput extends UnitTests {
 		this.assertErrorOutput("foo subCommand another bar", """
 			ERROR
 			Testing foo subCommand another bar
-			Invalid integer value: 'bar'.""");
+			Invalid Integer value: 'bar'.""");
 	}
 
 	@Test

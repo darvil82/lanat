@@ -28,7 +28,7 @@ public class TestArgumentTypes extends UnitTests {
 			this.addArgument(Argument.create(new FileArgumentType(), "file"));
 			this.addArgument(Argument.create(new EnumArgumentType<>(TestEnum.TWO), "enum"));
 			this.addArgument(Argument.create(new KeyValuesArgumentType<>(new IntegerArgumentType()), "key-value"));
-			this.addArgument(Argument.create(new IntegerRangeArgumentType(3, 10), "int-range"));
+			this.addArgument(Argument.create(new NumberRangeArgumentType<>(3, 10), "int-range"));
 			this.addArgument(Argument.create(new TryParseArgumentType<>(Double.class), "try-parse"));
 		}};
 	}
@@ -103,7 +103,7 @@ public class TestArgumentTypes extends UnitTests {
 	}
 
 	@Test
-	public void testIntegerRange() {
+	public void testNumberRange() {
 		assertEquals(4, this.<Integer>parseArg("int-range", "4"));
 		this.assertNotPresent("int-range");
 		assertNull(this.parseArg("int-range", "invalid"));

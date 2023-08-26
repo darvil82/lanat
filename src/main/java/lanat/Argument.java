@@ -42,8 +42,8 @@ import java.util.function.Consumer;
  * </p>
  * <pre>
  * {@code
- *     Argument.create('n', "name", ArgumentType.INTEGER());
- *     Argument.create("name", ArgumentType.INTEGER())
+ *     Argument.create('n', "name", new IntegerArgumentType());
+ *     Argument.create("name", new IntegerArgumentType())
  *         .addNames("n");
  * }
  * </pre>

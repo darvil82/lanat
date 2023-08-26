@@ -1,27 +1,17 @@
 package lanat.argumentTypes;
 
-import lanat.ArgumentType;
-import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.function.Function;
 
 /**
  * An argument type that takes a long integer number.
  */
-public class LongArgumentType extends ArgumentType<Long> {
+public class LongArgumentType extends NumberArgumentType<Long> {
 	@Override
-	public Long parseValues(@NotNull String @NotNull [] args) {
-		try {
-			return Long.parseLong(args[0]);
-		} catch (NumberFormatException e) {
-			this.addError("Invalid long value: '" + args[0] + "'.");
-			return null;
-		}
-	}
-
-	@Override
-	public @NotNull TextFormatter getRepresentation() {
-		return new TextFormatter("long");
+	protected @NotNull Function<@NotNull String, @NotNull Long> getParseFunction() {
+		return Long::parseLong;
 	}
 
 	@Override

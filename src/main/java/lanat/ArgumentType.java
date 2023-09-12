@@ -27,6 +27,12 @@ import java.util.function.Consumer;
  * The custom Argument Type can push errors to the main parser by using the {@link ArgumentType#addError(String)} method
  * and its overloads.
  * <p>
+ * It is possible to use other Argument Types inside your custom Argument Type. This is done by using the
+ * {@link ArgumentType#registerSubType(ArgumentType)} method. This allows you to listen for errors that occur in the
+ * subtypes, and to add them to the list of errors of the main parser. {@link ArgumentType#onSubTypeError(CustomError)}
+ * is called when an error occurs in a subtype.
+ * </p>
+ * <p>
  * You can also implement {@link Parseable} to create a basic argument type implementation. Note that in order to
  * use that implementation, you need to wrap it in a {@link FromParseableArgumentType} instance (which provides the
  * necessary internal functionality).

@@ -34,7 +34,8 @@ public final class CLInput {
 	}
 
 	/**
-	 * Gets the arguments passed to the program from the system property "sun.java.command".
+	 * Gets the arguments passed to the program from the system property {@code "sun.java.command"}.
+	 * @return A new {@link CLInput} from the system property {@code "sun.java.command"}.
 	 */
 	public static @NotNull CLInput fromSystemProperty() {
 		final var args = System.getProperty("sun.java.command");

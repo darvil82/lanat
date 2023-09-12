@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Represents a container of errors. Methods are provided to get the errors under a certain level, and to check if
  * there are errors under a certain level.
- * @param <T>
+ * @param <T> the type of error level provider
  */
 public interface ErrorsContainer<T extends ErrorLevelProvider> {
 	/**

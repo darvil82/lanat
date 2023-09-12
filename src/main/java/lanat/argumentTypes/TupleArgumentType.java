@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Provides a base for argument types that take multiple values.
  * Shows a properly formatted description and representation.
- * @param <T>
+ * @param <T> the type of the value that the argument will take
  */
 public abstract class TupleArgumentType<T> extends ArgumentType<T> {
 	private final @NotNull Range argCount;

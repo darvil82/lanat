@@ -7,19 +7,6 @@ group = "darvil"
 version = "0.0.1"
 java.sourceCompatibility = JavaVersion.VERSION_17
 
-repositories {
-	mavenCentral()
-
-	maven {
-		name = "github-mirror"
-		url = uri("https://maven.pkg.github.com/fadeoffical/mirror")
-		credentials {
-			username = project.findProperty("gpr.user") as String? ?: System.getenv("CI_GITHUB_USERNAME")
-			password = project.findProperty("gpr.key") as String? ?: System.getenv("CI_GITHUB_PASSWORD")
-		}
-	}
-}
-
 dependencies {
 	implementation("org.jetbrains:annotations:24.0.1")
 	testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")

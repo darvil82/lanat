@@ -117,7 +117,7 @@ public class TextFormatter {
 	 */
 	public TextFormatter concat(@NotNull TextFormatter... formatters) {
 		for (TextFormatter formatter : formatters) {
-			// if it was already added to another formatter, remove it from there
+			// if it was already added to another formatter, throw an exception
 			if (formatter.parent != null) {
 				throw new IllegalArgumentException("Cannot concatenate a formatter that is already concatenated to another formatter.");
 			}

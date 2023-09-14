@@ -22,6 +22,7 @@ public final class ArgumentGroupRepr {
 	 * &lt;name&gt;:
 	 *   &lt;description&gt;
 	 * </pre>
+	 *
 	 * @param group the group
 	 * @return the name and description of the group
 	 */
@@ -30,7 +31,7 @@ public final class ArgumentGroupRepr {
 		if (description == null)
 			return null;
 
-		final var name = new TextFormatter(group.name + ':').addFormat(FormatOption.BOLD);
+		final var name = new TextFormatter(group.getName() + ':').addFormat(FormatOption.BOLD);
 		if (group.isExclusive())
 			name.addFormat(FormatOption.UNDERLINE);
 
@@ -47,13 +48,14 @@ public final class ArgumentGroupRepr {
 	 *
 	 *   &lt;subgroup descriptions&gt;
 	 * </pre>
+	 *
 	 * @param group the group
 	 * @return the descriptions of the arguments and subgroups of the group
 	 */
 	public static @NotNull String getDescriptions(@NotNull ArgumentGroup group) {
 		final var arguments = Argument.sortByPriority(group.getArguments());
 		final var buff = new StringBuilder();
-		final var name = new TextFormatter(group.name + ':').addFormat(FormatOption.BOLD);
+		final var name = new TextFormatter(group.getName() + ':').addFormat(FormatOption.BOLD);
 		final var description = DescriptionFormatter.parse(group);
 		final var argumentDescriptions = ArgumentRepr.getDescriptions(arguments);
 
@@ -68,7 +70,7 @@ public final class ArgumentGroupRepr {
 
 		buff.append(ArgumentRepr.getDescriptions(arguments));
 
-		for (final var subGroup : group.getSubGroups()) {
+		for (final var subGroup : group.getGroups()) {
 			buff.append(ArgumentGroupRepr.getDescriptions(subGroup));
 		}
 
@@ -81,6 +83,7 @@ public final class ArgumentGroupRepr {
 	 * <pre>
 	 * &lt;name&gt; &lt;arguments&gt;
 	 * </pre>
+	 *
 	 * @param group the group
 	 */
 	public static String getRepresentation(@NotNull ArgumentGroup group) {
@@ -105,7 +108,7 @@ public final class ArgumentGroupRepr {
 			}
 		}
 
-		final List<ArgumentGroup> groups = group.getSubGroups().stream().filter(g -> !g.isEmpty()).toList();
+		final List<ArgumentGroup> groups = group.getGroups().stream().filter(g -> !g.isEmpty()).toList();
 
 		if (!arguments.isEmpty() && !groups.isEmpty()) {
 			sb.append(' ');

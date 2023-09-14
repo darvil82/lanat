@@ -7,7 +7,11 @@ import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-
+/**
+ * Provides a base for argument types that take multiple values.
+ * Shows a properly formatted description and representation.
+ * @param <T> the type of the value that the argument will take
+ */
 public abstract class TupleArgumentType<T> extends ArgumentType<T> {
 	private final @NotNull Range argCount;
 
@@ -24,7 +28,7 @@ public abstract class TupleArgumentType<T> extends ArgumentType<T> {
 	@Override
 	public @NotNull TextFormatter getRepresentation() {
 		return new TextFormatter(this.getValue().getClass().getSimpleName())
-			.concat(new TextFormatter(this.argCount.getRegexRange()).setColor(Color.BRIGHT_YELLOW));
+			.concat(new TextFormatter(this.argCount.getRegexRange()).withForegroundColor(Color.BRIGHT_YELLOW));
 	}
 
 	@Override

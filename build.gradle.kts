@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "darvil"
-version = "0.0.1-alpha"
+version = "0.0.1"
 java.sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
@@ -21,8 +21,7 @@ repositories {
 }
 
 dependencies {
-	implementation("org.jetbrains:annotations:23.1.0")
-	implementation("fade:mirror:0.0.7+develop")
+	implementation("org.jetbrains:annotations:24.0.1")
 	testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
 	testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.2")
 }

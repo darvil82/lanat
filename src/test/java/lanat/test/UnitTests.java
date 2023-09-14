@@ -1,6 +1,11 @@
 package lanat.test;
 
-import lanat.*;
+import lanat.Argument;
+import lanat.ArgumentType;
+import lanat.Command;
+import lanat.argumentTypes.CounterArgumentType;
+import lanat.argumentTypes.IntegerArgumentType;
+import lanat.argumentTypes.StringArgumentType;
 import lanat.argumentTypes.TupleArgumentType;
 import lanat.helpRepresentation.HelpFormatter;
 import lanat.utils.Range;
@@ -9,10 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 class StringJoiner extends TupleArgumentType<String> {
@@ -43,34 +45,6 @@ class RestrictedDoubleAdder extends ArgumentType<Double> {
 }
 
 
-class TestingParser extends ArgumentParser {
-	public TestingParser(String programName, String description) {
-		super(programName, description);
-	}
-
-	public TestingParser(String programName) {
-		super(programName);
-	}
-
-	public List<String> parseArgsExpectError(String args) {
-		return this.parseArgsNoExit(args).second();
-	}
-
-	public ParsedArgumentsRoot parseArgsExpectErrorPrint(String args) {
-		final var parsed = this.parseArgsNoExit(args);
-		System.out.println(String.join("\n", parsed.second()));
-		return parsed.first();
-	}
-
-	@Override
-	public @NotNull ParsedArgumentsRoot parseArgs(@NotNull String args) {
-		var res = this.parseArgsNoExit(args).first();
-		assertNotNull(res, "The result of the parsing was null (Arguments have failed)");
-		return res;
-	}
-}
-
-
 public class UnitTests {
 	protected TestingParser parser;
 
@@ -79,28 +53,38 @@ public class UnitTests {
 		TextFormatter.enableSequences = false; // just so we don't have to worry about color codes
 	}
 
-	public void setParser() {
-		this.parser = new TestingParser("Testing") {{
-			this.addArgument(Argument.create("what", new StringJoiner())
+	protected TestingParser setParser() {
+		return new TestingParser("Testing") {{
+			this.setErrorCode(0b0100);
+			this.addArgument(Argument.create(new StringJoiner(), "what")
 				.positional()
 				.obligatory()
 			);
-			this.addArgument(Argument.create("double-adder", new RestrictedDoubleAdder()));
-			this.addArgument(Argument.create("a", ArgumentType.STRING()));
-			this.addSubCommand(new Command("subCommand") {{
-				this.addArgument(Argument.create("c", ArgumentType.COUNTER()));
-				this.addArgument(Argument.create('s', "more-strings", new StringJoiner()));
-				this.addSubCommand(new Command("another") {{
-					this.addArgument(Argument.create("ball", new StringJoiner()));
-					this.addArgument(Argument.create("number", ArgumentType.INTEGER()).positional().obligatory());
+			this.addArgument(Argument.create(new RestrictedDoubleAdder(), "double-adder"));
+			this.addArgument(Argument.create(new StringArgumentType(), "a"));
+
+			this.addCommand(new Command("subCommand") {{
+				this.setErrorCode(0b0010);
+				this.addArgument(Argument.create(new CounterArgumentType(), "c"));
+				this.addArgument(Argument.create(new StringJoiner(), 's', "more-strings"));
+
+				this.addCommand(new Command("another") {{
+					this.setErrorCode(0b0001);
+					this.addArgument(Argument.create(new StringJoiner(), "ball"));
+					this.addArgument(Argument.create(new IntegerArgumentType(), "number").positional().obligatory());
 				}});
+			}});
+
+			this.addCommand(new Command("subCommand2") {{
+				this.setErrorCode(0b1000);
+				this.addArgument(Argument.create(new IntegerArgumentType(), 'c').positional());
 			}});
 		}};
 	}
 
 	@BeforeEach
 	public final void setup() {
-		this.setParser();
+		this.parser = this.setParser();
 	}
 
 	/**
@@ -110,7 +94,7 @@ public class UnitTests {
 	 * </pre>
 	 */
 	protected <T> T parseArg(@NotNull String arg, @NotNull String values) {
-		return this.parser.parseArgs("--%s %s".formatted(arg.trim(), values)).<T>get(arg).get();
+		return this.parser.parseGetValues("--%s %s".formatted(arg.strip(), values)).<T>get(arg).orElse(null);
 	}
 
 	/**
@@ -120,6 +104,6 @@ public class UnitTests {
 	 * </pre>
 	 */
 	protected void assertNotPresent(@NotNull String arg) {
-		assertNull(this.parser.parseArgs("").get(arg).get());
+		assertTrue(this.parser.parseGetValues("").get(arg).isEmpty());
 	}
 }

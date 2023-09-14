@@ -2,7 +2,9 @@ module lanat.test {
 	requires org.junit.jupiter.api;
 	requires lanat;
 	requires org.jetbrains.annotations;
-	requires fade.mirror;
 
-	exports lanat.test to org.junit.platform.commons;
+	exports lanat.test to org.junit.platform.commons, lanat;
+	exports lanat.test.manualTests to org.junit.platform.commons, lanat;
+	exports lanat.test.units to lanat, org.junit.platform.commons;
+	exports lanat.test.units.commandTemplates to lanat, org.junit.platform.commons;
 }

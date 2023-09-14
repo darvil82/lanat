@@ -2,11 +2,15 @@ package lanat.utils;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.stream.Stream;
+
 public final class UtlReflection {
 	private UtlReflection() {}
 
 	/**
-	 * This method returns the simple name of the given class. If the class is an anonymous class, then the simple name
+	 * Returns the simple name of the given class. If the class is an anonymous class, then the simple name
 	 * of the superclass is returned.
 	 *
 	 * @param clazz The class to get the simple name of.
@@ -21,4 +25,44 @@ public final class UtlReflection {
 
 		return name;
 	}
+
+	/**
+	 * Returns whether the given method has the given parameters in the given order.
+	 *
+	 * @param method The method to check.
+	 * @param parameters The parameters to check.
+	 * @return Whether the given method has the given parameters in the given order.
+	 */
+	public static boolean hasParameters(Method method, Class<?>... parameters) {
+		return Arrays.equals(method.getParameterTypes(), parameters);
+	}
+
+	/**
+	 * Instantiates the given class with the given arguments.
+	 *
+	 * @param clazz The class to instantiate.
+	 * @param args The arguments to pass to the constructor.
+	 * @param <T> The type of the class.
+	 * @return The instantiated class. If the class could not be instantiated, a {@link RuntimeException} is thrown.
+	 */
+	public static <T> T instantiate(Class<T> clazz, Object... args) {
+		try {
+			return clazz.getDeclaredConstructor().newInstance(args);
+		} catch (ReflectiveOperationException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	/**
+	 * Returns a stream of all methods in the given class.
+	 * If the given class is an anonymous class, then the methods of the superclass are returned.
+	 * @param clazz The class to get the methods of.
+	 * @return A stream of all methods in the given class.
+	 */
+	public static Stream<Method> getMethods(Class<?> clazz) {
+		if (clazz.isAnonymousClass())
+			return UtlReflection.getMethods(clazz.getSuperclass());
+		return Stream.of(clazz.getDeclaredMethods());
+	}
+
 }

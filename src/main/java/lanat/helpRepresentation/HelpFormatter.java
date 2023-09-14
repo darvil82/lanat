@@ -8,7 +8,6 @@ import lanat.utils.displayFormatter.Color;
 import lanat.utils.displayFormatter.FormatOption;
 import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -16,41 +15,33 @@ import java.util.*;
  * Manager for generating the help message of a command. It is possible to customize the layout of the help message by
  * overriding the {@link #initLayout()} method.
  * <p>
- * The layout is a list of {@link LayoutItem} objects, which are used to generate the help message.
- * Each {@link LayoutItem} has a layout generator, which is a function that may take a {@link Command} as parameter and
+ * The layout is a list of {@link LayoutItem} objects, which are used to generate the help message. Each
+ * {@link LayoutItem} has a layout generator, which is a function that may take a {@link Command} as parameter and
  * returns a string.
  * </p>
  * <p>
- * To generate the help message, use {@link #toString()}.
+ * To generate the help message, use {@link #generate(Command)} ()}.
  * </p>
+ *
  * @see LayoutItem
  */
 public class HelpFormatter {
-	Command parentCmd;
 	private byte indentSize = 3;
 	public static short lineWrapMax = 110;
 	private @NotNull ArrayList<@NotNull LayoutItem> layout = new ArrayList<>();
 	public static boolean debugLayout = false;
 
-	public HelpFormatter(@Nullable Command parentCmd) {
-		this.parentCmd = parentCmd;
-		this.initLayout();
+	static {
 		Tag.initTags();
 	}
 
-	// the user can create a helpFormatter, though, the parentCmd should be applied later (otherwise stuff will fail)
 	public HelpFormatter() {
-		this((Command)null);
+		this.initLayout();
 	}
 
 	public HelpFormatter(@NotNull HelpFormatter other) {
-		this.parentCmd = other.parentCmd;
 		this.indentSize = other.indentSize;
 		this.layout.addAll(other.layout);
-	}
-
-	public void setParentCmd(@NotNull Command parentCmd) {
-		this.parentCmd = parentCmd;
 	}
 
 	public void setIndentSize(int indentSize) {
@@ -70,16 +61,25 @@ public class HelpFormatter {
 	 */
 	protected void initLayout() {
 		this.setLayout(
-			LayoutItem.of(LayoutGenerators::title),
-			LayoutItem.of(LayoutGenerators::synopsis).indent(1).margin(1),
-			LayoutItem.of(LayoutGenerators::argumentDescriptions).title("Description:").indent(1),
-			LayoutItem.of(LayoutGenerators::subCommandsDescriptions).title("Sub-Commands:").indent(1).marginTop(1),
-			LayoutItem.of(LayoutGenerators::programLicense).marginTop(2)
+			LayoutItem.of(LayoutGenerators::titleAndDescription),
+			LayoutItem.of(LayoutGenerators::synopsis)
+				.indent(1)
+				.margin(1),
+			LayoutItem.of(LayoutGenerators::argumentDescriptions)
+				.title("Description:")
+				.indent(1),
+			LayoutItem.of(LayoutGenerators::subCommandsDescriptions)
+				.title("Sub-Commands:")
+				.indent(1)
+				.marginTop(1),
+			LayoutItem.of(LayoutGenerators::programLicense)
+				.marginTop(2)
 		);
 	}
 
 	/**
 	 * Moves a {@link LayoutItem} from one position to another.
+	 *
 	 * @param from the index of the item to move
 	 * @param to the index to move the item to
 	 */
@@ -98,6 +98,7 @@ public class HelpFormatter {
 
 	/**
 	 * Adds one or more {@link LayoutItem} to the layout.
+	 *
 	 * @param layoutItems the {@link LayoutItem} to add
 	 */
 	public final void addToLayout(@NotNull LayoutItem... layoutItems) {
@@ -106,6 +107,7 @@ public class HelpFormatter {
 
 	/**
 	 * Adds one or more {@link LayoutItem} to the layout at the specified position.
+	 *
 	 * @param at the position to add the item/s at
 	 * @param layoutItems the item/s to add
 	 */
@@ -115,6 +117,7 @@ public class HelpFormatter {
 
 	/**
 	 * Sets the layout to the specified {@link LayoutItem} objects.
+	 *
 	 * @param layoutItems the items to set the layout to
 	 */
 	public final void setLayout(@NotNull LayoutItem... layoutItems) {
@@ -123,6 +126,7 @@ public class HelpFormatter {
 
 	/**
 	 * Removes one or more {@link LayoutItem} from the layout.
+	 *
 	 * @param positions the positions of the items to remove
 	 */
 	public final void removeFromLayout(int... positions) {
@@ -136,14 +140,14 @@ public class HelpFormatter {
 
 	/**
 	 * Generates the help message.
+	 *
 	 * @return the help message
 	 */
-	@Override
-	public @NotNull String toString() {
+	public @NotNull String generate(@NotNull Command cmd) {
 		final var buffer = new StringBuilder();
 
 		for (int i = 0; i < this.layout.size(); i++) {
-			final var generatedContent = this.layout.get(i).generate(this);
+			final var generatedContent = this.layout.get(i).generate(this, cmd);
 
 			if (generatedContent == null)
 				continue;
@@ -151,14 +155,14 @@ public class HelpFormatter {
 			if (HelpFormatter.debugLayout)
 				buffer.append(new TextFormatter("LayoutItem " + i + ":\n")
 					.addFormat(FormatOption.UNDERLINE)
-					.setColor(Color.GREEN)
+					.withForegroundColor(Color.GREEN)
 				);
 
 			buffer.append(UtlString.wrap(generatedContent, lineWrapMax)).append('\n');
 		}
 
-		// UtlString.trim() is used because String.trim() also removes trailing \022 (escape character)
-		return UtlString.trim(buffer.toString());
+		// strip() is used here because trim() also removes \022 (escape character)
+		return buffer.toString().strip();
 	}
 
 	/**

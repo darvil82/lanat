@@ -75,7 +75,7 @@ public class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 		assert this.argument != null;
 
 		this.fmt()
-			.setContents("Incorrect number of values for argument '%s'.%nExpected %s, but got %d."
+			.setContent("Incorrect number of values for argument '%s'.%nExpected %s, but got %d."
 				.formatted(
 					this.argument.getName(), this.argument.argType.getRequiredArgValueCount().getMessage("value"),
 					Math.max(this.valueCount - 1, 0) // this is done because if there are tuples, the end token is counted as a value (maybe a bit hacky?)
@@ -89,7 +89,7 @@ public class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 		assert this.argument != null;
 
 		this.fmt()
-			.setContents("Argument '%s' was used an incorrect amount of times.%nExpected %s, but was used %s."
+			.setContent("Argument '%s' was used an incorrect amount of times.%nExpected %s, but was used %s."
 				.formatted(
 					this.argument.getName(), this.argument.argType.getRequiredUsageCount().getMessage("usage"),
 					UtlString.plural("time", this.argument.getUsageCount())
@@ -104,7 +104,7 @@ public class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 		final var argCmd = this.argument.getParentCommand();
 
 		this.fmt()
-			.setContents(
+			.setContent(
 				argCmd instanceof ArgumentParser
 					? "Obligatory argument '%s' not used.".formatted(this.argument.getName())
 					: "Obligatory argument '%s' for command '%s' not used.".formatted(this.argument.getName(), argCmd.getName())
@@ -115,7 +115,7 @@ public class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 	@Handler("UNMATCHED_TOKEN")
 	protected void handleUnmatchedToken() {
 		this.fmt()
-			.setContents("Token '%s' does not correspond with a valid argument, value, or command."
+			.setContent("Token '%s' does not correspond with a valid argument, value, or command."
 				.formatted(this.getCurrentToken().contents())
 			)
 			.displayTokens(this.tokenIndex, this.valueCount, false);
@@ -124,8 +124,8 @@ public class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 	@Handler("MULTIPLE_ARGS_IN_EXCLUSIVE_GROUP_USED")
 	protected void handleMultipleArgsInExclusiveGroupUsed() {
 		this.fmt()
-			.setContents("Multiple arguments in exclusive group '%s' used."
-				.formatted(this.argumentGroup.name)
+			.setContent("Multiple arguments in exclusive group '%s' used."
+				.formatted(this.argumentGroup.getName())
 			)
 			.displayTokens(this.tokenIndex, this.valueCount, false);
 	}

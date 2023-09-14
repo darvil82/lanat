@@ -15,8 +15,9 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Gets the representation of the target object specified by the route.
+ *
  * @see RouteParser
- * */
+ */
 public class LinkTag extends Tag {
 	@Override
 	protected @NotNull String parse(@NotNull NamedWithDescription user, @Nullable String value) {

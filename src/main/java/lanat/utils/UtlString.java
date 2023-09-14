@@ -1,32 +1,21 @@
 package lanat.utils;
 
+import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
-import java.util.function.Predicate;
+import java.util.regex.Pattern;
 
 public final class UtlString {
 	private UtlString() {}
 
 	/**
-	 * Apply a predicate for each character in the string, if any fails, return <code>false</code>.
-	 *
-	 * @param str The string to check.
-	 * @param fn The predicate to apply to each character.
-	 */
-	public static boolean matchCharacters(@NotNull String str, @NotNull Predicate<Character> fn) {
-		for (char chr : str.toCharArray()) {
-			if (!fn.test(chr)) return false;
-		}
-		return true;
-	}
-
-	/**
-	 * Wrap a string in two strings at both sides.
+	 * Wrap a string in two strings at both sides. If the string is {@code null}, it will be replaced with
+	 * <code>"null"</code>.
 	 */
 	public static @NotNull String surround(@Nullable String str, @NotNull String wrapper) {
-		return wrapper + str + wrapper;
+		return str == null ? "null" : wrapper + str + wrapper;
 	}
 
 	/**
@@ -43,20 +32,27 @@ public final class UtlString {
 		return Arrays.stream(str.split("\n")).min((a, b) -> b.length() - a.length()).orElse("");
 	}
 
-	public static @NotNull String sanitizeName(@NotNull String name) {
-		// remove all non-alphanumeric characters
-		final var sanitized = UtlString.trim(name.replaceAll("[^a-zA-Z0-9 -]", ""), "[^a-zA-Z0-9]")
-			.replaceAll(" ", "-");
+	/**
+	 * Check if a string is a valid name for it to be used in an element.
+	 * @param name The name to check.
+	 * @throws IllegalArgumentException if the name is invalid.
+	 */
+	public static @NotNull String requireValidName(@NotNull String name) {
+		if (name.length() == 0)
+			throw new IllegalArgumentException("name must contain at least one character");
 
-		if (sanitized.isEmpty())
-			throw new IllegalArgumentException("name must contain at least one alphanumeric character");
+		if (!Character.isAlphabetic(name.charAt(0)))
+			throw new IllegalArgumentException("name must start with an alphabetic character or an underscore");
 
-		return sanitized;
+		if (!name.matches("[a-zA-Z0-9_-]+"))
+			throw new IllegalArgumentException("name must only contain alphanumeric characters and underscores and dashes");
+
+		return name;
 	}
 
 	/**
-	 * Wraps a string into multiple lines in order to fit in the given maximum width. Wrapping respects words, so no
-	 * word will be split in two lines.
+	 * Wraps a string into multiple lines in order to fit in the given maximum width. Wrapping respects words and
+	 * indentation, so no word will be split in two lines and indentation will be preserved.
 	 *
 	 * @param str The text to wrap.
 	 * @param maxWidth The maximum width that the text should never exceed.
@@ -66,8 +62,9 @@ public final class UtlString {
 		if (maxWidth <= 0)
 			throw new IllegalArgumentException("maxWidth must be greater than 0");
 
-		// we cant split anyway, so why bother
-		if (!(str.contains(" ") || str.contains("\t")))
+		// contents are already short enough, no need to wrap.
+		// also if we can't even split, why bother.
+		if (str.length() <= maxWidth || !(str.contains(" ") || str.contains("\t")))
 			return str;
 
 		final var wordBuff = new StringBuilder(); // buffer for the current word
@@ -163,41 +160,47 @@ public final class UtlString {
 		return UtlString.indent(str, padCount, ' ');
 	}
 
+	/**
+	 * Centers a string in a given width. {@code padChar} is used to fill the remaining space.
+	 * <p>
+	 * If the string is longer than the width, it is returned as is.
+	 * </p>
+	 * @param str The string to center.
+	 * @param width The width to center the string in.
+	 * @param padChar The character to use for padding.
+	 * @return The centered string.
+	 */
 	public static @NotNull String center(@NotNull String str, int width, char padChar) {
-		final var buffer = new StringBuilder();
+		if (str.length() >= width)
+			return str;
+
 		final var paddingString = String.valueOf(padChar).repeat((width / 2) - (str.length() / 2) - 1);
 
-		buffer.append(paddingString);
-		buffer.append(str);
-		buffer.append(paddingString);
-
-		return buffer.toString();
+		return paddingString + str + paddingString;
 	}
 
+	/**
+	 * Centers a string in a given width. '-' is used to fill the remaining space.
+	 * @param str The string to center.
+	 * @param width The width to center the string in.
+	 * @return The centered string.
+	 * @see UtlString#center(String, int, char)
+	 */
 	public static @NotNull String center(@NotNull String str, int width) {
-		return UtlString.center(str, width, '─');
+		return UtlString.center(str, width, '-');
 	}
-
-	public static @NotNull String trim(@NotNull String str, @NotNull String regex) {
-		return str.replaceAll("^" + regex + "+", "")
-			.replaceAll(regex + "+$", "");
-	}
-
-	public static @NotNull String trim(@NotNull String str) {
-		return UtlString.trim(str, "[ \n\r\t]");
-	}
-
 
 	/**
 	 * Remove all formatting colors or format from the string
 	 */
 	public static @NotNull String removeSequences(@NotNull String str) {
-		return str.replaceAll("\033\\[[\\d;]*m", "");
+		return str.replaceAll(TextFormatter.ESC + "\\[[\\d;]*m", "");
 	}
 
 	/**
-	 * Returns the count given appended to the string given. An <code>'s'</code> will be appended at the end if
-	 * the count is not 1.
+	 * Returns the count given appended to the string given. An <code>'s'</code> will be appended at the end if the
+	 * count is not 1.
+	 *
 	 * @param str the string to append to
 	 * @param count the count
 	 * @return "count str" or "count strs" depending on the count
@@ -207,20 +210,46 @@ public final class UtlString {
 	}
 
 	/**
-	 * Returns the string given if it is not null, otherwise returns an empty string.
+	 * Returns true if the string given is {@code null} or empty.
+	 *
 	 * @param str the string to check
-	 * @return the string given or an empty string
-	 */
-	public static @NotNull String fromNullable(@Nullable String str) {
-		return str == null ? "" : str;
-	}
-
-	/**
-	 * Returns true if the string given is null or empty.
-	 * @param str the string to check
-	 * @return true if the string is null or empty
+	 * @return true if the string is {@code null} or empty
 	 */
 	public static boolean isNullOrEmpty(@Nullable String str) {
 		return str == null || str.isEmpty();
+	}
+
+	/**
+	 * Split a string by the given splitter. This is similar to {@link String#split(String)} but it will also ignore
+	 * spaces around the splitter.
+	 *
+	 * @param str the string to split
+	 * @param splitter the splitter
+	 * @param max the maximum amount of splits
+	 * @return the split string
+	 */
+	public static @NotNull String @NotNull [] split(@NotNull String str, @NotNull String splitter, int max) {
+		return str.split(" *" + Pattern.quote(splitter) + " *", max);
+	}
+
+	/**
+	 * Split a string by the given splitter. This is similar to {@link String#split(String)} but it will also ignore
+	 * spaces around the splitter.
+	 *
+	 * @param str the string to split
+	 * @param splitter the splitter
+	 * @return the split string
+	 */
+	public static @NotNull String @NotNull [] split(@NotNull String str, char splitter, int max) {
+		return UtlString.split(str, String.valueOf(splitter), max);
+	}
+
+	/**
+	 * {@link UtlString#split(String, char, int)} with max set to -1. (Default of {@link String#split(String)})
+	 *
+	 * @see UtlString#split(String, char, int)
+	 */
+	public static @NotNull String @NotNull [] split(@NotNull String str, char splitter) {
+		return UtlString.split(str, String.valueOf(splitter), -1);
 	}
 }

@@ -10,12 +10,13 @@ public class CustomError extends ParseStateErrorBase<CustomError.CustomParseErro
 	private final @NotNull ErrorLevel level;
 	private boolean showTokens = true;
 
+	// for custom errors, we don't need to have multiple types, for now at least
 	enum CustomParseErrorType implements ErrorLevelProvider {
 		DEFAULT;
 
 		@Override
 		public @NotNull ErrorLevel getErrorLevel() {
-			return ErrorLevel.ERROR;
+			return ErrorLevel.ERROR; // doesn't really matter since it's overridden in handleDefault()
 		}
 	}
 
@@ -38,8 +39,8 @@ public class CustomError extends ParseStateErrorBase<CustomError.CustomParseErro
 	@Handler("DEFAULT")
 	protected void handleDefault() {
 		this.fmt()
-			.setErrorLevel(this.level)
-			.setContents(this.message);
+			.setErrorLevel(this.level) // use the level specified in the constructor
+			.setContent(this.message);
 
 		if (this.showTokens)
 			this.fmt().displayTokens(this.tokenIndex, 0, false);

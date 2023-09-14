@@ -25,28 +25,28 @@ public class TokenizeError extends ParseStateErrorBase<TokenizeError.TokenizeErr
 	@Handler("TUPLE_ALREADY_OPEN")
 	protected void handleTupleAlreadyOpen() {
 		this.fmt()
-			.setContents("Tuple already open.")
+			.setContent("Tuple already open.")
 			.displayTokens(this.tokenIndex + 1);
 	}
 
 	@Handler("TUPLE_NOT_CLOSED")
 	protected void handleTupleNotClosed() {
 		this.fmt()
-			.setContents("Tuple not closed.")
+			.setContent("Tuple not closed.")
 			.displayTokens(this.tokenIndex + 1);
 	}
 
 	@Handler("UNEXPECTED_TUPLE_CLOSE")
 	protected void handleUnexpectedTupleClose() {
 		this.fmt()
-			.setContents("Unexpected tuple close.")
+			.setContent("Unexpected tuple close.")
 			.displayTokens(this.tokenIndex + 1);
 	}
 
 	@Handler("STRING_NOT_CLOSED")
 	protected void handleStringNotClosed() {
 		this.fmt()
-			.setContents("String not closed.")
+			.setContent("String not closed.")
 			.displayTokens(this.tokenIndex + 1);
 	}
 }

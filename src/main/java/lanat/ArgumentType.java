@@ -5,13 +5,40 @@ import lanat.parsing.errors.CustomError;
 import lanat.utils.ErrorsContainerImpl;
 import lanat.utils.Range;
 import lanat.utils.Resettable;
-import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.function.Consumer;
 
+/**
+ * <h2>Argument Type</h2>
+ * <p>
+ * An Argument Type is a handler in charge of parsing a specific kind of input from the command line. For example, the
+ * {@link IntegerArgumentType} is in charge of parsing integers from the command line.
+ * </p>
+ * <h3>Creating custom Argument Types</h3>
+ * <p>
+ * Creating new Argument Types is an easy task. Extending this class already provides you with most of the functionality
+ * that you need. The minimum method that should be implemented is the {@link ArgumentType#parseValues(String[])} method.
+ * Which will be called by the main parser when it needs to parse the values of an argument of this type.
+ * </p>
+ * The custom Argument Type can push errors to the main parser by using the {@link ArgumentType#addError(String)} method
+ * and its overloads.
+ * <p>
+ * It is possible to use other Argument Types inside your custom Argument Type. This is done by using the
+ * {@link ArgumentType#registerSubType(ArgumentType)} method. This allows you to listen for errors that occur in the
+ * subtypes, and to add them to the list of errors of the main parser. {@link ArgumentType#onSubTypeError(CustomError)}
+ * is called when an error occurs in a subtype.
+ * </p>
+ * <p>
+ * You can also implement {@link Parseable} to create a basic argument type implementation. Note that in order to
+ * use that implementation, you need to wrap it in a {@link FromParseableArgumentType} instance (which provides the
+ * necessary internal functionality).
+ * </p>
+ * @param <T> The type of the value that this argument type parses.
+ */
 public abstract class ArgumentType<T>
 	extends ErrorsContainerImpl<CustomError>
 	implements Resettable, Parseable<T>, ParentElementGetter<ArgumentType<?>>
@@ -39,7 +66,7 @@ public abstract class ArgumentType<T>
 	/**
 	 * This specifies the number of values that this argument received when being parsed.
 	 */
-	private int lastReceivedValueCount = 0;
+	private int lastReceivedValuesNum = 0;
 
 	/** This specifies the number of times this argument type has been used during parsing. */
 	short usageCount = 0;
@@ -51,34 +78,38 @@ public abstract class ArgumentType<T>
 	private @Nullable ArgumentType<?> parentArgType;
 	private final @NotNull ArrayList<@NotNull ArgumentType<?>> subTypes = new ArrayList<>();
 
+	/** Mapping of types to their corresponding argument types. Used for inferring. */
+	private static final HashMap<Class<?>, Class<? extends ArgumentType<?>>> INFER_ARGUMENT_TYPES_MAP = new HashMap<>();
+
+
+	/**
+	 * Constructs a new argument type with the specified initial value.
+	 * @param initialValue The initial value of this argument type.
+	 */
 	public ArgumentType(@NotNull T initialValue) {
 		this();
 		this.setValue(this.initialValue = initialValue);
 	}
 
+	/**
+	 * Constructs a new argument type with no initial value.
+	 */
 	public ArgumentType() {
 		if (this.getRequiredUsageCount().min() == 0) {
 			throw new IllegalArgumentException("The required usage count must be at least 1.");
 		}
 	}
 
-	public final void parseAndUpdateValue(@NotNull String @NotNull [] args) {
-		this.lastReceivedValueCount = args.length;
-		this.currentValue = this.parseValues(args);
+	/**
+	 * Saves the specified tokenIndex and the number of values received, and then parses the values.
+	 * @param tokenIndex The index of the token that caused the parsing of this argument type.
+	 * @param values The values to parse.
+	 */
+	public final void parseAndUpdateValue(short tokenIndex, @NotNull String... values) {
+		this.lastTokenIndex = tokenIndex;
+		this.lastReceivedValuesNum = values.length;
+		this.currentValue = this.parseValues(values);
 	}
-
-	public final void parseAndUpdateValue(@NotNull String arg) {
-		this.lastReceivedValueCount = 1;
-		this.currentValue = this.parseValues(arg);
-	}
-
-	public final @Nullable T parseValues(@NotNull String arg) {
-		return this.parseValues(new String[] { arg });
-	}
-
-	@Override
-	public abstract @Nullable T parseValues(@NotNull String @NotNull [] args);
-
 
 	/**
 	 * By registering a subtype, this allows you to listen for errors that occurred in this subtype during parsing. The
@@ -95,7 +126,7 @@ public abstract class ArgumentType<T>
 
 	/**
 	 * This is called when a subtype of this argument type has an error. By default, this adds the error to the list of
-	 * errors, while also adding the {@link ArgumentType#currentArgValueIndex}.
+	 * errors, while also adding the {@link ArgumentType#currentArgValueIndex} to the error's token index.
 	 *
 	 * @param error The error that occurred in the subtype.
 	 */
@@ -104,31 +135,48 @@ public abstract class ArgumentType<T>
 		this.addError(error);
 	}
 
+	/**
+	 * Dispatches the error to the parent argument type.
+	 * @param error The error to dispatch.
+	 */
 	private void dispatchErrorToParent(@NotNull CustomError error) {
 		if (this.parentArgType != null) {
 			this.parentArgType.onSubTypeError(error);
 		}
 	}
 
+	/**
+	 * Returns the current value of this argument type.
+	 * @return The current value of this argument type.
+	 */
 	public T getValue() {
 		return this.currentValue;
 	}
 
 	/**
+	 * Returns the final value of this argument type. This is the value that this argument type will have after parsing
+	 * is done.
+	 * @return The final value of this argument type.
+	 */
+	public T getFinalValue() {
+		return this.getValue(); // by default, the final value is just the current value. subclasses can override this.
+	}
+
+	/**
 	 * Sets the current value of this argument type.
 	 */
-	public void setValue(@NotNull T value) {
+	protected void setValue(@NotNull T value) {
 		this.currentValue = value;
 	}
 
+	/**
+	 * Returns the initial value of this argument type, if specified.
+	 * @return The initial value of this argument type, {@code null} if not specified.
+	 */
 	public T getInitialValue() {
 		return this.initialValue;
 	}
 
-
-	/**
-	 * Specifies the number of values that this argument should receive when being parsed.
-	 */
 	@Override
 	public @NotNull Range getRequiredArgValueCount() {
 		return Range.ONE;
@@ -144,22 +192,8 @@ public abstract class ArgumentType<T>
 		return Range.ONE;
 	}
 
-	/** Specifies the representation of this argument type. This may appear in places like the help message. */
-	@Override
-	public @Nullable TextFormatter getRepresentation() {
-		return new TextFormatter(this.getClass().getSimpleName());
-	}
-
 	/**
-	 * Returns the final value of this argument type. This is the value that this argument type has after parsing.
-	 */
-	public @Nullable T getFinalValue() {
-		return this.currentValue;
-	}
-
-	/**
-	 * Adds an error to the list of errors that occurred during parsing.
-	 *
+	 * Adds an error to the list of errors that occurred during parsing at the current token index.
 	 * @param message The message to display related to the error.
 	 */
 	protected void addError(@NotNull String message) {
@@ -168,7 +202,6 @@ public abstract class ArgumentType<T>
 
 	/**
 	 * Adds an error to the list of errors that occurred during parsing.
-	 *
 	 * @param message The message to display related to the error.
 	 * @param index The index of the value that caused the error.
 	 */
@@ -178,7 +211,6 @@ public abstract class ArgumentType<T>
 
 	/**
 	 * Adds an error to the list of errors that occurred during parsing.
-	 *
 	 * @param message The message to display related to the error.
 	 * @param level The level of the error.
 	 */
@@ -188,52 +220,51 @@ public abstract class ArgumentType<T>
 
 	/**
 	 * Adds an error to the list of errors that occurred during parsing.
-	 *
 	 * @param message The message to display related to the error.
 	 * @param index The index of the value that caused the error.
 	 * @param level The level of the error.
 	 */
 	protected void addError(@NotNull String message, int index, @NotNull ErrorLevel level) {
-		if (!this.getRequiredArgValueCount().isIndexInRange(index)) {
-			throw new IndexOutOfBoundsException("Index " + index + " is out of range for " + this.getClass().getName());
-		}
+		this.addError(new CustomError(message, index, level));
+	}
 
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * <strong>Note: </strong> The error is modified to have the correct token index before being added to the list of
+	 * errors.
+	 * </p>
+	 */
+	@Override
+	public void addError(@NotNull CustomError error) {
 		if (this.lastTokenIndex == -1) {
 			throw new IllegalStateException("Cannot add an error to an argument that has not been parsed yet.");
 		}
 
-		var error = new CustomError(
-			message,
-			this.lastTokenIndex + Math.min(index + 1, this.lastReceivedValueCount),
-			level
-		);
-
-		super.addError(error);
-		this.dispatchErrorToParent(error);
-	}
-
-	@Override
-	public void addError(@NotNull CustomError error) {
-		if (!this.getRequiredArgValueCount().isIndexInRange(error.tokenIndex)) {
+		// the index of the error should never be less than 0 or greater than the max value count
+		if (error.tokenIndex < 0 || error.tokenIndex >= this.getRequiredArgValueCount().max()) {
 			throw new IndexOutOfBoundsException("Index " + error.tokenIndex + " is out of range for " + this.getClass().getName());
 		}
 
-		error.tokenIndex = this.lastTokenIndex + Math.min(error.tokenIndex + 1, this.lastReceivedValueCount);
+		// the index of the error should be relative to the last token index
+		error.tokenIndex = this.lastTokenIndex + Math.min(error.tokenIndex + 1, this.lastReceivedValuesNum);
 
 		super.addError(error);
 		this.dispatchErrorToParent(error);
 	}
 
+	/**
+	 * Returns the index of the last token that was parsed.
+	 */
 	protected short getLastTokenIndex() {
 		return this.lastTokenIndex;
 	}
 
-	void setLastTokenIndex(short lastTokenIndex) {
-		this.lastTokenIndex = lastTokenIndex;
-	}
-
-	int getLastReceivedValueCount() {
-		return this.lastReceivedValueCount;
+	/**
+	 * Returns the number of values that this argument received when being parsed the last time.
+	 */
+	int getLastReceivedValuesNum() {
+		return this.lastReceivedValuesNum;
 	}
 
 	/**
@@ -255,9 +286,12 @@ public abstract class ArgumentType<T>
 		this.currentValue = this.initialValue;
 		this.lastTokenIndex = -1;
 		this.currentArgValueIndex = 0;
-		this.lastReceivedValueCount = 0;
+		this.lastReceivedValuesNum = 0;
 		this.usageCount = 0;
-		this.subTypes.forEach(ArgumentType::resetState);
+		this.subTypes.forEach(at -> {
+			at.resetState(); // reset the state of the subtypes.
+			at.lastTokenIndex = 0; // remember to reset this back to 0. otherwise, the subtype will throw an error!
+		});
 	}
 
 	@Override
@@ -265,56 +299,38 @@ public abstract class ArgumentType<T>
 		return this.parentArgType;
 	}
 
-	// Easy to access values. These are methods because we don't want to use the same instance everywhere.
-	public static IntArgument INTEGER() {
-		return new IntArgument();
+
+	/**
+	 * Registers an argument type to be inferred for the specified type/s.
+	 * @param type The argument type to infer.
+	 * @param infer The types to infer the argument type for.
+	 */
+	public static void registerTypeInfer(@NotNull Class<? extends ArgumentType<?>> type, @NotNull Class<?>... infer) {
+		for (Class<?> clazz : infer) {
+			ArgumentType.INFER_ARGUMENT_TYPES_MAP.put(clazz, type);
+		}
 	}
 
-	public static IntRangeArgument INTEGER_RANGE(int min, int max) {
-		return new IntRangeArgument(min, max);
+	/**
+	 * Returns the argument type that should be inferred for the specified type.
+	 * @param clazz The type to infer the argument type for.
+	 * @return The argument type that should be inferred for the specified type. Returns {@code null} if no
+	 * valid argument type was found.
+	 */
+	public static Class<? extends ArgumentType<?>> getTypeInfer(@NotNull Class<?> clazz) {
+		return ArgumentType.INFER_ARGUMENT_TYPES_MAP.get(clazz);
 	}
 
-	public static FloatArgument FLOAT() {
-		return new FloatArgument();
-	}
-
-	public static BooleanArgument BOOLEAN() {
-		return new BooleanArgument();
-	}
-
-	public static CounterArgument COUNTER() {
-		return new CounterArgument();
-	}
-
-	public static FileArgument FILE() {
-		return new FileArgument();
-	}
-
-	public static StringArgument STRING() {
-		return new StringArgument();
-	}
-
-	public static MultipleStringsArgument STRINGS() {
-		return new MultipleStringsArgument();
-	}
-
-	public static <T extends ArgumentType<Ti>, Ti> KeyValuesArgument<T, Ti> KEY_VALUES(T valueType) {
-		return new KeyValuesArgument<>(valueType);
-	}
-
-	public static <T extends Enum<T>> EnumArgument<T> ENUM(T enumDefault) {
-		return new EnumArgument<>(enumDefault);
-	}
-
-	public static StdinArgument STDIN() {
-		return new StdinArgument();
-	}
-
-	public static <T extends Parseable<Ti>, Ti> FromParseableArgument<T, Ti> FROM_PARSEABLE(T parseable) {
-		return new FromParseableArgument<>(parseable);
-	}
-
-	public static <T> TryParseArgument<T> TRY_PARSE(Class<T> type) {
-		return new TryParseArgument<>(type);
+	// add some default argument types.
+	static {
+		// we need to also specify the primitives... wish there was a better way to do this.
+		ArgumentType.registerTypeInfer(StringArgumentType.class, String.class);
+		ArgumentType.registerTypeInfer(IntegerArgumentType.class, int.class, Integer.class);
+		ArgumentType.registerTypeInfer(BooleanArgumentType.class, boolean.class, Boolean.class);
+		ArgumentType.registerTypeInfer(FloatArgumentType.class, float.class, Float.class);
+		ArgumentType.registerTypeInfer(DoubleArgumentType.class, double.class, Double.class);
+		ArgumentType.registerTypeInfer(LongArgumentType.class, long.class, Long.class);
+		ArgumentType.registerTypeInfer(ShortArgumentType.class, short.class, Short.class);
+		ArgumentType.registerTypeInfer(ByteArgumentType.class, byte.class, Byte.class);
 	}
 }

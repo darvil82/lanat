@@ -2,6 +2,11 @@ package lanat.utils.displayFormatter;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
+/**
+ * Enumerates the ANSI color codes that a terminal can normally display.
+ */
 public enum Color {
 	BLACK(30),
 	RED(31),
@@ -26,36 +31,55 @@ public enum Color {
 		this.value = (byte)value;
 	}
 
-	@Override
-	public @NotNull String toString() {
+	/**
+	 * Returns the ANSI escape sequence for this color for the text foreground.
+	 * @return The ANSI escape sequence for this color.
+	 */
+	public @NotNull String fg() {
 		return TextFormatter.getSequence(this.value);
 	}
 
-	public @NotNull String toStringBackground() {
+	/**
+	 * Returns the ANSI escape sequence for this color for the text background.
+	 * @return The ANSI escape sequence for this color.
+	 */
+	public @NotNull String bg() {
 		return TextFormatter.getSequence(this.value + 10);
 	}
 
-	public static @NotNull Color @NotNull [] getBrightColors() {
-		return new Color[] {
-			BRIGHT_RED,
-			BRIGHT_GREEN,
-			BRIGHT_YELLOW,
-			BRIGHT_BLUE,
-			BRIGHT_MAGENTA,
-			BRIGHT_CYAN,
-			BRIGHT_WHITE
-		};
+	/**
+	 * Returns the ANSI escape sequence for this color for the text foreground.
+	 * @return The ANSI escape sequence for this color.
+	 * @see Color#fg()
+	 */
+	@Override
+	public String toString() {
+		return this.fg();
 	}
 
-	public static @NotNull Color @NotNull [] getDarkColors() {
-		return new Color[] {
-			RED,
-			GREEN,
-			YELLOW,
-			BLUE,
-			MAGENTA,
-			CYAN,
-			WHITE
-		};
-	}
+	/**
+	 * Immutable list of all the dark colors.
+	 */
+	public static final @NotNull List<Color> BRIGHT_COLORS = List.of(
+		BRIGHT_RED,
+		BRIGHT_GREEN,
+		BRIGHT_YELLOW,
+		BRIGHT_BLUE,
+		BRIGHT_MAGENTA,
+		BRIGHT_CYAN,
+		BRIGHT_WHITE
+	);
+
+	/**
+	 * Immutable list of all the bright colors.
+	 */
+	public static final @NotNull List<Color> DARK_COLORS = List.of(
+		RED,
+		GREEN,
+		YELLOW,
+		BLUE,
+		MAGENTA,
+		CYAN,
+		WHITE
+	);
 }

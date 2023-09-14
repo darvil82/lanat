@@ -11,8 +11,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Changes the color of the text. (e.g. {@code <color=red>}).
- * The available colors are the ones defined in {@link Color}. The color name is case-insensitive.
+ * Changes the color of the text. (e.g. {@code <color=red>}). The available colors are the ones defined in
+ * {@link Color}. The color name is case-insensitive.
  * <p>
  * The names that may be used are:
  * <ul>
@@ -43,27 +43,27 @@ import org.jetbrains.annotations.Nullable;
  * If the color name is invalid, a {@link MalformedTagException} is thrown.
  * If no color is specified, the reset sequence is returned. (e.g. {@code <color>}).
  * </p>
- * */
+ */
 public class ColorTag extends Tag {
 	@Override
 	protected @NotNull String parse(@NotNull NamedWithDescription user, @Nullable String value) {
 		if (!TextFormatter.enableSequences) return "";
-		if (value == null) return FormatOption.RESET_ALL.toString();
+		if (value == null) return FormatOption.RESET_ALL.seq();
 
-		if (!value.contains(":")) return getColor(value).toString();
+		if (!value.contains(":")) return ColorTag.getColor(value).fg();
 
-		final String[] split = value.split(":");
+		final String[] split = UtlString.split(value, ':');
 		if (split.length != 2)
 			throw new MalformedTagException(
-				"color", "invalid color format " + UtlString.surround(value)
+				ColorTag.class, "invalid color format " + UtlString.surround(value)
 				+ " (expected format: 'foreground:background')"
 			);
 
-		return getColor(split[0]).toString() + getColor(split[1]).toStringBackground();
+		return ColorTag.getColor(split[0]).fg() + ColorTag.getColor(split[1]).bg();
 	}
 
 	private static Color getColor(@NotNull String colorName) {
-		return switch (colorName.toLowerCase().trim().replaceAll("[_-]", " ")) {
+		return switch (colorName.toLowerCase().strip().replaceAll("[_-]", " ")) {
 			case "black", "k" -> Color.BLACK;
 			case "red", "r" -> Color.BRIGHT_RED;
 			case "green", "g" -> Color.BRIGHT_GREEN;
@@ -80,7 +80,7 @@ public class ColorTag extends Tag {
 			case "dark magenta", "dm" -> Color.MAGENTA;
 			case "dark cyan", "dc" -> Color.CYAN;
 			case "dark white", "dw" -> Color.WHITE;
-			default -> throw new MalformedTagException("color", "unknown color name " + UtlString.surround(colorName));
+			default -> throw new MalformedTagException(ColorTag.class, "unknown color name " + UtlString.surround(colorName));
 		};
 	}
 }

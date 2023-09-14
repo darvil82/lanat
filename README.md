@@ -1,8 +1,3 @@
-| <h1>Important!</h1> Before you read the information below, please note that this project is still in development and is not ready for production use. You are free to use it (thank you if you do so), but you should be aware that the project is in a constantly changing state at the moment! |
-|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-
-
-
 # Lanat
 
 Lanat is a command line argument parser for Java 17 with ease  of use and high customization

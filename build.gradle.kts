@@ -5,7 +5,7 @@ plugins {
 
 group = "darvil"
 version = "0.0.1"
-java.sourceCompatibility = JavaVersion.VERSION_17
+description = "Command line argument parser"
 
 dependencies {
 	implementation("org.jetbrains:annotations:24.0.1")
@@ -16,6 +16,8 @@ dependencies {
 java {
 	withJavadocJar()
 	withSourcesJar()
+
+	sourceCompatibility = JavaVersion.VERSION_17
 }
 
 repositories {

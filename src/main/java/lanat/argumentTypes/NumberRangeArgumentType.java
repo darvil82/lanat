@@ -9,6 +9,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
+/**
+ * An argument type that is a number between a minimum and maximum value.
+ * @param <T> The type of number that this argument type holds.
+ */
 public class NumberRangeArgumentType<T extends Number & Comparable<T>> extends ArgumentType<T> {
 	private final ArgumentType<T> argumentType;
 	private final T min, max;

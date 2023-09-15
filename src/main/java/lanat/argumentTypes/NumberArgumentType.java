@@ -5,6 +5,12 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Function;
 
+/**
+ * An abstract class for argument types that are numbers. This class provides an implementation
+ * of {@link #parseValues(String[])} that will parse the first argument as a number using the
+ * function returned by {@link #getParseFunction()}.
+ * @param <T> The type of number that this argument type is.
+ */
 public abstract class NumberArgumentType<T extends Number> extends ArgumentType<T> {
 	/**
 	 * Returns the function that will parse a string as a number. e.g. {@link Integer#parseInt(String)}.

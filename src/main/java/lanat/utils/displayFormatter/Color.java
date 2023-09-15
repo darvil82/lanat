@@ -25,7 +25,7 @@ public enum Color {
 	BRIGHT_CYAN(96),
 	BRIGHT_WHITE(97);
 
-	private final @NotNull Byte value;
+	private final byte value;
 
 	Color(int value) {
 		this.value = (byte)value;

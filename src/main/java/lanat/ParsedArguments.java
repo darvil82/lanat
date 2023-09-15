@@ -21,8 +21,8 @@ public class ParsedArguments {
 
 	ParsedArguments(
 		@NotNull Command cmd,
-		@NotNull HashMap<Argument<?, ?>, @Nullable Object> parsedArgs,
-		@NotNull List<ParsedArguments> subParsedArguments
+		@NotNull HashMap<@NotNull Argument<?, ?>, @Nullable Object> parsedArgs,
+		@NotNull List<@NotNull ParsedArguments> subParsedArguments
 	)
 	{
 		this.parsedArgs = parsedArgs;

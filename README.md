@@ -39,7 +39,7 @@ class Test {
 		);
 
 		// if no surname was specified, we'll show "none" instead
-		System.out.println("The surname of the user is " + myProgram.surname.orElse("none") + '.');
+		System.out.printf("The surname of the user is %s.", myProgram.surname.orElse("none"));
 	}
 }
 ```

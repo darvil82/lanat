@@ -268,7 +268,17 @@ public class TextFormatter {
 		return new TextFormatter(msg, Color.BRIGHT_RED).addFormat(FormatOption.REVERSE, FormatOption.BOLD);
 	}
 
-	public static @NotNull String getSequence(int code) {
+	/**
+	 * Returns a string with a terminal sequence with the specified code.
+	 * (e.g. {@code "ESC[<code here>m"})
+	 * <p>
+	 * If {@link #debug} is set to {@code true}, then the text "ESC" will be used instead of the actual escape
+	 * character.
+	 * </p>
+	 * @param code The code of the sequence.
+	 * @return a string with a terminal sequence with the specified code
+	 */
+	static @NotNull String getSequence(int code) {
 		if (TextFormatter.debug)
 			return "ESC[" + code;
 		return "" + ESC + '[' + code + 'm';

@@ -24,7 +24,7 @@ public enum FormatOption {
 	HIDDEN(8),
 	STRIKE_THROUGH(9);
 
-	private final @NotNull Byte value;
+	private final byte value;
 
 	FormatOption(int value) {
 		this.value = (byte)value;

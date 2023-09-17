@@ -64,7 +64,7 @@ The package is currently only available on GitHub Packages.
 
 	Replace `USERNAME` with your GitHub username and `PERSONAL_ACCESS_TOKEN` with a personal access token that has the `read:packages` scope.
 
-2. If using Gradle, add the following inside your `repositories` block:
+2. Add the following inside your `repositories` block:
 
     ```kotlin
     maven {

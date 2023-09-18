@@ -39,7 +39,7 @@ class Test {
 		);
 
 		// if no surname was specified, we'll show "none" instead
-		System.out.println("The surname of the user is " + myProgram.surname.orElse("none") + '.');
+		System.out.printf("The surname of the user is %s.%n", myProgram.surname.orElse("none"));
 	}
 }
 ```
@@ -64,7 +64,7 @@ The package is currently only available on GitHub Packages.
 
 	Replace `USERNAME` with your GitHub username and `PERSONAL_ACCESS_TOKEN` with a personal access token that has the `read:packages` scope.
 
-2. If using Gradle, add the following inside your `repositories` block:
+2. Add the following inside your `repositories` block:
 
     ```kotlin
     maven {

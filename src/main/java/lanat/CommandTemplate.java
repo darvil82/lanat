@@ -192,10 +192,8 @@ public abstract class CommandTemplate {
 
 	/**
 	 * A default command template that adds the 'help' and 'version' arguments to the command.
-	 * <ul>
-	 * <li>The 'help' argument shows the help message of the command (provided by the {@link Command#getHelp()} method).</li>
-	 * <li>The 'version' argument shows the version of the program (provided by the {@link ArgumentParser#getVersion()} method).</li>
-	 * </ul>
+	 * @see Command#addHelpArgument()
+	 * @see ArgumentParser#addVersionArgument()
 	 */
 	@Command.Define
 	public static class Default extends CommandTemplate {
@@ -206,19 +204,10 @@ public abstract class CommandTemplate {
 		 */
 		@InitDef
 		public static void afterInit(@NotNull Command cmd) {
-			cmd.addArgument(Argument.createOfBoolType("help")
-				.onOk(t -> System.out.println(cmd.getHelp()))
-				.withDescription("Shows this message.")
-				.allowsUnique()
-			);
+			cmd.addHelpArgument();
 
-			if (cmd instanceof ArgumentParser ap) {
-				cmd.addArgument(Argument.createOfBoolType("version")
-					.onOk(t -> System.out.println("Version: " + ap.getVersion()))
-					.withDescription("Shows the version of this program.")
-					.allowsUnique()
-				);
-			}
+			if (cmd instanceof ArgumentParser ap)
+				ap.addVersionArgument();
 		}
 	}
 }

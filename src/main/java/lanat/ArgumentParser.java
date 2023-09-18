@@ -234,6 +234,18 @@ public class ArgumentParser extends Command {
 	}
 
 	/**
+	 * Adds a 'version' argument which shows the version of the program
+	 * (provided by the {@link ArgumentParser#getVersion()} method).
+	 */
+	public void addVersionArgument() {
+		this.addArgument(Argument.createOfBoolType("version")
+			.onOk(t -> System.out.println("Version: " + this.getVersion()))
+			.withDescription("Shows the version of this program.")
+			.allowsUnique()
+		);
+	}
+
+	/**
 	 * Returns the version of this program.
 	 * @see #setVersion(String)
 	 */

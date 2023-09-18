@@ -136,7 +136,7 @@ public class LayoutItem {
 	 */
 	public @Nullable String generate(@NotNull HelpFormatter helpFormatter, @NotNull Command cmd) {
 		final var content = this.layoutGenerator.apply(cmd);
-		return content == null ? null : (
+		return (content == null || content.isEmpty()) ? null : (
 			"\n".repeat(this.marginTop)
 				+ (this.title == null ? "" : this.title + "\n\n")
 				// strip() is used here because trim() also removes \022 (escape character)

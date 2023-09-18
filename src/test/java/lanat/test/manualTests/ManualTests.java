@@ -24,15 +24,15 @@ public final class ManualTests {
 			.printErrors()
 			.into(CommandTemplateExample.class);
 
-		parsed.string
-			.ifPresentOrElse(
-				s -> System.out.println("String is present: " + s),
-				() -> System.out.println("String is not present")
-			);
-
-		System.out.println(parsed.number);
-		System.out.println(parsed.subCommand.counter);
-		System.out.println(parsed.subCommand.anotherSubCommand.counter);
-		System.out.println(parsed.stdin);
+//		parsed.string
+//			.ifPresentOrElse(
+//				s -> System.out.println("String is present: " + s),
+//				() -> System.out.println("String is not present")
+//			);
+//
+//		System.out.println(parsed.number);
+//		System.out.println(parsed.subCommand.counter);
+//		System.out.println(parsed.subCommand.anotherSubCommand.counter);
+//		System.out.println(parsed.stdin);
 	}
 }

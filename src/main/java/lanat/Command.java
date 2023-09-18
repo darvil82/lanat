@@ -101,6 +101,18 @@ public class Command
 		this.checkUniqueArguments();
 	}
 
+	/**
+	 * Adds a 'help' argument which shows the help message of the command
+	 * (provided by the {@link Command#getHelp()} method).
+	 */
+	public void addHelpArgument() {
+		this.addArgument(Argument.createOfBoolType("help")
+			.onOk(t -> System.out.println(this.getHelp()))
+			.withDescription("Shows this message.")
+			.allowsUnique()
+		);
+	}
+
 	@Override
 	public void addGroup(@NotNull ArgumentGroup group) {
 		group.registerToCommand(this);

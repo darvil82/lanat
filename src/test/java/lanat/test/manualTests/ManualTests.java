@@ -10,7 +10,7 @@ import java.io.ByteArrayInputStream;
 public final class ManualTests {
 	@Test
 	public void main() {
-		String input = "--help --stdin --string hello --number 15 sub-command -ccc";
+		String input = "--help --stdin --string hello --number 78 sub-command -ccc";
 
 		// write some stuff to stdin
 		System.setIn(new ByteArrayInputStream("hello world\ngoodbye".getBytes()));
@@ -24,15 +24,15 @@ public final class ManualTests {
 			.printErrors()
 			.into(CommandTemplateExample.class);
 
-//		parsed.string
-//			.ifPresentOrElse(
-//				s -> System.out.println("String is present: " + s),
-//				() -> System.out.println("String is not present")
-//			);
-//
-//		System.out.println(parsed.number);
-//		System.out.println(parsed.subCommand.counter);
-//		System.out.println(parsed.subCommand.anotherSubCommand.counter);
-//		System.out.println(parsed.stdin);
+		parsed.string
+			.ifPresentOrElse(
+				s -> System.out.println("String is present: " + s),
+				() -> System.out.println("String is not present")
+			);
+
+		System.out.println(parsed.number);
+		System.out.println(parsed.subCommand.counter);
+		System.out.println(parsed.subCommand.anotherSubCommand.counter);
+		System.out.println(parsed.stdin);
 	}
 }

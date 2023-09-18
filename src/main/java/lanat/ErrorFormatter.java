@@ -1,5 +1,7 @@
 package lanat;
 
+import lanat.errorFormatterGenerators.Pretty;
+import lanat.errorFormatterGenerators.Simple;
 import lanat.helpRepresentation.HelpFormatter;
 import lanat.parsing.Token;
 import lanat.parsing.errors.ErrorHandler;
@@ -9,7 +11,6 @@ import lanat.utils.displayFormatter.FormatOption;
 import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,7 +25,7 @@ public class ErrorFormatter {
 	private final @NotNull ErrorHandler mainErrorHandler;
 
 	/** The generator used to generate the error message. */
-	public static @NotNull ErrorFormatterGenerator generator = new ErrorFormatterGenerator();
+	public static @NotNull ErrorFormatter.Generator generator = ErrorFormatter.DefaultGenerators.DEFAULT;
 
 	/**
 	 * Creates a new error formatter
@@ -113,7 +114,7 @@ public class ErrorFormatter {
 	 * </p>
 	 * <strong>Note:</strong> A single instance of this class is used to generate all messages for the errors.
 	 */
-	public static class ErrorFormatterGenerator implements ErrorLevelProvider {
+	public static abstract class Generator implements ErrorLevelProvider {
 		/** The error formatter instance to generate the error message from. */
 		private ErrorFormatter errorFormatter;
 
@@ -129,59 +130,14 @@ public class ErrorFormatter {
 		 * Generates the error message to be displayed to the user.
 		 * @return The error message to be displayed to the user.
 		 */
-		public @NotNull String generate() {
-			// first figure out the length of the longest line
-			final var maxLength = UtlString.getLongestLine(this.getContents()).length();
-			final var formatter = this.getErrorLevelFormatter();
-			final String tokensFormatting = this.getTokensView();
-
-			return formatter.withContents(" ┌─%s".formatted(this.getErrorLevel())).toString()
-				// only add a new line if there are tokens to display
-				+ (tokensFormatting.isEmpty() ? "" : "\n" + tokensFormatting)
-				// first insert a vertical bar at the start of each line
-				+ this.getContentsWrapped().replaceAll("^|\\n", formatter.withContents("\n │ ").toString())
-				// then insert a horizontal bar at the end, with the length of the longest line approximately
-				+ formatter.withContents("\n └" + "─".repeat(Math.max(maxLength - 5, 0)) + " ───── ── ─")
-				+ '\n';
-		}
+		public abstract @NotNull String generate();
 
 		/**
 		 * Generates the tokens view to be displayed to the user.
 		 * @param options The options to use to generate the tokens view.
 		 * @return The tokens view to be displayed to the user.
 		 */
-		protected @NotNull String generateTokensView(DisplayTokensOptions options) {
-			final var arrow = TextFormatter.ERROR("<-").withForegroundColor(this.getErrorLevel().color);
-			final var tokensFormatters = new ArrayList<>(this.getTokensFormatters());
-			final int tokensLength = tokensFormatters.size();
-
-			// add an arrow at the start or end if the index is out of bounds
-			if (options.start < 0) {
-				tokensFormatters.add(0, arrow);
-			} else if (options.start >= tokensLength) {
-				tokensFormatters.add(arrow);
-			}
-
-			for (int i = 0; i < tokensLength; i++) {
-				// dim tokens before the command
-				if (i < this.getAbsoluteCmdTokenIndex()) {
-					tokensFormatters.get(i).addFormat(FormatOption.DIM);
-				}
-
-				// highlight tokens in the range
-				if (i >= options.start && i < options.start + options.offset + 1) {
-					if (options.placeArrow) {
-						tokensFormatters.add(i, arrow);
-					} else {
-						tokensFormatters.get(i)
-							.withForegroundColor(this.getErrorLevel().color)
-							.addFormat(FormatOption.REVERSE, FormatOption.BOLD);
-					}
-				}
-			}
-
-			return String.join(" ", tokensFormatters.stream().map(TextFormatter::toString).toList());
-		}
+		protected abstract @NotNull String generateTokensView(DisplayTokensOptions options);
 
 		/**
 		 * Returns the tokens view to be displayed to the user. This is the result of calling
@@ -272,5 +228,13 @@ public class ErrorFormatter {
 		protected final @NotNull Command getRootCommand() {
 			return this.errorFormatter.mainErrorHandler.getRootCommand();
 		}
+	}
+
+	/**
+	 * Default generators used to generate error messages.
+	 */
+	public static class DefaultGenerators {
+		public static final @NotNull Generator DEFAULT = new Pretty();
+		public static final @NotNull Generator SIMPLE = new Simple();
 	}
 }

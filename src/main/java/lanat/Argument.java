@@ -251,7 +251,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * </ul>
 	 */
 	public void setPositional(boolean positional) {
-		if (positional && this.argType.getRequiredArgValueCount().max() == 0) {
+		if (positional && this.argType.getRequiredArgValueCount().end() == 0) {
 			throw new IllegalArgumentException("An argument that does not accept values cannot be positional");
 		}
 		this.positional = positional;
@@ -456,7 +456,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 */
 	public void parseValues(short tokenIndex, @NotNull String... values) {
 		// check if the argument was used more times than it should
-		if (++this.argType.usageCount > this.argType.getRequiredUsageCount().max()) {
+		if (++this.argType.usageCount > this.argType.getRequiredUsageCount().end()) {
 			this.parentCommand.getParser()
 				.addError(
 					ParseError.ParseErrorType.ARG_INCORRECT_USAGES_COUNT,
@@ -505,7 +505,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 				return false;
 			}
 			// make sure that the argument was used the minimum amount of times specified
-		} else if (this.argType.usageCount < this.argType.getRequiredUsageCount().min()) {
+		} else if (this.argType.usageCount < this.argType.getRequiredUsageCount().start()) {
 			this.parentCommand.getParser()
 				.addError(ParseError.ParseErrorType.ARG_INCORRECT_USAGES_COUNT, this, 0);
 			return false;

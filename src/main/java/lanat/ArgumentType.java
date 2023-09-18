@@ -95,7 +95,7 @@ public abstract class ArgumentType<T>
 	 * Constructs a new argument type with no initial value.
 	 */
 	public ArgumentType() {
-		if (this.getRequiredUsageCount().min() == 0) {
+		if (this.getRequiredUsageCount().start() == 0) {
 			throw new IllegalArgumentException("The required usage count must be at least 1.");
 		}
 	}
@@ -242,7 +242,7 @@ public abstract class ArgumentType<T>
 		}
 
 		// the index of the error should never be less than 0 or greater than the max value count
-		if (error.tokenIndex < 0 || error.tokenIndex >= this.getRequiredArgValueCount().max()) {
+		if (error.tokenIndex < 0 || error.tokenIndex >= this.getRequiredArgValueCount().end()) {
 			throw new IndexOutOfBoundsException("Index " + error.tokenIndex + " is out of range for " + this.getClass().getName());
 		}
 

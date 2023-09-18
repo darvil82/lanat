@@ -23,7 +23,7 @@ public class KeyValuesArgumentType<T extends ArgumentType<Ts>, Ts> extends Argum
 	private final @NotNull ArgumentType<Ts> valueType;
 
 	public KeyValuesArgumentType(@NotNull T type) {
-		if (type.getRequiredArgValueCount().min() != 1)
+		if (type.getRequiredArgValueCount().start() != 1)
 			throw new IllegalArgumentException("The value type must at least accept one value.");
 
 		this.valueType = type;

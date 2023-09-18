@@ -31,11 +31,12 @@ public class Pretty extends ErrorFormatter.Generator {
 		final var arrow = TextFormatter.ERROR("<-").withForegroundColor(this.getErrorLevel().color);
 		final var tokensFormatters = new ArrayList<>(this.getTokensFormatters());
 		final int tokensLength = tokensFormatters.size();
+		final var tokensRange = options.tokensRange();
 
 		// add an arrow at the start or end if the index is out of bounds
-		if (options.start() < 0) {
+		if (tokensRange.start() < 0) {
 			tokensFormatters.add(0, arrow);
-		} else if (options.start() >= tokensLength) {
+		} else if (tokensRange.start() >= tokensLength) {
 			tokensFormatters.add(arrow);
 		}
 
@@ -46,7 +47,7 @@ public class Pretty extends ErrorFormatter.Generator {
 			}
 
 			// highlight tokens in the range
-			if (i >= options.start() && i < options.start() + options.offset() + 1) {
+			if (i >= tokensRange.start() && i < tokensRange.end() + 1) {
 				if (options.placeArrow()) {
 					tokensFormatters.add(i, arrow);
 				} else {

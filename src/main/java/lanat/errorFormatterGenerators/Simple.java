@@ -14,6 +14,12 @@ public class Simple extends ErrorFormatter.Generator {
 
 	@Override
 	protected @NotNull String generateTokensView(@NotNull ErrorFormatter.DisplayTokensOptions options) {
-		return " (at token " + options.start() + ')';
+		final var range = options.tokensRange();
+
+		String rangeRpr = range.isRange() ?
+			"s " + range.start() + " to " + range.end()
+			: " " + range.start();
+
+		return " (token" + rangeRpr + ")";
 	}
 }

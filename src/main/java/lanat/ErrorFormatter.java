@@ -6,6 +6,7 @@ import lanat.helpRepresentation.HelpFormatter;
 import lanat.parsing.Token;
 import lanat.parsing.errors.ErrorHandler;
 import lanat.utils.ErrorLevelProvider;
+import lanat.utils.Range;
 import lanat.utils.UtlString;
 import lanat.utils.displayFormatter.FormatOption;
 import lanat.utils.displayFormatter.TextFormatter;
@@ -80,8 +81,11 @@ public class ErrorFormatter {
 	 * @param placeArrow Whether to place an arrow at each token index in the range.
 	 */
 	public ErrorFormatter displayTokens(int start, int offset, boolean placeArrow) {
+		final var startTokenIndex = this.mainErrorHandler.getAbsoluteCmdTokenIndex() + start;
+
 		this.tokensViewOptions = new DisplayTokensOptions(
-			start + this.mainErrorHandler.getAbsoluteCmdTokenIndex(), offset, placeArrow
+			Range.from(startTokenIndex).to(startTokenIndex + offset),
+			placeArrow
 		);
 		return this;
 	}
@@ -98,12 +102,7 @@ public class ErrorFormatter {
 	/**
 	 * Options used to display tokens.
 	 */
-	public record DisplayTokensOptions(int start, int offset, boolean placeArrow) {
-		public DisplayTokensOptions {
-			if (start < 0) throw new IllegalArgumentException("start must be positive");
-			if (offset < 0) throw new IllegalArgumentException("offset must be positive");
-		}
-	}
+	public record DisplayTokensOptions(@NotNull Range tokensRange, boolean placeArrow) { }
 
 
 	/**

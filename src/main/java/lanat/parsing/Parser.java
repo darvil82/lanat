@@ -164,7 +164,7 @@ public class Parser extends ParsingStateBase<ParseError> {
 		) {
 			final Token currentToken = this.tokens.get(tokenIndex);
 			if (!isInTuple && (
-				currentToken.type().isArgumentSpecifier() || numValues >= argNumValuesRange.max()
+				currentToken.type().isArgumentSpecifier() || numValues >= argNumValuesRange.end()
 			)
 				|| currentToken.type().isTuple()
 			) break;
@@ -174,7 +174,7 @@ public class Parser extends ParsingStateBase<ParseError> {
 		// add 2 if we are in a tuple, because we need to skip the start and end tuple tokens
 		final int skipIndexCount = numValues + ifTupleOffset*2;
 
-		if (numValues > argNumValuesRange.max() || numValues < argNumValuesRange.min()) {
+		if (numValues > argNumValuesRange.end() || numValues < argNumValuesRange.start()) {
 			this.addError(ParseError.ParseErrorType.ARG_INCORRECT_VALUE_NUMBER, arg, numValues + ifTupleOffset);
 			this.currentTokenIndex += skipIndexCount;
 			return;
@@ -209,7 +209,7 @@ public class Parser extends ParsingStateBase<ParseError> {
 			return;
 		}
 
-		if (argumentValuesRange.min() > 1) {
+		if (argumentValuesRange.start() > 1) {
 			this.addError(ParseError.ParseErrorType.ARG_INCORRECT_VALUE_NUMBER, arg, 0);
 			return;
 		}

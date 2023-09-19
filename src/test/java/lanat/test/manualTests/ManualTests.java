@@ -3,7 +3,6 @@ package lanat.test.manualTests;
 import lanat.ArgumentParser;
 import lanat.CLInput;
 import lanat.Command;
-import lanat.ErrorFormatter;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -11,7 +10,6 @@ import java.io.ByteArrayInputStream;
 public final class ManualTests {
 	@Test
 	public void main() {
-		ErrorFormatter.generator = ErrorFormatter.DefaultGenerators.SIMPLE;
 		String input = "--help --stdin --string hello --number 78 sub-command -ccc";
 
 		// write some stuff to stdin

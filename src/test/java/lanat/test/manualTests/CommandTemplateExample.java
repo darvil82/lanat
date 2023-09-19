@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
-@Command.Define(names = "my-program", description = "This is a test program.")
+@Command.Define(names = "my-program", description = "This is a <color=cyan><format=b,i>test program<format=reset>.")
 public class CommandTemplateExample extends CommandTemplate.Default {
 	public CommandTemplateExample() {}
 

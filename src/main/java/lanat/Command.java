@@ -89,7 +89,16 @@ public class Command
 	 * @see CommandTemplate
 	 */
 	public Command(@NotNull Class<? extends CommandTemplate> templateClass) {
+		final var annotation = templateClass.getAnnotation(Command.Define.class);
+		if (annotation == null) {
+			throw new CommandTemplateException("The class '" + templateClass.getName()
+				+ "' is not annotated with @Command.Define");
+		}
+
+		// add the names and description from the annotation
 		this.addNames(CommandTemplate.getTemplateNames(templateClass));
+		if (annotation.description() != null) this.setDescription(annotation.description());
+
 		this.from$recursive(templateClass);
 	}
 
@@ -319,14 +328,17 @@ public class Command
 		this.passPropertiesToChildren();
 	}
 
+	/**
+	 * Adds all the arguments from the given command template class to this command.
+	 * This method is recursive, so it will add all the arguments from the parent class as well.
+	 * @param cmdTemplate The command template class to add the arguments from.
+	 */
 	private void from$recursive(@NotNull Class<?> cmdTemplate) {
 		if (!CommandTemplate.class.isAssignableFrom(cmdTemplate)) return;
 
 		// don't allow classes without the @Command.Define annotation
-		if (!cmdTemplate.isAnnotationPresent(Command.Define.class)) {
-			throw new CommandTemplateException("The class '" + cmdTemplate.getName()
-				+ "' is not annotated with @Command.Define");
-		}
+		assert cmdTemplate.isAnnotationPresent(Command.Define.class) :
+			"Command Template class must be annotated with @Command.Define";
 
 		// get to the top of the hierarchy
 		Optional.ofNullable(cmdTemplate.getSuperclass()).ifPresent(this::from$recursive);
@@ -565,8 +577,10 @@ public class Command
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.TYPE)
 	public @interface Define {
+		/** @see Command#addNames(String...) */
 		String[] names() default {};
 
+		/** @see Command#setDescription(String) */
 		String description() default "";
 	}
 }

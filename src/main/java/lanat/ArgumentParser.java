@@ -182,7 +182,7 @@ public class ArgumentParser extends Command {
 
 		this.isParsed = true;
 
-		return new AfterParseOptions(errorHandler);
+		return new AfterParseOptions(errorHandler, !input.isEmpty());
 	}
 
 
@@ -260,10 +260,12 @@ public class ArgumentParser extends Command {
 	public class AfterParseOptions {
 		private final List<@NotNull String> errors;
 		private final int errorCode;
+		private final boolean receivedArguments;
 
-		private AfterParseOptions(ErrorHandler errorHandler) {
+		private AfterParseOptions(ErrorHandler errorHandler, boolean receivedArguments) {
 			this.errorCode = ArgumentParser.this.getErrorCode();
 			this.errors = errorHandler.handleErrors();
+			this.receivedArguments = receivedArguments;
 		}
 
 		/**
@@ -298,6 +300,13 @@ public class ArgumentParser extends Command {
 			return this;
 		}
 
+		/** Prints the help message to {@link System#out} if no arguments were passed to the program. */
+		public AfterParseOptions printHelpIfNoInput() {
+			if (!this.receivedArguments)
+				System.out.println(ArgumentParser.this.getHelp());
+			return this;
+		}
+
 		/**
 		 * Exits the program with the error code returned by {@link #getErrorCode()} if any errors occurred during
 		 * parsing.
@@ -305,6 +314,14 @@ public class ArgumentParser extends Command {
 		public AfterParseOptions exitIfErrors() {
 			if (this.hasErrors())
 				System.exit(this.errorCode);
+
+			return this;
+		}
+
+		/** Exits the program with a code of {@code 0} if no arguments were passed to the program. */
+		public AfterParseOptions exitIfNoInput() {
+			if (!this.receivedArguments)
+				System.exit(0);
 
 			return this;
 		}

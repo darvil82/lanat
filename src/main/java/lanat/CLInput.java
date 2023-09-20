@@ -43,4 +43,9 @@ public final class CLInput {
 		// remove first word from args (the program name)
 		return new CLInput(args.substring(args.indexOf(' ') + 1));
 	}
+
+	/** Returns {@code true} if no arguments were passed to the program. */
+	public boolean isEmpty() {
+		return this.args.isEmpty();
+	}
 }

@@ -19,7 +19,7 @@ public class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 	private ArgumentGroup argumentGroup;
 
 	public enum ParseErrorType implements ErrorLevelProvider {
-		OBLIGATORY_ARGUMENT_NOT_USED,
+		REQUIRED_ARGUMENT_NOT_USED,
 		UNMATCHED_TOKEN(ErrorLevel.WARNING),
 		ARG_INCORRECT_VALUE_NUMBER,
 		ARG_INCORRECT_USAGES_COUNT,
@@ -56,13 +56,13 @@ public class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 
 		for (final var err : errors) {
 			/* if we are going to show an error about an argument being incorrectly used, and that argument is defined
-			 * as obligatory, we don't need to show the obligatory error since its obvious that the user knows that
-			 * the argument is obligatory */
+			 * as required, we don't need to show the required error since its obvious that the user knows that
+			 * the argument is required */
 			if (err.errorType == ParseErrorType.ARG_INCORRECT_VALUE_NUMBER) {
 				newList.removeIf(e ->
 					e.argument != null
 						&& e.argument.equals(err.argument)
-						&& e.errorType == ParseErrorType.OBLIGATORY_ARGUMENT_NOT_USED
+						&& e.errorType == ParseErrorType.REQUIRED_ARGUMENT_NOT_USED
 				);
 			}
 		}
@@ -98,16 +98,16 @@ public class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 			.displayTokens(this.tokenIndex + 1, this.valueCount, this.valueCount == 0);
 	}
 
-	@Handler("OBLIGATORY_ARGUMENT_NOT_USED")
-	protected void handleObligatoryArgumentNotUsed() {
+	@Handler("REQUIRED_ARGUMENT_NOT_USED")
+	protected void handleRequiredArgumentNotUsed() {
 		assert this.argument != null;
 		final var argCmd = this.argument.getParentCommand();
 
 		this.fmt()
 			.setContent(
 				argCmd instanceof ArgumentParser
-					? "Obligatory argument '%s' not used.".formatted(this.argument.getName())
-					: "Obligatory argument '%s' for command '%s' not used.".formatted(this.argument.getName(), argCmd.getName())
+					? "Required argument '%s' not used.".formatted(this.argument.getName())
+					: "Required argument '%s' for command '%s' not used.".formatted(this.argument.getName(), argCmd.getName())
 			)
 			.displayTokens(this.tokenIndex + 1);
 	}

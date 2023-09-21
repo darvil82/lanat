@@ -84,7 +84,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	private PrefixChar prefixChar = PrefixChar.defaultPrefix;
 	private final @NotNull List<@NotNull String> names = new ArrayList<>();
 	private @Nullable String description;
-	private boolean obligatory = false,
+	private boolean required = false,
 		positional = false,
 		allowUnique = false;
 
@@ -227,19 +227,19 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 
 	/**
-	 * Marks the argument as obligatory. This means that this argument should <b>always</b> be used by the user.
+	 * Marks the argument as required. This means that this argument should <b>always</b> be used by the user.
 	 */
-	public void setObligatory(boolean obligatory) {
-		this.obligatory = obligatory;
+	public void setRequired(boolean required) {
+		this.required = required;
 	}
 
 	/**
-	 * Returns {@code true} if this argument is obligatory.
-	 * @return {@code true} if this argument is obligatory.
-	 * @see #setObligatory(boolean)
+	 * Returns {@code true} if this argument is required.
+	 * @return {@code true} if this argument is required.
+	 * @see #setRequired(boolean)
 	 */
-	public boolean isObligatory() {
-		return this.obligatory;
+	public boolean isRequired() {
+		return this.required;
 	}
 
 	/**
@@ -288,17 +288,17 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	/**
-	 * Specifies that this argument has priority over other arguments, even if they are obligatory. This means that if
-	 * an argument in a command is set as obligatory, but one argument with {@link #allowUnique} was used, then the
-	 * unused obligatory argument will not throw an error.
+	 * Specifies that this argument has priority over other arguments, even if they are required. This means that if
+	 * an argument in a command is set as required, but one argument with {@link #allowUnique} was used, then the
+	 * unused required argument will not throw an error.
 	 */
 	public void setAllowUnique(boolean allowUnique) {
 		this.allowUnique = allowUnique;
 	}
 
 	/**
-	 * Returns {@code true} if this argument has priority over other arguments, even if they are obligatory.
-	 * @return {@code true} if this argument has priority over other arguments, even if they are obligatory.
+	 * Returns {@code true} if this argument has priority over other arguments, even if they are required.
+	 * @return {@code true} if this argument has priority over other arguments, even if they are required.
 	 * @see #setAllowUnique(boolean)
 	 */
 	public boolean isUniqueAllowed() {
@@ -498,9 +498,9 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 */
 	private boolean finishParsing$checkUsageCount() {
 		if (this.getUsageCount() == 0) {
-			if (this.obligatory && !this.parentCommand.uniqueArgumentReceivedValue()) {
+			if (this.required && !this.parentCommand.uniqueArgumentReceivedValue()) {
 				this.parentCommand.getParser().addError(
-					ParseError.ParseErrorType.OBLIGATORY_ARGUMENT_NOT_USED, this, 0
+					ParseError.ParseErrorType.REQUIRED_ARGUMENT_NOT_USED, this, 0
 				);
 				return false;
 			}
@@ -606,7 +606,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * Compares two arguments by the synopsis view priority order.
 	 * <p>
 	 * <b>Order:</b>
-	 * Allows Unique > Positional > Obligatory > Optional.
+	 * Allows Unique > Positional > Required > Optional.
 	 * </p>
 	 *
 	 * @param first the first argument to compare
@@ -618,7 +618,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		return new MultiComparator<Argument<?, ?>>()
 			.addPredicate(Argument::isUniqueAllowed, 2)
 			.addPredicate(Argument::isPositional, 1)
-			.addPredicate(Argument::isObligatory)
+			.addPredicate(Argument::isRequired)
 			.compare(first, second);
 	}
 
@@ -642,9 +642,9 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 	@Override
 	public @NotNull String toString() {
-		return "Argument<%s>[names=%s, prefix='%c', obligatory=%b, positional=%b, allowUnique=%b, defaultValue=%s]"
+		return "Argument<%s>[names=%s, prefix='%c', required=%b, positional=%b, allowUnique=%b, defaultValue=%s]"
 			.formatted(
-				this.argType.getClass().getSimpleName(), this.names, this.getPrefix().character, this.obligatory,
+				this.argType.getClass().getSimpleName(), this.names, this.getPrefix().character, this.required,
 				this.positional, this.allowUnique, this.defaultValue
 			);
 	}
@@ -671,8 +671,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		 * */
 		char prefix() default '-';
 
-		/** @see Argument#setObligatory(boolean) */
-		boolean obligatory() default false;
+		/** @see Argument#setRequired(boolean) */
+		boolean required() default false;
 
 		/** @see Argument#setPositional(boolean) */
 		boolean positional() default false;
@@ -730,7 +730,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * <p>
 	 * <strong>Note</strong> that this callback is only called if the error was dispatched by this argument's type.
 	 * That
-	 * is, if the argument, for example, is obligatory, and the user does not specify a value, an error will be
+	 * is, if the argument, for example, is required, and the user does not specify a value, an error will be
 	 * thrown, but this callback will not be called, as the error was not dispatched by this argument's type.
 	 * </p>
 	 *

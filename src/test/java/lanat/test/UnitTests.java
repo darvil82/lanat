@@ -58,7 +58,7 @@ public class UnitTests {
 			this.setErrorCode(0b0100);
 			this.addArgument(Argument.create(new StringJoiner(), "what")
 				.positional()
-				.obligatory()
+				.required()
 			);
 			this.addArgument(Argument.create(new RestrictedDoubleAdder(), "double-adder"));
 			this.addArgument(Argument.create(new StringArgumentType(), "a"));
@@ -71,7 +71,7 @@ public class UnitTests {
 				this.addCommand(new Command("another") {{
 					this.setErrorCode(0b0001);
 					this.addArgument(Argument.create(new StringJoiner(), "ball"));
-					this.addArgument(Argument.create(new IntegerArgumentType(), "number").positional().obligatory());
+					this.addArgument(Argument.create(new IntegerArgumentType(), "number").positional().required());
 				}});
 			}});
 

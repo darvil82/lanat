@@ -61,7 +61,7 @@ import java.util.List;
  *   @Argument.Define(names = {"name", "n"}, argType = StringArgumentType.class)
  *   public String name;
  *
- *   @Argument.Define(argType = IntegerArgumentType.class, obligatory = true)
+ *   @Argument.Define(argType = IntegerArgumentType.class, required = true)
  *   public Integer number;
  * }
  * }</pre>

@@ -19,7 +19,7 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
 	private @NotNull String @Nullable [] names;
 	private @Nullable String description;
 	private @Nullable Type argType;
-	private boolean obligatory = false,
+	private boolean required = false,
 		positional = false,
 		allowUnique = false;
 	private @Nullable TInner defaultValue;
@@ -75,7 +75,7 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
 
 		argumentBuilder.withPrefix(Argument.PrefixChar.fromCharUnsafe(annotation.prefix()));
 		if (!annotation.description().isEmpty()) argumentBuilder.withDescription(annotation.description());
-		if (annotation.obligatory()) argumentBuilder.obligatory();
+		if (annotation.required()) argumentBuilder.required();
 		if (annotation.positional()) argumentBuilder.positional();
 		if (annotation.allowsUnique()) argumentBuilder.allowsUnique();
 
@@ -143,9 +143,9 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
 		return this;
 	}
 
-	/** @see Argument#setObligatory(boolean) */
-	public ArgumentBuilder<Type, TInner> obligatory() {
-		this.obligatory = true;
+	/** @see Argument#setRequired(boolean) */
+	public ArgumentBuilder<Type, TInner> required() {
+		this.required = true;
 		return this;
 	}
 
@@ -229,7 +229,7 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
 
 		return new Argument<>(this.argType, this.names) {{
 			this.setDescription(ArgumentBuilder.this.description);
-			this.setObligatory(ArgumentBuilder.this.obligatory);
+			this.setRequired(ArgumentBuilder.this.required);
 			this.setPositional(ArgumentBuilder.this.positional);
 			this.setAllowUnique(ArgumentBuilder.this.allowUnique);
 			this.setDefaultValue(ArgumentBuilder.this.defaultValue);

@@ -21,21 +21,21 @@ public class TestTerminalOutput extends UnitTests {
 	}
 
 	@Test
-	@DisplayName("Arrow points to the root command name on first obligatory argument missing")
-	public void testFirstObligatoryArgument() {
+	@DisplayName("Arrow points to the root command name on first required argument missing")
+	public void testFirstRequiredArgument() {
 		this.assertErrorOutput("subCommand", """
 			ERROR
 			Testing <- subCommand
-			Obligatory argument 'what' not used.""");
+			Required argument 'what' not used.""");
 	}
 
 	@Test
-	@DisplayName("Arrow points to the last token on last obligatory argument missing")
-	public void testLastObligatoryArgument() {
+	@DisplayName("Arrow points to the last token on last required argument missing")
+	public void testLastRequiredArgument() {
 		this.assertErrorOutput("foo subCommand another", """
 			ERROR
 			Testing foo subCommand another <-
-			Obligatory argument 'number' for command 'another' not used.""");
+			Required argument 'number' for command 'another' not used.""");
 	}
 
 	@Test

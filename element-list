@@ -1,6 +1,7 @@
 module:lanat
 lanat
 lanat.argumentTypes
+lanat.errorFormatterGenerators
 lanat.exceptions
 lanat.helpRepresentation
 lanat.helpRepresentation.descriptions

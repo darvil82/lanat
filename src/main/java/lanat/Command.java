@@ -43,10 +43,10 @@ public class Command
 {
 	private final @NotNull List<@NotNull String> names = new ArrayList<>();
 	private @Nullable String description;
-	final @NotNull ArrayList<@NotNull Argument<?, ?>> arguments = new ArrayList<>();
-	final @NotNull ArrayList<@NotNull Command> subCommands = new ArrayList<>();
+	private final @NotNull ArrayList<@NotNull Argument<?, ?>> arguments = new ArrayList<>();
+	private final @NotNull ArrayList<@NotNull Command> subCommands = new ArrayList<>();
 	private Command parentCommand;
-	final @NotNull ArrayList<@NotNull ArgumentGroup> argumentGroups = new ArrayList<>();
+	private final @NotNull ArrayList<@NotNull ArgumentGroup> argumentGroups = new ArrayList<>();
 	private final @NotNull ModifyRecord<@NotNull TupleCharacter> tupleChars = ModifyRecord.of(TupleCharacter.SQUARE_BRACKETS);
 	private final @NotNull ModifyRecord<@NotNull Integer> errorCode = ModifyRecord.of(1);
 

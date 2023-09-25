@@ -191,7 +191,7 @@ public class ArgumentParser extends Command {
 		return new ParsedArgumentsRoot(
 			this,
 			this.getParser().getParsedArgumentsHashMap(),
-			this.subCommands.stream().map(Command::getParsedArguments).toList(),
+			this.getCommands().stream().map(Command::getParsedArguments).toList(),
 			this.getForwardValue()
 		);
 	}

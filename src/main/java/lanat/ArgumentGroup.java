@@ -75,8 +75,8 @@ public class ArgumentGroup
 	 * each one added to this group is because at parsing, we might need to know which arguments were used in this
 	 * group.
 	 * <br><br>
-	 * Sure, we could just use {@link Command#arguments}, but that would mean that we would have to iterate through all
-	 * the arguments in there for filtering ours, which is probably worse.
+	 * Sure, we could just use {@link Command#getArguments()}, but that would mean that we would have
+	 * to iterate through all the arguments in there for filtering ours, which is probably worse.
 	 */
 	private final @NotNull List<@NotNull Argument<?, ?>> arguments = new ArrayList<>();
 
@@ -274,6 +274,7 @@ public class ArgumentGroup
 
 	@Override
 	public boolean equals(@NotNull Object obj) {
+		if (obj == this) return true;
 		if (obj instanceof ArgumentGroup group)
 			return this.parentCommand == group.parentCommand && this.name.equals(group.name);
 		return false;

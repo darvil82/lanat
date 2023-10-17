@@ -25,7 +25,7 @@ public class TestArgumentTypes extends UnitTests {
 			this.addArgument(Argument.create(new FloatArgumentType(), "float"));
 			this.addArgument(Argument.create(new StringArgumentType(), "string"));
 			this.addArgument(Argument.create(new MultipleStringsArgumentType(), "multiple-strings"));
-			this.addArgument(Argument.create(new FileArgumentType(), "file"));
+			this.addArgument(Argument.create(new FileArgumentType(true), "file"));
 			this.addArgument(Argument.create(new EnumArgumentType<>(TestEnum.TWO), "enum"));
 			this.addArgument(Argument.create(new KeyValuesArgumentType<>(new IntegerArgumentType()), "key-value"));
 			this.addArgument(Argument.create(new NumberRangeArgumentType<>(3, 10), "int-range"));
@@ -77,8 +77,7 @@ public class TestArgumentTypes extends UnitTests {
 
 	@Test
 	public void testFile() {
-		assertEquals("hello.txt", this.<File>parseArg("file", "hello.txt").getName());
-		this.assertNotPresent("file");
+		assertNull(this.<File>parseArg("file", "hello.txt"));
 	}
 
 	@Test

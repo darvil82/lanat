@@ -20,6 +20,10 @@ import java.util.Arrays;
 public class EnumArgumentType<T extends Enum<T>> extends ArgumentType<T> {
 	private final @NotNull T @NotNull [] values;
 
+	/**
+	 * Creates a new enum argument type.
+	 * @param defaultValue The default value of the enum type. This is also used to infer the type of the enum.
+	 */
 	public EnumArgumentType(@NotNull T defaultValue) {
 		super(defaultValue);
 		this.values = defaultValue.getDeclaringClass().getEnumConstants();

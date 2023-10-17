@@ -92,7 +92,7 @@ public abstract class ArgumentType<T>
 	}
 
 	/**
-	 * Constructs a new argument type with no initial value.
+	 * Constructs a new argument type.
 	 */
 	public ArgumentType() {
 		if (this.getRequiredUsageCount().start() == 0) {

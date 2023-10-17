@@ -17,6 +17,11 @@ public class NumberRangeArgumentType<T extends Number & Comparable<T>> extends A
 	private final ArgumentType<T> argumentType;
 	private final T min, max;
 
+	/**
+	 * Creates a new number range argument type.
+	 * @param min The minimum value.
+	 * @param max The maximum value.
+	 */
 	@SuppressWarnings("unchecked")
 	public NumberRangeArgumentType(@NotNull T min, @NotNull T max) {
 		if (min.compareTo(max) > 0) {

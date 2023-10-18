@@ -1,26 +1,23 @@
 package lanat.argumentTypes;
 
-import lanat.ArgumentType;
 import lanat.utils.Range;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * An argument type that takes multiple strings.
  */
-public class MultipleStringsArgumentType extends ArgumentType<String[]> {
-	@Override
-	public @NotNull Range getRequiredArgValueCount() {
-		return Range.AT_LEAST_ONE;
+public class MultipleStringsArgumentType extends TupleArgumentType<String> {
+	/**
+	 * Creates a new {@link TupleArgumentType} with the specified range of values that the argument will take.
+	 * @param range The range of values that the argument will take.
+	 */
+	public MultipleStringsArgumentType(@NotNull Range range) {
+		super(range, new StringArgumentType(), new String[0]);
 	}
 
+	// no need for anything fancy here, simply return the args
 	@Override
 	public @NotNull String[] parseValues(@NotNull String @NotNull [] args) {
 		return args;
-	}
-
-	@Override
-	public @Nullable String getDescription() {
-		return "Accepts multiple strings.";
 	}
 }

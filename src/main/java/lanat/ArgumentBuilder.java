@@ -1,6 +1,7 @@
 package lanat;
 
 import lanat.argumentTypes.DummyArgumentType;
+import lanat.exceptions.ArgumentTypeInferException;
 import lanat.utils.UtlReflection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -48,7 +49,11 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
 			return UtlReflection.instantiate(annotation.argType());
 
 		// try to infer the type from the field type. If it can't be inferred, return null
-		return ArgumentTypeInfer.get(field.getType());
+		try {
+			return ArgumentTypeInfer.get(field.getType());
+		} catch (ArgumentTypeInferException e) {
+			return null;
+		}
 	}
 
 	/**

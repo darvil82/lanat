@@ -64,5 +64,4 @@ public final class UtlReflection {
 			return UtlReflection.getMethods(clazz.getSuperclass());
 		return Stream.of(clazz.getDeclaredMethods());
 	}
-
 }

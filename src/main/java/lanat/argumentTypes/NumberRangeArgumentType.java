@@ -21,6 +21,7 @@ public class NumberRangeArgumentType<T extends Number & Comparable<T>> extends A
 	 * Creates a new number range argument type.
 	 * @param min The minimum value.
 	 * @param max The maximum value.
+	 * @throws lanat.exceptions.ArgumentTypeInferException If the type of the default value is not supported.
 	 */
 	@SuppressWarnings("unchecked")
 	public NumberRangeArgumentType(@NotNull T min, @NotNull T max) {
@@ -28,13 +29,7 @@ public class NumberRangeArgumentType<T extends Number & Comparable<T>> extends A
 			throw new IllegalArgumentException("min must be less than or equal to max");
 		}
 
-		final var typeInferred = ArgumentTypeInfer.get(min.getClass());
-
-		if (typeInferred == null) {
-			throw new IllegalArgumentException("Unsupported type: " + min.getClass().getName());
-		}
-
-		this.argumentType = (ArgumentType<T>)typeInferred;
+		this.argumentType = (ArgumentType<T>)ArgumentTypeInfer.get(min.getClass());
 		this.registerSubType(this.argumentType);
 
 		this.min = min;

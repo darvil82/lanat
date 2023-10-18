@@ -135,7 +135,7 @@ public class ArgumentParser extends Command {
 		return ArgumentParser.parseFromInto(
 			templateClass,
 			input,
-			opts -> opts.printErrors().exitIfErrors().printHelpIfNoInput()
+			opts -> opts.printErrors().exitIfErrors().printHelpIfNoInput().exitIfNoInput()
 		);
 	}
 

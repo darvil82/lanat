@@ -8,6 +8,7 @@ import lanat.utils.UtlReflection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
@@ -131,7 +132,11 @@ public class ArgumentParser extends Command {
 	 */
 	public static <T extends CommandTemplate>
 	@NotNull T parseFromInto(@NotNull Class<T> templateClass, @NotNull CLInput input) {
-		return ArgumentParser.parseFromInto(templateClass, input, opts -> opts.printErrors().exitIfErrors());
+		return ArgumentParser.parseFromInto(
+			templateClass,
+			input,
+			opts -> opts.printErrors().exitIfErrors().printHelpIfNoInput()
+		);
 	}
 
 	/**
@@ -366,7 +371,7 @@ public class ArgumentParser extends Command {
 					// get the name of the argument from the annotation or field name
 					final String argName = annotation.names().length == 0 ? f.getName() : annotation.names()[0];
 
-					final @NotNull Optional<Object> parsedValue = parsedArgs.get(argName);
+					final @NotNull Optional<?> parsedValue = parsedArgs.get(argName);
 
 					try {
 						// if the field has a value already set and the parsed value is empty, skip it (keep the old value)
@@ -379,7 +384,7 @@ public class ArgumentParser extends Command {
 							instance,
 							f.getType().isAssignableFrom(Optional.class)
 								? parsedValue
-								: parsedValue.orElse(null)
+								: AfterParseOptions.into$getNewFieldValue(f, parsedValue)
 						);
 					} catch (IllegalArgumentException e) {
 						if (parsedValue.isEmpty())
@@ -390,7 +395,7 @@ public class ArgumentParser extends Command {
 
 						throw new IncompatibleCommandTemplateType(
 							"Field '" + f.getName() + "' of type '" + f.getType().getSimpleName() + "' is not "
-								+ "compatible with the type (" + parsedValue.getClass().getSimpleName() + ") of the "
+								+ "compatible with the type (" + parsedValue.get().getClass().getSimpleName() + ") of the "
 								+ "parsed argument '" + argName + "'"
 						);
 
@@ -455,6 +460,39 @@ public class ArgumentParser extends Command {
 			} catch (IllegalAccessException e) {
 				throw new RuntimeException(e);
 			}
+		}
+
+		/**
+		 * {@link #into(Class)} helper method. Returns the new value for the given field based on the parsed value.
+		 * If the parsed value is {@code null}, this method will return {@code null} as well.
+		 * If both the field and the parsed value are arrays, this method will return a new array with the same type.
+		 * @param commandAccesorField The field to get the new value for.
+		 * @param parsedValue The parsed value to get the new value from.
+		 * @return The new value for the given field based on the parsed value. This will be {@code null} if the parsed
+		 *  value is {@code null}.
+		 */
+		private static Object into$getNewFieldValue(
+			@NotNull Field commandAccesorField,
+			@NotNull Optional<?> parsedValue
+		) {
+			if (parsedValue.isEmpty())
+				return null;
+
+			final Object value = parsedValue.get();
+
+			if (!(commandAccesorField.getType().isArray() && value.getClass().isArray()))
+				return value;
+
+
+			// handle array types
+			final var fieldType = commandAccesorField.getType().getComponentType();
+			final var originalArray = (Object[])value; // to get rid of warnings
+
+			// create a new array of the same type as the field.
+			var newArray = (Object[])Array.newInstance(fieldType, Array.getLength(originalArray));
+			// copy the values from the original array to the new array
+			System.arraycopy(originalArray, 0, newArray, 0, originalArray.length);
+			return newArray;
 		}
 	}
 }

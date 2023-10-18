@@ -32,6 +32,8 @@ public class CommandTemplateExample extends CommandTemplate.Default {
 	@Argument.Define(names = "arg1a", argType = StringArgumentType.class)
 	public String arg1copy;
 
+	@Argument.Define
+	public Byte[] bytes;
 
 	@CommandAccessor
 	public MySubCommand subCommand;

@@ -82,5 +82,8 @@ public class CmdTemplates {
 
 		@Argument.Define
 		public Double number2;
+
+		@Argument.Define
+		public Byte[] bytes;
 	}
 }

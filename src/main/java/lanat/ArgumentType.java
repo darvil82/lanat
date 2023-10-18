@@ -9,7 +9,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.function.Consumer;
 
 /**
@@ -77,9 +76,6 @@ public abstract class ArgumentType<T>
 	 */
 	private @Nullable ArgumentType<?> parentArgType;
 	private final @NotNull ArrayList<@NotNull ArgumentType<?>> subTypes = new ArrayList<>();
-
-	/** Mapping of types to their corresponding argument types. Used for inferring. */
-	private static final HashMap<Class<?>, Class<? extends ArgumentType<?>>> INFER_ARGUMENT_TYPES_MAP = new HashMap<>();
 
 
 	/**
@@ -297,40 +293,5 @@ public abstract class ArgumentType<T>
 	@Override
 	public @Nullable ArgumentType<?> getParent() {
 		return this.parentArgType;
-	}
-
-
-	/**
-	 * Registers an argument type to be inferred for the specified type/s.
-	 * @param type The argument type to infer.
-	 * @param infer The types to infer the argument type for.
-	 */
-	public static void registerTypeInfer(@NotNull Class<? extends ArgumentType<?>> type, @NotNull Class<?>... infer) {
-		for (Class<?> clazz : infer) {
-			ArgumentType.INFER_ARGUMENT_TYPES_MAP.put(clazz, type);
-		}
-	}
-
-	/**
-	 * Returns the argument type that should be inferred for the specified type.
-	 * @param clazz The type to infer the argument type for.
-	 * @return The argument type that should be inferred for the specified type. Returns {@code null} if no
-	 * valid argument type was found.
-	 */
-	public static Class<? extends ArgumentType<?>> getTypeInfer(@NotNull Class<?> clazz) {
-		return ArgumentType.INFER_ARGUMENT_TYPES_MAP.get(clazz);
-	}
-
-	// add some default argument types.
-	static {
-		// we need to also specify the primitives... wish there was a better way to do this.
-		ArgumentType.registerTypeInfer(StringArgumentType.class, String.class);
-		ArgumentType.registerTypeInfer(IntegerArgumentType.class, int.class, Integer.class);
-		ArgumentType.registerTypeInfer(BooleanArgumentType.class, boolean.class, Boolean.class);
-		ArgumentType.registerTypeInfer(FloatArgumentType.class, float.class, Float.class);
-		ArgumentType.registerTypeInfer(DoubleArgumentType.class, double.class, Double.class);
-		ArgumentType.registerTypeInfer(LongArgumentType.class, long.class, Long.class);
-		ArgumentType.registerTypeInfer(ShortArgumentType.class, short.class, Short.class);
-		ArgumentType.registerTypeInfer(ByteArgumentType.class, byte.class, Byte.class);
 	}
 }

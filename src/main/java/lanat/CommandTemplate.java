@@ -51,7 +51,7 @@ import java.util.List;
  * <p>
  * If no Argument Type is specified on the annotation, the Argument Type will be attempted to be inferred from the
  * field type if possible, which is the case for some built-in types, such as
- * {@link String}, {@link Integer}, {@link Double}, etc.
+ * {@link String}, {@link Integer}, {@link java.io.File}, etc.
  * </p>
  *
  * <strong>Example:</strong>

@@ -47,11 +47,8 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
 		if (annotation.argType() != DummyArgumentType.class)
 			return UtlReflection.instantiate(annotation.argType());
 
-		// try to infer the type from the field type
-		var argTypeMap = ArgumentType.getTypeInfer(field.getType());
-
-		// if the type was not found, return null
-		return argTypeMap == null ? null : UtlReflection.instantiate(argTypeMap);
+		// try to infer the type from the field type. If it can't be inferred, return null
+		return ArgumentTypeInfer.get(field.getType());
 	}
 
 	/**

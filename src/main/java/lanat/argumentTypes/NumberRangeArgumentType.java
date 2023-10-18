@@ -1,7 +1,7 @@
 package lanat.argumentTypes;
 
 import lanat.ArgumentType;
-import lanat.utils.UtlReflection;
+import lanat.ArgumentTypeInfer;
 import lanat.utils.displayFormatter.Color;
 import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
@@ -28,13 +28,13 @@ public class NumberRangeArgumentType<T extends Number & Comparable<T>> extends A
 			throw new IllegalArgumentException("min must be less than or equal to max");
 		}
 
-		final var typeInferred = ArgumentType.getTypeInfer(min.getClass());
+		final var typeInferred = ArgumentTypeInfer.get(min.getClass());
 
 		if (typeInferred == null) {
 			throw new IllegalArgumentException("Unsupported type: " + min.getClass().getName());
 		}
 
-		this.argumentType = (ArgumentType<T>)UtlReflection.instantiate(typeInferred);
+		this.argumentType = (ArgumentType<T>)typeInferred;
 		this.registerSubType(this.argumentType);
 
 		this.min = min;

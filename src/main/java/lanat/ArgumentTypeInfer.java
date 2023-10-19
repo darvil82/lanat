@@ -6,7 +6,6 @@ import lanat.utils.Range;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.function.Supplier;
 
@@ -28,6 +27,9 @@ public class ArgumentTypeInfer {
 			throw new IllegalArgumentException("Must specify at least one type to infer the argument type for.");
 
 		for (Class<?> clazz : infer) {
+			if (clazz.isArray() && clazz.getComponentType().isPrimitive())
+				throw new IllegalArgumentException("Cannot infer argument type for primitive array type: " + clazz.getName());
+
 			if (ArgumentTypeInfer.INFER_ARGUMENT_TYPES_MAP.containsKey(clazz))
 				throw new IllegalArgumentException("Argument type already registered for type: " + clazz.getName());
 
@@ -52,21 +54,28 @@ public class ArgumentTypeInfer {
 
 	/**
 	 * Registers a numeric argument type with the specified tuple type as well.
+	 * Note that for arrays, only the non-primitive types are inferred.
 	 * @param type The type of the numeric argument type.
 	 * @param array The default value of the numeric argument type.
-	 * @param infer The <strong>non-array</strong> types to infer the argument type for.
+	 * @param inferPrimitive The <strong>non-array</strong> types to infer the argument type for.
 	 * @param <Ti> The type of the numeric type.
 	 * @param <T> The type of the tuple argument type.
 	 */
 	private static <Ti extends Number, T extends NumberArgumentType<Ti>>
-	void registerNumericWithTuple(@NotNull Supplier<T> type, Ti[] array, @NotNull Class<?>... infer) {
-		ArgumentTypeInfer.register(type, infer);
-		ArgumentTypeInfer.register(
-			() -> new MultipleNumbersArgumentType<>(DEFAULT_TYPE_RANGE, array),
-			Arrays.stream(infer)
-				.map(Class::arrayType)
-				.toArray(Class[]::new)
-		);
+	void registerNumericWithTuple(
+		@NotNull Supplier<T> type,
+		@NotNull Ti[] array,
+		@NotNull Class<?> inferPrimitive,
+		@NotNull Class<?> infer
+	) {
+		assert !infer.isPrimitive() && inferPrimitive.isPrimitive()
+			: "Infer must be a primitive type and inferPrimitive must be a non-primitive type.";
+
+		// register both the primitive and non-primitive types
+		ArgumentTypeInfer.register(type, inferPrimitive, infer);
+
+		// register the array type (only the non-primitive type)
+		ArgumentTypeInfer.register(() -> new MultipleNumbersArgumentType<>(DEFAULT_TYPE_RANGE, array), infer.arrayType());
 	}
 
 	// add some default argument types.

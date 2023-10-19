@@ -124,6 +124,14 @@ public abstract class CommandTemplate {
 	 * 		   to get the argument builder corresponding to an argument with a given name.
 	 */
 	public record CommandBuildHelper(@NotNull Command cmd, @NotNull List<ArgumentBuilder<?, ?>> args) {
+		/**
+		 * Returns the argument builder corresponding to the argument with the given name.
+		 * This is a helper method to get the argument builder from the list of argument builders ({@link #args}).
+		 * @param name The name of the argument.
+		 * @return The argument builder corresponding to the argument with the given name.
+		 * @param <T> The type of the argument.
+		 * @param <TInner> The type of the value passed to the argument.
+		 */
 		@SuppressWarnings("unchecked")
 		public <T extends ArgumentType<TInner>, TInner>
 		ArgumentBuilder<T, TInner> arg(@NotNull String name) {

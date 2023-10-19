@@ -488,11 +488,20 @@ public class ArgumentParser extends Command {
 			final var fieldType = commandAccesorField.getType().getComponentType();
 			final var originalArray = (Object[])value; // to get rid of warnings
 
-			// create a new array of the same type as the field.
-			var newArray = (Object[])Array.newInstance(fieldType, Array.getLength(originalArray));
-			// copy the values from the original array to the new array
-			System.arraycopy(originalArray, 0, newArray, 0, originalArray.length);
-			return newArray;
+			try {
+				// create a new array of the same type as the field.
+				var newArray = (Object[])Array.newInstance(fieldType, Array.getLength(originalArray));
+
+				// copy the values from the original array to the new array
+				System.arraycopy(originalArray, 0, newArray, 0, originalArray.length);
+
+				return newArray;
+			} catch (ClassCastException e) {
+				throw new IncompatibleCommandTemplateType(
+					"Field '" + commandAccesorField.getName() + "' of type '" + commandAccesorField.getType().getSimpleName()
+						+ "' is not compatible with the type (" + fieldType.arrayType() + ") of the parsed argument"
+				);
+			}
 		}
 	}
 }

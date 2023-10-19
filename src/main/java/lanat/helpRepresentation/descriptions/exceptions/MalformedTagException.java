@@ -2,7 +2,6 @@ package lanat.helpRepresentation.descriptions.exceptions;
 
 import lanat.exceptions.LanatException;
 import lanat.helpRepresentation.descriptions.Tag;
-import lanat.utils.UtlString;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -10,9 +9,7 @@ import org.jetbrains.annotations.Nullable;
 public class MalformedTagException extends LanatException {
 	public MalformedTagException(@NotNull Class<? extends Tag> tagClass, @Nullable String reason) {
 		super(
-			"Tag "
-				+ UtlString.surround(Tag.getTagNameFromTagClass(tagClass))
-				+ " is malformed"
+			"Tag '" + Tag.getTagNameFromTagClass(tagClass) + "' is malformed"
 				+ (reason == null ? "" : ": " + reason)
 		);
 	}

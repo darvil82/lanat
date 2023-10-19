@@ -2,7 +2,6 @@ package lanat.exceptions;
 
 import lanat.NamedWithDescription;
 import lanat.utils.UtlReflection;
-import lanat.utils.UtlString;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -17,12 +16,9 @@ public abstract class ObjectAlreadyExistsException extends LanatException {
 	{
 		super(
 			typeName
-				+ " "
-				+ UtlString.surround(obj.getName())
-				+ " already exists in "
+				+ " '" + obj.getName() + "' already exists in "
 				+ UtlReflection.getSimpleName(container.getClass())
-				+ " "
-				+ UtlString.surround(container.getName())
+				+ " '" + container.getName() + "'"
 		);
 	}
 }

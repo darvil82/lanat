@@ -58,7 +58,7 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
 
 	/**
 	 * Builds an {@link Argument} from the specified field annotated with {@link Argument.Define}.
-	 * Note that this doesn't set the argument type.
+	 * Note that this doesn't set the argument type. Use {@link #setArgTypeFromField(Field)} for that.
 	 *
 	 * @param field the field that will be used to build the argument
 	 * @param <Type> the {@link ArgumentType} subclass that will parse the value passed to the argument

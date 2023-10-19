@@ -199,7 +199,7 @@ public class Command
 			.map(UtlString::requireValidName)
 			.peek(newName -> {
 				if (this.hasName(newName))
-					throw new IllegalArgumentException("Name " + UtlString.surround(newName) + " is already used by this command.");
+					throw new IllegalArgumentException("Name '" + newName + "' is already used by this command.");
 			})
 			.forEach(this.names::add);
 

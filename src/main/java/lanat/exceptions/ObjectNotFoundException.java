@@ -2,7 +2,6 @@ package lanat.exceptions;
 
 import lanat.NamedWithDescription;
 import lanat.utils.UtlReflection;
-import lanat.utils.UtlString;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -17,12 +16,9 @@ public class ObjectNotFoundException extends LanatException {
 	{
 		super(
 			typeName
-				+ " "
-				+ UtlString.surround(obj.getName())
-				+ " was not found in "
+				+ " '" + obj.getName() + "' was not found in "
 				+ UtlReflection.getSimpleName(container.getClass())
-				+ " "
-				+ UtlString.surround(container.getName())
+				+ " '" + container.getName() + "'"
 		);
 	}
 
@@ -31,8 +27,6 @@ public class ObjectNotFoundException extends LanatException {
 	}
 
 	public ObjectNotFoundException(@NotNull String typeName, @NotNull String name) {
-		super(
-			typeName + " " + UtlString.surround(name) + " was not found"
-		);
+		super(typeName + " '" + name + "' was not found");
 	}
 }

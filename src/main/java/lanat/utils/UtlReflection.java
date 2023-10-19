@@ -2,6 +2,7 @@ package lanat.utils;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.stream.Stream;
@@ -48,7 +49,24 @@ public final class UtlReflection {
 	public static <T> T instantiate(Class<T> clazz, Object... args) {
 		try {
 			return clazz.getDeclaredConstructor().newInstance(args);
-		} catch (ReflectiveOperationException e) {
+		} catch (NoSuchMethodException e) {
+			throw new RuntimeException("Unable to find a public constructor for the class '" + clazz.getName()
+				+ """
+			'. Please, make sure:
+			  - This class has a public constructor with no arguments. (Or no constructor at all)
+			  - This is a static class. (Not an inner class)"""
+			);
+		} catch (IllegalAccessException e) {
+			throw new RuntimeException(
+				"Unable to gain access to the class '" + clazz.getName()
+					+ "'. Please, make sure this class is visible to Lanat."
+			);
+		} catch (InstantiationException e) {
+			throw new RuntimeException(
+				"Unable to instantiate the class '" + clazz.getName()
+					+ "'. Please, make sure this class is not abstract."
+			);
+		} catch (InvocationTargetException e) {
 			throw new RuntimeException(e);
 		}
 	}

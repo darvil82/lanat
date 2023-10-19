@@ -24,7 +24,7 @@ public interface ArgumentGroupAdder extends NamedWithDescription {
 	@NotNull List<@NotNull ArgumentGroup> getGroups();
 
 	/**
-	 * Checks that all the argument groups in this container have unique names.
+	 * Checks that all the argument groups in this container are unique.
 	 * @throws ArgumentGroupAlreadyExistsException if there are two argument groups with the same name
 	 */
 	default void checkUniqueGroups() {

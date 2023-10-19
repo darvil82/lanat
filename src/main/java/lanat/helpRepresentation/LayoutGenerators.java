@@ -77,7 +77,7 @@ public final class LayoutGenerators {
 		}
 
 		if (!cmd.getCommands().isEmpty())
-			buffer.append(' ').append(CommandRepr.getSubCommandsRepresentation(cmd));
+			buffer.append(CommandRepr.getSubCommandsRepresentation(cmd));
 
 		return buffer.toString();
 	}

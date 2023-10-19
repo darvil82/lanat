@@ -4,6 +4,7 @@ import lanat.CommandUser;
 import lanat.MultipleNamesAndDescription;
 import lanat.exceptions.ObjectAlreadyExistsException;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.Function;
@@ -43,5 +44,27 @@ public final class UtlMisc {
 	public static <T extends MultipleNamesAndDescription & CommandUser>
 	boolean equalsByNamesAndParentCmd(@NotNull T a, @NotNull T b) {
 		return a.getParentCommand() == b.getParentCommand() && a.getNames().stream().anyMatch(b::hasName);
+	}
+
+	/**
+	 * Returns {@code obj} if it is not {@code null}, otherwise returns {@code defaultObj}.
+	 * @param obj The object to check
+	 * @param defaultObj The object to return if {@code obj} is {@code null}
+	 * @return {@code obj} if it is not {@code null}, otherwise returns {@code defaultObj}
+	 * @param <T> The type of the objects
+	 */
+	public static <T> @NotNull T nonNullOrElse(@Nullable T obj, @NotNull T defaultObj) {
+		return obj == null ? defaultObj : obj;
+	}
+
+	/**
+	 * Returns {@code null} if {@code obj} is {@code null}, otherwise returns the result of the given function.
+	 * @param obj The object to check
+	 * @param defaultObj The function to apply to {@code obj} if it is not {@code null}
+	 * @return {@code null} if {@code obj} is {@code null}, otherwise returns the result of the given function
+	 * @param <T> The type of the objects
+	 */
+	public static <T> @Nullable T nullOrElse(@Nullable T obj, @NotNull Function<@NotNull T, @NotNull T> defaultObj) {
+		return obj == null ? null : defaultObj.apply(obj);
 	}
 }

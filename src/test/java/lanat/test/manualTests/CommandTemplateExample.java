@@ -19,7 +19,7 @@ public class CommandTemplateExample extends CommandTemplate.Default {
 	@Argument.Define(argType = StringArgumentType.class, description = "This is a string argument.")
 	public Optional<String> string;
 
-	@Argument.Define(description = "<desc=!.type>")
+	@Argument.Define(description = "<desc=!.type>", required = true)
 	public double number = 12;
 
 	@Argument.Define(argType = StdinArgumentType.class)
@@ -47,6 +47,7 @@ public class CommandTemplateExample extends CommandTemplate.Default {
 	@InitDef
 	public static void afterInit(@NotNull Command cmd) {
 		cmd.addGroup(new ArgumentGroup("test-group") {{
+			this.setExclusive(true);
 			this.addArgument(cmd.getArgument("string"));
 			this.addArgument(cmd.getArgument("number"));
 		}});
@@ -54,7 +55,7 @@ public class CommandTemplateExample extends CommandTemplate.Default {
 
 
 	@Command.Define(names = "sub-command", description = "This is a sub-command.")
-	public static class MySubCommand extends CommandTemplate {
+	public static class MySubCommand extends CommandTemplate.Default {
 		public MySubCommand() {}
 
 		@Argument.Define(argType = CounterArgumentType.class, description = "This is a counter", names = "c")

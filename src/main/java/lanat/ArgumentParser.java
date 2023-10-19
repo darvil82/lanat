@@ -4,6 +4,7 @@ import lanat.exceptions.CommandTemplateException;
 import lanat.exceptions.IncompatibleCommandTemplateType;
 import lanat.parsing.TokenType;
 import lanat.parsing.errors.ErrorHandler;
+import lanat.utils.UtlMisc;
 import lanat.utils.UtlReflection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -244,7 +245,9 @@ public class ArgumentParser extends Command {
 	 */
 	public void addVersionArgument() {
 		this.addArgument(Argument.createOfBoolType("version")
-			.onOk(t -> System.out.println("Version: " + this.getVersion()))
+			.onOk(t ->
+				System.out.println("Version: " + UtlMisc.nonNullOrElse(this.getVersion(), "unknown"))
+			)
 			.withDescription("Shows the version of this program.")
 			.allowsUnique()
 		);

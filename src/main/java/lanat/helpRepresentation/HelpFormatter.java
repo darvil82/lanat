@@ -20,7 +20,7 @@ import java.util.*;
  * returns a string.
  * </p>
  * <p>
- * To generate the help message, use {@link #generate(Command)} ()}.
+ * To generate the help message, use {@link #generate(Command)}.
  * </p>
  *
  * @see LayoutItem
@@ -32,6 +32,7 @@ public class HelpFormatter {
 	public static boolean debugLayout = false;
 
 	static {
+		// register the default tags before we start parsing descriptions
 		Tag.initTags();
 	}
 

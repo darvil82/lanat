@@ -69,7 +69,7 @@ public class ArgumentTypeInfer {
 		@NotNull Class<?> infer
 	) {
 		assert !infer.isPrimitive() && inferPrimitive.isPrimitive()
-			: "Infer must be a primitive type and inferPrimitive must be a non-primitive type.";
+			: "Infer must be a non-primitive type and inferPrimitive must be a primitive type.";
 
 		// register both the primitive and non-primitive types
 		ArgumentTypeInfer.register(type, inferPrimitive, infer);

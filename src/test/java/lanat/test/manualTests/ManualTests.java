@@ -15,7 +15,13 @@ public final class ManualTests {
 		// write some stuff to stdin
 		System.setIn(new ByteArrayInputStream("hello world\ngoodbye".getBytes()));
 
-		var parsed = ArgumentParser.parseFromInto(CommandTemplateExample.class, CLInput.from(input));
+		var parsed = ArgumentParser.parseFromInto(
+			CommandTemplateExample.class,
+			CLInput.from(input),
+			o -> o.exitIfErrors()
+				.printErrors()
+				.printHelpIfNoInput()
+		);
 
 		parsed.string
 			.ifPresentOrElse(

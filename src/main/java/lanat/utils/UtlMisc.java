@@ -2,7 +2,6 @@ package lanat.utils;
 
 import lanat.CommandUser;
 import lanat.MultipleNamesAndDescription;
-import lanat.exceptions.ObjectAlreadyExistsException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,7 +19,7 @@ public final class UtlMisc {
 	 */
 	public static <T> void requireUniqueElements(
 		@NotNull List<T> list,
-		@NotNull Function<T, ObjectAlreadyExistsException> exceptionSupplier
+		@NotNull Function<T, RuntimeException> exceptionSupplier
 	) {
 		for (int i = 0; i < list.size(); i++) {
 			final var el = list.get(i);
@@ -63,8 +62,9 @@ public final class UtlMisc {
 	 * @param defaultObj The function to apply to {@code obj} if it is not {@code null}
 	 * @return {@code null} if {@code obj} is {@code null}, otherwise returns the result of the given function
 	 * @param <T> The type of the objects
+	 * @param <R> The type of the result of the function
 	 */
-	public static <T> @Nullable T nullOrElse(@Nullable T obj, @NotNull Function<@NotNull T, @NotNull T> defaultObj) {
+	public static <T, R> @Nullable R nullOrElse(@Nullable T obj, @NotNull Function<@NotNull T, @NotNull R> defaultObj) {
 		return obj == null ? null : defaultObj.apply(obj);
 	}
 }

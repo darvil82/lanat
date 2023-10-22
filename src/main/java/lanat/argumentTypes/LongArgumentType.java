@@ -7,6 +7,7 @@ import java.util.function.Function;
 
 /**
  * An argument type that takes a long integer number.
+ * @see Long
  */
 public class LongArgumentType extends NumberArgumentType<Long> {
 	@Override

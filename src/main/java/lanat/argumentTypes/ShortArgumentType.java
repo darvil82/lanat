@@ -7,6 +7,7 @@ import java.util.function.Function;
 
 /**
  * An argument type that takes a short integer number.
+ * @see Short
  */
 public class ShortArgumentType extends NumberArgumentType<Short> {
 	@Override

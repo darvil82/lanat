@@ -7,6 +7,7 @@ import java.util.function.Function;
 
 /**
  * An argument type that takes a floating point number.
+ * @see Float
  */
 public class FloatArgumentType extends NumberArgumentType<Float> {
 	@Override

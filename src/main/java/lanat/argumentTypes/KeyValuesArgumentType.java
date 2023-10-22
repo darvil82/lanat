@@ -18,6 +18,7 @@ import java.util.Objects;
  * </p>
  * @param <T> The type of the argument type used to parse the values.
  * @param <Ts> The type of the values.
+ * @see HashMap
  */
 public class KeyValuesArgumentType<T extends ArgumentType<Ts>, Ts> extends ArgumentType<HashMap<String, Ts>> {
 	private final @NotNull ArgumentType<Ts> valueType;

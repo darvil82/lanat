@@ -7,6 +7,7 @@ import java.util.function.Function;
 
 /**
  * An argument type that takes a byte value.
+ * @see Byte
  */
 public class ByteArgumentType extends NumberArgumentType<Byte> {
 	@Override

@@ -10,6 +10,7 @@ import java.util.function.Function;
  * of {@link #parseValues(String[])} that will parse the first argument as a number using the
  * function returned by {@link #getParseFunction()}.
  * @param <T> The type of number that this argument type is.
+ * @see Number
  */
 public abstract class NumberArgumentType<T extends Number> extends ArgumentType<T> {
 	/**

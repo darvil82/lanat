@@ -10,7 +10,7 @@ import java.util.Arrays;
 public final class ManualTests {
 	@Test
 	public void main() {
-		String input = "--help --version sub-command -h";
+		String input = "  ";
 
 		// write some stuff to stdin
 		System.setIn(new ByteArrayInputStream("hello world\ngoodbye".getBytes()));

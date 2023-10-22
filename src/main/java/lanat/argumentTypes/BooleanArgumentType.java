@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * An argument type that is set in a true state if the argument was used.
+ * @see Boolean
  */
 public class BooleanArgumentType extends ArgumentType<Boolean> {
 	public BooleanArgumentType() {

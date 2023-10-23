@@ -6,7 +6,6 @@ import lanat.Command;
 import lanat.argumentTypes.CounterArgumentType;
 import lanat.argumentTypes.IntegerArgumentType;
 import lanat.argumentTypes.StringArgumentType;
-import lanat.argumentTypes.TupleArgumentType;
 import lanat.helpRepresentation.HelpFormatter;
 import lanat.utils.Range;
 import lanat.utils.displayFormatter.TextFormatter;
@@ -17,9 +16,10 @@ import org.junit.jupiter.api.BeforeEach;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-class StringJoiner extends TupleArgumentType<String> {
-	public StringJoiner() {
-		super(Range.from(1).to(3), "");
+class StringJoiner extends ArgumentType<String> {
+	@Override
+	public @NotNull Range getRequiredArgValueCount() {
+		return Range.from(1).to(3);
 	}
 
 	@Override

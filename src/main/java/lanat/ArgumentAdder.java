@@ -39,7 +39,7 @@ public interface ArgumentAdder extends NamedWithDescription {
 	@NotNull List<@NotNull Argument<?, ?>> getArguments();
 
 	/**
-	 * Checks that all the arguments in this container have unique names.
+	 * Checks that all the arguments in this container are unique.
 	 * @throws ArgumentAlreadyExistsException if there are two arguments with the same name
 	 */
 	default void checkUniqueArguments() {

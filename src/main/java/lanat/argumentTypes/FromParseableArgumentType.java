@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
  * method returns {@code null}, an error is added. The error message can be specified in the constructor.
  * @param <T> The {@link Parseable} type.
  * @param <TInner> The type of the value returned by the {@link Parseable#parseValues(String[])} method.
+ * @see Parseable
  */
 public class FromParseableArgumentType<T extends Parseable<TInner>, TInner> extends ArgumentType<TInner> {
 	private final @NotNull T parseable;

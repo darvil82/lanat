@@ -43,10 +43,10 @@ public class Command
 {
 	private final @NotNull List<@NotNull String> names = new ArrayList<>();
 	private @Nullable String description;
-	final @NotNull ArrayList<@NotNull Argument<?, ?>> arguments = new ArrayList<>();
-	final @NotNull ArrayList<@NotNull Command> subCommands = new ArrayList<>();
+	private final @NotNull ArrayList<@NotNull Argument<?, ?>> arguments = new ArrayList<>();
+	private final @NotNull ArrayList<@NotNull Command> subCommands = new ArrayList<>();
 	private Command parentCommand;
-	final @NotNull ArrayList<@NotNull ArgumentGroup> argumentGroups = new ArrayList<>();
+	private final @NotNull ArrayList<@NotNull ArgumentGroup> argumentGroups = new ArrayList<>();
 	private final @NotNull ModifyRecord<@NotNull TupleCharacter> tupleChars = ModifyRecord.of(TupleCharacter.SQUARE_BRACKETS);
 	private final @NotNull ModifyRecord<@NotNull Integer> errorCode = ModifyRecord.of(1);
 
@@ -199,7 +199,7 @@ public class Command
 			.map(UtlString::requireValidName)
 			.peek(newName -> {
 				if (this.hasName(newName))
-					throw new IllegalArgumentException("Name " + UtlString.surround(newName) + " is already used by this command.");
+					throw new IllegalArgumentException("Name '" + newName + "' is already used by this command.");
 			})
 			.forEach(this.names::add);
 
@@ -268,7 +268,7 @@ public class Command
 	 * Returns {@code true} if an argument with allowsUnique set in the command was used.
 	 * @return {@code true} if an argument with {@link Argument#setAllowUnique(boolean)} in the command was used.
 	 */
-	public boolean uniqueArgumentReceivedValue() {
+	boolean uniqueArgumentReceivedValue() {
 		return this.arguments.stream().anyMatch(a -> a.getUsageCount() >= 1 && a.isUniqueAllowed())
 			|| this.subCommands.stream().anyMatch(Command::uniqueArgumentReceivedValue);
 	}
@@ -362,6 +362,12 @@ public class Command
 		this.from$invokeAfterInitMethod(cmdTemplate);
 	}
 
+	/**
+	 * Invokes the {@link CommandTemplate#beforeInit(CommandTemplate.CommandBuildHelper)} method of the given command
+	 * template class, if it exists.
+	 * @param cmdTemplate The command template class to invoke the method from.
+	 * @param argumentBuilders The argument builders that will be passed to the method.
+	 */
 	private void from$invokeBeforeInitMethod(
 		@NotNull Class<?> cmdTemplate,
 		@NotNull List<? extends ArgumentBuilder<?, ?>> argumentBuilders
@@ -382,6 +388,10 @@ public class Command
 			});
 	}
 
+	/**
+	 * Invokes the {@link CommandTemplate#afterInit(Command)} method of the given command template class, if it exists.
+	 * @param cmdTemplate The command template class to invoke the method from.
+	 */
 	private void from$invokeAfterInitMethod(@NotNull Class<?> cmdTemplate) {
 		Stream.of(cmdTemplate.getDeclaredMethods())
 			.filter(m -> UtlReflection.hasParameters(m, Command.class))
@@ -397,6 +407,10 @@ public class Command
 			});
 	}
 
+	/**
+	 * Passes certain properties to all the Sub-Commands of this command.
+	 * @see #inheritProperties(Command)
+	 */
 	void passPropertiesToChildren() {
 		this.subCommands.forEach(c -> c.inheritProperties(this));
 	}
@@ -412,11 +426,16 @@ public class Command
 	 */
 	@Override
 	public boolean equals(@NotNull Object obj) {
+		if (obj == this) return true;
 		if (obj instanceof Command cmd)
 			return UtlMisc.equalsByNamesAndParentCmd(this, cmd);
 		return false;
 	}
 
+	/**
+	 * Checks that all the sub-commands in this container are unique.
+	 * @throws CommandAlreadyExistsException if there are two commands with the same name
+	 */
 	void checkUniqueSubCommands() {
 		UtlMisc.requireUniqueElements(this.subCommands, c -> new CommandAlreadyExistsException(c, this));
 	}
@@ -443,8 +462,6 @@ public class Command
 
 	@Override
 	public void invokeCallbacks() {
-		this.subCommands.forEach(Command::invokeCallbacks);
-
 		if (this.shouldExecuteCorrectCallback()) {
 			if (this.onCorrectCallback != null) this.onCorrectCallback.accept(this.getParsedArguments());
 		} else {
@@ -456,8 +473,14 @@ public class Command
 			.stream()
 			.sorted((x, y) -> Argument.compareByPriority(x.getKey(), y.getKey())) // sort by priority when invoking callbacks!
 			.forEach(e -> e.getKey().invokeCallbacks(e.getValue()));
+
+		// invoke the callbacks of the Sub-Commands recursively
+		this.subCommands.forEach(Command::invokeCallbacks);
 	}
 
+	/**
+	 * Returns {@code true} if the {@link #onCorrectCallback} should be executed.
+	 */
 	boolean shouldExecuteCorrectCallback() {
 		return switch (this.getCallbackInvocationOption()) {
 			case NO_ERROR_IN_COMMAND -> !this.hasExitErrorsNotIncludingSubCommands();
@@ -544,7 +567,7 @@ public class Command
 	}
 
 	void parseTokens() {
-		// first we need to set the tokens of all tokenized subCommands
+		// first, we need to set the tokens of all tokenized subCommands
 		Command cmd = this;
 		do {
 			cmd.parser.setTokens(cmd.tokenizer.getFinalTokens());

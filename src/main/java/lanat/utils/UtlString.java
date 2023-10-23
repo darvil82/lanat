@@ -72,7 +72,7 @@ public final class UtlString {
 		final var indentBuff = new StringBuilder(); // buffer for the current indentation that will be added to the beginning of each line if needed
 
 		int lineWidth = 0; // the current line width
-		boolean jumped = true; // true if a newline was added. starts off as true in case the string with indentation
+		boolean jumped = true; // true if a newline was added. starts off as true in case the string starts with indentation
 
 		for (char chr : str.toCharArray()) {
 			if (chr == ' ' || chr == '\t') {
@@ -89,7 +89,7 @@ public final class UtlString {
 					}
 					endBuffer.append(wordBuff).append(chr);
 					// make sure to not count escape sequences on the length!
-					lineWidth += UtlString.removeSequences(wordBuff.toString()).length() + 1;
+					lineWidth += UtlString.removeSequences(wordBuff.toString()).length() + 1; // +1 for the char we just added
 					wordBuff.setLength(0);
 				}
 

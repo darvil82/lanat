@@ -51,7 +51,7 @@ import java.util.List;
  * <p>
  * If no Argument Type is specified on the annotation, the Argument Type will be attempted to be inferred from the
  * field type if possible, which is the case for some built-in types, such as
- * {@link String}, {@link Integer}, {@link Double}, etc.
+ * {@link String}, {@link Integer}, {@link java.io.File}, etc.
  * </p>
  *
  * <strong>Example:</strong>
@@ -124,6 +124,14 @@ public abstract class CommandTemplate {
 	 * 		   to get the argument builder corresponding to an argument with a given name.
 	 */
 	public record CommandBuildHelper(@NotNull Command cmd, @NotNull List<ArgumentBuilder<?, ?>> args) {
+		/**
+		 * Returns the argument builder corresponding to the argument with the given name.
+		 * This is a helper method to get the argument builder from the list of argument builders ({@link #args}).
+		 * @param name The name of the argument.
+		 * @return The argument builder corresponding to the argument with the given name.
+		 * @param <T> The type of the argument.
+		 * @param <TInner> The type of the value passed to the argument.
+		 */
 		@SuppressWarnings("unchecked")
 		public <T extends ArgumentType<TInner>, TInner>
 		ArgumentBuilder<T, TInner> arg(@NotNull String name) {

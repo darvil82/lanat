@@ -28,7 +28,7 @@ public class TestingParser extends ArgumentParser {
 	}
 
 	public @NotNull ParsedArgumentsRoot parseGetValues(@NotNull String args) {
-		var res = this.parse(CLInput.from(args)).getParsedArguments();
+		var res = this.parse(CLInput.from(args)).printErrors().getParsedArguments();
 		assertNotNull(res, "The result of the parsing was null (Arguments have failed)");
 		return res;
 	}

@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * An argument type that takes a string of characters.
+ * @see String
  */
 public class StringArgumentType extends ArgumentType<String> {
 	@Override

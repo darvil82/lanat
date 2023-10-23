@@ -1,6 +1,7 @@
 package lanat;
 
 import lanat.argumentTypes.DummyArgumentType;
+import lanat.exceptions.ArgumentTypeInferException;
 import lanat.utils.UtlReflection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -47,16 +48,17 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
 		if (annotation.argType() != DummyArgumentType.class)
 			return UtlReflection.instantiate(annotation.argType());
 
-		// try to infer the type from the field type
-		var argTypeMap = ArgumentType.getTypeInfer(field.getType());
-
-		// if the type was not found, return null
-		return argTypeMap == null ? null : UtlReflection.instantiate(argTypeMap);
+		// try to infer the type from the field type. If it can't be inferred, return null
+		try {
+			return ArgumentTypeInfer.get(field.getType());
+		} catch (ArgumentTypeInferException e) {
+			return null;
+		}
 	}
 
 	/**
 	 * Builds an {@link Argument} from the specified field annotated with {@link Argument.Define}.
-	 * Note that this doesn't set the argument type.
+	 * Note that this doesn't set the argument type. Use {@link #setArgTypeFromField(Field)} for that.
 	 *
 	 * @param field the field that will be used to build the argument
 	 * @param <Type> the {@link ArgumentType} subclass that will parse the value passed to the argument

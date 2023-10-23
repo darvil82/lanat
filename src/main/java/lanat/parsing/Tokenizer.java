@@ -54,9 +54,15 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	 * {@link Tokenizer#getFinalTokens()}
 	 */
 	public void tokenize(@NotNull String input) {
-		assert !this.hasFinished : "Tokenizer has already finished tokenizing";
+		assert !this.hasFinished : "Tokenizer has already finished tokenizing.";
 
 		this.setInputString(input);
+
+		// nothing to tokenize. Just finish
+		if (input.isEmpty()) {
+			this.hasFinished = true;
+			return;
+		}
 
 		char currentStringChar = 0; // the character that opened the string
 		TokenizeError.TokenizeErrorType errorType = null;

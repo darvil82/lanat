@@ -4,6 +4,7 @@ import lanat.Argument;
 import lanat.argumentTypes.*;
 import lanat.test.TestingParser;
 import lanat.test.UnitTests;
+import lanat.utils.Range;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -24,8 +25,11 @@ public class TestArgumentTypes extends UnitTests {
 			this.addArgument(Argument.create(new IntegerArgumentType(), "integer"));
 			this.addArgument(Argument.create(new FloatArgumentType(), "float"));
 			this.addArgument(Argument.create(new StringArgumentType(), "string"));
-			this.addArgument(Argument.create(new MultipleStringsArgumentType(), "multiple-strings"));
-			this.addArgument(Argument.create(new FileArgumentType(), "file"));
+			this.addArgument(Argument.create(new MultipleStringsArgumentType(Range.AT_LEAST_ONE), "multiple-strings"));
+			this.addArgument(Argument.create(new MultipleNumbersArgumentType<>(
+				Range.AT_LEAST_ONE, new Integer[] { 10101 }), "multiple-ints")
+			);
+			this.addArgument(Argument.create(new FileArgumentType(true), "file"));
 			this.addArgument(Argument.create(new EnumArgumentType<>(TestEnum.TWO), "enum"));
 			this.addArgument(Argument.create(new KeyValuesArgumentType<>(new IntegerArgumentType()), "key-value"));
 			this.addArgument(Argument.create(new NumberRangeArgumentType<>(3, 10), "int-range"));
@@ -76,9 +80,15 @@ public class TestArgumentTypes extends UnitTests {
 	}
 
 	@Test
+	public void testNumbers() {
+		assertArrayEquals(new Integer[] { 4 }, this.parseArg("multiple-ints", "4"));
+		assertArrayEquals(new Integer[] { 4, 5, 6 }, this.parseArg("multiple-ints", "4 5 6"));
+		assertArrayEquals(new Integer[] { 10101 }, this.parseArg("multiple-ints", ""));
+	}
+
+	@Test
 	public void testFile() {
-		assertEquals("hello.txt", this.<File>parseArg("file", "hello.txt").getName());
-		this.assertNotPresent("file");
+		assertNull(this.<File>parseArg("file", "hello.txt"));
 	}
 
 	@Test

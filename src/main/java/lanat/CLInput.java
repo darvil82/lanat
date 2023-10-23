@@ -12,7 +12,7 @@ public final class CLInput {
 	public final @NotNull String args;
 
 	private CLInput(@NotNull String args) {
-		this.args = args;
+		this.args = args.trim();
 	}
 
 	/**

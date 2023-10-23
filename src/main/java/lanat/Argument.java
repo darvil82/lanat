@@ -476,7 +476,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 */
 	public @Nullable TInner finishParsing() {
 		final TInner finalValue = this.argType.getFinalValue();
-		final TInner defaultValue = this.defaultValue == null ? this.argType.getInitialValue() : this.defaultValue;
+		final TInner defaultValue = UtlMisc.nonNullOrElse(this.defaultValue, this.argType.getInitialValue());
 
 		/* no, | is not a typo. We don't want the OR operator to short-circuit, we want all of them to be evaluated
 		 * because the methods have side effects (they add errors to the parser) */
@@ -597,6 +597,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 */
 	@Override
 	public boolean equals(@NotNull Object obj) {
+		if (obj == this) return true;
 		if (obj instanceof Argument<?, ?> arg)
 			return UtlMisc.equalsByNamesAndParentCmd(this, arg);
 		return false;

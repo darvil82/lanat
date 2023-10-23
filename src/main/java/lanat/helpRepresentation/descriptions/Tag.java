@@ -7,7 +7,6 @@ import lanat.helpRepresentation.descriptions.tags.DescTag;
 import lanat.helpRepresentation.descriptions.tags.FormatTag;
 import lanat.helpRepresentation.descriptions.tags.LinkTag;
 import lanat.utils.UtlReflection;
-import lanat.utils.UtlString;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,7 +52,7 @@ public abstract class Tag {
 			.findFirst()
 			.map(Map.Entry::getKey)
 			.orElseThrow(() ->
-				new IllegalStateException("Tag class " + UtlString.surround(tagClass.getName()) + " is not registered")
+				new IllegalStateException("Tag class '" + tagClass.getName() + "' is not registered")
 			);
 	}
 

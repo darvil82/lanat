@@ -3,6 +3,7 @@ package lanat.helpRepresentation.descriptions;
 import lanat.CommandUser;
 import lanat.NamedWithDescription;
 import lanat.helpRepresentation.descriptions.exceptions.MalformedTagException;
+import lanat.utils.UtlMisc;
 import lanat.utils.UtlString;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -70,11 +71,10 @@ public final class DescriptionFormatter {
 	 */
 	public static <T extends CommandUser & NamedWithDescription>
 	@Nullable String parse(@NotNull T element) {
-		final var desc = element.getDescription();
-		if (desc == null)
-			return null;
-
-		return DescriptionFormatter.parse(element, desc);
+		return UtlMisc.nullOrElse(
+			element.getDescription(),
+			desc -> DescriptionFormatter.parse(element, desc)
+		);
 	}
 
 	/**

@@ -2,6 +2,7 @@ package lanat.helpRepresentation;
 
 import lanat.Command;
 import lanat.helpRepresentation.descriptions.DescriptionFormatter;
+import lanat.utils.UtlMisc;
 import lanat.utils.displayFormatter.FormatOption;
 import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
@@ -52,11 +53,10 @@ public final class CommandRepr {
 	 * @return the parsed description of the command
 	 */
 	public static @Nullable String getDescription(@NotNull Command cmd) {
-		final String desc = DescriptionFormatter.parse(cmd);
-
-		return desc == null
-			? null
-			: CommandRepr.getRepresentation(cmd) + ":\n" + HelpFormatter.indent(desc, cmd);
+		return UtlMisc.nullOrElse(
+			DescriptionFormatter.parse(cmd),
+			desc -> CommandRepr.getRepresentation(cmd) + ":\n" + HelpFormatter.indent(desc, cmd)
+		);
 	}
 
 	/**

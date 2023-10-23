@@ -82,7 +82,7 @@ The package is currently only available on GitHub Packages.
     implementation("darvil:lanat")
     ```
 
-    Note that you may need to explicitly specify the version of the package you want to use. (e.g. `darvil:lanat:0.0.1`)
+    Note that you may need to explicitly specify the version of the package you want to use. (e.g. `darvil:lanat:x.x.x`)
 
 This information is available at the [GitHub Packages documentation](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-gradle-registry#using-a-published-package).
 

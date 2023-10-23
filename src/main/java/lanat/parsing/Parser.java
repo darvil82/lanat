@@ -81,8 +81,12 @@ public class Parser extends ParsingStateBase<ParseError> {
 		this.tokens = tokens;
 	}
 
+	/**
+	 * Parses the tokens that have been set. Delegates parsing of argument values to the {@link ArgumentType} of the
+	 * argument that is being parsed.
+	 */
 	public void parseTokens() {
-		assert this.tokens != null : "Tokens have not been set yet";
+		assert this.tokens != null : "Tokens have not been set yet.";
 		assert !this.hasFinished : "This parser has already finished parsing.";
 
 		// number of positional arguments that have been parsed.

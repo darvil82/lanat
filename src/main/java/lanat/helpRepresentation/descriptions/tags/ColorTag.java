@@ -55,8 +55,7 @@ public class ColorTag extends Tag {
 		final String[] split = UtlString.split(value, ':');
 		if (split.length != 2)
 			throw new MalformedTagException(
-				ColorTag.class, "invalid color format " + UtlString.surround(value)
-				+ " (expected format: 'foreground:background')"
+				ColorTag.class, "invalid color format '" + value + "' (expected format: 'foreground:background')"
 			);
 
 		return ColorTag.getColor(split[0]).fg() + ColorTag.getColor(split[1]).bg();
@@ -80,7 +79,7 @@ public class ColorTag extends Tag {
 			case "dark magenta", "dm" -> Color.MAGENTA;
 			case "dark cyan", "dc" -> Color.CYAN;
 			case "dark white", "dw" -> Color.WHITE;
-			default -> throw new MalformedTagException(ColorTag.class, "unknown color name " + UtlString.surround(colorName));
+			default -> throw new MalformedTagException(ColorTag.class, "unknown color name '" + colorName + "'");
 		};
 	}
 }

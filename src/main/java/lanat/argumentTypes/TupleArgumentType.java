@@ -12,12 +12,32 @@ import org.jetbrains.annotations.Nullable;
  * Shows a properly formatted description and representation.
  * @param <T> the type of the value that the argument will take
  */
-public abstract class TupleArgumentType<T> extends ArgumentType<T> {
+public abstract class TupleArgumentType<T> extends ArgumentType<T[]> {
 	private final @NotNull Range argCount;
+	private final @NotNull ArgumentType<T> argumentType;
 
-	public TupleArgumentType(@NotNull Range range, @NotNull T initialValue) {
-		super(initialValue);
+	/**
+	 * Creates a new {@link TupleArgumentType} with the specified range and argument type.
+	 * @param range The range of values that the argument will take.
+	 * @param argumentType The argument type that will be used to parse the values.
+	 * @param defaultValue The default value of the argument. This will be used if no values are provided.
+	 */
+	public TupleArgumentType(@NotNull Range range, @NotNull ArgumentType<T> argumentType, @NotNull T[] defaultValue) {
+		super(defaultValue);
 		this.argCount = range;
+		this.registerSubType(this.argumentType = argumentType);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public T @Nullable [] parseValues(@NotNull String... args) {
+		var result = new Object[args.length];
+
+		for (int i = 0; i < args.length; i++) {
+			result[i] = this.argumentType.parseValues(args[i]);
+		}
+
+		return (T[])result;
 	}
 
 	@Override
@@ -26,14 +46,18 @@ public abstract class TupleArgumentType<T> extends ArgumentType<T> {
 	}
 
 	@Override
-	public @NotNull TextFormatter getRepresentation() {
-		return new TextFormatter(this.getValue().getClass().getSimpleName())
+	public @Nullable TextFormatter getRepresentation() {
+		var argTypeRepr = this.argumentType.getRepresentation();
+		if (argTypeRepr == null)
+			return null;
+
+		return argTypeRepr
 			.concat(new TextFormatter(this.argCount.getRegexRange()).withForegroundColor(Color.BRIGHT_YELLOW));
 	}
 
 	@Override
 	public @Nullable String getDescription() {
 		return "Takes " + this.argCount.getMessage("value")
-			+ " of type " + this.getInitialValue().getClass().getSimpleName() + ".";
+			+ " of type " + this.argumentType.getRepresentation() + ".";
 	}
 }

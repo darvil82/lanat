@@ -7,6 +7,7 @@ import java.util.function.Function;
 
 /**
  * An argument type that takes an integer number.
+ * @see Integer
  */
 public class IntegerArgumentType extends NumberArgumentType<Integer> {
 	@Override

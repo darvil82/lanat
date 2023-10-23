@@ -2,28 +2,26 @@ package lanat.test.manualTests;
 
 import lanat.ArgumentParser;
 import lanat.CLInput;
-import lanat.Command;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
+import java.util.Arrays;
 
 public final class ManualTests {
 	@Test
 	public void main() {
-		String input = "";
+		String input = "  ";
 
 		// write some stuff to stdin
 		System.setIn(new ByteArrayInputStream("hello world\ngoodbye".getBytes()));
 
-		var parsed = new ArgumentParser(CommandTemplateExample.class) {{
-			this.addCommand(new Command(CommandTemplateExample.MySubCommand.class) {{
-				this.addCommand(new Command(CommandTemplateExample.MySubCommand.AnotherSubCommand.class));
-			}});
-		}}
-			.parse(CLInput.from(input))
-			.printErrors()
-			.printHelpIfNoInput()
-			.into(CommandTemplateExample.class);
+		var parsed = ArgumentParser.parseFromInto(
+			CommandTemplateExample.class,
+			CLInput.from(input),
+			o -> o.exitIfErrors()
+				.printErrors()
+				.printHelpIfNoInput()
+		);
 
 		parsed.string
 			.ifPresentOrElse(
@@ -35,5 +33,6 @@ public final class ManualTests {
 		System.out.println(parsed.subCommand.counter);
 		System.out.println(parsed.subCommand.anotherSubCommand.counter);
 		System.out.println(parsed.stdin);
+		System.out.println(Arrays.toString(parsed.bytes));
 	}
 }

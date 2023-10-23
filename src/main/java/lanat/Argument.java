@@ -147,7 +147,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		}
 
 		/**
-		 * Creates a new PrefixChar with the specified non-whitespace character.
+		 * Creates a new {@link PrefixChar} with the specified non-whitespace character.
 		 * <p>
 		 * <strong>NOTE:<br></strong>
 		 * The constant fields of this class should be used instead of this method. Other characters could break

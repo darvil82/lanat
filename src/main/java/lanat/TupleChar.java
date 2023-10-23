@@ -7,7 +7,7 @@ package lanat;
  * Changing the tuple characters may break compatibility with shells that use the same characters.
  * </p>
  */
-public enum TupleCharacter {
+public enum TupleChar {
 	SQUARE_BRACKETS('[', ']'),
 	PARENTHESIS('(', ')'),
 	BRACES('{', '}'),
@@ -15,7 +15,7 @@ public enum TupleCharacter {
 
 	public final char open, close;
 
-	TupleCharacter(char open, char close) {
+	TupleChar(char open, char close) {
 		this.open = open;
 		this.close = close;
 	}

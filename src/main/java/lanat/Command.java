@@ -47,7 +47,7 @@ public class Command
 	private final @NotNull ArrayList<@NotNull Command> subCommands = new ArrayList<>();
 	private Command parentCommand;
 	private final @NotNull ArrayList<@NotNull ArgumentGroup> argumentGroups = new ArrayList<>();
-	private final @NotNull ModifyRecord<@NotNull TupleCharacter> tupleChars = ModifyRecord.of(TupleCharacter.SQUARE_BRACKETS);
+	private final @NotNull ModifyRecord<@NotNull TupleChar> tupleChars = ModifyRecord.of(TupleChar.SQUARE_BRACKETS);
 	private final @NotNull ModifyRecord<@NotNull Integer> errorCode = ModifyRecord.of(1);
 
 	// error handling callbacks
@@ -185,11 +185,11 @@ public class Command
 		this.errorCode.set(errorCode);
 	}
 
-	public void setTupleChars(@NotNull TupleCharacter tupleChars) {
+	public void setTupleChars(@NotNull TupleChar tupleChars) {
 		this.tupleChars.set(tupleChars);
 	}
 
-	public @NotNull TupleCharacter getTupleChars() {
+	public @NotNull TupleChar getTupleChars() {
 		return this.tupleChars.get();
 	}
 

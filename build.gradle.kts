@@ -1,6 +1,7 @@
 plugins {
 	java
 	`maven-publish`
+	signing
 }
 
 group = "darvil"
@@ -25,24 +26,27 @@ repositories {
 }
 
 publishing {
+	publications {
+		create<MavenPublication>("mavenJava") {
+			from(components["java"])
+		}
+	}
 	repositories {
 		maven {
-			name = "github"
-			url = uri("https://maven.pkg.github.com/darvil82/Lanat")
+			url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
 			credentials {
-				username = System.getenv("CI_GITHUB_USERNAME")
-				password = System.getenv("CI_GITHUB_PASSWORD")
+				username = System.getenv("OSSRH_USERNAME")
+				password = System.getenv("OSSRH_PASSWORD")
 			}
 		}
 	}
-
-	publications {
-		register<MavenPublication>("gpr") {
-			from(components["java"])
-			artifactId = rootProject.name
-		}
-	}
 }
+
+
+signing {
+	sign(publishing.publications)
+}
+
 
 tasks.named<Test>("test") {
 	useJUnitPlatform()

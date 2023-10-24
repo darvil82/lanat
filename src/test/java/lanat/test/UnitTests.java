@@ -51,6 +51,9 @@ public class UnitTests {
 	static {
 		HelpFormatter.lineWrapMax = 1000; // just so we don't have to worry about line wrapping
 		TextFormatter.enableSequences = false; // just so we don't have to worry about color codes
+
+		// prefix char is set to auto by default (make sure tests run in windows too)
+		Argument.PrefixChar.defaultPrefix = Argument.PrefixChar.MINUS;
 	}
 
 	protected TestingParser setParser() {

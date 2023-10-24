@@ -111,59 +111,6 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	private final @NotNull ModifyRecord<Color> representationColor = ModifyRecord.empty();
 
 
-	/**
-	 * The list of prefixes that can be used.
-	 * <p>
-	 * The {@link PrefixChar#AUTO} prefix will be automatically set depending on the Operating System.
-	 * </p>
-	 *
-	 * @see PrefixChar#AUTO
-	 */
-	public static class PrefixChar {
-		public static final PrefixChar MINUS = new PrefixChar('-');
-		public static final PrefixChar PLUS = new PrefixChar('+');
-		public static final PrefixChar SLASH = new PrefixChar('/');
-		public static final PrefixChar AT = new PrefixChar('@');
-		public static final PrefixChar PERCENT = new PrefixChar('%');
-		public static final PrefixChar CARET = new PrefixChar('^');
-		public static final PrefixChar EXCLAMATION = new PrefixChar('!');
-		public static final PrefixChar TILDE = new PrefixChar('~');
-		public static final PrefixChar QUESTION = new PrefixChar('?');
-		public static final PrefixChar EQUALS = new PrefixChar('=');
-		public static final PrefixChar COLON = new PrefixChar(':');
-
-		/**
-		 * This prefix will be automatically set depending on the Operating System. On Linux, it will be
-		 * {@link PrefixChar#MINUS}, and on Windows, it will be {@link PrefixChar#SLASH}.
-		 */
-		public static final PrefixChar AUTO = System.getProperty("os.name").toLowerCase().contains("win") ? SLASH : MINUS;
-
-
-		public final char character;
-		public static @NotNull PrefixChar defaultPrefix = PrefixChar.MINUS;
-
-		private PrefixChar(char character) {
-			this.character = character;
-		}
-
-		/**
-		 * Creates a new {@link PrefixChar} with the specified non-whitespace character.
-		 * <p>
-		 * <strong>NOTE:<br></strong>
-		 * The constant fields of this class should be used instead of this method. Other characters could break
-		 * compatibility with shells using special characters as prefixes, such as the <code>|</code> or <code>;</code>
-		 * characters.
-		 * </p>
-		 *
-		 * @param character the character that will be used as a prefix
-		 */
-		public static @NotNull PrefixChar fromCharUnsafe(char character) {
-			if (Character.isWhitespace(character))
-				throw new IllegalArgumentException("The character cannot be a whitespace character.");
-			return new PrefixChar(character);
-		}
-	}
-
 	Argument(@NotNull Type type, @NotNull String... names) {
 		this.argType = type;
 		this.addNames(names);
@@ -668,9 +615,11 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 		/**
 		 * Specifies the prefix character for this argument. This uses {@link PrefixChar#fromCharUnsafe(char)}.
+		 * <p>
+		 * By default, this is set to the value of {@link PrefixChar#defaultPrefix}.
 		 * @see Argument#setPrefix(PrefixChar)
 		 * */
-		char prefix() default '-';
+		char prefix() default Character.MAX_VALUE; // Character.MAX_VALUE will be replaced with PrefixChar.defaultPrefix
 
 		/** @see Argument#setRequired(boolean) */
 		boolean required() default false;
@@ -680,6 +629,58 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 		/** @see Argument#setAllowUnique(boolean) */
 		boolean allowsUnique() default false;
+	}
+
+
+	/**
+	 * Specifies the prefix character for an {@link Argument}.
+	 */
+	public static class PrefixChar {
+		public static final PrefixChar MINUS = new PrefixChar('-');
+		public static final PrefixChar PLUS = new PrefixChar('+');
+		public static final PrefixChar SLASH = new PrefixChar('/');
+		public static final PrefixChar AT = new PrefixChar('@');
+		public static final PrefixChar PERCENT = new PrefixChar('%');
+		public static final PrefixChar CARET = new PrefixChar('^');
+		public static final PrefixChar EXCLAMATION = new PrefixChar('!');
+		public static final PrefixChar TILDE = new PrefixChar('~');
+		public static final PrefixChar QUESTION = new PrefixChar('?');
+		public static final PrefixChar EQUALS = new PrefixChar('=');
+		public static final PrefixChar COLON = new PrefixChar(':');
+
+		/**
+		 * This prefix will be automatically set depending on the Operating System. On Linux, it will be
+		 * {@link PrefixChar#MINUS}, and on Windows, it will be {@link PrefixChar#SLASH}.
+		 */
+		public static final PrefixChar AUTO = System.getProperty("os.name").toLowerCase().contains("win") ? SLASH : MINUS;
+
+
+		public final char character;
+		public static @NotNull PrefixChar defaultPrefix = PrefixChar.AUTO;
+
+		private PrefixChar(char character) {
+			this.character = character;
+		}
+
+		/**
+		 * Creates a new {@link PrefixChar} with the specified non-whitespace character.
+		 * <p>
+		 * <strong>NOTE:<br></strong>
+		 * The constant fields of this class should be used instead of this method. Other characters could break
+		 * compatibility with shells using special characters as prefixes, such as the <code>|</code> or <code>;</code>
+		 * characters.
+		 * </p>
+		 *
+		 * @param character the character that will be used as a prefix. {@link Character#MAX_VALUE} will return
+		 *  {@link PrefixChar#defaultPrefix}.
+		 */
+		public static @NotNull PrefixChar fromCharUnsafe(char character) {
+			if (character == Character.MAX_VALUE)
+				return PrefixChar.defaultPrefix;
+			if (Character.isWhitespace(character))
+				throw new IllegalArgumentException("The character cannot be a whitespace character.");
+			return new PrefixChar(character);
+		}
 	}
 
 

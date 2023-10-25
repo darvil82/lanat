@@ -60,6 +60,7 @@ publishing {
 
 signing {
 	sign(publishing.publications)
+	useInMemoryPgpKeys(System.getenv("GPG_KEY_ID"), System.getenv("GPG_KEY_RING_FILE"))
 }
 
 

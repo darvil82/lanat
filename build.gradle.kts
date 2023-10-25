@@ -29,8 +29,15 @@ publishing {
 	publications {
 		create<MavenPublication>("mavenJava") {
 			from(components["java"])
+			artifactId = rootProject.name
+		}
+
+		create<MavenPublication>("gpr") {
+			from(components["java"])
+			artifactId = rootProject.name
 		}
 	}
+
 	repositories {
 		maven {
 			url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
@@ -39,9 +46,17 @@ publishing {
 				password = System.getenv("OSSRH_PASSWORD")
 			}
 		}
+
+		maven {
+			name = "github"
+			url = uri("https://maven.pkg.github.com/darvil82/Lanat")
+			credentials {
+				username = System.getenv("CI_GITHUB_USERNAME")
+				password = System.getenv("CI_GITHUB_PASSWORD")
+			}
+		}
 	}
 }
-
 
 signing {
 	sign(publishing.publications)

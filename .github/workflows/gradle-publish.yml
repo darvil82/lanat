@@ -1,11 +1,4 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-# This workflow will build a Java project with Gradle and cache/restore any dependencies to improve the workflow execution time
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-gradle
-
-name: Publish to Github Packages
+name: Publish Package
 
 on:
   workflow_dispatch:
@@ -21,8 +14,6 @@ jobs:
     env:
       CI_GITHUB: 'x'
       CI_GITHUB_BRANCH: ${{ github.ref_name }}
-      CI_GITHUB_USERNAME: ${{ github.actor }}
-      CI_GITHUB_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
     runs-on: ubuntu-latest
 
@@ -38,7 +29,17 @@ jobs:
       - name: Validate Gradle wrapper
         uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b
 
-      - name: publish
+      - name: publish to Maven Central
+        env:
+          OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+        run: |
+          ./gradlew publish
+
+      - name: publish to Github Packages
         uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
+        env:
+          CI_GITHUB_USERNAME: ${{ github.actor }}
+          CI_GITHUB_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
         with:
           arguments: publish

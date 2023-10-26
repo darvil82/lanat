@@ -55,7 +55,7 @@ The package is currently only available on GitHub Packages.
 
 ### Gradle
 
-1. Authenticate to GitHub Packages in order to be able to download the package. You can do this by adding the following to your [gradle.properties](https://docs.gradle.org/current/userguide/build_environment.html#sec:gradle_configuration_properties) file:
+1. Authenticate to GitHub Packages to be able to download the package. You can do this by adding the following to your [gradle.properties](https://docs.gradle.org/current/userguide/build_environment.html#sec:gradle_configuration_properties) file:
 
 	```
 	gpr.user=USERNAME
@@ -70,8 +70,8 @@ The package is currently only available on GitHub Packages.
     maven {
         url = uri("https://maven.pkg.github.com/darvil82/lanat")
         credentials {
-            username = project.findProperty("gpr.user") as String? ?: System.getenv("CI_GITHUB_USERNAME")
-            password = project.findProperty("gpr.key") as String? ?: System.getenv("CI_GITHUB_PASSWORD")
+            username = project.findProperty("gpr.user") as String?
+            password = project.findProperty("gpr.key") as String?
         }
     }
     ```

@@ -59,7 +59,7 @@ publishing {
 }
 
 signing {
-	sign(publishing.publications)
+	sign(publishing.publications["gpr"])
 	useInMemoryPgpKeys(System.getenv("GPG_KEY_ID"), System.getenv("GPG_KEY_RING_FILE"))
 }
 

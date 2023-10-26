@@ -27,7 +27,7 @@ jobs:
 
       - name: Import GPG Key
         run: |
-          echo "$GPG_PRIVATE_KEY" | gpg --import
+          echo "$GPG_PRIVATE_KEY" | gpg --import || true
         env:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_KEYRING_FILE }}
 

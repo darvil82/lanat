@@ -33,10 +33,10 @@ publishing {
 		}
 
 		// GitHub Packages publication
-		create<MavenPublication>("gpr") {
-			from(components["java"])
-			artifactId = project.name
-		}
+//		create<MavenPublication>("gpr") {
+//			from(components["java"])
+//			artifactId = project.name
+//		}
 	}
 
 	// Sonatype repository
@@ -50,16 +50,16 @@ publishing {
 		}
 
 		// GitHub Packages repository
-		repositories {
-			maven {
-				name = "github"
-				url = uri("https://maven.pkg.github.com/darvil82/Lanat")
-				credentials {
-					username = project.findProperty("ciGithubUsername") as? String ?: ""
-					password = project.findProperty("ciGithubPassword") as? String ?: ""
-				}
-			}
-		}
+//		repositories {
+//			maven {
+//				name = "github"
+//				url = uri("https://maven.pkg.github.com/darvil82/Lanat")
+//				credentials {
+//					username = project.findProperty("ciGithubUsername") as? String ?: ""
+//					password = project.findProperty("ciGithubPassword") as? String ?: ""
+//				}
+//			}
+//		}
 	}
 
 	signing {

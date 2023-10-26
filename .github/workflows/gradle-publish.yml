@@ -1,9 +1,9 @@
-name: Publish Package
+name: Publish to Github Packages
 
 on:
   workflow_dispatch:
   release:
-    types: [created]
+    types: [ created ]
 
 permissions:
   contents: read
@@ -11,12 +11,16 @@ permissions:
 
 jobs:
   publish:
-    runs-on: ubuntu-latest
     env:
-      GPG_PRIVATE_KEY: ${{ secrets.GPG_KEYRING_FILE }}
+      CI_GITHUB: 'x'
+      CI_GITHUB_BRANCH: ${{ github.ref_name }}
+      CI_GITHUB_USERNAME: ${{ github.actor }}
+      CI_GITHUB_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+
+    runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
       - name: Set up JDK 17
         uses: actions/setup-java@v3
@@ -27,34 +31,7 @@ jobs:
       - name: Validate Gradle wrapper
         uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b
 
-      - name: Import GPG Key
-        run: |
-          echo "$GPG_PRIVATE_KEY" | gpg --import || true
-
-      - name: Set Project Properties as Environment Variables
-        run: |
-          echo "ossrhUsername=${OSSRH_USERNAME}" >> $GITHUB_ENV
-          echo "ossrhPassword=${OSSRH_PASSWORD}" >> $GITHUB_ENV
-          echo "ciGithubUsername=${GITHUB_ACTOR}" >> $GITHUB_ENV
-          echo "ciGithubPassword=${GITHUB_TOKEN}" >> $GITHUB_ENV
-        env:
-          OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
-          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
-          CI_GITHUB_USERNAME: ${{ github.actor }}
-          CI_GITHUB_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Publish to Maven Central and Github Packages
-        env:
-          GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
-        run: |
-          ./gradlew publish
-        continue-on-error: false
-
-#      - name: Publish to GitHub Packages
-#        uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
-#        env:
-#          CI_GITHUB_USERNAME: ${{ github.actor }}
-#          CI_GITHUB_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-#        with:
-#          arguments: publish
-#        continue-on-error: false
+      - name: publish
+        uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
+        with:
+          arguments: publish

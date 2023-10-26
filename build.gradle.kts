@@ -1,7 +1,6 @@
 plugins {
 	java
 	`maven-publish`
-	signing
 }
 
 group = "darvil"
@@ -26,45 +25,22 @@ repositories {
 }
 
 publishing {
-	publications {
-		create<MavenPublication>("mavenJava") {
-			from(components["java"])
-			artifactId = project.name
-		}
-
-		// GitHub Packages publication
-//		create<MavenPublication>("gpr") {
-//			from(components["java"])
-//			artifactId = project.name
-//		}
-	}
-
-	// Sonatype repository
 	repositories {
 		maven {
-			url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
+			name = "github"
+			url = uri("https://maven.pkg.github.com/darvil82/Lanat")
 			credentials {
-				username = project.findProperty("ossrhUsername") as? String ?: ""
-				password = project.findProperty("ossrhPassword") as? String ?: ""
+				username = System.getenv("CI_GITHUB_USERNAME")
+				password = System.getenv("CI_GITHUB_PASSWORD")
 			}
 		}
-
-		// GitHub Packages repository
-//		repositories {
-//			maven {
-//				name = "github"
-//				url = uri("https://maven.pkg.github.com/darvil82/Lanat")
-//				credentials {
-//					username = project.findProperty("ciGithubUsername") as? String ?: ""
-//					password = project.findProperty("ciGithubPassword") as? String ?: ""
-//				}
-//			}
-//		}
 	}
 
-	signing {
-		sign(configurations.archives.get())
-		useInMemoryPgpKeys(System.getenv("GPG_KEY_ID"), System.getenv("GPG_KEY_RING_FILE"))
+	publications {
+		register<MavenPublication>("gpr") {
+			from(components["java"])
+			artifactId = rootProject.name
+		}
 	}
 }
 

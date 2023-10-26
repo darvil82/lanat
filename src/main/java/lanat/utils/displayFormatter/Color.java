@@ -2,8 +2,6 @@ package lanat.utils.displayFormatter;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-
 /**
  * Enumerates the ANSI color codes that a terminal can normally display.
  */
@@ -60,7 +58,7 @@ public enum Color {
 	/**
 	 * Immutable list of all the dark colors.
 	 */
-	public static final @NotNull List<Color> BRIGHT_COLORS = List.of(
+	public static final @NotNull Color[] BRIGHT_COLORS = new Color[] {
 		BRIGHT_RED,
 		BRIGHT_GREEN,
 		BRIGHT_YELLOW,
@@ -68,12 +66,12 @@ public enum Color {
 		BRIGHT_MAGENTA,
 		BRIGHT_CYAN,
 		BRIGHT_WHITE
-	);
+	};
 
 	/**
 	 * Immutable list of all the bright colors.
 	 */
-	public static final @NotNull List<Color> DARK_COLORS = List.of(
+	public static final @NotNull Color[] DARK_COLORS = new Color[] {
 		RED,
 		GREEN,
 		YELLOW,
@@ -81,5 +79,5 @@ public enum Color {
 		MAGENTA,
 		CYAN,
 		WHITE
-	);
+	};
 }

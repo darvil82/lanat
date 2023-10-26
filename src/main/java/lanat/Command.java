@@ -59,7 +59,7 @@ public class Command
 		ModifyRecord.of(CallbacksInvocationOption.NO_ERROR_IN_ALL_COMMANDS);
 
 	/** A pool of the colors that an argument may have when being represented on the help. */
-	final @NotNull LoopPool<@NotNull Color> colorsPool = LoopPool.atRandomIndex(Color.BRIGHT_COLORS.toArray(Color[]::new));
+	final @NotNull LoopPool<@NotNull Color> colorsPool = LoopPool.atRandomIndex(Color.BRIGHT_COLORS);
 
 
 	/**

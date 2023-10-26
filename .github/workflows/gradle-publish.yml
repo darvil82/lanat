@@ -12,6 +12,8 @@ permissions:
 jobs:
   publish_to_maven_central:
     runs-on: ubuntu-latest
+    env:
+      GPG_PRIVATE_KEY: ${{ secrets.GPG_KEYRING_FILE }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -28,8 +30,6 @@ jobs:
       - name: Import GPG Key
         run: |
           echo "$GPG_PRIVATE_KEY" | gpg --import || true
-        env:
-          GPG_PRIVATE_KEY: ${{ secrets.GPG_KEYRING_FILE }}
 
       - name: Publish to Maven Central
         env:

@@ -50,11 +50,14 @@ publishing {
 		}
 
 		// GitHub Packages repository
-		maven {
-			url = uri("https://maven.pkg.github.com/darvil82/Lanat")
-			credentials {
-				username = project.findProperty("ciGithubUsername") as? String ?: ""
-				password = project.findProperty("ciGithubPassword") as? String ?: ""
+		repositories {
+			maven {
+				name = "github"
+				url = uri("https://maven.pkg.github.com/darvil82/Lanat")
+				credentials {
+					username = System.getenv("CI_GITHUB_USERNAME")
+					password = System.getenv("CI_GITHUB_PASSWORD")
+				}
 			}
 		}
 	}

@@ -10,7 +10,7 @@ permissions:
   packages: write
 
 jobs:
-  publish_to_maven_central:
+  publish:
     runs-on: ubuntu-latest
     env:
       GPG_PRIVATE_KEY: ${{ secrets.GPG_KEYRING_FILE }}
@@ -43,7 +43,7 @@ jobs:
           CI_GITHUB_USERNAME: ${{ github.actor }}
           CI_GITHUB_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Publish to Maven Central
+      - name: Publish to Maven Central and Github Packages
         env:
           GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
         run: |

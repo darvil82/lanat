@@ -29,41 +29,41 @@ publishing {
 	publications {
 		create<MavenPublication>("mavenJava") {
 			from(components["java"])
-			artifactId = rootProject.name
+			artifactId = project.name
 		}
 
+		// GitHub Packages publication
 		create<MavenPublication>("gpr") {
 			from(components["java"])
-			artifactId = rootProject.name
+			artifactId = project.name
 		}
 	}
 
+	// Sonatype repository
 	repositories {
 		maven {
 			url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
 			credentials {
-				username = "testing"
-				password = System.getenv("OSSRH_PASSWORD")
+				username = project.findProperty("ossrhUsername") as? String ?: ""
+				password = project.findProperty("ossrhPassword") as? String ?: ""
 			}
 		}
 
+		// GitHub Packages repository
 		maven {
-			name = "github"
 			url = uri("https://maven.pkg.github.com/darvil82/Lanat")
 			credentials {
-				username = System.getenv("CI_GITHUB_USERNAME")
-				password = System.getenv("CI_GITHUB_PASSWORD")
+				username = project.findProperty("ciGithubUsername") as? String ?: ""
+				password = project.findProperty("ciGithubPassword") as? String ?: ""
 			}
 		}
 	}
+
+	signing {
+		sign(publishing.publications)
+		useInMemoryPgpKeys(System.getenv("GPG_KEY_ID"), System.getenv("GPG_KEY_RING_FILE"))
+	}
 }
-
-signing {
-	sign(configurations.archives.get())
-	useInMemoryPgpKeys(System.getenv("GPG_KEY_ID"), System.getenv("GPG_KEY_RING_FILE"))
-}
-
-
 
 tasks.named<Test>("test") {
 	useJUnitPlatform()

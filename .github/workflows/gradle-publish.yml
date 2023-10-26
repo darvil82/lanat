@@ -31,14 +31,16 @@ jobs:
         run: |
           echo "$GPG_PRIVATE_KEY" | gpg --import || true
 
-      - name: check GPG key
+      - name: Set Project Properties as Environment Variables
         run: |
-          gpg --list-keys
-
-      - name: Publish to Maven Central
+          echo "ossrhUsername=${OSSRH_USERNAME}" >> $GITHUB_ENV
+          echo "ossrhPassword=${OSSRH_PASSWORD}" >> $GITHUB_ENV
         env:
           OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+
+      - name: Publish to Maven Central
+        env:
           GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
         run: |
           ./gradlew publish

@@ -252,4 +252,21 @@ public final class UtlString {
 	public static @NotNull String @NotNull [] split(@NotNull String str, char splitter) {
 		return UtlString.split(str, String.valueOf(splitter), -1);
 	}
+
+	/**
+	 * Returns a pair of strings. The first string is the leading whitespace of the string given, and the second string
+	 * is the string given without the leading whitespace.
+	 * @param str the string to split
+	 * @return a pair of strings
+	 */
+	public static @NotNull Pair<@NotNull String, @NotNull String> splitAtLeadingWhitespace(@NotNull String str) {
+		final var buffWhitespace = new StringBuilder();
+
+		for (char chr : str.toCharArray()) {
+			if (!Character.isWhitespace(chr)) break;
+			buffWhitespace.append(chr);
+		}
+
+		return new Pair<>(buffWhitespace.toString(), str.substring(buffWhitespace.length()));
+	}
 }

@@ -1,5 +1,6 @@
 package lanat.utils.displayFormatter;
 
+import lanat.utils.UtlString;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -251,9 +252,32 @@ public class TextFormatter {
 
 		final var buffer = new StringBuilder();
 
-		buffer.append(this.getStartSequences());
-		buffer.append(this.contents);
+		// for some reason, some terminals reset sequences when a new line is added.
+		{
+			final var split = UtlString.splitAtLeadingWhitespace(this.contents);
 
+			// start by adding the leading whitespace
+			if (!split.first().isEmpty()) {
+				buffer.append(split.first());
+			}
+
+			// then add the start sequences
+			buffer.append(this.getStartSequences());
+
+			char[] charArray = split.second().toCharArray();
+			for (int i = 0; i < charArray.length; i++) {
+				var chr = charArray[i];
+
+				// if we encounter a new line, and the next character is not a whitespace, then add the start sequences
+				if (chr == '\n' && (i < charArray.length - 1 && !Character.isWhitespace(charArray[i + 1])))
+					buffer.append(this.getStartSequences());
+
+				// add the character
+				buffer.append(chr);
+			}
+		}
+
+		// then do the same thing for the concatenated formatters
 		for (TextFormatter subFormatter : this.concatList) {
 			buffer.append(subFormatter);
 		}
@@ -280,7 +304,7 @@ public class TextFormatter {
 	 */
 	static @NotNull String getSequence(int code) {
 		if (TextFormatter.debug)
-			return "ESC[" + code;
+			return "ESC[" + code + "]";
 		return "" + ESC + '[' + code + 'm';
 	}
 

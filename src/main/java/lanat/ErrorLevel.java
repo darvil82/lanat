@@ -15,7 +15,12 @@ public enum ErrorLevel {
 		this.color = color;
 	}
 
-	public boolean isInErrorMinimum(@NotNull ErrorLevel minimum) {
+	/**
+	 * Returns whether this error level is under the given minimum.
+	 * @param minimum The minimum to check against.
+	 * @return Whether this error level is under the given minimum.
+	 */
+	public boolean isInMinimum(@NotNull ErrorLevel minimum) {
 		return this.ordinal() <= minimum.ordinal();
 	}
 }

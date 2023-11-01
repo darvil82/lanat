@@ -77,9 +77,7 @@ public class ModifyRecord<T> {
 	 * @param value The value to set.
 	 */
 	public void setIfNotModified(@NotNull ModifyRecord<T> value) {
-		if (!this.modified) {
-			this.set(value);
-		}
+		this.setIfNotModified(value.value);
 	}
 
 	/**

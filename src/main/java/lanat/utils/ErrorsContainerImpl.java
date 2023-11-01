@@ -13,11 +13,14 @@ import java.util.List;
  * @param <T> The type of the errors to store.
  */
 public abstract class ErrorsContainerImpl<T extends ErrorLevelProvider> implements ErrorsContainer<T> {
-	private @NotNull ModifyRecord<ErrorLevel> minimumExitErrorLevel = ModifyRecord.of(ErrorLevel.ERROR);
-	private @NotNull ModifyRecord<ErrorLevel> minimumDisplayErrorLevel = ModifyRecord.of(ErrorLevel.INFO);
+	private final ModifyRecord<ErrorLevel> minimumExitErrorLevel;
+	private final ModifyRecord<ErrorLevel> minimumDisplayErrorLevel;
 	private final @NotNull List<T> errors = new ArrayList<>();
 
-	public ErrorsContainerImpl() {}
+	public ErrorsContainerImpl() {
+		// default values
+		this(ModifyRecord.of(ErrorLevel.ERROR), ModifyRecord.of(ErrorLevel.INFO));
+	}
 
 	public ErrorsContainerImpl(
 		@NotNull ModifyRecord<ErrorLevel> minimumExitErrorLevelRecord,
@@ -26,11 +29,6 @@ public abstract class ErrorsContainerImpl<T extends ErrorLevelProvider> implemen
 	{
 		this.minimumExitErrorLevel = minimumExitErrorLevelRecord;
 		this.minimumDisplayErrorLevel = minimumDisplayErrorLevelRecord;
-	}
-
-	public ErrorsContainerImpl(@NotNull ErrorLevel minimumExitErrorLevel, @NotNull ErrorLevel minimumDisplayErrorLevel) {
-		this.minimumExitErrorLevel.set(minimumExitErrorLevel);
-		this.minimumDisplayErrorLevel.set(minimumDisplayErrorLevel);
 	}
 
 	/**

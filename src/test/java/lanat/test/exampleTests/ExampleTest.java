@@ -3,6 +3,7 @@ package lanat.test.exampleTests;
 import lanat.*;
 import lanat.argumentTypes.IntegerArgumentType;
 import lanat.argumentTypes.NumberRangeArgumentType;
+import lanat.argumentTypes.StringArgumentType;
 import lanat.utils.Range;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -12,13 +13,15 @@ public final class ExampleTest {
 	@Test
 	public void main() {
 		Argument.PrefixChar.defaultPrefix = Argument.PrefixChar.MINUS;
+//		TextFormatter.enableSequences = false;
 		var parsedArgs = new ArgumentParser("my-program") {{
 			this.setCallbackInvocationOption(CallbacksInvocationOption.NO_ERROR_IN_ARGUMENT);
 			this.addHelpArgument();
 			this.addArgument(Argument.create(new Example1Type(), "user", "u").required().positional());
 			this.addArgument(Argument.create(new NumberRangeArgumentType<>(0.0, 15.23), "number").onOk(System.out::println));
+			this.addArgument(Argument.create(new StringArgumentType(), "string").onOk(System.out::println));
 			this.addArgument(Argument.create(new IntegerArgumentType(), "test").onOk(System.out::println).allowsUnique());
-		}}.parse(CLInput.from("-h --number=3 -u [jo ]"))
+		}}.parse(CLInput.from("-h --number 3' --string 'hello world' -u ['[jo]"))
 			.printErrors()
 			.getParsedArguments();
 

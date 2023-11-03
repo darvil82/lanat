@@ -26,7 +26,7 @@ public class TokenizeError extends ParseStateErrorBase<TokenizeError.TokenizeErr
 	protected void handleTupleAlreadyOpen() {
 		this.fmt()
 			.setContent("Tuple already open.")
-			.displayTokens(this.tokenIndex + 1);
+			.displayTokens(this.tokenIndex, 0, false);
 	}
 
 	@Handler("TUPLE_NOT_CLOSED")
@@ -40,7 +40,7 @@ public class TokenizeError extends ParseStateErrorBase<TokenizeError.TokenizeErr
 	protected void handleUnexpectedTupleClose() {
 		this.fmt()
 			.setContent("Unexpected tuple close.")
-			.displayTokens(this.tokenIndex + 1);
+			.displayTokens(this.tokenIndex, 0, false);
 	}
 
 	@Handler("STRING_NOT_CLOSED")

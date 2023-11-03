@@ -65,7 +65,6 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 		}
 
 		char currentStringChar = 0; // the character that opened the string
-		TokenizeError.TokenizeErrorType errorType = null;
 
 		for (
 			this.currentCharIndex = 0;
@@ -79,7 +78,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 				this.currentValue.append(this.inputChars[++this.currentCharIndex]); // skip the \ character and append the next character
 
 				// reached a possible value wrapped in quotes
-			} else if (cChar == '"' || cChar == '\'') {
+			} else if ((cChar == '"' || cChar == '\'')) {
 				// if we are already in an open string, push the current value and close the string. Make sure
 				// that the current char is the same as the one that opened the string
 				if (this.stringOpen && currentStringChar == cChar) {
@@ -87,8 +86,9 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 					this.currentValue.setLength(0);
 					this.stringOpen = false;
 
-					// the string is open, but the character does not match. Push it as a normal character
-				} else if (this.stringOpen) {
+					// the string is open, but the character does not match, or there's something already in the current value.
+					// Push it as a normal character
+				} else if (this.stringOpen || !this.currentValue.isEmpty()) {
 					this.currentValue.append(cChar);
 
 					// the string is not open, so open it and set the current string char to the current char
@@ -103,15 +103,17 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 
 				// reached a possible tuple start character
 			} else if (cChar == this.tupleOpenChar) {
-				// if we are already in a tuple, set error and stop tokenizing
+				// if we are already in a tuple, add error
 				if (this.tupleOpen) {
-					errorType = TokenizeError.TokenizeErrorType.TUPLE_ALREADY_OPEN;
-					break;
+					// push tuple start token so the user can see the incorrect tuple char
+					this.addToken(TokenType.ARGUMENT_VALUE_TUPLE_START, this.tupleOpenChar);
+					this.addError(TokenizeError.TokenizeErrorType.TUPLE_ALREADY_OPEN);
+					continue;
 				} else if (!this.currentValue.isEmpty()) { // if there was something before the tuple, tokenize it
 					this.tokenizeCurrentValue();
 				}
 
-				// push the tuple token and set the state to tuple open
+				// set the state to tuple open
 				this.addToken(TokenType.ARGUMENT_VALUE_TUPLE_START, this.tupleOpenChar);
 				this.tupleOpen = true;
 
@@ -119,8 +121,10 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 			} else if (cChar == this.tupleCloseChar) {
 				// if we are not in a tuple, set error and stop tokenizing
 				if (!this.tupleOpen) {
-					errorType = TokenizeError.TokenizeErrorType.UNEXPECTED_TUPLE_CLOSE;
-					break;
+					// push tuple start token so the user can see the incorrect tuple char
+					this.addToken(TokenType.ARGUMENT_VALUE_TUPLE_END, this.tupleCloseChar);
+					this.addError(TokenizeError.TokenizeErrorType.UNEXPECTED_TUPLE_CLOSE);
+					continue;
 				}
 
 				// if there was something before the tuple, tokenize it
@@ -128,7 +132,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 					this.addToken(TokenType.ARGUMENT_VALUE, this.currentValue.toString());
 				}
 
-				// push the tuple token and set the state to tuple closed
+				// set the state to tuple closed
 				this.addToken(TokenType.ARGUMENT_VALUE_TUPLE_END, this.tupleCloseChar);
 				this.currentValue.setLength(0);
 				this.tupleOpen = false;
@@ -158,20 +162,14 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 			}
 		}
 
-		if (errorType == null)
-			if (this.tupleOpen) {
-				errorType = TokenizeError.TokenizeErrorType.TUPLE_NOT_CLOSED;
-			} else if (this.stringOpen) {
-				errorType = TokenizeError.TokenizeErrorType.STRING_NOT_CLOSED;
-			}
+		if (this.tupleOpen)
+			this.addError(TokenizeError.TokenizeErrorType.TUPLE_NOT_CLOSED);
+		if (this.stringOpen)
+			this.addError(TokenizeError.TokenizeErrorType.STRING_NOT_CLOSED);
 
 		// we left something in the current value, tokenize it
 		if (!this.currentValue.isEmpty()) {
 			this.tokenizeCurrentValue();
-		}
-
-		if (errorType != null) {
-			this.addError(errorType, this.finalTokens.size());
 		}
 
 		this.hasFinished = true;
@@ -185,6 +183,10 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	/** Inserts a token into the final tokens list with the given type and contents */
 	private void addToken(@NotNull TokenType type, char contents) {
 		this.finalTokens.add(new Token(type, String.valueOf(contents)));
+	}
+
+	private void addError(@NotNull TokenizeError.TokenizeErrorType type) {
+		this.addError(type, this.finalTokens.size());
 	}
 
 	/**

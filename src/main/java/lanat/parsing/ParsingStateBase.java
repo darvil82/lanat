@@ -22,7 +22,7 @@ public abstract class ParsingStateBase<T extends ErrorLevelProvider> extends Err
 	/**
 	 * Executes a callback for the argument found by the name specified.
 	 *
-	 * @return <a>ParseErrorType.ArgumentNotFound</a> if an argument was found
+	 * @return {@code true} if an argument was found
 	 */
 	protected boolean runForArgument(@NotNull String argName, @NotNull Consumer<@NotNull Argument<?, ?>> f) {
 		for (final var argument : this.getArguments()) {

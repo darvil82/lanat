@@ -58,7 +58,7 @@ public enum Color {
 	/**
 	 * Immutable list of all the dark colors.
 	 */
-	public static final @NotNull Color[] BRIGHT_COLORS = new Color[] {
+	public static final @NotNull Color[] BRIGHT_COLORS = {
 		BRIGHT_RED,
 		BRIGHT_GREEN,
 		BRIGHT_YELLOW,
@@ -71,7 +71,7 @@ public enum Color {
 	/**
 	 * Immutable list of all the bright colors.
 	 */
-	public static final @NotNull Color[] DARK_COLORS = new Color[] {
+	public static final @NotNull Color[] DARK_COLORS = {
 		RED,
 		GREEN,
 		YELLOW,

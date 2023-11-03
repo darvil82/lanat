@@ -126,6 +126,10 @@ public class Range {
 	 * @return {@code true} if the value is in the range
 	 */
 	public boolean isInRange(int value, boolean startInclusive, boolean endInclusive) {
+		if (!this.isRange()) {
+			return value == this.start;
+		}
+
 		boolean isInStart = startInclusive
 			? value >= this.start
 			: value > this.start;

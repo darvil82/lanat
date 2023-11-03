@@ -9,13 +9,11 @@ import lanat.utils.UtlString;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @SuppressWarnings("unused")
 public class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 	public final Argument<?, ?> argument;
-	public final int valueCount;
+	private final int valueCount;
+	private boolean isInTuple = false;
 	private ArgumentGroup argumentGroup;
 
 	public enum ParseErrorType implements ErrorLevelProvider {
@@ -51,23 +49,21 @@ public class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 		this.argumentGroup = argumentGroup;
 	}
 
-	public static @NotNull List<@NotNull ParseError> filter(@NotNull List<@NotNull ParseError> errors) {
-		final var newList = new ArrayList<>(errors);
+	/**
+	 * Sets whether the error was caused while parsing values in a tuple.
+	 * @param isInTuple whether the error was caused while parsing values in a tuple
+	 */
+	public void setIsInTuple(boolean isInTuple) {
+		 this.isInTuple = isInTuple;
+	}
 
-		for (final var err : errors) {
-			/* if we are going to show an error about an argument being incorrectly used, and that argument is defined
-			 * as required, we don't need to show the required error since its obvious that the user knows that
-			 * the argument is required */
-			if (err.errorType == ParseErrorType.ARG_INCORRECT_VALUE_NUMBER) {
-				newList.removeIf(e ->
-					e.argument != null
-						&& e.argument.equals(err.argument)
-						&& e.errorType == ParseErrorType.REQUIRED_ARGUMENT_NOT_USED
-				);
-			}
-		}
-
-		return newList;
+	/**
+	 * Returns the offset from the token index to the value tokens. Adds 2 if the error was caused while parsing values
+	 * in a tuple.
+	 * @return the offset from the token index to the value tokens
+	 */
+	private int getValueTokensOffset() {
+		return this.valueCount + (this.isInTuple ? 2 : 0); // 2 for the tuple tokens
 	}
 
 	@Handler("ARG_INCORRECT_VALUE_NUMBER")
@@ -78,10 +74,10 @@ public class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 			.setContent("Incorrect number of values for argument '%s'.%nExpected %s, but got %d."
 				.formatted(
 					this.argument.getName(), this.argument.argType.getRequiredArgValueCount().getMessage("value"),
-					Math.max(this.valueCount - 1, 0) // this is done because if there are tuples, the end token is counted as a value (maybe a bit hacky?)
+					this.valueCount
 				)
 			)
-			.displayTokens(this.tokenIndex + 1, this.valueCount, this.valueCount == 0);
+			.displayTokens(this.tokenIndex, this.getValueTokensOffset(), this.getValueTokensOffset() == 0);
 	}
 
 	@Handler("ARG_INCORRECT_USAGES_COUNT")
@@ -95,7 +91,7 @@ public class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 					UtlString.plural("time", this.argument.getUsageCount())
 				)
 			)
-			.displayTokens(this.tokenIndex + 1, this.valueCount, this.valueCount == 0);
+			.displayTokens(this.tokenIndex, this.getValueTokensOffset(), false);
 	}
 
 	@Handler("REQUIRED_ARGUMENT_NOT_USED")
@@ -109,7 +105,7 @@ public class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 					? "Required argument '%s' not used.".formatted(this.argument.getName())
 					: "Required argument '%s' for command '%s' not used.".formatted(this.argument.getName(), argCmd.getName())
 			)
-			.displayTokens(this.tokenIndex + 1);
+			.displayTokens(this.tokenIndex);
 	}
 
 	@Handler("UNMATCHED_TOKEN")
@@ -118,7 +114,7 @@ public class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 			.setContent("Token '%s' does not correspond with a valid argument, value, or command."
 				.formatted(this.getCurrentToken().contents())
 			)
-			.displayTokens(this.tokenIndex, this.valueCount, false);
+			.displayTokens(this.tokenIndex, 0, false);
 	}
 
 	@Handler("MULTIPLE_ARGS_IN_EXCLUSIVE_GROUP_USED")
@@ -127,6 +123,6 @@ public class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 			.setContent("Multiple arguments in exclusive group '%s' used."
 				.formatted(this.argumentGroup.getName())
 			)
-			.displayTokens(this.tokenIndex, this.valueCount, false);
+			.displayTokens(this.tokenIndex, this.getValueTokensOffset(), false);
 	}
 }

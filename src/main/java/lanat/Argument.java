@@ -15,10 +15,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 
 /**
@@ -276,7 +276,10 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 */
 	@Override
 	public void addNames(@NotNull String... names) {
-		Arrays.stream(names)
+		if (names.length == 0)
+			throw new IllegalArgumentException("at least one name must be specified");
+
+		Stream.of(names)
 			.map(UtlString::requireValidName)
 			.peek(n -> {
 				if (this.names.contains(n))
@@ -402,16 +405,6 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * @param values The value array that should be parsed.
 	 */
 	public void parseValues(short tokenIndex, @NotNull String... values) {
-		// check if the argument was used more times than it should
-		if (++this.argType.usageCount > this.argType.getRequiredUsageCount().end()) {
-			this.parentCommand.getParser()
-				.addError(
-					ParseError.ParseErrorType.ARG_INCORRECT_USAGES_COUNT,
-					this, values.length, this.argType.getLastTokenIndex() + 1
-				);
-			return;
-		}
-
 		this.argType.parseAndUpdateValue(tokenIndex, values);
 	}
 
@@ -444,19 +437,30 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * @return {@code true} if the argument was used the correct amount of times.
 	 */
 	private boolean finishParsing$checkUsageCount() {
-		if (this.getUsageCount() == 0) {
-			if (this.required && !this.parentCommand.uniqueArgumentReceivedValue()) {
+		final var usageCount = this.getUsageCount();
+
+		if (usageCount == 0) {
+			if (this.required && !this.parentCommand.uniqueArgumentReceivedValue(this)) {
 				this.parentCommand.getParser().addError(
+					// just show it at the end. doesnt really matter
 					ParseError.ParseErrorType.REQUIRED_ARGUMENT_NOT_USED, this, 0
 				);
-				return false;
 			}
-			// make sure that the argument was used the minimum amount of times specified
-		} else if (this.argType.usageCount < this.argType.getRequiredUsageCount().start()) {
-			this.parentCommand.getParser()
-				.addError(ParseError.ParseErrorType.ARG_INCORRECT_USAGES_COUNT, this, 0);
 			return false;
 		}
+
+		// make sure that the argument was used the minimum number of times specified
+		if (!this.argType.getRequiredUsageCount().isInRangeInclusive(usageCount)) {
+			this.parentCommand.getParser()
+				.addError(
+					ParseError.ParseErrorType.ARG_INCORRECT_USAGES_COUNT,
+					this,
+					this.argType.getLastReceivedValuesNum(),
+					this.argType.getLastTokenIndex()
+				);
+			return false;
+		}
+
 		return true;
 	}
 
@@ -477,7 +481,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 			new ParseError(
 				ParseError.ParseErrorType.MULTIPLE_ARGS_IN_EXCLUSIVE_GROUP_USED,
 				this.argType.getLastTokenIndex(),
-				this, this.argType.getLastReceivedValuesNum()
+				this,
+				this.argType.getLastReceivedValuesNum()
 			)
 			{{
 				this.setArgumentGroup(exclusivityResult);
@@ -513,6 +518,13 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		return this.hasName(Character.toString(name));
 	}
 
+	/**
+	 * Executes the correct or the error callback depending on whether the argument has errors or not.
+	 * <p>
+	 * The correct callback is only executed if the argument has no errors, the usage count is greater than 0, the
+	 *
+	 * @param okValue the value to pass to the correct callback
+	 */
 	// no worries about casting here, it will always receive the correct type
 	@SuppressWarnings("unchecked")
 	void invokeCallbacks(@Nullable Object okValue) {
@@ -525,7 +537,6 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		if (okValue == null
 			|| this.onCorrectCallback == null
 			|| this.getUsageCount() == 0
-			|| (!this.allowUnique && this.parentCommand.uniqueArgumentReceivedValue())
 			|| !this.parentCommand.shouldExecuteCorrectCallback()
 		) return;
 

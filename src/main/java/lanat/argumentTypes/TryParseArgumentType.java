@@ -24,7 +24,7 @@ import java.util.stream.Stream;
 public class TryParseArgumentType<T> extends ArgumentType<T> {
 	private final Function<String, Object> parseMethod;
 	private final @NotNull Class<T> type;
-	private static final String[] TRY_PARSE_METHOD_NAMES = new String[] { "valueOf", "from", "parse" };
+	private static final String[] TRY_PARSE_METHOD_NAMES = { "valueOf", "from", "parse" };
 
 
 	public TryParseArgumentType(@NotNull Class<T> type) {
@@ -45,8 +45,7 @@ public class TryParseArgumentType<T> extends ArgumentType<T> {
 	}
 
 	private boolean isValidMethod(Method method) {
-		return TryParseArgumentType.isValidExecutable(method)
-			&& method.getReturnType() == this.type;
+		return method.getReturnType() == this.type && TryParseArgumentType.isValidExecutable(method);
 	}
 
 
@@ -74,18 +73,20 @@ public class TryParseArgumentType<T> extends ArgumentType<T> {
 		}
 
 		// Otherwise, try to find a constructor that takes a string.
-		final var ctor = Stream.of(this.type.getConstructors())
+		return Stream.of(this.type.getConstructors())
 			.filter(TryParseArgumentType::isValidExecutable)
-			.findFirst();
-
-		return ctor.<Function<String, Object>>map(tConstructor -> input -> {
-			try {
-				return tConstructor.newInstance(input);
-			} catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
-				this.addError(input);
-			}
-			return null;
-		}).orElse(null);
+			.findFirst()
+			.<Function<String, Object>>map(c -> input -> {
+				try {
+					return c.newInstance(input);
+				} catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
+					this.addError(
+						"Unable to instantiate type '" + this.type.getSimpleName() + "' with value '" + input + "'."
+					);
+				}
+				return null;
+			})
+			.orElse(null);
 	}
 
 	@Override

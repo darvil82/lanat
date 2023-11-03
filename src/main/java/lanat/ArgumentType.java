@@ -1,6 +1,9 @@
 package lanat;
 
-import lanat.argumentTypes.*;
+import lanat.argumentTypes.FromParseableArgumentType;
+import lanat.argumentTypes.IntegerArgumentType;
+import lanat.argumentTypes.Parseable;
+import lanat.exceptions.ArgumentTypeException;
 import lanat.parsing.errors.CustomError;
 import lanat.utils.ErrorsContainerImpl;
 import lanat.utils.Range;
@@ -102,6 +105,7 @@ public abstract class ArgumentType<T>
 	 * @param values The values to parse.
 	 */
 	public final void parseAndUpdateValue(short tokenIndex, @NotNull String... values) {
+		this.usageCount++;
 		this.lastTokenIndex = tokenIndex;
 		this.lastReceivedValuesNum = values.length;
 		this.currentValue = this.parseValues(values);
@@ -234,7 +238,7 @@ public abstract class ArgumentType<T>
 	@Override
 	public void addError(@NotNull CustomError error) {
 		if (this.lastTokenIndex == -1) {
-			throw new IllegalStateException("Cannot add an error to an argument that has not been parsed yet.");
+			throw new ArgumentTypeException("Cannot add an error to an argument that has not been parsed yet.");
 		}
 
 		// the index of the error should never be less than 0 or greater than the max value count

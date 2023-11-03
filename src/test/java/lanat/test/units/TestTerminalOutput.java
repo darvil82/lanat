@@ -9,6 +9,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class TestTerminalOutput extends UnitTests {
 	private void assertErrorOutput(String args, String expected) {
 		final var errors = this.parser.parseGetErrors(args);
+		System.out.printf("Test error output:\n%s", errors.get(0));
+
 		// remove all the decorations to not make the tests a pain to write
 		assertEquals(
 			expected,
@@ -17,7 +19,6 @@ public class TestTerminalOutput extends UnitTests {
 				.replaceAll(" *[│─└┌\r] ?", "")
 				.strip()
 		);
-		System.out.printf("Test error output:\n%s", errors.get(0));
 	}
 
 	@Test
@@ -43,7 +44,7 @@ public class TestTerminalOutput extends UnitTests {
 	public void testExceedValueCount() {
 		this.assertErrorOutput("--what [1 2 3 4 5 6 7 8 9 10]", """
 			ERROR
-			Testing --what [ 1 2 3 4 5 6 7 8 9 10 ]
+			Testing -> --what [ 1 2 3 4 5 6 7 8 9 10 ] <-
 			Incorrect number of values for argument 'what'.
 			Expected from 1 to 3 values, but got 10.""");
 	}
@@ -74,7 +75,7 @@ public class TestTerminalOutput extends UnitTests {
 	public void testMissingValueWithTuple() {
 		this.assertErrorOutput("--what []", """
 			ERROR
-			Testing --what [ ]
+			Testing -> --what [ ] <-
 			Incorrect number of values for argument 'what'.
 			Expected from 1 to 3 values, but got 0.""");
 	}
@@ -84,7 +85,7 @@ public class TestTerminalOutput extends UnitTests {
 	public void testInvalidArgumentTypeValue() {
 		this.assertErrorOutput("foo subCommand another bar", """
 			ERROR
-			Testing foo subCommand another bar
+			Testing foo subCommand another bar <-
 			Invalid Integer value: 'bar'.""");
 	}
 
@@ -93,7 +94,7 @@ public class TestTerminalOutput extends UnitTests {
 	public void testUnmatchedToken() {
 		this.assertErrorOutput("[foo] --unknown", """
 			WARNING
-			Testing [ foo ] --unknown
+			Testing [ foo ] --unknown <-
 			Token '--unknown' does not correspond with a valid argument, value, or command.""");
 	}
 
@@ -102,13 +103,13 @@ public class TestTerminalOutput extends UnitTests {
 	public void testIncorrectUsageCount() {
 		this.assertErrorOutput("foo --double-adder 5.0", """
 			ERROR
-			Testing foo --double-adder 5.0 <-
+			Testing foo -> --double-adder 5.0 <-
 			Argument 'double-adder' was used an incorrect amount of times.
 			Expected from 2 to 4 usages, but was used 1 time.""");
 
 		this.assertErrorOutput("foo --double-adder 5.0 --double-adder 5.0 --double-adder 5.0 --double-adder 5.0 --double-adder 5.0", """
 			ERROR
-			Testing foo --double-adder 5.0 --double-adder 5.0 --double-adder 5.0 --double-adder 5.0 --double-adder 5.0
+			Testing foo --double-adder 5.0 --double-adder 5.0 --double-adder 5.0 --double-adder 5.0 -> --double-adder 5.0 <-
 			Argument 'double-adder' was used an incorrect amount of times.
 			Expected from 2 to 4 usages, but was used 5 times.""");
 	}

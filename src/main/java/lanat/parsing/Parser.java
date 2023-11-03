@@ -31,6 +31,11 @@ public class Parser extends ParsingStateBase<ParseError> {
 	private short currentTokenIndex = 0;
 
 	/**
+	 * Whether we are currently parsing values in a tuple.
+	 */
+	private boolean isInTuple = false;
+
+	/**
 	 * The parsed arguments. This is a map of the argument to the value that it parsed. The reason this is saved is that
 	 * we don't want to run {@link Parser#getParsedArgumentsHashMap()} multiple times because that can break stuff badly
 	 * in relation to error handling.
@@ -56,6 +61,12 @@ public class Parser extends ParsingStateBase<ParseError> {
 
 	public @NotNull List<@NotNull CustomError> getCustomErrors() {
 		return this.getErrorsInLevelMinimum(this.customErrors, true);
+	}
+
+	@Override
+	public void addError(@NotNull ParseError error) {
+		error.setIsInTuple(this.isInTuple); // set whether the error was caused while parsing values in a tuple
+		super.addError(error);
 	}
 
 	public void addError(@NotNull ParseError.ParseErrorType type, @Nullable Argument<?, ?> arg, int argValueCount, int currentIndex) {
@@ -150,12 +161,12 @@ public class Parser extends ParsingStateBase<ParseError> {
 			return;
 		}
 
-		final boolean isInTuple = (
+		this.isInTuple = (
 			this.currentTokenIndex < this.tokens.size()
 				&& this.tokens.get(this.currentTokenIndex).type() == TokenType.ARGUMENT_VALUE_TUPLE_START
 		);
 
-		final byte ifTupleOffset = (byte)(isInTuple ? 1 : 0);
+		final byte ifTupleOffset = (byte)(this.isInTuple ? 1 : 0);
 
 		final ArrayList<Token> values = new ArrayList<>();
 		short numValues = 0;
@@ -167,7 +178,7 @@ public class Parser extends ParsingStateBase<ParseError> {
 			numValues++, tokenIndex++
 		) {
 			final Token currentToken = this.tokens.get(tokenIndex);
-			if (!isInTuple && (
+			if (!this.isInTuple && (
 				currentToken.type().isArgumentSpecifier() || numValues >= argNumValuesRange.end()
 			)
 				|| currentToken.type().isTuple()
@@ -179,7 +190,7 @@ public class Parser extends ParsingStateBase<ParseError> {
 		final int skipIndexCount = numValues + ifTupleOffset*2;
 
 		if (numValues > argNumValuesRange.end() || numValues < argNumValuesRange.start()) {
-			this.addError(ParseError.ParseErrorType.ARG_INCORRECT_VALUE_NUMBER, arg, numValues + ifTupleOffset);
+			this.addError(ParseError.ParseErrorType.ARG_INCORRECT_VALUE_NUMBER, arg, numValues);
 			this.currentTokenIndex += skipIndexCount;
 			return;
 		}
@@ -230,21 +241,21 @@ public class Parser extends ParsingStateBase<ParseError> {
 		for (short i = 0; i < args.length(); i++) {
 			final short constIndex = i; // this is because the lambda requires the variable to be final
 
-			if (!this.runForArgument(args.charAt(i), a -> {
+			if (!this.runForArgument(args.charAt(i), argument -> {
 				// if the argument accepts 0 values, then we can just parse it like normal
-				if (a.argType.getRequiredArgValueCount().isZero()) {
-					this.executeArgParse(a);
+				if (argument.argType.getRequiredArgValueCount().isZero()) {
+					this.executeArgParse(argument);
 
 					// -- arguments now may accept 1 or more values from now on:
 
 					// if this argument is the last one in the list, then we can parse the next values after it
 				} else if (constIndex == args.length() - 1) {
 					this.currentTokenIndex++;
-					this.executeArgParse(a);
+					this.executeArgParse(argument);
 
 					// if this argument is not the last one in the list, then we can parse the rest of the chars as the value
 				} else {
-					this.executeArgParse(a, args.substring(constIndex + 1));
+					this.executeArgParse(argument, args.substring(constIndex + 1));
 				}
 			}))
 				return;
@@ -254,14 +265,12 @@ public class Parser extends ParsingStateBase<ParseError> {
 
 	/** Returns the positional argument at the given index of declaration. */
 	private @Nullable Argument<?, ?> getArgumentByPositionalIndex(short index) {
-		final var posArgs = this.command.getPositionalArguments();
+		var posArgs = this.command.getPositionalArguments();
 
-		for (short i = 0; i < posArgs.size(); i++) {
-			if (i == index) {
-				return posArgs.get(i);
-			}
-		}
-		return null;
+		if (index >= posArgs.size())
+			return null;
+
+		return posArgs.get(index);
 	}
 
 	/**

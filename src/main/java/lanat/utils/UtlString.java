@@ -4,8 +4,8 @@ import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 public final class UtlString {
 	private UtlString() {}
@@ -29,7 +29,7 @@ public final class UtlString {
 	 * Get the longest line from the contents of a string. Lines are separated by newlines.
 	 */
 	public static @NotNull String getLongestLine(@NotNull String str) {
-		return Arrays.stream(str.split("\n")).min((a, b) -> b.length() - a.length()).orElse("");
+		return Stream.of(str.split("\n")).min((a, b) -> b.length() - a.length()).orElse("");
 	}
 
 	/**

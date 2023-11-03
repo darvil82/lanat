@@ -7,7 +7,7 @@ import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
+import java.util.stream.Stream;
 
 /**
  * An argument type that takes an enum value.
@@ -65,7 +65,7 @@ public class EnumArgumentType<T extends Enum<T>> extends ArgumentType<T> {
 	@Override
 	public @Nullable String getDescription() {
 		return "Specify one of the following values (case is ignored): "
-			+ String.join(", ", Arrays.stream(this.values).map(Enum::name).toList())
+			+ String.join(", ", Stream.of(this.values).map(Enum::name).toList())
 			+ ". Default is " + this.getInitialValue().name() + ".";
 	}
 }

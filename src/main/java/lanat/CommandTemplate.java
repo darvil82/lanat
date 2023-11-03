@@ -131,6 +131,7 @@ public abstract class CommandTemplate {
 		 * @return The argument builder corresponding to the argument with the given name.
 		 * @param <T> The type of the argument.
 		 * @param <TInner> The type of the value passed to the argument.
+		 * @throws ArgumentNotFoundException If there is no argument with the given name.
 		 */
 		@SuppressWarnings("unchecked")
 		public <T extends ArgumentType<TInner>, TInner>
@@ -208,7 +209,7 @@ public abstract class CommandTemplate {
 		/*
 		 * The reason we add these arguments here is so that they do not "physically" appear in the
 		 * actual class that extends this one. 'help' and 'version' are just
-		 * arguments that execute actions, and they not really provide any useful values.
+		 * arguments that execute actions, and they don't really provide any useful values.
 		 */
 		@InitDef
 		public static void afterInit(@NotNull Command cmd) {

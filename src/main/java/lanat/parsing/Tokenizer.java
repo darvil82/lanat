@@ -217,15 +217,20 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	 */
 	private void tokenizeCurrentValue() {
 		final Token token = this.tokenizeWord(this.currentValue.toString());
-		Command subCmd;
+
 		// if this is a Sub-Command, continue tokenizing next elements
-		if (token.type() == TokenType.COMMAND && (subCmd = this.getSubCommandByName(token.contents())) != null) {
+		if (token.type() == TokenType.COMMAND) {
 			// forward the rest of stuff to the Sub-Command
-			subCmd.getTokenizer().tokenize(this.inputString.substring(this.currentCharIndex));
+			this.getSubCommandByName(token.contents())
+				.getTokenizer()
+				.tokenize(this.inputString.substring(this.currentCharIndex));
+
 			this.hasFinished = true;
 		} else {
+			// otherwise, just add the token to the final tokens list
 			this.finalTokens.add(token);
 		}
+
 		this.currentValue.setLength(0);
 	}
 
@@ -245,7 +250,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 		final var charArray = str.substring(1).toCharArray();
 
 		for (final char argName : charArray) {
-			if (!this.runForArgument(argName, a -> possiblePrefixes.add(a.getPrefix().character)))
+			if (!this.runForArgument(argName, argument -> possiblePrefixes.add(argument.getPrefix().character)))
 				break;
 		}
 
@@ -290,9 +295,8 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	}
 
 	/** Returns a command from the Sub-Commands of {@link Tokenizer#command} that matches the given name */
-	private Command getSubCommandByName(@NotNull String name) {
-		var x = this.getCommands().stream().filter(sc -> sc.hasName(name)).toList();
-		return x.isEmpty() ? null : x.get(0);
+	private @NotNull Command getSubCommandByName(@NotNull String name) {
+		return this.command.getCommand(name);
 	}
 
 	/**

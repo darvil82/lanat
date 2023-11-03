@@ -185,6 +185,10 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 		this.finalTokens.add(new Token(type, String.valueOf(contents)));
 	}
 
+	/**
+	 * Inserts an error at the current token index with the given type.
+	 * @param type The type of the error to insert.
+	 */
 	private void addError(@NotNull TokenizeError.TokenizeErrorType type) {
 		this.addError(type, this.finalTokens.size());
 	}

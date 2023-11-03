@@ -15,10 +15,10 @@ public final class ExampleTest {
 		var parsedArgs = new ArgumentParser("my-program") {{
 			this.setCallbackInvocationOption(CallbacksInvocationOption.NO_ERROR_IN_ARGUMENT);
 			this.addHelpArgument();
-			this.addArgument(Argument.create(new Example1Type(), "user").required().positional());
+			this.addArgument(Argument.create(new Example1Type(), "user", "u").required().positional());
 			this.addArgument(Argument.create(new NumberRangeArgumentType<>(0.0, 15.23), "number").onOk(System.out::println));
 			this.addArgument(Argument.create(new IntegerArgumentType(), "test").onOk(System.out::println).allowsUnique());
-		}}.parse(CLInput.from("-h --number=3' --user [jo test ! hello]"))
+		}}.parse(CLInput.from("-h --number=3 -u [jo ]"))
 			.printErrors()
 			.getParsedArguments();
 

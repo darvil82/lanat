@@ -70,6 +70,9 @@ public class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 	protected void handleIncorrectValueNumber() {
 		assert this.argument != null;
 
+		// offset to just show the value tokens (we don't want to highlight the argument token as well)
+		final var inTupleOffset = this.isInTuple ? 1 : 0;
+
 		this.fmt()
 			.setContent("Incorrect number of values for argument '%s'.%nExpected %s, but got %d."
 				.formatted(
@@ -77,7 +80,11 @@ public class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 					this.valueCount
 				)
 			)
-			.displayTokens(this.tokenIndex, this.getValueTokensOffset(), this.getValueTokensOffset() == 0);
+			.displayTokens(
+				this.tokenIndex + inTupleOffset,
+				this.getValueTokensOffset() - inTupleOffset,
+				this.getValueTokensOffset() == 0
+			);
 	}
 
 	@Handler("ARG_INCORRECT_USAGES_COUNT")

@@ -41,14 +41,13 @@ public class TestTerminalOutput extends UnitTests {
 
 	@Test
 	@DisplayName("Tuple is highlighted correctly")
-	public void testExceedValueCount() {
+	public void testExceedValueCountTuple() {
 		this.assertErrorOutput("--what [1 2 3 4 5 6 7 8 9 10]", """
 			ERROR
-			Testing -> --what [ 1 2 3 4 5 6 7 8 9 10 ] <-
+			Testing --what -> [ 1 2 3 4 5 6 7 8 9 10 ] <-
 			Incorrect number of values for argument 'what'.
 			Expected from 1 to 3 values, but got 10.""");
 	}
-
 
 	@Test
 	@DisplayName("Arrow points to the last token on last argument missing value")
@@ -75,7 +74,7 @@ public class TestTerminalOutput extends UnitTests {
 	public void testMissingValueWithTuple() {
 		this.assertErrorOutput("--what []", """
 			ERROR
-			Testing -> --what [ ] <-
+			Testing --what -> [ ] <-
 			Incorrect number of values for argument 'what'.
 			Expected from 1 to 3 values, but got 0.""");
 	}

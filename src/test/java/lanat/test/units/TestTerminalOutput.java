@@ -112,4 +112,13 @@ public class TestTerminalOutput extends UnitTests {
 			Argument 'double-adder' was used an incorrect amount of times.
 			Expected from 2 to 4 usages, but was used 5 times.""");
 	}
+
+	@Test
+	@DisplayName("Test group exclusivity error")
+	public void testGroupExclusivityError() {
+		this.assertErrorOutput("foo subCommand2 --extra --c 5", """
+			ERROR
+			Testing foo subCommand2 --extra -> --c 5 <-
+			Multiple arguments in exclusive group 'exclusive-group' used.""");
+	}
 }

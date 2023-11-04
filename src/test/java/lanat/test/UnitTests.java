@@ -1,6 +1,7 @@
 package lanat.test;
 
 import lanat.Argument;
+import lanat.ArgumentGroup;
 import lanat.ArgumentType;
 import lanat.Command;
 import lanat.argumentTypes.CounterArgumentType;
@@ -80,7 +81,12 @@ public class UnitTests {
 
 			this.addCommand(new Command("subCommand2") {{
 				this.setErrorCode(0b1000);
-				this.addArgument(Argument.create(new IntegerArgumentType(), 'c').positional());
+
+				this.addGroup(new ArgumentGroup("exclusive-group") {{
+					this.setExclusive(true);
+					this.addArgument(Argument.createOfBoolType("extra"));
+					this.addArgument(Argument.create(new IntegerArgumentType(), 'c').positional());
+				}});
 			}});
 		}};
 	}

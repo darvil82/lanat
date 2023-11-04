@@ -94,7 +94,7 @@ public class TestTerminalOutput extends UnitTests {
 		this.assertErrorOutput("[foo] --unknown", """
 			WARNING
 			Testing [ foo ] --unknown <-
-			Token '--unknown' does not correspond with a valid argument, value, or command.""");
+			Token '--unknown' does not correspond with a valid argument, argument list, value, or command.""");
 	}
 
 	@Test

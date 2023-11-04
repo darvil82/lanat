@@ -11,19 +11,21 @@ import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("unused")
 public class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
-	public final Argument<?, ?> argument;
+	public final @Nullable Argument<?, ?> argument;
 	private final int valueCount;
 	private boolean isInTuple = false;
+	private boolean isInArgNameList = false;
 	private ArgumentGroup argumentGroup;
 
 	public enum ParseErrorType implements ErrorLevelProvider {
 		REQUIRED_ARGUMENT_NOT_USED,
 		UNMATCHED_TOKEN(ErrorLevel.WARNING),
+		UNMATCHED_IN_ARG_NAME_LIST(ErrorLevel.WARNING),
 		ARG_INCORRECT_VALUE_NUMBER,
 		ARG_INCORRECT_USAGES_COUNT,
 		MULTIPLE_ARGS_IN_EXCLUSIVE_GROUP_USED;
 
-		public final @NotNull ErrorLevel level;
+		private final @NotNull ErrorLevel level;
 
 		ParseErrorType() {
 			this.level = ErrorLevel.ERROR;
@@ -58,6 +60,14 @@ public class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 	}
 
 	/**
+	 * Sets whether the error was caused by an argument name list.
+	 * @param isInArgNameList whether the error was caused by an argument name list
+	 */
+	public void setIsInArgNameList(boolean isInArgNameList) {
+		this.isInArgNameList = isInArgNameList;
+	}
+
+	/**
 	 * Returns the offset from the token index to the value tokens. Adds 2 if the error was caused while parsing values
 	 * in a tuple.
 	 * @return the offset from the token index to the value tokens
@@ -79,8 +89,13 @@ public class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 					this.argument.getName(), this.argument.argType.getRequiredArgValueCount().getMessage("value"),
 					this.valueCount
 				)
-			)
-			.displayTokens(
+			);
+
+		if (this.isInArgNameList)
+			// special case for when the error is caused by an argument name list
+			this.fmt().displayTokens(this.tokenIndex, 0, false);
+		else
+			this.fmt().displayTokens(
 				this.tokenIndex + inTupleOffset,
 				this.getValueTokensOffset() - inTupleOffset,
 				this.getValueTokensOffset() == 0
@@ -109,7 +124,7 @@ public class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 		this.fmt()
 			.setContent(
 				argCmd instanceof ArgumentParser
-					? "Required argument '%s' not used.".formatted(this.argument.getName())
+					? "Required argument '" + this.argument.getName() + "' not used."
 					: "Required argument '%s' for command '%s' not used.".formatted(this.argument.getName(), argCmd.getName())
 			)
 			.displayTokens(this.tokenIndex);
@@ -118,8 +133,23 @@ public class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 	@Handler("UNMATCHED_TOKEN")
 	protected void handleUnmatchedToken() {
 		this.fmt()
-			.setContent("Token '%s' does not correspond with a valid argument, value, or command."
-				.formatted(this.getCurrentToken().contents())
+			.setContent(
+				"Token '"
+					+ this.getCurrentToken().contents()
+					+ "' does not correspond with a valid argument, argument list, value, or command."
+			)
+			.displayTokens(this.tokenIndex, 0, false);
+	}
+
+	// here we use valueCount as the offset to the unmatched token, to substr the token contents
+	@Handler("UNMATCHED_IN_ARG_NAME_LIST")
+	protected void handleUnmatchedInArgNameList() {
+		assert this.argument != null;
+
+		this.fmt()
+			.setContent(
+				"Argument '" + this.argument.getName() + "' does not take any values, but got '"
+					+ this.getCurrentToken().contents().substring(this.valueCount) + "'."
 			)
 			.displayTokens(this.tokenIndex, 0, false);
 	}
@@ -127,9 +157,7 @@ public class ParseError extends ParseStateErrorBase<ParseError.ParseErrorType> {
 	@Handler("MULTIPLE_ARGS_IN_EXCLUSIVE_GROUP_USED")
 	protected void handleMultipleArgsInExclusiveGroupUsed() {
 		this.fmt()
-			.setContent("Multiple arguments in exclusive group '%s' used."
-				.formatted(this.argumentGroup.getName())
-			)
+			.setContent("Multiple arguments in exclusive group '" + this.argumentGroup.getName() + "' used.")
 			.displayTokens(this.tokenIndex, this.getValueTokensOffset(), false);
 	}
 }

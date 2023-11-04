@@ -1,25 +1,41 @@
 package lanat.parsing.errors;
 
+import lanat.Argument;
 import lanat.ErrorLevel;
 import lanat.utils.ErrorLevelProvider;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("unused")
 public class TokenizeError extends ParseStateErrorBase<TokenizeError.TokenizeErrorType> {
+	private final @Nullable Argument<?, ?> argument;
+
 	public enum TokenizeErrorType implements ErrorLevelProvider {
 		TUPLE_ALREADY_OPEN,
 		UNEXPECTED_TUPLE_CLOSE,
 		TUPLE_NOT_CLOSED,
-		STRING_NOT_CLOSED;
+		STRING_NOT_CLOSED,
+		SIMILAR_ARGUMENT(ErrorLevel.INFO);
+
+		private final @NotNull ErrorLevel level;
+
+		TokenizeErrorType() {
+			this.level = ErrorLevel.ERROR;
+		}
+
+		TokenizeErrorType(@NotNull ErrorLevel level) {
+			this.level = level;
+		}
 
 		@Override
 		public @NotNull ErrorLevel getErrorLevel() {
-			return ErrorLevel.ERROR;
+			return this.level;
 		}
 	}
 
-	public TokenizeError(@NotNull TokenizeErrorType type, int index) {
+	public TokenizeError(@NotNull TokenizeErrorType type, int index, @Nullable Argument<?, ?> argument) {
 		super(type, index);
+		this.argument = argument;
 	}
 
 	@Handler("TUPLE_ALREADY_OPEN")
@@ -48,5 +64,18 @@ public class TokenizeError extends ParseStateErrorBase<TokenizeError.TokenizeErr
 		this.fmt()
 			.setContent("String not closed.")
 			.displayTokens(this.tokenIndex + 1);
+	}
+
+	@Handler("SIMILAR_ARGUMENT")
+	protected void handleSimilarArgument() {
+		assert this.argument != null;
+
+		this.fmt()
+			.setContent(
+				"Found argument with name given, but with a different prefix ("
+					+ this.argument.getPrefix().character
+					+ ")."
+			)
+			.displayTokens(this.tokenIndex, 0, false);
 	}
 }

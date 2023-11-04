@@ -217,6 +217,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * Specify the prefix of this argument. By default, this is {@link PrefixChar#MINUS}. If this argument is used in an
 	 * argument name list (-abc), the prefix that will be valid is any against all the arguments specified in that name
 	 * list.
+	 * <p>
+	 * Note that, for ease of use, the prefixes defined in {@link PrefixChar#COMMON_PREFIXES} are also valid.
 	 *
 	 * @param prefixChar the prefix that should be used for this argument.
 	 * @see PrefixChar
@@ -668,6 +670,10 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 		public final char character;
 		public static @NotNull PrefixChar defaultPrefix = PrefixChar.AUTO;
+
+		/** Prefixes that a user may be familiar with. */
+		public static final @NotNull PrefixChar[] COMMON_PREFIXES = { MINUS, SLASH };
+
 
 		private PrefixChar(char character) {
 			this.character = character;

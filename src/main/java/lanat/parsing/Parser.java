@@ -213,11 +213,6 @@ public class Parser extends ParsingStateBase<ParseError> {
 	private void executeArgParse(@NotNull Argument<?, ?> arg, @Nullable String value) {
 		final Range argumentValuesRange = arg.argType.getRequiredArgValueCount();
 
-		if (value == null || value.isEmpty()) {
-			this.executeArgParse(arg); // value is not present in the suffix of the argList. Continue parsing values.
-			return;
-		}
-
 		// just skip the whole thing if it doesn't need any values
 		if (argumentValuesRange.isZero()) {
 			arg.parseValues(this.currentTokenIndex);
@@ -225,10 +220,24 @@ public class Parser extends ParsingStateBase<ParseError> {
 		}
 
 		if (argumentValuesRange.start() > 1) {
-			this.addError(ParseError.ParseErrorType.ARG_INCORRECT_VALUE_NUMBER, arg, 0);
+			this.addError(
+				new ParseError(
+					ParseError.ParseErrorType.ARG_INCORRECT_VALUE_NUMBER,
+					this.currentTokenIndex + 1,
+					arg,
+					1
+				) {{
+					this.setIsInArgNameList(true); // set that the error was caused by an argument name list
+				}}
+			);
 			return;
 		}
 
+		if (value == null || value.isEmpty()) {
+			this.executeArgParse(arg); // value is not present in the suffix of the argList. Continue parsing values.
+			return;
+		}
+		
 		// pass the arg values to the argument subParser
 		arg.parseValues(this.currentTokenIndex, value);
 	}
@@ -237,30 +246,44 @@ public class Parser extends ParsingStateBase<ParseError> {
 	 * Parses the given string as a list of single-char argument names.
 	 */
 	private void parseArgNameList(@NotNull String args) {
+		var doSkipToken = true; // atomic because we need to modify it in the lambda
+		Argument<?, ?> lastArgument = null;
+
 		// its multiple of them. We can only do this with arguments that accept 0 values.
 		for (short i = 0; i < args.length(); i++) {
-			final short constIndex = i; // this is because the lambda requires the variable to be final
+			var argument = this.getArgument(args.charAt(i));
 
-			if (!this.runForArgument(args.charAt(i), argument -> {
-				// if the argument accepts 0 values, then we can just parse it like normal
-				if (argument.argType.getRequiredArgValueCount().isZero()) {
-					this.executeArgParse(argument);
+			if (argument == null) {
+				this.addError(
+					ParseError.ParseErrorType.UNMATCHED_IN_ARG_NAME_LIST,
+					lastArgument,
+					i + 1, // substr for the current token
+					this.currentTokenIndex + 1 // the next token is the one that caused the error
+				);
+				break;
+			}
 
-					// -- arguments now may accept 1 or more values from now on:
+			// if the argument accepts 0 values, then we can just parse it like normal
+			if (argument.argType.getRequiredArgValueCount().isZero()) {
+				this.executeArgParse(argument);
 
-					// if this argument is the last one in the list, then we can parse the next values after it
-				} else if (constIndex == args.length() - 1) {
-					this.currentTokenIndex++;
-					this.executeArgParse(argument);
+				// -- arguments now may accept 1 or more values from now on:
 
-					// if this argument is not the last one in the list, then we can parse the rest of the chars as the value
-				} else {
-					this.executeArgParse(argument, args.substring(constIndex + 1));
-				}
-			}))
-				return;
+				// if this argument is the last one in the list, then we can parse the next values after it
+			} else if (i == args.length() - 1) {
+				this.currentTokenIndex++;
+				this.executeArgParse(argument);
+				doSkipToken = false; // we don't want to skip the next token because executeArgParse already did that
+
+				// if this argument is not the last one in the list, then we can parse the rest of the chars as the value
+			} else {
+				this.executeArgParse(argument, args.substring(i + 1));
+			}
+
+			lastArgument = argument;
 		}
-		this.currentTokenIndex++;
+
+		if (doSkipToken) this.currentTokenIndex++;
 	}
 
 	/** Returns the positional argument at the given index of declaration. */

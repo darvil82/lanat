@@ -13,18 +13,19 @@ import java.util.List;
 public class Pretty extends ErrorFormatter.Generator {
 	@Override
 	public @NotNull String generate() {
-		// first figure out the length of the longest line
-		final var maxLength = UtlString.getLongestLine(this.getContents()).length();
+		final var contents = this.getContentsWrapped();
 		final var formatter = this.getErrorLevelFormatter();
 		final String tokensFormatting = this.getTokensView();
+
+		final var longestLineLength = UtlString.getLongestLine(contents).length();
 
 		return formatter.withContents(" ┌─%s".formatted(this.getErrorLevel())).toString()
 			// only add a new line if there are tokens to display
 			+ (tokensFormatting.isEmpty() ? "" : "\n" + tokensFormatting)
 			// first insert a vertical bar at the start of each line
-			+ this.getContentsWrapped().replaceAll("^|\\n", formatter.withContents("\n │ ").toString())
+			+ contents.replaceAll("^|\\n", formatter.withContents("\n │ ").toString())
 			// then insert a horizontal bar at the end, with the length of the longest line approximately
-			+ formatter.withContents("\n └" + "─".repeat(Math.max(maxLength - 5, 0)) + " ───── ── ─")
+			+ formatter.withContents("\n └" + "─".repeat(Math.max(longestLineLength - 5, 0)) + " ───── ── ─")
 			+ '\n';
 	}
 

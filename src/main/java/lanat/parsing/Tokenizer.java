@@ -1,12 +1,16 @@
 package lanat.parsing;
 
+import lanat.Argument;
 import lanat.Command;
 import lanat.parsing.errors.TokenizeError;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	/** Are we currently within a tuple? */
@@ -38,11 +42,6 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 		super(command);
 	}
 
-	// ------------------------------------------------ Error Handling ------------------------------------------------
-	void addError(@NotNull TokenizeError.TokenizeErrorType type, int index) {
-		this.addError(new TokenizeError(type, index));
-	}
-	// ------------------------------------------------ ////////////// ------------------------------------------------
 
 	private void setInputString(@NotNull String inputString) {
 		this.inputString = inputString;
@@ -186,14 +185,6 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	}
 
 	/**
-	 * Inserts an error at the current token index with the given type.
-	 * @param type The type of the error to insert.
-	 */
-	private void addError(@NotNull TokenizeError.TokenizeErrorType type) {
-		this.addError(type, this.finalTokens.size());
-	}
-
-	/**
 	 * Tokenizes a single word and returns the token matching it. If no match could be found, returns
 	 * {@link TokenType#ARGUMENT_VALUE}
 	 */
@@ -209,6 +200,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 		} else if (this.isSubCommand(str)) {
 			type = TokenType.COMMAND;
 		} else {
+			this.checkForSimilar(str);
 			type = TokenType.ARGUMENT_VALUE;
 		}
 
@@ -250,17 +242,26 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	 * </p>
 	 */
 	private boolean isArgNameList(@NotNull String str) {
-		if (str.length() < 2) return false;
+		if (str.length() < 2 || !Character.isAlphabetic(str.charAt(1))) return false;
 
-		final var possiblePrefixes = new ArrayList<Character>();
-		final var charArray = str.substring(1).toCharArray();
+		// store the possible prefixes. Start with the common ones (single and double dash)
+		// We add the common prefixes because it can be confusing for the user to have to put a specific prefix
+		// used by any argument in the name list
+		final var possiblePrefixes = new HashSet<>(Arrays.asList(Argument.PrefixChar.COMMON_PREFIXES));
+		int foundArgs = 0; // how many characters in the string are valid arguments
 
-		for (final char argName : charArray) {
-			if (!this.runForArgument(argName, argument -> possiblePrefixes.add(argument.getPrefix().character)))
+		// iterate over the characters in the string, starting from the second one (the first one is the prefix)
+		for (final char argName : str.substring(1).toCharArray()) {
+			// if an argument is found with that char name, append its prefix to the possible prefixes
+			// and increment the foundArgs counter.
+			// If no argument is found, stop checking
+			if (!this.runForArgument(argName, argument -> possiblePrefixes.add(argument.getPrefix())))
 				break;
+			foundArgs++;
 		}
 
-		return possiblePrefixes.size() >= 1 && possiblePrefixes.contains(str.charAt(0));
+		// if there's at least one argument and the first character is a valid prefix, return true
+		return foundArgs >= 1 && possiblePrefixes.stream().anyMatch(p -> p.character == str.charAt(0));
 	}
 
 	/**
@@ -285,6 +286,35 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	/** Returns {@code true} if the given string is a Sub-Command name */
 	private boolean isSubCommand(@NotNull String str) {
 		return this.getCommands().stream().anyMatch(c -> c.hasName(str));
+	}
+
+	/**
+	 * Checks if the given string is similar to any of the argument names.
+	 * <p>
+	 * If so, adds an error to the error list.
+	 * @param str The string to check.
+	 */
+	private void checkForSimilar(@NotNull String str) {
+		// if the string is too short, don't bother checking
+		if (str.length() < 2) return;
+
+		// check for the common prefixes
+		Stream.of(Argument.PrefixChar.COMMON_PREFIXES)
+			.map(c -> c.character)
+			.forEach(checkPrefix -> {
+				// if not present, don't bother checking
+				if (str.charAt(0) != checkPrefix) return;
+
+				// get rid of the prefix (single or double)
+				final var nameToCheck = str.substring(str.charAt(1) == checkPrefix ? 2 : 1);
+
+				for (var arg : this.getArguments()) {
+					if (!arg.hasName(nameToCheck)) continue;
+
+					// offset 1 because this is called before a token is pushed
+					this.addError(TokenizeError.TokenizeErrorType.SIMILAR_ARGUMENT, arg, 1);
+				}
+			});
 	}
 
 	/**
@@ -338,5 +368,26 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 
 	public boolean isFinishedTokenizing() {
 		return this.hasFinished;
+	}
+
+
+	// ------------------------------------------------ Error Handling ------------------------------------------------
+
+	/**
+	 * Inserts an error at the current token index with the given type.
+	 * @param type The type of the error to insert.
+	 */
+	private void addError(@NotNull TokenizeError.TokenizeErrorType type) {
+		this.addError(type, null, 0);
+	}
+
+	/**
+	 * Inserts an error at the current token index with the given type and argument.
+	 * @param type The type of the error to insert.
+	 * @param argument The argument that caused the error.
+	 * @param indexOffset The offset from the current token index to the token that caused the error.
+	 */
+	private void addError(@NotNull TokenizeError.TokenizeErrorType type, @Nullable Argument<?, ?> argument, int indexOffset) {
+		this.addError(new TokenizeError(type, this.finalTokens.size() + indexOffset, argument));
 	}
 }

@@ -14,8 +14,10 @@ jobs:
     env:
       CI_GITHUB: 'x'
       CI_GITHUB_BRANCH: ${{ github.ref_name }}
-      CI_GITHUB_USERNAME: ${{ github.actor }}
-      CI_GITHUB_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+      ORG_GRADLE_PROJECT_GithubUsername: ${{ github.actor }}
+      ORG_GRADLE_PROJECT_GithubPassword: ${{ secrets.GITHUB_TOKEN }}
+      ORG_GRADLE_PROJECT_RepsyUsername: darvil
+      ORG_GRADLE_PROJECT_RepsyPassword: ${{ secrets.REPSY_PASSWORD }}
 
     runs-on: ubuntu-latest
 

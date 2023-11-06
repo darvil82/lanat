@@ -27,12 +27,15 @@ repositories {
 publishing {
 	repositories {
 		maven {
-			name = "github"
+			name = "Github"
 			url = uri("https://maven.pkg.github.com/darvil82/Lanat")
-			credentials {
-				username = System.getenv("CI_GITHUB_USERNAME")
-				password = System.getenv("CI_GITHUB_PASSWORD")
-			}
+			credentials(PasswordCredentials::class)
+		}
+
+		maven {
+			name = "Repsy"
+			url = uri("https://repsy.io/mvn/darvil/lanat")
+			credentials(PasswordCredentials::class)
 		}
 	}
 
@@ -40,6 +43,10 @@ publishing {
 		register<MavenPublication>("gpr") {
 			from(components["java"])
 			artifactId = rootProject.name
+		}
+
+		create<MavenPublication>("mavenJava") {
+			from(components["java"])
 		}
 	}
 }

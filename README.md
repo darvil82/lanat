@@ -1,7 +1,16 @@
-# Lanat
+<div align="center">
+	<div>
+		<img src="https://github.com/DarviL82/Lanat/assets/48654552/33f9a03d-1ce3-49f0-839d-475e35d9e816" width="450">
+	</div>
+	<br>
+	<strong>
+		A command line argument parser for Java 17 with <br>
+		ease of use and high customization possibilities in mind.
+	</strong>
+</div>
 
-Lanat is a command line argument parser for Java 17 with ease  of use and high customization
-possibilities in mind.
+<br><br>
+
 
 ### Examples
 Here is an example of a simple argument parser definition.
@@ -80,9 +89,9 @@ The package is currently only available on GitHub Packages.
 
     ```kotlin
     implementation("darvil:lanat")
-    ```
-
-    Note that you may need to explicitly specify the version of the package you want to use. (e.g. `darvil:lanat:x.x.x`)
+    ``` 
+	> [!NOTE]
+	> You may need to explicitly specify the version of the package you want to use. (e.g. `darvil:lanat:x.x.x`).
 
 This information is available at the [GitHub Packages documentation](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-gradle-registry#using-a-published-package).
 

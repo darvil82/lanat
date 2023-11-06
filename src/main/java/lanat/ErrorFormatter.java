@@ -72,20 +72,20 @@ public class ErrorFormatter {
 	/**
 	 * Indicates the generator to display all tokens.
 	 * <p>
-	 * Tokens between the index {@code start} and the {@code offset} from it will be highlighted. If {@code placeArrow}
+	 * Tokens between the index {@code start} and the {@code offsetEnd} from it will be highlighted. If {@code showArrows}
 	 * is {@code true}, an arrow will be placed at each token index in that range.
 	 * </p>
 	 * @param start The index of the first token to highlight.
-	 * @param offset The number of tokens to highlight after the token at the index {@code start}. A value of {@code 0}
+	 * @param offsetEnd The number of tokens to highlight after the token at the index {@code start}. A value of {@code 0}
 	 *  may be used to highlight only the token at the index {@code start}.
-	 * @param placeArrow Whether to place an arrow at each token index in the range.
+	 * @param showArrows Whether to place an arrow at each token index in the range.
 	 */
-	public ErrorFormatter displayTokens(int start, int offset, boolean placeArrow) {
+	public ErrorFormatter displayTokens(int start, int offsetEnd, boolean showArrows) {
 		final var startTokenIndex = this.mainErrorHandler.getAbsoluteCmdTokenIndex() + start;
 
 		this.tokensViewOptions = new DisplayTokensOptions(
-			Range.from(startTokenIndex).to(startTokenIndex + offset),
-			placeArrow
+			Range.from(startTokenIndex).to(startTokenIndex + offsetEnd),
+			showArrows
 		);
 		return this;
 	}
@@ -102,7 +102,7 @@ public class ErrorFormatter {
 	/**
 	 * Options used to display tokens.
 	 */
-	public record DisplayTokensOptions(@NotNull Range tokensRange, boolean placeArrow) { }
+	public record DisplayTokensOptions(@NotNull Range tokensRange, boolean showArrows) { }
 
 
 	/**

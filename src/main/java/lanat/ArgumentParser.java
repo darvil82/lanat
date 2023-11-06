@@ -12,7 +12,6 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -151,18 +150,16 @@ public class ArgumentParser extends Command {
 	@SuppressWarnings("unchecked")
 	private static <T extends CommandTemplate>
 	void from$setCommands(@NotNull Class<T> templateClass, @NotNull Command parentCommand) {
-		final var commandDefs = Arrays.stream(templateClass.getDeclaredClasses())
+		Stream.of(templateClass.getDeclaredClasses())
 			.filter(c -> c.isAnnotationPresent(Command.Define.class))
 			.filter(c -> Modifier.isStatic(c.getModifiers()))
 			.filter(CommandTemplate.class::isAssignableFrom)
 			.map(c -> (Class<? extends CommandTemplate>)c)
-			.toList();
-
-		for (var commandDef : commandDefs) {
-			var command = new Command(commandDef);
-			parentCommand.addCommand(command);
-			ArgumentParser.from$setCommands(commandDef, command);
-		}
+			.forEach(cmdDef -> {
+				var command = new Command(cmdDef);
+				parentCommand.addCommand(command);
+				ArgumentParser.from$setCommands(cmdDef, command);
+			});
 	}
 
 
@@ -181,10 +178,14 @@ public class ArgumentParser extends Command {
 		// pass the properties of this Sub-Command to its children recursively (most of the time this is what the user will want)
 		this.passPropertiesToChildren();
 		this.tokenize(input.args); // first. This will tokenize all Sub-Commands recursively
-		var errorHandler = new ErrorHandler(this);
-		this.parseTokens(); // same thing, this parses all the stuff recursively
 
-		this.invokeCallbacks();
+		var errorHandler = new ErrorHandler(this);
+
+		// do not parse anything if there are any errors in the tokenizer
+		if (!this.getTokenizer().hasExitErrors()) {
+			this.parseTokens(); // same thing, this parses all the stuff recursively
+			this.invokeCallbacks();
+		}
 
 		this.isParsed = true;
 
@@ -356,78 +357,90 @@ public class ArgumentParser extends Command {
 
 		/**
 		 * {@link #into(Class)} helper method.
-		 * @param clazz The Command Template class to instantiate.
+		 * @param templateClass The Command Template class to instantiate.
 		 * @param parsedArgs The parsed arguments to set the fields of the Command Template class.
 		 */
 		private static <T extends CommandTemplate> T into(
-			@NotNull Class<T> clazz,
+			@NotNull Class<T> templateClass,
 			@NotNull ParsedArguments parsedArgs
 		)
 		{
-			final T instance = UtlReflection.instantiate(clazz);
+			final T instance = UtlReflection.instantiate(templateClass);
 
-			Stream.of(clazz.getFields())
+			// set the values of the fields
+			Stream.of(templateClass.getFields())
 				.filter(f -> f.isAnnotationPresent(Argument.Define.class))
-				.forEach(f -> {
-					final var annotation = f.getAnnotation(Argument.Define.class);
-
-					// get the name of the argument from the annotation or field name
-					final String argName = annotation.names().length == 0 ? f.getName() : annotation.names()[0];
-
-					final @NotNull Optional<?> parsedValue = parsedArgs.get(argName);
-
-					try {
-						// if the field has a value already set and the parsed value is empty, skip it (keep the old value)
-						if (parsedValue.isEmpty() && f.get(instance) != null)
-							return;
-
-						// if the type of the field is an Optional, wrap the value in it.
-						// otherwise, just set the value
-						f.set(
-							instance,
-							f.getType().isAssignableFrom(Optional.class)
-								? parsedValue
-								: AfterParseOptions.into$getNewFieldValue(f, parsedValue)
-						);
-					} catch (IllegalArgumentException e) {
-						if (parsedValue.isEmpty())
-							throw new IncompatibleCommandTemplateType(
-								"Field '" + f.getName() + "' of type '" + f.getType().getSimpleName() + "' does not"
-									+ " accept null values, but the parsed argument '" + argName + "' is null"
-							);
-
-						throw new IncompatibleCommandTemplateType(
-							"Field '" + f.getName() + "' of type '" + f.getType().getSimpleName() + "' is not "
-								+ "compatible with the type (" + parsedValue.get().getClass().getSimpleName() + ") of the "
-								+ "parsed argument '" + argName + "'"
-						);
-
-					} catch (IllegalAccessException e) {
-						throw new RuntimeException(e);
-					}
-				});
+				.forEach(field -> AfterParseOptions.into$setFieldValue(field, parsedArgs, instance));
 
 			// now handle the sub-command field accessors (if any)
-			final var declaredClasses = Stream.of(clazz.getDeclaredClasses())
+			Stream.of(templateClass.getDeclaredClasses())
 				.filter(c -> c.isAnnotationPresent(Command.Define.class))
-				.toList();
+				.forEach(cmdDef -> {
+					var commandAccesorField = Stream.of(templateClass.getDeclaredFields())
+						.filter(f -> f.isAnnotationPresent(CommandTemplate.CommandAccessor.class))
+						.filter(f -> f.getType() == cmdDef)
+						.findFirst()
+						.orElseThrow(() -> {
+							throw new CommandTemplateException(
+								"The class '" + cmdDef.getSimpleName() + "' is annotated with @Command.Define but it's "
+									+ "enclosing class does not have a field annotated with @CommandAccessor"
+							);
+						});
 
-			for (var cls : declaredClasses) {
-				final var field = Stream.of(clazz.getDeclaredFields())
-					.filter(f -> f.isAnnotationPresent(CommandTemplate.CommandAccessor.class))
-					.filter(f -> f.getType() == cls)
-					.findFirst()
-					.orElseThrow(() -> {
-						throw new CommandTemplateException(
-							"The class '" + cls.getSimpleName() + "' is annotated with @Command.Define but it's "
-								+ "enclosing class does not have a field annotated with @CommandAccessor"
-						);
-					});
-
-				AfterParseOptions.into$handleCommandAccessor(instance, field, parsedArgs);
-			}
+					AfterParseOptions.into$handleCommandAccessor(instance, commandAccesorField, parsedArgs);
+				});
 
 			return instance;
+		}
+
+		/**
+		 * {@link #into(Class)} helper method. Sets the value of the given field based on the parsed arguments.
+		 * @param field The field to set the value of.
+		 * @param parsedArgs The parsed arguments to set the field value from.
+		 * @param instance The instance of the current Command Template class.
+		 * @param <T> The type of the Command Template class.
+		 */
+		private static <T extends CommandTemplate> void into$setFieldValue(
+			@NotNull Field field,
+			@NotNull ParsedArguments parsedArgs,
+			@NotNull T instance
+		) {
+			final var annotation = field.getAnnotation(Argument.Define.class);
+
+			// get the name of the argument from the annotation or field name
+			final String argName = annotation.names().length == 0 ? field.getName() : annotation.names()[0];
+
+			final @NotNull Optional<?> parsedValue = parsedArgs.get(argName);
+
+			try {
+				// if the field has a value already set and the parsed value is empty, skip it (keep the old value)
+				if (parsedValue.isEmpty() && field.get(instance) != null)
+					return;
+
+				// if the type of the field is an Optional, wrap the value in it.
+				// otherwise, just set the value
+				field.set(
+					instance,
+					field.getType().isAssignableFrom(Optional.class)
+						? parsedValue
+						: AfterParseOptions.into$getNewFieldValue(field, parsedValue)
+				);
+			} catch (IllegalArgumentException e) {
+				if (parsedValue.isEmpty())
+					throw new IncompatibleCommandTemplateType(
+						"Field '" + field.getName() + "' of type '" + field.getType().getSimpleName() + "' does not"
+							+ " accept null values, but the parsed argument '" + argName + "' is null"
+					);
+
+				throw new IncompatibleCommandTemplateType(
+					"Field '" + field.getName() + "' of type '" + field.getType().getSimpleName() + "' is not "
+						+ "compatible with the type (" + parsedValue.get().getClass().getSimpleName() + ") of the "
+						+ "parsed argument '" + argName + "'"
+				);
+
+			} catch (IllegalAccessException e) {
+				throw new RuntimeException(e);
+			}
 		}
 
 		/**

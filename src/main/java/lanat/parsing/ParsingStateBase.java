@@ -5,6 +5,7 @@ import lanat.Command;
 import lanat.utils.ErrorLevelProvider;
 import lanat.utils.ErrorsContainerImpl;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -22,21 +23,20 @@ public abstract class ParsingStateBase<T extends ErrorLevelProvider> extends Err
 	/**
 	 * Executes a callback for the argument found by the name specified.
 	 *
-	 * @return <a>ParseErrorType.ArgumentNotFound</a> if an argument was found
+	 * @return {@code true} if an argument was found
 	 */
 	protected boolean runForArgument(@NotNull String argName, @NotNull Consumer<@NotNull Argument<?, ?>> f) {
-		for (final var argument : this.getArguments()) {
-			if (argument.checkMatch(argName)) {
-				f.accept(argument);
-				return true;
-			}
+		var arg = this.getArgument(argName);
+		if (arg != null) {
+			f.accept(arg);
+			return true;
 		}
 		return false;
 	}
 
 
 	/**
-	 * Executes a callback for the argument found by the name specified.
+	 * Executes a callback for the argument found by the single character name specified.
 	 *
 	 * @return {@code true} if an argument was found
 	 */
@@ -47,13 +47,40 @@ public abstract class ParsingStateBase<T extends ErrorLevelProvider> extends Err
 	 * I don't really want to make "checkMatch" have different behavior depending on the length of the string, so
 	 * an overload seems better. */
 	protected boolean runForArgument(char argName, @NotNull Consumer<@NotNull Argument<?, ?>> f) {
-		for (final var argument : this.getArguments()) {
-			if (argument.checkMatch(argName)) {
-				f.accept(argument);
-				return true;
-			}
+		var arg = this.getArgument(argName);
+		if (arg != null) {
+			f.accept(arg);
+			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Returns the argument found by the single character name specified.
+	 * @param argName the name of the argument to find
+	 * @return the argument found, or {@code null} if no argument was found
+	 */
+	protected @Nullable Argument<?, ?> getArgument(char argName) {
+		for (final var argument : this.getArguments()) {
+			if (argument.checkMatch(argName)) {
+				return argument;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Returns the argument found by the name specified.
+	 * @param argName the name of the argument to find
+	 * @return the argument found, or {@code null} if no argument was found
+	 */
+	protected @Nullable Argument<?, ?> getArgument(String argName) {
+		for (final var argument : this.getArguments()) {
+			if (argument.checkMatch(argName)) {
+				return argument;
+			}
+		}
+		return null;
 	}
 
 	protected @NotNull List<@NotNull Argument<?, ?>> getArguments() {

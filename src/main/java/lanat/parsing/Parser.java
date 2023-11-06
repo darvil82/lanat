@@ -31,6 +31,11 @@ public class Parser extends ParsingStateBase<ParseError> {
 	private short currentTokenIndex = 0;
 
 	/**
+	 * Whether we are currently parsing values in a tuple.
+	 */
+	private boolean isInTuple = false;
+
+	/**
 	 * The parsed arguments. This is a map of the argument to the value that it parsed. The reason this is saved is that
 	 * we don't want to run {@link Parser#getParsedArgumentsHashMap()} multiple times because that can break stuff badly
 	 * in relation to error handling.
@@ -56,6 +61,12 @@ public class Parser extends ParsingStateBase<ParseError> {
 
 	public @NotNull List<@NotNull CustomError> getCustomErrors() {
 		return this.getErrorsInLevelMinimum(this.customErrors, true);
+	}
+
+	@Override
+	public void addError(@NotNull ParseError error) {
+		error.setIsInTuple(this.isInTuple); // set whether the error was caused while parsing values in a tuple
+		super.addError(error);
 	}
 
 	public void addError(@NotNull ParseError.ParseErrorType type, @Nullable Argument<?, ?> arg, int argValueCount, int currentIndex) {
@@ -150,12 +161,12 @@ public class Parser extends ParsingStateBase<ParseError> {
 			return;
 		}
 
-		final boolean isInTuple = (
+		this.isInTuple = (
 			this.currentTokenIndex < this.tokens.size()
 				&& this.tokens.get(this.currentTokenIndex).type() == TokenType.ARGUMENT_VALUE_TUPLE_START
 		);
 
-		final byte ifTupleOffset = (byte)(isInTuple ? 1 : 0);
+		final byte ifTupleOffset = (byte)(this.isInTuple ? 1 : 0);
 
 		final ArrayList<Token> values = new ArrayList<>();
 		short numValues = 0;
@@ -167,7 +178,7 @@ public class Parser extends ParsingStateBase<ParseError> {
 			numValues++, tokenIndex++
 		) {
 			final Token currentToken = this.tokens.get(tokenIndex);
-			if (!isInTuple && (
+			if (!this.isInTuple && (
 				currentToken.type().isArgumentSpecifier() || numValues >= argNumValuesRange.end()
 			)
 				|| currentToken.type().isTuple()
@@ -179,7 +190,7 @@ public class Parser extends ParsingStateBase<ParseError> {
 		final int skipIndexCount = numValues + ifTupleOffset*2;
 
 		if (numValues > argNumValuesRange.end() || numValues < argNumValuesRange.start()) {
-			this.addError(ParseError.ParseErrorType.ARG_INCORRECT_VALUE_NUMBER, arg, numValues + ifTupleOffset);
+			this.addError(ParseError.ParseErrorType.ARG_INCORRECT_VALUE_NUMBER, arg, numValues);
 			this.currentTokenIndex += skipIndexCount;
 			return;
 		}
@@ -202,11 +213,6 @@ public class Parser extends ParsingStateBase<ParseError> {
 	private void executeArgParse(@NotNull Argument<?, ?> arg, @Nullable String value) {
 		final Range argumentValuesRange = arg.argType.getRequiredArgValueCount();
 
-		if (value == null || value.isEmpty()) {
-			this.executeArgParse(arg); // value is not present in the suffix of the argList. Continue parsing values.
-			return;
-		}
-
 		// just skip the whole thing if it doesn't need any values
 		if (argumentValuesRange.isZero()) {
 			arg.parseValues(this.currentTokenIndex);
@@ -214,10 +220,24 @@ public class Parser extends ParsingStateBase<ParseError> {
 		}
 
 		if (argumentValuesRange.start() > 1) {
-			this.addError(ParseError.ParseErrorType.ARG_INCORRECT_VALUE_NUMBER, arg, 0);
+			this.addError(
+				new ParseError(
+					ParseError.ParseErrorType.ARG_INCORRECT_VALUE_NUMBER,
+					this.currentTokenIndex + 1,
+					arg,
+					1
+				) {{
+					this.setIsInArgNameList(true); // set that the error was caused by an argument name list
+				}}
+			);
 			return;
 		}
 
+		if (value == null || value.isEmpty()) {
+			this.executeArgParse(arg); // value is not present in the suffix of the argList. Continue parsing values.
+			return;
+		}
+		
 		// pass the arg values to the argument subParser
 		arg.parseValues(this.currentTokenIndex, value);
 	}
@@ -226,42 +246,54 @@ public class Parser extends ParsingStateBase<ParseError> {
 	 * Parses the given string as a list of single-char argument names.
 	 */
 	private void parseArgNameList(@NotNull String args) {
+		var doSkipToken = true; // atomic because we need to modify it in the lambda
+		Argument<?, ?> lastArgument = null;
+
 		// its multiple of them. We can only do this with arguments that accept 0 values.
 		for (short i = 0; i < args.length(); i++) {
-			final short constIndex = i; // this is because the lambda requires the variable to be final
+			var argument = this.getArgument(args.charAt(i));
 
-			if (!this.runForArgument(args.charAt(i), a -> {
-				// if the argument accepts 0 values, then we can just parse it like normal
-				if (a.argType.getRequiredArgValueCount().isZero()) {
-					this.executeArgParse(a);
+			if (argument == null) {
+				this.addError(
+					ParseError.ParseErrorType.UNMATCHED_IN_ARG_NAME_LIST,
+					lastArgument,
+					i + 1, // substr for the current token
+					this.currentTokenIndex + 1 // the next token is the one that caused the error
+				);
+				break;
+			}
 
-					// -- arguments now may accept 1 or more values from now on:
+			// if the argument accepts 0 values, then we can just parse it like normal
+			if (argument.argType.getRequiredArgValueCount().isZero()) {
+				this.executeArgParse(argument);
 
-					// if this argument is the last one in the list, then we can parse the next values after it
-				} else if (constIndex == args.length() - 1) {
-					this.currentTokenIndex++;
-					this.executeArgParse(a);
+				// -- arguments now may accept 1 or more values from now on:
 
-					// if this argument is not the last one in the list, then we can parse the rest of the chars as the value
-				} else {
-					this.executeArgParse(a, args.substring(constIndex + 1));
-				}
-			}))
-				return;
+				// if this argument is the last one in the list, then we can parse the next values after it
+			} else if (i == args.length() - 1) {
+				this.currentTokenIndex++;
+				this.executeArgParse(argument);
+				doSkipToken = false; // we don't want to skip the next token because executeArgParse already did that
+
+				// if this argument is not the last one in the list, then we can parse the rest of the chars as the value
+			} else {
+				this.executeArgParse(argument, args.substring(i + 1));
+			}
+
+			lastArgument = argument;
 		}
-		this.currentTokenIndex++;
+
+		if (doSkipToken) this.currentTokenIndex++;
 	}
 
 	/** Returns the positional argument at the given index of declaration. */
 	private @Nullable Argument<?, ?> getArgumentByPositionalIndex(short index) {
-		final var posArgs = this.command.getPositionalArguments();
+		var posArgs = this.command.getPositionalArguments();
 
-		for (short i = 0; i < posArgs.size(); i++) {
-			if (i == index) {
-				return posArgs.get(i);
-			}
-		}
-		return null;
+		if (index >= posArgs.size())
+			return null;
+
+		return posArgs.get(index);
 	}
 
 	/**

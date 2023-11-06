@@ -18,7 +18,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -47,7 +50,7 @@ public class Command
 	private final @NotNull ArrayList<@NotNull Command> subCommands = new ArrayList<>();
 	private Command parentCommand;
 	private final @NotNull ArrayList<@NotNull ArgumentGroup> argumentGroups = new ArrayList<>();
-	private final @NotNull ModifyRecord<@NotNull TupleCharacter> tupleChars = ModifyRecord.of(TupleCharacter.SQUARE_BRACKETS);
+	private final @NotNull ModifyRecord<@NotNull TupleChar> tupleChars = ModifyRecord.of(TupleChar.SQUARE_BRACKETS);
 	private final @NotNull ModifyRecord<@NotNull Integer> errorCode = ModifyRecord.of(1);
 
 	// error handling callbacks
@@ -59,7 +62,7 @@ public class Command
 		ModifyRecord.of(CallbacksInvocationOption.NO_ERROR_IN_ALL_COMMANDS);
 
 	/** A pool of the colors that an argument may have when being represented on the help. */
-	final @NotNull LoopPool<@NotNull Color> colorsPool = LoopPool.atRandomIndex(Color.BRIGHT_COLORS.toArray(Color[]::new));
+	final @NotNull LoopPool<@NotNull Color> colorsPool = LoopPool.atRandomIndex(Color.BRIGHT_COLORS);
 
 
 	/**
@@ -185,17 +188,20 @@ public class Command
 		this.errorCode.set(errorCode);
 	}
 
-	public void setTupleChars(@NotNull TupleCharacter tupleChars) {
+	public void setTupleChars(@NotNull TupleChar tupleChars) {
 		this.tupleChars.set(tupleChars);
 	}
 
-	public @NotNull TupleCharacter getTupleChars() {
+	public @NotNull TupleChar getTupleChars() {
 		return this.tupleChars.get();
 	}
 
 	@Override
 	public void addNames(@NotNull String... names) {
-		Arrays.stream(names)
+		if (names.length == 0)
+			throw new IllegalArgumentException("at least one name must be specified");
+
+		Stream.of(names)
 			.map(UtlString::requireValidName)
 			.peek(newName -> {
 				if (this.hasName(newName))
@@ -268,9 +274,11 @@ public class Command
 	 * Returns {@code true} if an argument with allowsUnique set in the command was used.
 	 * @return {@code true} if an argument with {@link Argument#setAllowUnique(boolean)} in the command was used.
 	 */
-	boolean uniqueArgumentReceivedValue() {
-		return this.arguments.stream().anyMatch(a -> a.getUsageCount() >= 1 && a.isUniqueAllowed())
-			|| this.subCommands.stream().anyMatch(Command::uniqueArgumentReceivedValue);
+	boolean uniqueArgumentReceivedValue(@Nullable Argument<?, ?> exclude) {
+		return this.arguments.stream()
+			.filter(a -> a != exclude)
+			.anyMatch(a -> a.getUsageCount() >= 1 && a.isUniqueAllowed())
+		|| this.subCommands.stream().anyMatch(cmd -> cmd.uniqueArgumentReceivedValue(exclude));
 	}
 
 

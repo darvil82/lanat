@@ -12,9 +12,9 @@ public enum FormatOption {
 	/** Resets all formatting. Including colors. */
 	RESET_ALL(0),
 	BOLD(1),
-	ITALIC(3),
 	/** Makes the text dimmer. */
 	DIM(2),
+	ITALIC(3),
 	UNDERLINE(4),
 	/** Makes the text blink. */
 	BLINK(5),
@@ -54,6 +54,10 @@ public enum FormatOption {
 	 */
 	public @NotNull String reset() {
 		// for some reason, bold is 21 instead of 20
-		return TextFormatter.getSequence(this.value + 20 + (this == BOLD ? 1 : 0));
+		return TextFormatter.getSequence(
+			this == RESET_ALL
+				? this.value // RESET_ALL should be the same when resetting
+				: this.value + 20 + (this == BOLD ? 1 : 0)
+		);
 	}
 }

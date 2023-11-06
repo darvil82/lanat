@@ -1,52 +1,66 @@
-# Lanat
+<div align="center">
+	<div>
+		<img src="https://github.com/DarviL82/Lanat/assets/48654552/33f9a03d-1ce3-49f0-839d-475e35d9e816" width="450">
+	</div>
+	<br>
+	<strong>
+		A command line argument parser for Java 17 with <br>
+		ease of use and high customization possibilities in mind.
+	</strong>
+</div>
 
-Lanat is a command line argument parser for Java 17 with ease  of use and high customization
-possibilities in mind.
+<br><br>
 
-### Examples
-Here is an example of a simple argument parser definition.
 
-```java
-@Command.Define
-class MyProgram {
-	@Argument.Define(required = true, positional = true, description = "The name of the user.")
-	public String name;
-
-	@Argument.Define(argType = StringArgumentType.class, description = "The surname of the user.")
-	public Optional<String> surname;
-
-	@Argument.Define(names = {"age", "a"}, description = "The age of the user.", prefix = '+')
-	public int age = 18;
+### Example
+- First, we define our Command by creating a *Command Template*.
 	
-	@InitDef
-	public static void beforeInit(@NotNull CommandBuildHelper cmdBuildHelper) {
-		// configure the argument "age" to have an argument type of
-		// number range and set the range to 1-100
-		cmdBuildHelper.<NumberRangeArgumentType<Integer>, Integer>getArgument("age")
-			.withArgType(new NumberRangeArgumentType<>(1, 100))
-			.onOk(v -> System.out.println("The age is valid!"));
-	}
-}
-
-class Test {
-	public static void main(String[] args) {
-		// example: david +a20
-		var myProgram = ArgumentParser.parseFromInto(MyProgram.class, CLInput.from(args));
+	```java
+	@Command.Define
+	class MyProgram {
+		@Argument.Define(required = true, positional = true, description = "The name of the user.")
+		public String name;
+	
+		@Argument.Define(argType = StringArgumentType.class, description = "The surname of the user.")
+		public Optional<String> surname;
+	
+		@Argument.Define(names = {"age", "a"}, description = "The age of the user.", prefix = '+')
+		public int age = 18;
 		
-		System.out.printf(
-			"Welcome %s! You are %d years old.%n",
-			myProgram.name, myProgram.age
-		);
-
-		// if no surname was specified, we'll show "none" instead
-		System.out.printf("The surname of the user is %s.%n", myProgram.surname.orElse("none"));
+		@InitDef
+		public static void beforeInit(@NotNull CommandBuildHelper cmdBuildHelper) {
+			// configure the argument "age" to have an argument type of
+			// number range and set the range to 1-100
+			cmdBuildHelper.<NumberRangeArgumentType<Integer>, Integer>getArgument("age")
+				.withArgType(new NumberRangeArgumentType<>(1, 100))
+				.onOk(v -> System.out.println("The age is valid!"));
+		}
 	}
-}
-```
+	```
+ 
+ - Then, let that class definition also serve as the container for the parsed values.
+	```java
+ 	class Test {
+		public static void main(String[] args) {
+			// example: david +a20
+			var myProgram = ArgumentParser.parseFromInto(MyProgram.class, CLInput.from(args));
+			
+			System.out.printf(
+				"Welcome %s! You are %d years old.%n",
+				myProgram.name, myProgram.age
+			);
+	
+			// if no surname was specified, we'll show "none" instead
+			System.out.printf("The surname of the user is %s.%n", myProgram.surname.orElse("none"));
+		}
+	}
+ 	```
 
 ## Documentation
 
 Javadoc documentation for the latest stable version is available [here](https://darvil82.github.io/Lanat/).
+
+Deep documentation and tutorials comming soon.
 
 
 ## Installation
@@ -55,7 +69,7 @@ The package is currently only available on GitHub Packages.
 
 ### Gradle
 
-1. Authenticate to GitHub Packages in order to be able to download the package. You can do this by adding the following to your [gradle.properties](https://docs.gradle.org/current/userguide/build_environment.html#sec:gradle_configuration_properties) file:
+1. Authenticate to GitHub Packages to be able to download the package. You can do this by adding the following to your [gradle.properties](https://docs.gradle.org/current/userguide/build_environment.html#sec:gradle_configuration_properties) file:
 
 	```
 	gpr.user=USERNAME
@@ -70,8 +84,8 @@ The package is currently only available on GitHub Packages.
     maven {
         url = uri("https://maven.pkg.github.com/darvil82/lanat")
         credentials {
-            username = project.findProperty("gpr.user") as String? ?: System.getenv("CI_GITHUB_USERNAME")
-            password = project.findProperty("gpr.key") as String? ?: System.getenv("CI_GITHUB_PASSWORD")
+            username = project.findProperty("gpr.user") as String?
+            password = project.findProperty("gpr.key") as String?
         }
     }
     ```
@@ -80,9 +94,9 @@ The package is currently only available on GitHub Packages.
 
     ```kotlin
     implementation("darvil:lanat")
-    ```
-
-    Note that you may need to explicitly specify the version of the package you want to use. (e.g. `darvil:lanat:x.x.x`)
+    ``` 
+	> [!NOTE]
+	> You may need to explicitly specify the version of the package you want to use. (e.g. `darvil:lanat:x.x.x`).
 
 This information is available at the [GitHub Packages documentation](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-gradle-registry#using-a-published-package).
 

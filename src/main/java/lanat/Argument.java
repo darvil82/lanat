@@ -15,10 +15,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 
 /**
@@ -110,59 +110,6 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 */
 	private final @NotNull ModifyRecord<Color> representationColor = ModifyRecord.empty();
 
-
-	/**
-	 * The list of prefixes that can be used.
-	 * <p>
-	 * The {@link PrefixChar#AUTO} prefix will be automatically set depending on the Operating System.
-	 * </p>
-	 *
-	 * @see PrefixChar#AUTO
-	 */
-	public static class PrefixChar {
-		public static final PrefixChar MINUS = new PrefixChar('-');
-		public static final PrefixChar PLUS = new PrefixChar('+');
-		public static final PrefixChar SLASH = new PrefixChar('/');
-		public static final PrefixChar AT = new PrefixChar('@');
-		public static final PrefixChar PERCENT = new PrefixChar('%');
-		public static final PrefixChar CARET = new PrefixChar('^');
-		public static final PrefixChar EXCLAMATION = new PrefixChar('!');
-		public static final PrefixChar TILDE = new PrefixChar('~');
-		public static final PrefixChar QUESTION = new PrefixChar('?');
-		public static final PrefixChar EQUALS = new PrefixChar('=');
-		public static final PrefixChar COLON = new PrefixChar(':');
-
-		/**
-		 * This prefix will be automatically set depending on the Operating System. On Linux, it will be
-		 * {@link PrefixChar#MINUS}, and on Windows, it will be {@link PrefixChar#SLASH}.
-		 */
-		public static final PrefixChar AUTO = System.getProperty("os.name").toLowerCase().contains("win") ? SLASH : MINUS;
-
-
-		public final char character;
-		public static @NotNull PrefixChar defaultPrefix = PrefixChar.MINUS;
-
-		private PrefixChar(char character) {
-			this.character = character;
-		}
-
-		/**
-		 * Creates a new PrefixChar with the specified non-whitespace character.
-		 * <p>
-		 * <strong>NOTE:<br></strong>
-		 * The constant fields of this class should be used instead of this method. Other characters could break
-		 * compatibility with shells using special characters as prefixes, such as the <code>|</code> or <code>;</code>
-		 * characters.
-		 * </p>
-		 *
-		 * @param character the character that will be used as a prefix
-		 */
-		public static @NotNull PrefixChar fromCharUnsafe(char character) {
-			if (Character.isWhitespace(character))
-				throw new IllegalArgumentException("The character cannot be a whitespace character.");
-			return new PrefixChar(character);
-		}
-	}
 
 	Argument(@NotNull Type type, @NotNull String... names) {
 		this.argType = type;
@@ -270,6 +217,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * Specify the prefix of this argument. By default, this is {@link PrefixChar#MINUS}. If this argument is used in an
 	 * argument name list (-abc), the prefix that will be valid is any against all the arguments specified in that name
 	 * list.
+	 * <p>
+	 * Note that, for ease of use, the prefixes defined in {@link PrefixChar#COMMON_PREFIXES} are also valid.
 	 *
 	 * @param prefixChar the prefix that should be used for this argument.
 	 * @see PrefixChar
@@ -329,7 +278,10 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 */
 	@Override
 	public void addNames(@NotNull String... names) {
-		Arrays.stream(names)
+		if (names.length == 0)
+			throw new IllegalArgumentException("at least one name must be specified");
+
+		Stream.of(names)
 			.map(UtlString::requireValidName)
 			.peek(n -> {
 				if (this.names.contains(n))
@@ -455,16 +407,6 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * @param values The value array that should be parsed.
 	 */
 	public void parseValues(short tokenIndex, @NotNull String... values) {
-		// check if the argument was used more times than it should
-		if (++this.argType.usageCount > this.argType.getRequiredUsageCount().end()) {
-			this.parentCommand.getParser()
-				.addError(
-					ParseError.ParseErrorType.ARG_INCORRECT_USAGES_COUNT,
-					this, values.length, this.argType.getLastTokenIndex() + 1
-				);
-			return;
-		}
-
 		this.argType.parseAndUpdateValue(tokenIndex, values);
 	}
 
@@ -497,19 +439,30 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * @return {@code true} if the argument was used the correct amount of times.
 	 */
 	private boolean finishParsing$checkUsageCount() {
-		if (this.getUsageCount() == 0) {
-			if (this.required && !this.parentCommand.uniqueArgumentReceivedValue()) {
+		final var usageCount = this.getUsageCount();
+
+		if (usageCount == 0) {
+			if (this.required && !this.parentCommand.uniqueArgumentReceivedValue(this)) {
 				this.parentCommand.getParser().addError(
+					// just show it at the end. doesnt really matter
 					ParseError.ParseErrorType.REQUIRED_ARGUMENT_NOT_USED, this, 0
 				);
-				return false;
 			}
-			// make sure that the argument was used the minimum amount of times specified
-		} else if (this.argType.usageCount < this.argType.getRequiredUsageCount().start()) {
-			this.parentCommand.getParser()
-				.addError(ParseError.ParseErrorType.ARG_INCORRECT_USAGES_COUNT, this, 0);
 			return false;
 		}
+
+		// make sure that the argument was used the minimum number of times specified
+		if (!this.argType.getRequiredUsageCount().isInRangeInclusive(usageCount)) {
+			this.parentCommand.getParser()
+				.addError(
+					ParseError.ParseErrorType.ARG_INCORRECT_USAGES_COUNT,
+					this,
+					this.argType.getLastReceivedValuesNum(),
+					this.argType.getLastTokenIndex()
+				);
+			return false;
+		}
+
 		return true;
 	}
 
@@ -530,7 +483,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 			new ParseError(
 				ParseError.ParseErrorType.MULTIPLE_ARGS_IN_EXCLUSIVE_GROUP_USED,
 				this.argType.getLastTokenIndex(),
-				this, this.argType.getLastReceivedValuesNum()
+				this,
+				this.argType.getLastReceivedValuesNum()
 			)
 			{{
 				this.setArgumentGroup(exclusivityResult);
@@ -566,6 +520,13 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		return this.hasName(Character.toString(name));
 	}
 
+	/**
+	 * Executes the correct or the error callback depending on whether the argument has errors or not.
+	 * <p>
+	 * The correct callback is only executed if the argument has no errors, the usage count is greater than 0, the
+	 *
+	 * @param okValue the value to pass to the correct callback
+	 */
 	// no worries about casting here, it will always receive the correct type
 	@SuppressWarnings("unchecked")
 	void invokeCallbacks(@Nullable Object okValue) {
@@ -578,7 +539,6 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		if (okValue == null
 			|| this.onCorrectCallback == null
 			|| this.getUsageCount() == 0
-			|| (!this.allowUnique && this.parentCommand.uniqueArgumentReceivedValue())
 			|| !this.parentCommand.shouldExecuteCorrectCallback()
 		) return;
 
@@ -668,9 +628,11 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 		/**
 		 * Specifies the prefix character for this argument. This uses {@link PrefixChar#fromCharUnsafe(char)}.
+		 * <p>
+		 * By default, this is set to the value of {@link PrefixChar#defaultPrefix}.
 		 * @see Argument#setPrefix(PrefixChar)
 		 * */
-		char prefix() default '-';
+		char prefix() default Character.MAX_VALUE; // Character.MAX_VALUE will be replaced with PrefixChar.defaultPrefix
 
 		/** @see Argument#setRequired(boolean) */
 		boolean required() default false;
@@ -680,6 +642,62 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 		/** @see Argument#setAllowUnique(boolean) */
 		boolean allowsUnique() default false;
+	}
+
+
+	/**
+	 * Specifies the prefix character for an {@link Argument}.
+	 */
+	public static class PrefixChar {
+		public static final PrefixChar MINUS = new PrefixChar('-');
+		public static final PrefixChar PLUS = new PrefixChar('+');
+		public static final PrefixChar SLASH = new PrefixChar('/');
+		public static final PrefixChar AT = new PrefixChar('@');
+		public static final PrefixChar PERCENT = new PrefixChar('%');
+		public static final PrefixChar CARET = new PrefixChar('^');
+		public static final PrefixChar EXCLAMATION = new PrefixChar('!');
+		public static final PrefixChar TILDE = new PrefixChar('~');
+		public static final PrefixChar QUESTION = new PrefixChar('?');
+		public static final PrefixChar EQUALS = new PrefixChar('=');
+		public static final PrefixChar COLON = new PrefixChar(':');
+
+		/**
+		 * This prefix will be automatically set depending on the Operating System. On Linux, it will be
+		 * {@link PrefixChar#MINUS}, and on Windows, it will be {@link PrefixChar#SLASH}.
+		 */
+		public static final PrefixChar AUTO = System.getProperty("os.name").toLowerCase().contains("win") ? SLASH : MINUS;
+
+
+		public final char character;
+		public static @NotNull PrefixChar defaultPrefix = PrefixChar.AUTO;
+
+		/** Prefixes that a user may be familiar with. */
+		public static final @NotNull PrefixChar[] COMMON_PREFIXES = { MINUS, SLASH };
+
+
+		private PrefixChar(char character) {
+			this.character = character;
+		}
+
+		/**
+		 * Creates a new {@link PrefixChar} with the specified non-whitespace character.
+		 * <p>
+		 * <strong>NOTE:<br></strong>
+		 * The constant fields of this class should be used instead of this method. Other characters could break
+		 * compatibility with shells using special characters as prefixes, such as the <code>|</code> or <code>;</code>
+		 * characters.
+		 * </p>
+		 *
+		 * @param character the character that will be used as a prefix. {@link Character#MAX_VALUE} will return
+		 *  {@link PrefixChar#defaultPrefix}.
+		 */
+		public static @NotNull PrefixChar fromCharUnsafe(char character) {
+			if (character == Character.MAX_VALUE)
+				return PrefixChar.defaultPrefix;
+			if (Character.isWhitespace(character))
+				throw new IllegalArgumentException("The character cannot be a whitespace character.");
+			return new PrefixChar(character);
+		}
 	}
 
 

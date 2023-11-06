@@ -47,7 +47,7 @@ public class ErrorHandler {
 				this.addAll(cmd.getErrorsUnderDisplayLevel());
 				this.addAll(cmd.getTokenizer().getErrorsUnderDisplayLevel());
 				this.addAll(cmd.getParser().getCustomErrors());
-				this.addAll(ParseError.filter(cmd.getParser().getErrorsUnderDisplayLevel()));
+				this.addAll(cmd.getParser().getErrorsUnderDisplayLevel());
 			}}.stream()
 				.sorted(Comparator.comparingInt(x -> x.tokenIndex)) // sort them by their token index...
 				.forEach(e -> errors.add(e.handle(this))); // ...and handle them

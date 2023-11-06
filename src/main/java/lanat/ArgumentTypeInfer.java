@@ -9,6 +9,24 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.function.Supplier;
 
+/**
+ * <h2>Argument Type Inferrring</h2>
+ * <p>
+ * Handles inferring argument types for specified types. This is used mostly for defining {@link Argument}s in
+ * {@link CommandTemplate}s.
+ * </p>
+ * <h3>Example:</h3>
+ * <p>
+ * When defining an {@link Argument}, like this:
+ * <pre>{@code
+ * @Argument.Define
+ * public Double[] numbers;
+ * }</pre>
+ * <p>
+ * In this case, {@link ArgumentTypeInfer#get(Class)} is called with the type {@code Double[]}, which will return a
+ * {@link MultipleNumbersArgumentType} instance ready to be used for that value type:
+ * <pre>{@code new MultipleNumbersArgumentType(Range.AT_LEAST_ONE, new Double[] {})}.</pre>
+ */
 public class ArgumentTypeInfer {
 	/**
 	 * Mapping of types to their corresponding argument types. Used for inferring.

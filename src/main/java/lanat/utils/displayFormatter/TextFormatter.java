@@ -1,5 +1,6 @@
 package lanat.utils.displayFormatter;
 
+import lanat.utils.UtlString;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,7 +24,7 @@ public class TextFormatter {
 
 	/**
 	 * When set to {@code true}, the {@link #toString()} method will not add any terminal sequences, but rather
-	 * return the sequences that would be added by marking them as {@code ESC[<sequence here>}
+	 * return the sequences that would be added by marking them as {@code ESC[<sequence here>]}
 	 */
 	public static boolean debug = false;
 
@@ -70,6 +71,15 @@ public class TextFormatter {
 	 */
 	public TextFormatter addFormat(@NotNull FormatOption... options) {
 		this.formatOptions.addAll(Arrays.asList(options));
+		return this;
+	}
+
+	/**
+	 * Removes the specified formatting options from the formatter.
+	 * @param options The formatting options to remove.
+	 */
+	public TextFormatter removeFormat(@NotNull FormatOption... options) {
+		this.formatOptions.removeAll(Arrays.asList(options));
 		return this;
 	}
 
@@ -144,11 +154,8 @@ public class TextFormatter {
 	 * @return {@code true} if the formatter is simple
 	 */
 	public boolean isSimple() {
-		return (
-			this.contents.length() == 0
-				|| this.formattingNotDefined()
-				|| !enableSequences
-		) && this.concatList.size() == 0; // we cant skip if we need to concat stuff!
+		return (this.contents.length() == 0 || this.formattingNotDefined())
+			&& this.concatList.size() == 0; // we cant skip if we need to concat stuff!
 	}
 
 	/**
@@ -169,7 +176,7 @@ public class TextFormatter {
 	 * @return the start sequences to add to the contents of the formatter
 	 */
 	private @NotNull String getStartSequences() {
-		if (this.formattingNotDefined() || !TextFormatter.enableSequences) return "";
+		if (this.formattingNotDefined()) return "";
 		final var buffer = new StringBuilder();
 
 		if (this.foregroundColor != null)
@@ -185,7 +192,7 @@ public class TextFormatter {
 	}
 
 	private @NotNull String getEndSequences() {
-		if (this.formattingNotDefined() || !TextFormatter.enableSequences) return "";
+		if (this.formattingNotDefined()) return "";
 		final var buffer = new StringBuilder();
 
 		if (this.backgroundColor != null) {
@@ -245,22 +252,56 @@ public class TextFormatter {
 	 */
 	@Override
 	public @NotNull String toString() {
-		if (this.isSimple()) {
+		if (!TextFormatter.enableSequences || this.isSimple()) {
 			return this.contents;
 		}
 
-		final var buffer = new StringBuilder();
+		final var buff = new StringBuilder();
 
-		buffer.append(this.getStartSequences());
-		buffer.append(this.contents);
-
-		for (TextFormatter subFormatter : this.concatList) {
-			buffer.append(subFormatter);
+		if (this.contents.contains("\n")) {
+			// for some reason, some terminals reset sequences when a new line is added.
+			this.putContentsSanitized(buff);
+		} else {
+			buff.append(this.getStartSequences());
+			buff.append(this.contents);
 		}
 
-		buffer.append(this.getEndSequences());
+		// then do the same thing for the concatenated formatters
+		for (TextFormatter subFormatter : this.concatList) {
+			buff.append(subFormatter);
+		}
 
-		return buffer.toString();
+		buff.append(this.getEndSequences());
+
+		return buff.toString();
+	}
+
+	/**
+	 * Adds the start sequences to the contents of the formatter. This is done by adding the start sequences after
+	 * every new line. (and at the first line)
+	 * @param buff The buffer to add the contents to.
+	 */
+	private void putContentsSanitized(@NotNull StringBuilder buff) {
+		final var split = UtlString.splitAtLeadingWhitespace(this.contents);
+		final var startSequences = this.getStartSequences();
+
+		// start by adding the leading whitespace
+		buff.append(split.first());
+
+		// then add the start sequences
+		buff.append(startSequences);
+
+		char[] charArray = split.second().toCharArray();
+		for (int i = 0; i < charArray.length; i++) {
+			var chr = charArray[i];
+
+			// if we encounter a new line, and the next character is not a whitespace, then add the start sequences
+			if (chr == '\n' && (i < charArray.length - 1 && !Character.isWhitespace(charArray[i + 1])))
+				buff.append(startSequences);
+
+			// add the character
+			buff.append(chr);
+		}
 	}
 
 	/** Returns a template for a {@link TextFormatter} that is used for errors */
@@ -280,7 +321,7 @@ public class TextFormatter {
 	 */
 	static @NotNull String getSequence(int code) {
 		if (TextFormatter.debug)
-			return "ESC[" + code;
+			return "ESC[" + code + "]";
 		return "" + ESC + '[' + code + 'm';
 	}
 

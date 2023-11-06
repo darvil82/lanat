@@ -47,14 +47,18 @@ public final class UtlReflection {
 	 * @return The instantiated class. If the class could not be instantiated, a {@link RuntimeException} is thrown.
 	 */
 	public static <T> T instantiate(Class<T> clazz, Object... args) {
+		final Class<?>[] parameterTypes = Stream.of(args)
+			.map(Object::getClass)
+			.toArray(Class<?>[]::new);
+
 		try {
-			return clazz.getDeclaredConstructor().newInstance(args);
+			return clazz.getDeclaredConstructor(parameterTypes).newInstance(args);
 		} catch (NoSuchMethodException e) {
 			throw new RuntimeException("Unable to find a public constructor for the class '" + clazz.getName()
 				+ """
 			'. Please, make sure:
-			  - This class has a public constructor with no arguments. (Or no constructor at all)
-			  - This is a static class. (Not an inner class)"""
+			  - This class has a public constructor with the parameters: %s
+			  - This is a static class. (Not an inner class)""".formatted(Arrays.toString(parameterTypes))
 			);
 		} catch (IllegalAccessException e) {
 			throw new RuntimeException(

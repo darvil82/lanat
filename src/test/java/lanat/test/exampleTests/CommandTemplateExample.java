@@ -1,4 +1,4 @@
-package lanat.test.manualTests;
+package lanat.test.exampleTests;
 
 import lanat.Argument;
 import lanat.ArgumentGroup;

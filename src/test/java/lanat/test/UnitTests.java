@@ -1,6 +1,7 @@
 package lanat.test;
 
 import lanat.Argument;
+import lanat.ArgumentGroup;
 import lanat.ArgumentType;
 import lanat.Command;
 import lanat.argumentTypes.CounterArgumentType;
@@ -51,6 +52,9 @@ public class UnitTests {
 	static {
 		HelpFormatter.lineWrapMax = 1000; // just so we don't have to worry about line wrapping
 		TextFormatter.enableSequences = false; // just so we don't have to worry about color codes
+
+		// prefix char is set to auto by default (make sure tests run in windows too)
+		Argument.PrefixChar.defaultPrefix = Argument.PrefixChar.MINUS;
 	}
 
 	protected TestingParser setParser() {
@@ -77,7 +81,12 @@ public class UnitTests {
 
 			this.addCommand(new Command("subCommand2") {{
 				this.setErrorCode(0b1000);
-				this.addArgument(Argument.create(new IntegerArgumentType(), 'c').positional());
+
+				this.addGroup(new ArgumentGroup("exclusive-group") {{
+					this.setExclusive(true);
+					this.addArgument(Argument.createOfBoolType("extra"));
+					this.addArgument(Argument.create(new IntegerArgumentType(), 'c').positional());
+				}});
 			}});
 		}};
 	}

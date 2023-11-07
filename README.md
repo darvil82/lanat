@@ -1,6 +1,6 @@
 <div align="center">
 	<div>
-		<img src="https://github.com/DarviL82/Lanat/assets/48654552/33f9a03d-1ce3-49f0-839d-475e35d9e816" width="450">
+		<img alt="Lanat logo" src="https://github.com/DarviL82/Lanat/assets/48654552/33f9a03d-1ce3-49f0-839d-475e35d9e816" width="450">
 	</div>
 	<br>
 	<strong>
@@ -65,18 +65,35 @@ Deep documentation and tutorials comming soon.
 
 ## Installation
 
-The package is currently only available on GitHub Packages.
+The package is currently available on Repsy and GitHub Packages.
 
-### Gradle
+1. Add the following to your `repositories` block:
+	```kotlin
+	maven("https://repsy.io/mvn/darvil/java")
+	```
+ 
+2. And add the following to your `dependencies` block:
+	```kotlin
+	implementation("com.darvil:lanat:+")
+	```
+	> [!NOTE]
+	> The `+` symbol is a wildcard that will automatically use the latest version of the package.
+	> You can also specify a specific version (e.g. `0.1.0`).
+
+<details>
+
+<summary><strong>Install from Github Packages</strong></summary>
+
+If using Gradle, follow these steps:
 
 1. Authenticate to GitHub Packages to be able to download the package. You can do this by adding the following to your [gradle.properties](https://docs.gradle.org/current/userguide/build_environment.html#sec:gradle_configuration_properties) file:
 
-	```
-	gpr.user=USERNAME
-	gpr.key=PERSONAL_ACCESS_TOKEN
-	```
+   ```
+   gpr.user=USERNAME
+   gpr.key=PERSONAL_ACCESS_TOKEN
+   ```
 
-	Replace `USERNAME` with your GitHub username and `PERSONAL_ACCESS_TOKEN` with a personal access token that has the `read:packages` scope.
+   Replace `USERNAME` with your GitHub username and `PERSONAL_ACCESS_TOKEN` with a personal access token that has the `read:packages` scope.
 
 2. Add the following inside your `repositories` block:
 
@@ -90,16 +107,10 @@ The package is currently only available on GitHub Packages.
     }
     ```
 
-3. And add the following to your `dependencies` block:
-
-    ```kotlin
-    implementation("darvil:lanat")
-    ``` 
-	> [!NOTE]
-	> You may need to explicitly specify the version of the package you want to use. (e.g. `darvil:lanat:x.x.x`).
+3. Follow step 2 from the previous section.
 
 This information is available at the [GitHub Packages documentation](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-gradle-registry#using-a-published-package).
 
-### Other build tools
+For other build tools, see [here](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-gradle-registry#using-a-published-package).
 
-See [here](https://docs.github.com/en/packages/working-with-a-github-packages-registry).
+</details>

@@ -3,7 +3,7 @@ plugins {
 	`maven-publish`
 }
 
-group = "darvil"
+group = "com.darvil"
 version = "0.1.0"
 description = "Command line argument parser"
 
@@ -27,19 +27,21 @@ repositories {
 publishing {
 	repositories {
 		maven {
-			name = "github"
+			name = "Github"
 			url = uri("https://maven.pkg.github.com/darvil82/Lanat")
-			credentials {
-				username = System.getenv("CI_GITHUB_USERNAME")
-				password = System.getenv("CI_GITHUB_PASSWORD")
-			}
+			credentials(PasswordCredentials::class)
+		}
+
+		maven {
+			name = "Repsy"
+			url = uri("https://repsy.io/mvn/darvil/java")
+			credentials(PasswordCredentials::class)
 		}
 	}
 
 	publications {
-		register<MavenPublication>("gpr") {
+		create<MavenPublication>("mavenJava") {
 			from(components["java"])
-			artifactId = rootProject.name
 		}
 	}
 }

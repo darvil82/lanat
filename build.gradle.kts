@@ -34,7 +34,7 @@ publishing {
 
 		maven {
 			name = "Repsy"
-			url = uri("https://repsy.io/mvn/darvil/lanat")
+			url = uri("https://repsy.io/mvn/darvil/java")
 			credentials(PasswordCredentials::class)
 		}
 	}

@@ -3,8 +3,8 @@ plugins {
 	`maven-publish`
 }
 
-group = "darvil"
-version = "0.1.0"
+group = "com.darvil"
+version = "0.1.0_1"
 description = "Command line argument parser"
 
 dependencies {

@@ -65,18 +65,32 @@ Deep documentation and tutorials comming soon.
 
 ## Installation
 
-The package is currently only available on GitHub Packages.
+The package is currently available on Repsy and GitHub Packages.
 
-### Gradle
+1. Add the following to your `repositories` block:
+	```kotlin
+	maven("https://repsy.io/mvn/darvil/java")
+	```
+ 
+2. And add the following to your `dependencies` block:
+	```kotlin
+	implementation("darvil:lanat")
+	```
+
+<details>
+
+<summary><strong>Install from Github Packages</strong></summary>
+
+If using Gradle, follow these steps:
 
 1. Authenticate to GitHub Packages to be able to download the package. You can do this by adding the following to your [gradle.properties](https://docs.gradle.org/current/userguide/build_environment.html#sec:gradle_configuration_properties) file:
 
-	```
-	gpr.user=USERNAME
-	gpr.key=PERSONAL_ACCESS_TOKEN
-	```
+   ```
+   gpr.user=USERNAME
+   gpr.key=PERSONAL_ACCESS_TOKEN
+   ```
 
-	Replace `USERNAME` with your GitHub username and `PERSONAL_ACCESS_TOKEN` with a personal access token that has the `read:packages` scope.
+   Replace `USERNAME` with your GitHub username and `PERSONAL_ACCESS_TOKEN` with a personal access token that has the `read:packages` scope.
 
 2. Add the following inside your `repositories` block:
 
@@ -95,11 +109,11 @@ The package is currently only available on GitHub Packages.
     ```kotlin
     implementation("darvil:lanat")
     ``` 
-	> [!NOTE]
-	> You may need to explicitly specify the version of the package you want to use. (e.g. `darvil:lanat:x.x.x`).
+   > [!NOTE]
+   > You may need to explicitly specify the version of the package you want to use. (e.g. `darvil:lanat:x.x.x`).
 
 This information is available at the [GitHub Packages documentation](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-gradle-registry#using-a-published-package).
 
-### Other build tools
+For other build tools, see [here](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-gradle-registry#using-a-published-package).
 
-See [here](https://docs.github.com/en/packages/working-with-a-github-packages-registry).
+</details>

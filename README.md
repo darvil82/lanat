@@ -74,8 +74,10 @@ The package is currently available on Repsy and GitHub Packages.
  
 2. And add the following to your `dependencies` block:
 	```kotlin
-	implementation("darvil:lanat")
+	implementation("com.darvil:lanat:+")
 	```
+	> [!NOTE]
+	> The `+` symbol is a wildcard that will automatically use the latest version of the package. You can also specify a specific version (e.g. `1.0.0`).
 
 <details>
 
@@ -104,13 +106,7 @@ If using Gradle, follow these steps:
     }
     ```
 
-3. And add the following to your `dependencies` block:
-
-    ```kotlin
-    implementation("darvil:lanat")
-    ``` 
-   > [!NOTE]
-   > You may need to explicitly specify the version of the package you want to use. (e.g. `darvil:lanat:x.x.x`).
+3. Follow step 2 from the previous section.
 
 This information is available at the [GitHub Packages documentation](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-gradle-registry#using-a-published-package).
 

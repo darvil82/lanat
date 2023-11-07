@@ -9,13 +9,15 @@ import org.jetbrains.annotations.Nullable;
 @SuppressWarnings("unused")
 public class TokenizeError extends ParseStateErrorBase<TokenizeError.TokenizeErrorType> {
 	private final @Nullable Argument<?, ?> argument;
+	private int extraTokenCount = 0;
 
 	public enum TokenizeErrorType implements ErrorLevelProvider {
 		TUPLE_ALREADY_OPEN,
 		UNEXPECTED_TUPLE_CLOSE,
 		TUPLE_NOT_CLOSED,
 		STRING_NOT_CLOSED,
-		SIMILAR_ARGUMENT(ErrorLevel.INFO);
+		SIMILAR_ARGUMENT(ErrorLevel.INFO),
+		SPACE_REQUIRED;
 
 		private final @NotNull ErrorLevel level;
 
@@ -36,6 +38,10 @@ public class TokenizeError extends ParseStateErrorBase<TokenizeError.TokenizeErr
 	public TokenizeError(@NotNull TokenizeErrorType type, int index, @Nullable Argument<?, ?> argument) {
 		super(type, index);
 		this.argument = argument;
+	}
+
+	public void setExtraTokenCount(int extraTokenCount) {
+		this.extraTokenCount = extraTokenCount;
 	}
 
 	@Handler("TUPLE_ALREADY_OPEN")
@@ -77,5 +83,12 @@ public class TokenizeError extends ParseStateErrorBase<TokenizeError.TokenizeErr
 					+ ")."
 			)
 			.displayTokens(this.tokenIndex, 0, false);
+	}
+
+	@Handler("SPACE_REQUIRED")
+	protected void handleSpaceRequired() {
+		this.fmt()
+			.setContent("A space is required between these tokens.")
+			.displayTokens(this.tokenIndex, this.extraTokenCount, false);
 	}
 }

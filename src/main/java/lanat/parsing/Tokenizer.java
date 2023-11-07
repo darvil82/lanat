@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 public class Tokenizer extends ParsingStateBase<TokenizeError> {
@@ -77,10 +78,10 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 				this.currentValue.append(this.inputChars[++this.currentCharIndex]); // skip the \ character and append the next character
 
 				// reached a possible value wrapped in quotes
-			} else if ((cChar == '"' || cChar == '\'')) {
+			} else if (cChar == '"' || cChar == '\'') {
 				// if we are already in an open string, push the current value and close the string. Make sure
 				// that the current char is the same as the one that opened the string
-				if (this.stringOpen && currentStringChar == cChar) {
+				if (this.stringOpen && currentStringChar == cChar && (this.tupleOpen || this.isCharAtRelativeIndex(1, Character::isWhitespace))) {
 					this.addToken(TokenType.ARGUMENT_VALUE, this.currentValue.toString());
 					this.currentValue.setLength(0);
 					this.stringOpen = false;
@@ -118,6 +119,12 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 
 				// reached a possible tuple end character
 			} else if (cChar == this.tupleCloseChar) {
+				if (!this.isCharAtRelativeIndex(1, Character::isWhitespace)) {
+					this.addToken(TokenType.ARGUMENT_VALUE_TUPLE_END, this.tupleCloseChar);
+					this.addError(TokenizeError.TokenizeErrorType.SPACE_REQUIRED, 0, 1);
+					continue;
+				}
+
 				// if we are not in a tuple, set error and stop tokenizing
 				if (!this.tupleOpen) {
 					// push tuple start token so the user can see the incorrect tuple char
@@ -140,7 +147,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 			} else if (
 				cChar == '-'
 					&& this.isCharAtRelativeIndex(1, '-')
-					&& this.isCharAtRelativeIndex(2, ' ')
+					&& this.isCharAtRelativeIndex(2, Character::isWhitespace)
 			)
 			{
 				this.addToken(TokenType.FORWARD_VALUE, this.inputString.substring(this.currentCharIndex + 3));
@@ -148,7 +155,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 
 				// reached a possible separator
 			} else if (
-				(cChar == ' ' && !this.currentValue.isEmpty()) // there's a space and some value to tokenize
+				(Character.isWhitespace(cChar) && !this.currentValue.isEmpty()) // there's a space and some value to tokenize
 					// also check if this is defining the value of an argument, or we are in a tuple. If so, don't tokenize
 					|| (cChar == '=' && !this.tupleOpen && this.isArgumentSpecifier(this.currentValue.toString()))
 			)
@@ -156,7 +163,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 				this.tokenizeCurrentValue();
 
 				// push the current char to the current value
-			} else if (cChar != ' ') {
+			} else if (!Character.isWhitespace(cChar)) {
 				this.currentValue.append(cChar);
 			}
 		}
@@ -325,9 +332,13 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	 * </p>
 	 */
 	private boolean isCharAtRelativeIndex(int index, char character) {
+		return this.isCharAtRelativeIndex(index, cChar -> cChar == character);
+	}
+
+	private boolean isCharAtRelativeIndex(int index, @NotNull Predicate<@NotNull Character> predicate) {
 		index += this.currentCharIndex;
 		if (index >= this.inputChars.length || index < 0) return false;
-		return this.inputChars[index] == character;
+		return predicate.test(this.inputChars[index]);
 	}
 
 	/** Returns a command from the Sub-Commands of {@link Tokenizer#command} that matches the given name */
@@ -389,5 +400,11 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	 */
 	private void addError(@NotNull TokenizeError.TokenizeErrorType type, @Nullable Argument<?, ?> argument, int indexOffset) {
 		this.addError(new TokenizeError(type, this.finalTokens.size() + indexOffset, argument));
+	}
+
+	private void addError(@NotNull TokenizeError.TokenizeErrorType type, int indexOffset, int extraTokenCount) {
+		this.addError(new TokenizeError(type, this.finalTokens.size() + indexOffset, null) {{
+			this.setExtraTokenCount(extraTokenCount);
+		}});
 	}
 }

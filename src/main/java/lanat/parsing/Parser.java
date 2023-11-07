@@ -48,39 +48,6 @@ public class Parser extends ParsingStateBase<ParseError> {
 	}
 
 
-	// ------------------------------------------------ Error Handling ------------------------------------------------
-	@Override
-	public boolean hasExitErrors() {
-		return super.hasExitErrors() || this.anyErrorInMinimum(this.customErrors, false);
-	}
-
-	@Override
-	public boolean hasDisplayErrors() {
-		return super.hasDisplayErrors() || this.anyErrorInMinimum(this.customErrors, true);
-	}
-
-	public @NotNull List<@NotNull CustomError> getCustomErrors() {
-		return this.getErrorsInLevelMinimum(this.customErrors, true);
-	}
-
-	@Override
-	public void addError(@NotNull ParseError error) {
-		error.setIsInTuple(this.isInTuple); // set whether the error was caused while parsing values in a tuple
-		super.addError(error);
-	}
-
-	public void addError(@NotNull ParseError.ParseErrorType type, @Nullable Argument<?, ?> arg, int argValueCount, int currentIndex) {
-		this.addError(new ParseError(type, currentIndex, arg, argValueCount));
-	}
-
-	public void addError(@NotNull ParseError.ParseErrorType type, @Nullable Argument<?, ?> arg, int argValueCount) {
-		this.addError(type, arg, argValueCount, this.currentTokenIndex);
-	}
-
-	public void addError(@NotNull CustomError customError) {
-		this.customErrors.add(customError);
-	}
-	// ------------------------------------------------ ////////////// ------------------------------------------------
 
 	/** Returns the index of the current token that is being parsed. */
 	public short getCurrentTokenIndex() {
@@ -308,5 +275,39 @@ public class Parser extends ParsingStateBase<ParseError> {
 			}};
 		}
 		return this.parsedArguments;
+	}
+
+
+	// ------------------------------------------------ Error Handling ------------------------------------------------
+	@Override
+	public boolean hasExitErrors() {
+		return super.hasExitErrors() || this.anyErrorInMinimum(this.customErrors, false);
+	}
+
+	@Override
+	public boolean hasDisplayErrors() {
+		return super.hasDisplayErrors() || this.anyErrorInMinimum(this.customErrors, true);
+	}
+
+	public @NotNull List<@NotNull CustomError> getCustomErrors() {
+		return this.getErrorsInLevelMinimum(this.customErrors, true);
+	}
+
+	@Override
+	public void addError(@NotNull ParseError error) {
+		error.setIsInTuple(this.isInTuple); // set whether the error was caused while parsing values in a tuple
+		super.addError(error);
+	}
+
+	public void addError(@NotNull ParseError.ParseErrorType type, @Nullable Argument<?, ?> arg, int argValueCount, int currentIndex) {
+		this.addError(new ParseError(type, currentIndex, arg, argValueCount));
+	}
+
+	public void addError(@NotNull ParseError.ParseErrorType type, @Nullable Argument<?, ?> arg, int argValueCount) {
+		this.addError(type, arg, argValueCount, this.currentTokenIndex);
+	}
+
+	public void addError(@NotNull CustomError customError) {
+		this.customErrors.add(customError);
 	}
 }

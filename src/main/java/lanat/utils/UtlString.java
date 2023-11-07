@@ -10,20 +10,6 @@ import java.util.stream.Stream;
 public final class UtlString {
 	private UtlString() {}
 
-	/**
-	 * Wrap a string in two strings at both sides. If the string is {@code null}, it will be replaced with
-	 * <code>"null"</code>.
-	 */
-	public static @NotNull String surround(@Nullable String str, @NotNull String wrapper) {
-		return str == null ? "null" : wrapper + str + wrapper;
-	}
-
-	/**
-	 * Wrap a string in double quotes.
-	 */
-	public static @NotNull String surround(@Nullable String str) {
-		return surround(str, "\"");
-	}
 
 	/**
 	 * Get the longest line from the contents of a string. Lines are separated by newlines.

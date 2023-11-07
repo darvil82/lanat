@@ -24,7 +24,7 @@ public final class ExampleTest {
 			this.addArgument(Argument.create(new NumberRangeArgumentType<>(0.0, 15.23), "number").onOk(System.out::println));
 			this.addArgument(Argument.create(new StringArgumentType(), "string", "s").onOk(System.out::println).withPrefix(Argument.PrefixChar.PLUS));
 			this.addArgument(Argument.create(new IntegerArgumentType(), "test").onOk(System.out::println).allowsUnique());
-		}}.parse(CLInput.from("-h --number 3' --c -c --c -cccelloc ++string hello -ccc"))
+		}}.parse(CLInput.from("-h --number 3' --c -c --c -cccelloc ++string ['hello test'] -ccc]"))
 			.printErrors()
 			.getParsedArguments();
 	}

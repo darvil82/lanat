@@ -77,7 +77,8 @@ The package is currently available on Repsy and GitHub Packages.
 	implementation("com.darvil:lanat:+")
 	```
 	> [!NOTE]
-	> The `+` symbol is a wildcard that will automatically use the latest version of the package. You can also specify a specific version (e.g. `1.0.0`).
+	> The `+` symbol is a wildcard that will automatically use the latest version of the package.
+	> You can also specify a specific version (e.g. `0.1.0`).
 
 <details>
 

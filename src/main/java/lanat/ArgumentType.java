@@ -131,7 +131,7 @@ public abstract class ArgumentType<T>
 	 * @param error The error that occurred in the subtype.
 	 */
 	protected void onSubTypeError(@NotNull CustomError error) {
-		error.tokenIndex += this.currentArgValueIndex;
+		error.index += this.currentArgValueIndex;
 		this.addError(error);
 	}
 
@@ -242,12 +242,12 @@ public abstract class ArgumentType<T>
 		}
 
 		// the index of the error should never be less than 0 or greater than the max value count
-		if (error.tokenIndex < 0 || error.tokenIndex >= this.getRequiredArgValueCount().end()) {
-			throw new IndexOutOfBoundsException("Index " + error.tokenIndex + " is out of range for " + this.getClass().getName());
+		if (error.index < 0 || error.index >= this.getRequiredArgValueCount().end()) {
+			throw new IndexOutOfBoundsException("Index " + error.index + " is out of range for " + this.getClass().getName());
 		}
 
 		// the index of the error should be relative to the last token index
-		error.tokenIndex = this.lastTokenIndex + Math.min(error.tokenIndex + 1, this.lastReceivedValuesNum);
+		error.index = this.lastTokenIndex + Math.min(error.index + 1, this.lastReceivedValuesNum);
 
 		super.addError(error);
 		this.dispatchErrorToParent(error);

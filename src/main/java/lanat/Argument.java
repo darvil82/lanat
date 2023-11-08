@@ -4,7 +4,7 @@ import lanat.argumentTypes.BooleanArgumentType;
 import lanat.argumentTypes.DummyArgumentType;
 import lanat.exceptions.ArgumentAlreadyExistsException;
 import lanat.parsing.errors.CustomError;
-import lanat.parsing.errors.ParseError;
+import lanat.parsing.errors.ParseErrors;
 import lanat.utils.*;
 import lanat.utils.displayFormatter.Color;
 import org.jetbrains.annotations.NotNull;
@@ -445,7 +445,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 			if (this.required && !this.parentCommand.uniqueArgumentReceivedValue(this)) {
 				this.parentCommand.getParser().addError(
 					// just show it at the end. doesnt really matter
-					ParseError.ParseErrorType.REQUIRED_ARGUMENT_NOT_USED, this, 0
+					ParseErrors.ParseErrorType.REQUIRED_ARGUMENT_NOT_USED, this, 0
 				);
 			}
 			return false;
@@ -455,7 +455,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		if (!this.argType.getRequiredUsageCount().isInRangeInclusive(usageCount)) {
 			this.parentCommand.getParser()
 				.addError(
-					ParseError.ParseErrorType.ARG_INCORRECT_USAGES_COUNT,
+					ParseErrors.ParseErrorType.ARG_INCORRECT_USAGES_COUNT,
 					this,
 					this.argType.getLastReceivedValuesNum(),
 					this.argType.getLastTokenIndex()
@@ -480,8 +480,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		if (exclusivityResult == null) return true;
 
 		this.parentCommand.getParser().addError(
-			new ParseError(
-				ParseError.ParseErrorType.MULTIPLE_ARGS_IN_EXCLUSIVE_GROUP_USED,
+			new ParseErrors(
+				ParseErrors.ParseErrorType.MULTIPLE_ARGS_IN_EXCLUSIVE_GROUP_USED,
 				this.argType.getLastTokenIndex(),
 				this,
 				this.argType.getLastReceivedValuesNum()

@@ -7,13 +7,13 @@ import lanat.utils.ErrorsContainerImpl;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
 import java.util.function.Consumer;
 
 public abstract class ParsingStateBase<T extends ErrorLevelProvider> extends ErrorsContainerImpl<T> {
 	protected final @NotNull Command command;
 	/** Whether the parsing/tokenizing has finished. */
 	protected boolean hasFinished = false;
+	protected int nestingOffset = 0;
 
 	public ParsingStateBase(@NotNull Command command) {
 		super(command.getMinimumExitErrorLevel(), command.getMinimumDisplayErrorLevel());
@@ -25,8 +25,8 @@ public abstract class ParsingStateBase<T extends ErrorLevelProvider> extends Err
 	 *
 	 * @return {@code true} if an argument was found
 	 */
-	protected boolean runForArgument(@NotNull String argName, @NotNull Consumer<@NotNull Argument<?, ?>> f) {
-		var arg = this.getArgument(argName);
+	protected boolean runForMatchingArgument(@NotNull String argName, @NotNull Consumer<@NotNull Argument<?, ?>> f) {
+		var arg = this.getMatchingArgument(argName);
 		if (arg != null) {
 			f.accept(arg);
 			return true;
@@ -46,8 +46,8 @@ public abstract class ParsingStateBase<T extends ErrorLevelProvider> extends Err
 	 * It can't. "checkMatch" has also a char overload. The former would always return false.
 	 * I don't really want to make "checkMatch" have different behavior depending on the length of the string, so
 	 * an overload seems better. */
-	protected boolean runForArgument(char argName, @NotNull Consumer<@NotNull Argument<?, ?>> f) {
-		var arg = this.getArgument(argName);
+	protected boolean runForMatchingArgument(char argName, @NotNull Consumer<@NotNull Argument<?, ?>> f) {
+		var arg = this.getMatchingArgument(argName);
 		if (arg != null) {
 			f.accept(arg);
 			return true;
@@ -60,8 +60,8 @@ public abstract class ParsingStateBase<T extends ErrorLevelProvider> extends Err
 	 * @param argName the name of the argument to find
 	 * @return the argument found, or {@code null} if no argument was found
 	 */
-	protected @Nullable Argument<?, ?> getArgument(char argName) {
-		for (final var argument : this.getArguments()) {
+	protected @Nullable Argument<?, ?> getMatchingArgument(char argName) {
+		for (final var argument : this.command.getArguments()) {
 			if (argument.checkMatch(argName)) {
 				return argument;
 			}
@@ -74,8 +74,8 @@ public abstract class ParsingStateBase<T extends ErrorLevelProvider> extends Err
 	 * @param argName the name of the argument to find
 	 * @return the argument found, or {@code null} if no argument was found
 	 */
-	protected @Nullable Argument<?, ?> getArgument(String argName) {
-		for (final var argument : this.getArguments()) {
+	protected @Nullable Argument<?, ?> getMatchingArgument(String argName) {
+		for (final var argument : this.command.getArguments()) {
 			if (argument.checkMatch(argName)) {
 				return argument;
 			}
@@ -83,15 +83,11 @@ public abstract class ParsingStateBase<T extends ErrorLevelProvider> extends Err
 		return null;
 	}
 
-	protected @NotNull List<@NotNull Argument<?, ?>> getArguments() {
-		return this.command.getArguments();
-	}
-
-	protected @NotNull List<@NotNull Command> getCommands() {
-		return this.command.getCommands();
-	}
-
 	public boolean hasFinished() {
 		return this.hasFinished;
+	}
+
+	public int getNestingOffset() {
+		return this.nestingOffset;
 	}
 }

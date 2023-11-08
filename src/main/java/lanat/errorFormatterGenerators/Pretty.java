@@ -30,7 +30,7 @@ public class Pretty extends ErrorFormatter.Generator {
 	}
 
 	@Override
-	protected @NotNull String generateTokensView(@NotNull ErrorFormatter.DisplayTokensOptions options) {
+	protected @NotNull String generateTokensView(@NotNull ErrorFormatter.HighlightOptions options) {
 		final var tokensFormatters = new ArrayList<>(this.getTokensFormatters());
 		final int tokensLength = tokensFormatters.size();
 		final var tokensRange = options.tokensRange();

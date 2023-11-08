@@ -8,6 +8,7 @@ import lanat.parsing.Token;
 import lanat.parsing.TokenType;
 import lanat.parsing.Tokenizer;
 import lanat.parsing.errors.CustomError;
+import lanat.parsing.errors.ErrorHandler;
 import lanat.utils.*;
 import lanat.utils.displayFormatter.Color;
 import org.jetbrains.annotations.NotNull;
@@ -34,7 +35,7 @@ import java.util.stream.Stream;
  * @see Argument
  */
 public class Command
-	extends ErrorsContainerImpl<CustomError>
+	extends ErrorsContainerImpl<ErrorHandler>
 	implements ErrorCallbacks<ParsedArguments, Command>,
 	ArgumentAdder,
 	ArgumentGroupAdder,
@@ -569,21 +570,6 @@ public class Command
 		return this.parser;
 	}
 
-	void tokenize(@NotNull String input) {
-		// this tokenizes recursively!
-		this.tokenizer.tokenize(input);
-	}
-
-	void parseTokens() {
-		// first, we need to set the tokens of all tokenized subCommands
-		Command cmd = this;
-		do {
-			cmd.parser.setTokens(cmd.tokenizer.getFinalTokens());
-		} while ((cmd = cmd.getTokenizer().getTokenizedSubCommand()) != null);
-
-		// this parses recursively!
-		this.parser.parseTokens();
-	}
 
 	@Override
 	public void resetState() {

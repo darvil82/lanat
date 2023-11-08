@@ -3,7 +3,7 @@ package lanat;
 import lanat.exceptions.CommandTemplateException;
 import lanat.exceptions.IncompatibleCommandTemplateType;
 import lanat.parsing.TokenType;
-import lanat.parsing.errors.ErrorHandler;
+import lanat.parsing.errors.ErrorsCollector;
 import lanat.utils.UtlMisc;
 import lanat.utils.UtlReflection;
 import org.jetbrains.annotations.NotNull;
@@ -179,7 +179,7 @@ public class ArgumentParser extends Command {
 		this.passPropertiesToChildren();
 		this.tokenize(input.args); // first. This will tokenize all Sub-Commands recursively
 
-		var errorHandler = new ErrorHandler(this);
+		var errorHandler = new ErrorsCollector(this);
 
 		// do not parse anything if there are any errors in the tokenizer
 		if (!this.getTokenizer().hasExitErrors()) {
@@ -190,6 +190,21 @@ public class ArgumentParser extends Command {
 		this.isParsed = true;
 
 		return new AfterParseOptions(errorHandler, !input.isEmpty());
+	}
+
+	private void tokenize(@NotNull String args) {
+		this.getTokenizer().tokenize(args, 0);
+	}
+
+	private void parseTokens() {
+		// first, we need to set the tokens of all tokenized subCommands
+		Command cmd = this;
+		do {
+			cmd.getParser().setTokens(cmd.getTokenizer().getFinalTokens());
+		} while ((cmd = cmd.getTokenizer().getTokenizedSubCommand()) != null);
+
+		// this parses recursively!
+		this.getParser().parseTokens(0);
 	}
 
 
@@ -271,9 +286,9 @@ public class ArgumentParser extends Command {
 		private final int errorCode;
 		private final boolean receivedArguments;
 
-		private AfterParseOptions(ErrorHandler errorHandler, boolean receivedArguments) {
+		private AfterParseOptions(ErrorsCollector errorsCollector, boolean receivedArguments) {
 			this.errorCode = ArgumentParser.this.getErrorCode();
-			this.errors = errorHandler.handleErrors();
+			this.errors = errorsCollector.handleErrors();
 			this.receivedArguments = receivedArguments;
 		}
 

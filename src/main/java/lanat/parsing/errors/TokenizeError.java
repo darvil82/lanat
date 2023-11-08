@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("unused")
-public class TokenizeError extends ParseStateErrorBase<TokenizeError.TokenizeErrorType> {
+public class TokenizeError extends ErrorHandler<TokenizeError.TokenizeErrorType> {
 	private final @Nullable Argument<?, ?> argument;
 	private int extraTokenCount = 0;
 
@@ -48,28 +48,28 @@ public class TokenizeError extends ParseStateErrorBase<TokenizeError.TokenizeErr
 	protected void handleTupleAlreadyOpen() {
 		this.fmt()
 			.setContent("Tuple already open.")
-			.displayTokens(this.tokenIndex, 0, false);
+			.displayTokens(this.index, 0, false);
 	}
 
 	@Handler("TUPLE_NOT_CLOSED")
 	protected void handleTupleNotClosed() {
 		this.fmt()
 			.setContent("Tuple not closed.")
-			.displayTokens(this.tokenIndex + 1);
+			.displayTokens(this.index + 1);
 	}
 
 	@Handler("UNEXPECTED_TUPLE_CLOSE")
 	protected void handleUnexpectedTupleClose() {
 		this.fmt()
 			.setContent("Unexpected tuple close.")
-			.displayTokens(this.tokenIndex, 0, false);
+			.displayTokens(this.index, 0, false);
 	}
 
 	@Handler("STRING_NOT_CLOSED")
 	protected void handleStringNotClosed() {
 		this.fmt()
 			.setContent("String not closed.")
-			.displayTokens(this.tokenIndex + 1);
+			.displayTokens(this.index + 1);
 	}
 
 	@Handler("SIMILAR_ARGUMENT")
@@ -82,13 +82,13 @@ public class TokenizeError extends ParseStateErrorBase<TokenizeError.TokenizeErr
 					+ this.argument.getPrefix().character
 					+ ")."
 			)
-			.displayTokens(this.tokenIndex, 0, false);
+			.displayTokens(this.index, 0, false);
 	}
 
 	@Handler("SPACE_REQUIRED")
 	protected void handleSpaceRequired() {
 		this.fmt()
 			.setContent("A space is required between these tokens.")
-			.displayTokens(this.tokenIndex, this.extraTokenCount, false);
+			.displayTokens(this.index, this.extraTokenCount, false);
 	}
 }

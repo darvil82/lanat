@@ -3,6 +3,7 @@ package lanat.parsing;
 import lanat.Argument;
 import lanat.Command;
 import lanat.parsing.errors.TokenizeError;
+import lanat.parsing.errors.TokenizeErrorHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,7 +14,7 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-public class Tokenizer extends ParsingStateBase<TokenizeError> {
+public class Tokenizer extends ParsingStateBase<TokenizeErrorHandler> {
 	/** Are we currently within a tuple? */
 	protected boolean tupleOpen = false;
 
@@ -44,8 +45,9 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	}
 
 
-	private void setInputString(@NotNull String inputString) {
-		this.inputString = inputString;
+	private void setInputString(@NotNull String inputString, int nestingOffset) {
+		this.nestingOffset = nestingOffset;
+		this.inputString = inputString.substring(nestingOffset);
 		this.inputChars = inputString.toCharArray();
 	}
 
@@ -53,10 +55,10 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	 * Tokenizes the input string given. When finished, the tokens can be retrieved using
 	 * {@link Tokenizer#getFinalTokens()}
 	 */
-	public void tokenize(@NotNull String input) {
+	public void tokenize(@NotNull String input, int nestingOffset) {
 		assert !this.hasFinished : "Tokenizer has already finished tokenizing.";
 
-		this.setInputString(input);
+		this.setInputString(input, nestingOffset);
 
 		// nothing to tokenize. Just finish
 		if (input.isEmpty()) {
@@ -226,9 +228,9 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 		// if this is a Sub-Command, continue tokenizing next elements
 		if (token.type() == TokenType.COMMAND) {
 			// forward the rest of stuff to the Sub-Command
-			this.getSubCommandByName(token.contents())
+			this.command.getCommand(token.contents())
 				.getTokenizer()
-				.tokenize(this.inputString.substring(this.currentCharIndex));
+				.tokenize(this.inputString, this.currentCharIndex + this.nestingOffset + 1);
 
 			this.hasFinished = true;
 		} else {
@@ -262,7 +264,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 			// if an argument is found with that char name, append its prefix to the possible prefixes
 			// and increment the foundArgs counter.
 			// If no argument is found, stop checking
-			if (!this.runForArgument(argName, argument -> possiblePrefixes.add(argument.getPrefix())))
+			if (!this.runForMatchingArgument(argName, argument -> possiblePrefixes.add(argument.getPrefix())))
 				break;
 			foundArgs++;
 		}
@@ -279,7 +281,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	 */
 	private boolean isArgName(@NotNull String str) {
 		// make sure we are working with long enough strings
-		return str.length() > 1 && this.getArguments().stream().anyMatch(a -> a.checkMatch(str));
+		return str.length() > 1 && this.getMatchingArgument(str) != null;
 	}
 
 	/**
@@ -290,9 +292,8 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 		return this.isArgName(str) || this.isArgNameList(str);
 	}
 
-	/** Returns {@code true} if the given string is a Sub-Command name */
 	private boolean isSubCommand(@NotNull String str) {
-		return this.getCommands().stream().anyMatch(c -> c.hasName(str));
+		return this.command.hasCommand(str);
 	}
 
 	/**
@@ -315,7 +316,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 				// get rid of the prefix (single or double)
 				final var nameToCheck = str.substring(str.charAt(1) == checkPrefix ? 2 : 1);
 
-				for (var arg : this.getArguments()) {
+				for (var arg : this.command.getArguments()) {
 					if (!arg.hasName(nameToCheck)) continue;
 
 					// offset 1 because this is called before a token is pushed
@@ -341,11 +342,6 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 		return predicate.test(this.inputChars[index]);
 	}
 
-	/** Returns a command from the Sub-Commands of {@link Tokenizer#command} that matches the given name */
-	private @NotNull Command getSubCommandByName(@NotNull String name) {
-		return this.command.getCommand(name);
-	}
-
 	/**
 	 * Returns a list of all tokenized Sub-Command children of {@link Tokenizer#command}.
 	 * <p>
@@ -365,7 +361,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 
 	/** Returns the tokenized Sub-Command of {@link Tokenizer#command}. */
 	public @Nullable Command getTokenizedSubCommand() {
-		return this.getCommands().stream()
+		return this.command.getCommands().stream()
 			.filter(sb -> sb.getTokenizer().hasFinished)
 			.findFirst()
 			.orElse(null);
@@ -379,32 +375,5 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 
 	public boolean isFinishedTokenizing() {
 		return this.hasFinished;
-	}
-
-
-	// ------------------------------------------------ Error Handling ------------------------------------------------
-
-	/**
-	 * Inserts an error at the current token index with the given type.
-	 * @param type The type of the error to insert.
-	 */
-	private void addError(@NotNull TokenizeError.TokenizeErrorType type) {
-		this.addError(type, null, 0);
-	}
-
-	/**
-	 * Inserts an error at the current token index with the given type and argument.
-	 * @param type The type of the error to insert.
-	 * @param argument The argument that caused the error.
-	 * @param indexOffset The offset from the current token index to the token that caused the error.
-	 */
-	private void addError(@NotNull TokenizeError.TokenizeErrorType type, @Nullable Argument<?, ?> argument, int indexOffset) {
-		this.addError(new TokenizeError(type, this.finalTokens.size() + indexOffset, argument));
-	}
-
-	private void addError(@NotNull TokenizeError.TokenizeErrorType type, int indexOffset, int extraTokenCount) {
-		this.addError(new TokenizeError(type, this.finalTokens.size() + indexOffset, null) {{
-			this.setExtraTokenCount(extraTokenCount);
-		}});
 	}
 }

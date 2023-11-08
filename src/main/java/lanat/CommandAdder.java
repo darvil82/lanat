@@ -20,7 +20,7 @@ public interface CommandAdder {
 
 	default boolean hasCommand(@NotNull String name) {
 		for (final var command : this.getCommands()) {
-			if (command.getName().equals(name)) {
+			if (command.hasName(name)) {
 				return true;
 			}
 		}
@@ -36,7 +36,7 @@ public interface CommandAdder {
 	 */
 	default @NotNull Command getCommand(@NotNull String name) {
 		for (final var command : this.getCommands()) {
-			if (command.getName().equals(name)) {
+			if (command.hasName(name)) {
 				return command;
 			}
 		}

@@ -4,14 +4,11 @@ import lanat.ErrorLevel;
 import lanat.utils.ErrorLevelProvider;
 import org.jetbrains.annotations.NotNull;
 
-public interface ErrorHandler<F extends ErrorFormatter> extends ErrorLevelProvider {
-	void handle(@NotNull F fmt);
+public interface ErrorHandler<C> extends ErrorLevelProvider {
+	void handle(@NotNull ErrorFormatter fmt, @NotNull C ctx);
 
 	@Override
 	default @NotNull ErrorLevel getErrorLevel() {
 		return ErrorLevel.ERROR;
 	}
-
-	interface ParseErrorHandler extends ErrorHandler<ErrorFormatter> {}
-	interface TokenizerErrorHandler extends ErrorHandler<ErrorFormatter> {}
 }

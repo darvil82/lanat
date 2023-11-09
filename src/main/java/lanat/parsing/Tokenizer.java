@@ -2,8 +2,8 @@ package lanat.parsing;
 
 import lanat.Argument;
 import lanat.Command;
+import lanat.parsing.errors.ErrorHandler;
 import lanat.parsing.errors.TokenizeError;
-import lanat.parsing.errors.TokenizeErrorHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-public class Tokenizer extends ParsingStateBase<TokenizeErrorHandler> {
+public class Tokenizer extends ParsingStateBase<ErrorHandler> {
 	/** Are we currently within a tuple? */
 	protected boolean tupleOpen = false;
 

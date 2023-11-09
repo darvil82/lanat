@@ -20,7 +20,7 @@ public abstract class ParseErrors {
 	) implements ErrorHandler
 	{
 		@Override
-		public void handle(@NotNull ErrorFormatter fmt) {
+		public void handle(@NotNull ErrorFormatter fmt, @NotNull Object ctx) {
 			// offset to just show the value tokens (we don't want to highlight the argument token as well)
 			final var inTupleOffset = this.isInTuple ? 1 : 0;
 
@@ -51,7 +51,7 @@ public abstract class ParseErrors {
 	) implements ErrorHandler
 	{
 		@Override
-		public void handle(@NotNull ErrorFormatter fmt) {
+		public void handle(@NotNull ErrorFormatter fmt, @NotNull Object ctx) {
 			fmt
 				.withContent("Argument '%s' was used an incorrect amount of times.%nExpected %s, but was used %s."
 					.formatted(
@@ -69,7 +69,7 @@ public abstract class ParseErrors {
 	) implements ErrorHandler
 	{
 		@Override
-		public void handle(@NotNull ErrorFormatter fmt) {
+		public void handle(@NotNull ErrorFormatter fmt, @NotNull Object ctx) {
 			final var argCmd = this.argument.getParentCommand();
 
 			fmt
@@ -84,7 +84,7 @@ public abstract class ParseErrors {
 
 	public record UnmatchedTokenError(int index) implements ErrorHandler {
 		@Override
-		public void handle(@NotNull ErrorFormatter fmt) {
+		public void handle(@NotNull ErrorFormatter fmt, @NotNull Object ctx) {
 			fmt
 				.withContent(
 					"Token '"
@@ -102,7 +102,7 @@ public abstract class ParseErrors {
 	) implements ErrorHandler
 	{
 		@Override
-		public void handle(@NotNull ErrorFormatter fmt) {
+		public void handle(@NotNull ErrorFormatter fmt, @NotNull Object ctx) {
 			fmt
 				.withContent(
 					"Argument '" + this.argument.getName() + "' does not take any values, but got '"
@@ -119,7 +119,7 @@ public abstract class ParseErrors {
 	) implements ErrorHandler
 	{
 		@Override
-		public void handle(@NotNull ErrorFormatter fmt) {
+		public void handle(@NotNull ErrorFormatter fmt, @NotNull Object ctx) {
 			fmt
 				.withContent("Multiple arguments in exclusive group '" + this.group.getName() + "' used.")
 				.highlight(this.index, this.valueCount, false);

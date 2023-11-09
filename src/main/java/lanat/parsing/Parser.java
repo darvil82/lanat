@@ -4,7 +4,7 @@ import lanat.Argument;
 import lanat.ArgumentType;
 import lanat.Command;
 import lanat.parsing.errors.CustomError;
-import lanat.parsing.errors.ParseErrorHandler;
+import lanat.parsing.errors.ErrorHandler;
 import lanat.parsing.errors.ParseErrors;
 import lanat.utils.Range;
 import org.jetbrains.annotations.NotNull;
@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class Parser extends ParsingStateBase<ParseErrorHandler> {
+public class Parser extends ParsingStateBase<ErrorHandler> {
 	/**
 	 * List of all the custom errors that have been added to this parser. Custom errors are thrown by
 	 * {@link ArgumentType}s

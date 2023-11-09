@@ -53,11 +53,10 @@ public enum FormatOption {
 	 * @return The ANSI escape sequence which resets the formatting of this option.
 	 */
 	public @NotNull String reset() {
-		// for some reason, bold is 21 instead of 20
 		return TextFormatter.getSequence(
 			this == RESET_ALL
 				? this.value // RESET_ALL should be the same when resetting
-				: this.value + 20 + (this == BOLD ? 1 : 0)
+				: this.value + 20 + (this == BOLD ? 1 : 0) // for some reason, bold is 21 instead of 20
 		);
 	}
 }

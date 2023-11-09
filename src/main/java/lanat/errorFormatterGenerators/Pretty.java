@@ -1,6 +1,6 @@
 package lanat.errorFormatterGenerators;
 
-import lanat.ErrorFormatter;
+import lanat.parsing.errors.ErrorFormatter;
 import lanat.utils.Range;
 import lanat.utils.UtlString;
 import lanat.utils.displayFormatter.FormatOption;

@@ -1,6 +1,5 @@
-package lanat;
+package lanat.parsing.errors;
 
-import lanat.parsing.errors.ErrorsCollector;
 import lanat.utils.Range;
 import org.jetbrains.annotations.NotNull;
 
@@ -10,18 +9,6 @@ import org.jetbrains.annotations.NotNull;
 public class ErrorFormatter {
 	private @NotNull String content = "";
 	private HighlightOptions tokensViewOptions;
-
-	/** Allows this class to provide some proxy instance methods to the {@link ErrorFormatter} instance. */
-	private final @NotNull ErrorsCollector errorsCollector;
-
-	/**
-	 * Creates a new error formatter
-	 * @param errorsCollector The error handler that created this error formatter.
-	 * @param level The error level of the error.
-	 */
-	public ErrorFormatter(@NotNull ErrorsCollector errorsCollector) {
-		this.errorsCollector = errorsCollector;
-	}
 
 	/**
 	 * Sets the content of the error message.

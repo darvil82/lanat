@@ -1,6 +1,6 @@
 package lanat.errorFormatterGenerators;
 
-import lanat.ErrorFormatter;
+import lanat.parsing.errors.ErrorFormatter;
 import org.jetbrains.annotations.NotNull;
 
 public class Simple extends ErrorFormatter.Generator {

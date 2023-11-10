@@ -3,6 +3,7 @@ package lanat.parsing.errors;
 import lanat.Argument;
 import lanat.ArgumentGroup;
 import lanat.ArgumentParser;
+import lanat.ErrorLevel;
 import lanat.utils.UtlString;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,7 +18,7 @@ public abstract class ParseErrors {
 		int valueCount,
 		boolean isInArgNameList,
 		boolean isInTuple
-	) implements ErrorHandler
+	) implements ErrorHandler.ParseErrorHandler
 	{
 		@Override
 		public void handle(@NotNull ErrorFormatter fmt, @NotNull Object ctx) {
@@ -48,7 +49,7 @@ public abstract class ParseErrors {
 		int index,
 		@NotNull Argument<?, ?> argument,
 		int usageCount
-	) implements ErrorHandler
+	) implements ErrorHandler.ParseErrorHandler
 	{
 		@Override
 		public void handle(@NotNull ErrorFormatter fmt, @NotNull Object ctx) {
@@ -66,7 +67,7 @@ public abstract class ParseErrors {
 	public record RequiredArgumentNotUsedError(
 		int index,
 		@NotNull Argument<?, ?> argument
-	) implements ErrorHandler
+	) implements ErrorHandler.ParseErrorHandler
 	{
 		@Override
 		public void handle(@NotNull ErrorFormatter fmt, @NotNull Object ctx) {
@@ -82,7 +83,7 @@ public abstract class ParseErrors {
 		}
 	}
 
-	public record UnmatchedTokenError(int index) implements ErrorHandler {
+	public record UnmatchedTokenError(int index) implements ErrorHandler.ParseErrorHandler {
 		@Override
 		public void handle(@NotNull ErrorFormatter fmt, @NotNull Object ctx) {
 			fmt
@@ -93,13 +94,18 @@ public abstract class ParseErrors {
 				)
 				.highlight(this.index, 0, false);
 		}
+
+		@Override
+		public @NotNull ErrorLevel getErrorLevel() {
+			return ErrorLevel.WARNING;
+		}
 	}
 
 	public record UnmatchedInArgNameListError(
 		int index,
 		@NotNull Argument<?, ?> argument,
 		@NotNull String errorValue
-	) implements ErrorHandler
+	) implements ErrorHandler.ParseErrorHandler
 	{
 		@Override
 		public void handle(@NotNull ErrorFormatter fmt, @NotNull Object ctx) {
@@ -110,13 +116,18 @@ public abstract class ParseErrors {
 				)
 				.highlight(this.index, 0, false);
 		}
+
+		@Override
+		public @NotNull ErrorLevel getErrorLevel() {
+			return ErrorLevel.WARNING;
+		}
 	}
 
 	public record MultipleArgsInExclusiveGroupUsedError(
 		int index,
 		@NotNull ArgumentGroup group,
 		int valueCount
-	) implements ErrorHandler
+	) implements ErrorHandler.ParseErrorHandler
 	{
 		@Override
 		public void handle(@NotNull ErrorFormatter fmt, @NotNull Object ctx) {

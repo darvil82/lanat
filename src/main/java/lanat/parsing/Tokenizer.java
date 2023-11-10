@@ -3,7 +3,7 @@ package lanat.parsing;
 import lanat.Argument;
 import lanat.Command;
 import lanat.parsing.errors.ErrorHandler;
-import lanat.parsing.errors.TokenizeError;
+import lanat.parsing.errors.TokenizeErrors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-public class Tokenizer extends ParsingStateBase<ErrorHandler> {
+public class Tokenizer extends ParsingStateBase<ErrorHandler.TokenizeErrorHandler> {
 	/** Are we currently within a tuple? */
 	protected boolean tupleOpen = false;
 
@@ -109,7 +109,7 @@ public class Tokenizer extends ParsingStateBase<ErrorHandler> {
 				if (this.tupleOpen) {
 					// push tuple start token so the user can see the incorrect tuple char
 					this.addToken(TokenType.ARGUMENT_VALUE_TUPLE_START, this.tupleOpenChar);
-					this.addError(TokenizeError.TokenizeErrorType.TUPLE_ALREADY_OPEN);
+					this.addError(new TokenizeErrors.TupleAlreadyOpenError(this.currentCharIndex));
 					continue;
 				} else if (!this.currentValue.isEmpty()) { // if there was something before the tuple, tokenize it
 					this.tokenizeCurrentValue();
@@ -123,7 +123,7 @@ public class Tokenizer extends ParsingStateBase<ErrorHandler> {
 			} else if (cChar == this.tupleCloseChar) {
 				if (!this.isCharAtRelativeIndex(1, Character::isWhitespace)) {
 					this.addToken(TokenType.ARGUMENT_VALUE_TUPLE_END, this.tupleCloseChar);
-					this.addError(TokenizeError.TokenizeErrorType.SPACE_REQUIRED, 0, 1);
+					this.addError(new TokenizeErrors.SpaceRequiredError(this.currentCharIndex));
 					continue;
 				}
 
@@ -131,7 +131,7 @@ public class Tokenizer extends ParsingStateBase<ErrorHandler> {
 				if (!this.tupleOpen) {
 					// push tuple start token so the user can see the incorrect tuple char
 					this.addToken(TokenType.ARGUMENT_VALUE_TUPLE_END, this.tupleCloseChar);
-					this.addError(TokenizeError.TokenizeErrorType.UNEXPECTED_TUPLE_CLOSE);
+					this.addError(new TokenizeErrors.UnexpectedTupleCloseError(this.currentCharIndex));
 					continue;
 				}
 
@@ -171,9 +171,9 @@ public class Tokenizer extends ParsingStateBase<ErrorHandler> {
 		}
 
 		if (this.tupleOpen)
-			this.addError(TokenizeError.TokenizeErrorType.TUPLE_NOT_CLOSED);
+			this.addError(new TokenizeErrors.TupleNotClosedError(this.currentCharIndex));
 		if (this.stringOpen)
-			this.addError(TokenizeError.TokenizeErrorType.STRING_NOT_CLOSED);
+			this.addError(new TokenizeErrors.StringNotClosedError(this.currentCharIndex));
 
 		// we left something in the current value, tokenize it
 		if (!this.currentValue.isEmpty()) {
@@ -320,7 +320,7 @@ public class Tokenizer extends ParsingStateBase<ErrorHandler> {
 					if (!arg.hasName(nameToCheck)) continue;
 
 					// offset 1 because this is called before a token is pushed
-					this.addError(TokenizeError.TokenizeErrorType.SIMILAR_ARGUMENT, arg, 1);
+					this.addError(new TokenizeErrors.SimilarArgumentError(arg));
 				}
 			});
 	}

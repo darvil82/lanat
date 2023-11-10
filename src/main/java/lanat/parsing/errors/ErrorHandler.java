@@ -11,4 +11,7 @@ public interface ErrorHandler<C> extends ErrorLevelProvider {
 	default @NotNull ErrorLevel getErrorLevel() {
 		return ErrorLevel.ERROR;
 	}
+
+	interface ParseErrorHandler extends ErrorHandler<Object> { }
+	interface TokenizeErrorHandler extends ErrorHandler<Object> { }
 }

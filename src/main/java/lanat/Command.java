@@ -7,7 +7,6 @@ import lanat.parsing.Parser;
 import lanat.parsing.Token;
 import lanat.parsing.TokenType;
 import lanat.parsing.Tokenizer;
-import lanat.parsing.errors.CustomError;
 import lanat.parsing.errors.ErrorHandler;
 import lanat.utils.*;
 import lanat.utils.displayFormatter.Color;

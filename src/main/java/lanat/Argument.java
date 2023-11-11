@@ -3,7 +3,6 @@ package lanat;
 import lanat.argumentTypes.BooleanArgumentType;
 import lanat.argumentTypes.DummyArgumentType;
 import lanat.exceptions.ArgumentAlreadyExistsException;
-import lanat.parsing.errors.CustomError;
 import lanat.parsing.errors.ParseErrors;
 import lanat.utils.*;
 import lanat.utils.displayFormatter.Color;

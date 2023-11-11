@@ -4,7 +4,7 @@ import lanat.argumentTypes.FromParseableArgumentType;
 import lanat.argumentTypes.IntegerArgumentType;
 import lanat.argumentTypes.Parseable;
 import lanat.exceptions.ArgumentTypeException;
-import lanat.parsing.errors.CustomError;
+import lanat.parsing.errors.ErrorHandler;
 import lanat.utils.ErrorsContainerImpl;
 import lanat.utils.Range;
 import lanat.utils.Resettable;
@@ -42,7 +42,7 @@ import java.util.function.Consumer;
  * @param <T> The type of the value that this argument type parses.
  */
 public abstract class ArgumentType<T>
-	extends ErrorsContainerImpl<CustomError>
+	extends ErrorsContainerImpl<ErrorHandler.ArgumentTypeErrorHandler>
 	implements Resettable, Parseable<T>, ParentElementGetter<ArgumentType<?>>
 {
 	/** This is the value that this argument type current has while being parsed. */

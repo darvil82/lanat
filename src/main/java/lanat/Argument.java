@@ -3,6 +3,7 @@ package lanat;
 import lanat.argumentTypes.BooleanArgumentType;
 import lanat.argumentTypes.DummyArgumentType;
 import lanat.exceptions.ArgumentAlreadyExistsException;
+import lanat.parsing.errors.ErrorHandler;
 import lanat.parsing.errors.ParseErrors;
 import lanat.utils.*;
 import lanat.utils.displayFormatter.Color;
@@ -67,7 +68,7 @@ import java.util.stream.Stream;
  * @see ArgumentParser
  */
 public class Argument<Type extends ArgumentType<TInner>, TInner>
-	implements ErrorsContainer<CustomError>,
+	implements ErrorsContainer<ErrorHandler.ArgumentTypeErrorHandler>,
 	ErrorCallbacks<TInner,
 		Argument<Type, TInner>>,
 	Resettable,
@@ -425,7 +426,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 			? defaultValue
 			: finalValue;
 
-		this.argType.getErrorsUnderDisplayLevel().forEach(this.parentCommand.getParser()::addError);
+		this.argType.getErrorsUnderDisplayLevel().forEach(this.parentCommand::addError);
 		if (this.parentGroup != null) this.parentGroup.setArgUsed();
 
 		// if the argument type has a value defined (even if it wasn't used), use that. Otherwise, use the default value
@@ -442,10 +443,9 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 		if (usageCount == 0) {
 			if (this.required && !this.parentCommand.uniqueArgumentReceivedValue(this)) {
-				this.parentCommand.getParser().addError(
-					// just show it at the end. doesnt really matter
-					ParseErrors.ParseErrorType.REQUIRED_ARGUMENT_NOT_USED, this, 0
-				);
+				this.parentCommand.getParser().addError(new ParseErrors.RequiredArgumentNotUsedError(
+					this.argType.getLastTokenIndex(), this
+				));
 			}
 			return false;
 		}
@@ -453,12 +453,9 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		// make sure that the argument was used the minimum number of times specified
 		if (!this.argType.getRequiredUsageCount().isInRangeInclusive(usageCount)) {
 			this.parentCommand.getParser()
-				.addError(
-					ParseErrors.ParseErrorType.ARG_INCORRECT_USAGES_COUNT,
-					this,
-					this.argType.getLastReceivedValuesNum(),
-					this.argType.getLastTokenIndex()
-				);
+				.addError(new ParseErrors.IncorrectUsagesCountError(
+					this.argType.getLastTokenIndex(), this, this.argType.getLastReceivedValuesNum()
+				));
 			return false;
 		}
 
@@ -478,17 +475,9 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		ArgumentGroup exclusivityResult = this.parentGroup.checkExclusivity(null);
 		if (exclusivityResult == null) return true;
 
-		this.parentCommand.getParser().addError(
-			new ParseErrors(
-				ParseErrors.ParseErrorType.MULTIPLE_ARGS_IN_EXCLUSIVE_GROUP_USED,
-				this.argType.getLastTokenIndex(),
-				this,
-				this.argType.getLastReceivedValuesNum()
-			)
-			{{
-				this.setArgumentGroup(exclusivityResult);
-			}}
-		);
+		this.parentCommand.getParser().addError(new ParseErrors.MultipleArgsInExclusiveGroupUsedError(
+			this.argType.getLastTokenIndex(), exclusivityResult, this.argType.getLastReceivedValuesNum()
+		));
 		return false;
 	}
 
@@ -704,12 +693,12 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	// just act as a proxy to the type error handling
 
 	@Override
-	public @NotNull List<@NotNull CustomError> getErrorsUnderExitLevel() {
+	public @NotNull List<ErrorHandler.@NotNull ArgumentTypeErrorHandler> getErrorsUnderExitLevel() {
 		return this.argType.getErrorsUnderExitLevel();
 	}
 
 	@Override
-	public @NotNull List<@NotNull CustomError> getErrorsUnderDisplayLevel() {
+	public @NotNull List<ErrorHandler.@NotNull ArgumentTypeErrorHandler> getErrorsUnderDisplayLevel() {
 		return this.argType.getErrorsUnderDisplayLevel();
 	}
 

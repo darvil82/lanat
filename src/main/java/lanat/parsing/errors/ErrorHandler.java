@@ -14,4 +14,5 @@ public interface ErrorHandler<C> extends ErrorLevelProvider {
 
 	interface ParseErrorHandler extends ErrorHandler<Object> { }
 	interface TokenizeErrorHandler extends ErrorHandler<Object> { }
+	interface ArgumentTypeErrorHandler extends ErrorHandler<Object> { }
 }

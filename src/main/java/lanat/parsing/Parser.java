@@ -3,7 +3,6 @@ package lanat.parsing;
 import lanat.Argument;
 import lanat.ArgumentType;
 import lanat.Command;
-import lanat.parsing.errors.CustomError;
 import lanat.parsing.errors.ErrorHandler;
 import lanat.parsing.errors.ParseErrors;
 import lanat.utils.Range;
@@ -14,12 +13,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class Parser extends ParsingStateBase<ErrorHandler> {
+public class Parser extends ParsingStateBase<ErrorHandler.ParseErrorHandler> {
 	/**
 	 * List of all the custom errors that have been added to this parser. Custom errors are thrown by
 	 * {@link ArgumentType}s
 	 */
-	private final @NotNull ArrayList<@NotNull CustomError> customErrors = new ArrayList<>();
+	private final @NotNull ArrayList<ErrorHandler.@NotNull ArgumentTypeErrorHandler> customErrors = new ArrayList<>();
 
 	/**
 	 * Array of all the tokens that we have tokenized from the CLI arguments.
@@ -76,7 +75,7 @@ public class Parser extends ParsingStateBase<ErrorHandler> {
 		Argument<?, ?> lastPositionalArgument; // this will never be null when being used
 
 		for (this.currentTokenIndex = 0; this.currentTokenIndex < this.tokens.size(); ) {
-			final Token currentToken = this.tokens.get(this.currentTokenIndex);
+			final Token currentToken = this.getToken();
 
 			if (currentToken.type() == TokenType.ARGUMENT_NAME) {
 				// encountered an argument name. first skip the token of the name.
@@ -111,7 +110,7 @@ public class Parser extends ParsingStateBase<ErrorHandler> {
 				this.currentTokenIndex++;
 
 				if (currentToken.type() != TokenType.FORWARD_VALUE)
-					this.addError(ParseErrors.ParseErrorType.UNMATCHED_TOKEN, null, 0);
+					this.addError(new ParseErrors.UnmatchedTokenError(this.currentTokenIndex));
 			}
 		}
 
@@ -136,7 +135,7 @@ public class Parser extends ParsingStateBase<ErrorHandler> {
 
 		this.isInTuple = (
 			this.currentTokenIndex < this.tokens.size()
-				&& this.tokens.get(this.currentTokenIndex).type() == TokenType.ARGUMENT_VALUE_TUPLE_START
+				&& this.getToken().type() == TokenType.ARGUMENT_VALUE_TUPLE_START
 		);
 
 		final byte ifTupleOffset = (byte)(this.isInTuple ? 1 : 0);
@@ -163,7 +162,7 @@ public class Parser extends ParsingStateBase<ErrorHandler> {
 		final int skipIndexCount = numValues + ifTupleOffset*2;
 
 		if (numValues > argNumValuesRange.end() || numValues < argNumValuesRange.start()) {
-			this.addError(ParseErrors.ParseErrorType.ARG_INCORRECT_VALUE_NUMBER, arg, numValues);
+			this.addIncorrectValueNumberError(arg, numValues, false);
 			this.currentTokenIndex += skipIndexCount;
 			return;
 		}
@@ -193,16 +192,7 @@ public class Parser extends ParsingStateBase<ErrorHandler> {
 		}
 
 		if (argumentValuesRange.start() > 1) {
-			this.addError(
-				new ParseErrors(
-					ParseErrors.ParseErrorType.ARG_INCORRECT_VALUE_NUMBER,
-					this.currentTokenIndex + 1,
-					arg,
-					1
-				) {{
-					this.setIsInArgNameList(true); // set that the error was caused by an argument name list
-				}}
-			);
+			this.addIncorrectValueNumberError(arg, 1, true);
 			return;
 		}
 
@@ -227,12 +217,10 @@ public class Parser extends ParsingStateBase<ErrorHandler> {
 			var argument = this.getMatchingArgument(args.charAt(i));
 
 			if (argument == null) {
-				this.addError(
-					ParseErrors.ParseErrorType.UNMATCHED_IN_ARG_NAME_LIST,
-					lastArgument,
-					i + 1, // substr for the current token
-					this.currentTokenIndex + 1 // the next token is the one that caused the error
-				);
+				assert lastArgument != null;
+				this.addError(new ParseErrors.UnmatchedInArgNameListError(
+					this.currentTokenIndex, lastArgument, this.getToken(1).contents()
+				));
 				break;
 			}
 
@@ -277,14 +265,27 @@ public class Parser extends ParsingStateBase<ErrorHandler> {
 	public @NotNull HashMap<@NotNull Argument<?, ?>, @Nullable Object> getParsedArgumentsHashMap() {
 		if (this.parsedArguments == null) {
 			this.parsedArguments = new HashMap<>() {{
-				Parser.this.getArguments().forEach(arg -> this.put(arg, arg.finishParsing()));
+				Parser.this.command.getArguments().forEach(arg -> this.put(arg, arg.finishParsing()));
 			}};
 		}
 		return this.parsedArguments;
 	}
 
+	private @NotNull Token getToken() {
+		return this.getToken(0);
+	}
+
+	private @NotNull Token getToken(int offset) {
+		return this.tokens.get(this.currentTokenIndex + offset);
+	}
 
 	// ------------------------------------------------ Error Handling ------------------------------------------------
+	private void addIncorrectValueNumberError(@NotNull Argument<?, ?> argument, int valueCount, boolean isInArgNameList) {
+		this.addError(new ParseErrors.IncorrectValueNumberError(
+			this.currentTokenIndex, argument, valueCount, isInArgNameList, this.isInTuple
+		));
+	}
+
 	@Override
 	public boolean hasExitErrors() {
 		return super.hasExitErrors() || this.anyErrorInMinimum(this.customErrors, false);
@@ -295,7 +296,7 @@ public class Parser extends ParsingStateBase<ErrorHandler> {
 		return super.hasDisplayErrors() || this.anyErrorInMinimum(this.customErrors, true);
 	}
 
-	public @NotNull List<@NotNull CustomError> getCustomErrors() {
+	public @NotNull List<ErrorHandler.@NotNull ArgumentTypeErrorHandler> getCustomErrors() {
 		return this.getErrorsInLevelMinimum(this.customErrors, true);
 	}
 }

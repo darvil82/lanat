@@ -34,7 +34,7 @@ import java.util.stream.Stream;
  * @see Argument
  */
 public class Command
-	extends ErrorsContainerImpl<ErrorHandler>
+	extends ErrorsContainerImpl<ErrorHandler.ArgumentTypeErrorHandler>
 	implements ErrorCallbacks<ParsedArguments, Command>,
 	ArgumentAdder,
 	ArgumentGroupAdder,
@@ -251,10 +251,6 @@ public class Command
 
 	public @NotNull CallbacksInvocationOption getCallbackInvocationOption() {
 		return this.callbackInvocationOption.get();
-	}
-
-	public void addError(@NotNull String message, @NotNull ErrorLevel level) {
-		this.addError(new CustomError(message, level));
 	}
 
 	public @NotNull String getHelp() {

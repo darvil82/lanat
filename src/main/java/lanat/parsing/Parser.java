@@ -217,7 +217,8 @@ public class Parser extends ParsingStateBase<ErrorHandler.ParseErrorHandler> {
 			var argument = this.getMatchingArgument(args.charAt(i));
 
 			if (argument == null) {
-				assert lastArgument != null;
+				assert lastArgument != null; // we know for sure that lastArgument is not null here
+
 				this.addError(new ParseErrors.UnmatchedInArgNameListError(
 					this.currentTokenIndex, lastArgument, this.getToken(1).contents()
 				));

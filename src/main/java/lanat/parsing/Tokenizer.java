@@ -320,7 +320,9 @@ public class Tokenizer extends ParsingStateBase<ErrorHandler.TokenizeErrorHandle
 					if (!arg.hasName(nameToCheck)) continue;
 
 					// offset 1 because this is called before a token is pushed
-					this.addError(new TokenizeErrors.SimilarArgumentError(arg));
+					this.addError(new TokenizeErrors.SimilarArgumentError(
+						this.currentCharIndex, str, arg
+					));
 				}
 			});
 	}

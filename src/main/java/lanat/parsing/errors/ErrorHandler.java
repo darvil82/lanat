@@ -14,7 +14,7 @@ public sealed interface ErrorHandler<C> extends ErrorLevelProvider
 		return ErrorLevel.ERROR;
 	}
 
-	non-sealed interface ParseErrorHandler extends ErrorHandler<Object> { }
-	non-sealed interface TokenizeErrorHandler extends ErrorHandler<Object> { }
+	non-sealed interface ParseErrorHandler extends ErrorHandler<ParseContext> { }
+	non-sealed interface TokenizeErrorHandler extends ErrorHandler<TokenizeContext> { }
 	non-sealed interface ArgumentTypeErrorHandler extends ErrorHandler<Object> { }
 }

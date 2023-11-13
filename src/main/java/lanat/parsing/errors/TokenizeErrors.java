@@ -10,7 +10,7 @@ public abstract class TokenizeErrors {
 
 	public record TupleAlreadyOpenError(int index) implements ErrorHandler.TokenizeErrorHandler {
 		@Override
-		public void handle(@NotNull ErrorFormatter fmt, @NotNull Object ctx) {
+		public void handle(@NotNull ErrorFormatter fmt, @NotNull TokenizeContext ctx) {
 			fmt
 				.withContent("Tuple already open.")
 				.highlight(this.index, 0, false);
@@ -19,7 +19,7 @@ public abstract class TokenizeErrors {
 
 	public record TupleNotClosedError(int index) implements ErrorHandler.TokenizeErrorHandler {
 		@Override
-		public void handle(@NotNull ErrorFormatter fmt, @NotNull Object ctx) {
+		public void handle(@NotNull ErrorFormatter fmt, @NotNull TokenizeContext ctx) {
 			fmt
 				.withContent("Tuple not closed.")
 				.highlight(this.index + 1);
@@ -28,7 +28,7 @@ public abstract class TokenizeErrors {
 
 	public record UnexpectedTupleCloseError(int index) implements ErrorHandler.TokenizeErrorHandler {
 		@Override
-		public void handle(@NotNull ErrorFormatter fmt, @NotNull Object ctx) {
+		public void handle(@NotNull ErrorFormatter fmt, @NotNull TokenizeContext ctx) {
 			fmt
 				.withContent("Unexpected tuple close.")
 				.highlight(this.index, 0, false);
@@ -37,23 +37,27 @@ public abstract class TokenizeErrors {
 
 	public record StringNotClosedError(int index) implements ErrorHandler.TokenizeErrorHandler {
 		@Override
-		public void handle(@NotNull ErrorFormatter fmt, @NotNull Object ctx) {
+		public void handle(@NotNull ErrorFormatter fmt, @NotNull TokenizeContext ctx) {
 			fmt
 				.withContent("String not closed.")
 				.highlight(this.index + 1);
 		}
 	}
 
-	public record SimilarArgumentError(@NotNull Argument<?, ?> argument) implements ErrorHandler.TokenizeErrorHandler {
+	public record SimilarArgumentError(
+		int index,
+		@NotNull String name,
+		@NotNull Argument<?, ?> argument
+	) implements ErrorHandler.TokenizeErrorHandler {
 		@Override
-		public void handle(@NotNull ErrorFormatter fmt, @NotNull Object ctx) {
+		public void handle(@NotNull ErrorFormatter fmt, @NotNull TokenizeContext ctx) {
 			fmt
 				.withContent(
 					"Found argument with name given, but with a different prefix ("
 						+ this.argument.getPrefix().character
 						+ ")."
 				)
-				.highlight(this.index, 0, false);
+				.highlight(this.index, this.name.length(), false);
 		}
 
 		@Override
@@ -64,7 +68,7 @@ public abstract class TokenizeErrors {
 
 	public record SpaceRequiredError(int index) implements ErrorHandler.TokenizeErrorHandler {
 		@Override
-		public void handle(@NotNull ErrorFormatter fmt, @NotNull Object ctx) {
+		public void handle(@NotNull ErrorFormatter fmt, @NotNull TokenizeContext ctx) {
 			fmt
 				.withContent("A space is required between these tokens.")
 				.highlight(this.index, 1, false);

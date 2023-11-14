@@ -1,14 +1,17 @@
 package lanat.parsing.errors;
 
+import lanat.ErrorLevel;
 import lanat.utils.Range;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Class used by error handlers to easily format errors to be displayed to the user.
  */
 public class ErrorFormatter {
 	private @NotNull String content = "";
-	private HighlightOptions tokensViewOptions;
+	private @Nullable HighlightOptions tokensViewOptions;
+	private ErrorLevel errorLevel;
 
 	/**
 	 * Sets the content of the error message.

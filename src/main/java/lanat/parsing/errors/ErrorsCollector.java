@@ -1,10 +1,12 @@
 package lanat.parsing.errors;
 
 import lanat.ArgumentParser;
+import lanat.Command;
 import lanat.parsing.Token;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
 
 /**
@@ -13,33 +15,52 @@ import java.util.List;
 public class ErrorsCollector {
 	private final @NotNull ArgumentParser argumentParser;
 	private final @NotNull List<@NotNull Token> fullTokenList;
+	private final @NotNull Hashtable<Command, List<ErrorHandler<?>>> errors = new Hashtable<>();
 
 	public ErrorsCollector(@NotNull ArgumentParser argumentParser) {
 		this.argumentParser = argumentParser;
 		this.fullTokenList = argumentParser.getFullTokenList();
 	}
 
+	public void collect(@NotNull Command command) {
+		this.errors.put(command, new ArrayList<>() {{
+			this.addAll(command.getTokenizer().getErrorsUnderDisplayLevel());
+			this.addAll(command.getParser().getErrorsUnderDisplayLevel());
+			command.getArguments().forEach(arg -> this.addAll(arg.getErrorsUnderDisplayLevel()));
+			this.addAll(command.getErrorsUnderDisplayLevel());
+		}});
+	}
+
+	public void collectAllInTree() {
+		this.argumentParser.getTokenizer().getTokenizedCommands().forEach(this::collect);
+	}
+
 	public List<String> handleErrors() {
 		// reuse the same context for all errors of the same type. only create a new one when needed.
-		TokenizeContext tokenizeContext = null;
-		ParseContext parseContext = null;
 		final var errorMessages = new ArrayList<String>();
 
-		for (var error : this.getErrors()) {
+		for (var pair : this.errors.entrySet()) {
+			final var command = pair.getKey();
+			final var errors = pair.getValue();
+
+			TokenizeContext tokenizeContext = null;
+			ParseContext parseContext = null;
 			final var errorFormatter = new ErrorFormatter();
 
-			if (error instanceof ErrorHandler.TokenizeErrorHandler tokenizeError) {
-				if (tokenizeContext == null)
-					tokenizeContext = new TokenizeContext(this.argumentParser);
+			for (var error : errors) {
+				if (error instanceof ErrorHandler.TokenizeErrorHandler tokenizeError) {
+					if (tokenizeContext == null)
+						tokenizeContext = new TokenizeContext(command);
 
-				tokenizeError.handle(errorFormatter, tokenizeContext);
-			} else if (error instanceof ErrorHandler.ParseErrorHandler parseError) {
-				if (parseContext == null)
-					parseContext = new ParseContext(this.argumentParser);
+					tokenizeError.handle(errorFormatter, tokenizeContext);
+				} else if (error instanceof ErrorHandler.ParseErrorHandler parseError) {
+					if (parseContext == null)
+						parseContext = new ParseContext(this.fullTokenList, command);
 
-				parseError.handle(errorFormatter, parseContext);
+					parseError.handle(errorFormatter, parseContext);
+				}
 			}
-
 		}
+
 	}
 }

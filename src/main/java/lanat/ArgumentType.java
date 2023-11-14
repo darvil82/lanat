@@ -42,7 +42,7 @@ import java.util.function.Consumer;
  * @param <T> The type of the value that this argument type parses.
  */
 public abstract class ArgumentType<T>
-	extends ErrorsContainerImpl<ErrorHandler.ArgumentTypeErrorHandler>
+	extends ErrorsContainerImpl<ErrorHandler.CustomErrorHandler>
 	implements Resettable, Parseable<T>, ParentElementGetter<ArgumentType<?>>
 {
 	/** This is the value that this argument type current has while being parsed. */
@@ -130,7 +130,7 @@ public abstract class ArgumentType<T>
 	 *
 	 * @param error The error that occurred in the subtype.
 	 */
-	protected void onSubTypeError(@NotNull CustomError error) {
+	protected void onSubTypeError(@NotNull ErrorHandler.CustomErrorHandler error) {
 		error.index += this.currentArgValueIndex;
 		this.addError(error);
 	}
@@ -139,7 +139,7 @@ public abstract class ArgumentType<T>
 	 * Dispatches the error to the parent argument type.
 	 * @param error The error to dispatch.
 	 */
-	private void dispatchErrorToParent(@NotNull CustomError error) {
+	private void dispatchErrorToParent(@NotNull ErrorHandler.CustomErrorHandler error) {
 		if (this.parentArgType != null) {
 			this.parentArgType.onSubTypeError(error);
 		}
@@ -236,7 +236,7 @@ public abstract class ArgumentType<T>
 	 * </p>
 	 */
 	@Override
-	public void addError(@NotNull CustomError error) {
+	public void addError(@NotNull ErrorHandler.CustomErrorHandler error) {
 		if (this.lastTokenIndex == -1) {
 			throw new ArgumentTypeException("Cannot add an error to an argument that has not been parsed yet.");
 		}

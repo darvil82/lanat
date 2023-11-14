@@ -1,21 +1,16 @@
 package lanat.parsing.errors;
 
-import lanat.ArgumentParser;
-import lanat.parsing.Token;
+import lanat.Command;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-
 public class TokenizeContext {
-	private final @NotNull ArgumentParser argumentParser;
-	private final @NotNull List<@NotNull Token> tokens;
+	private final @NotNull Command command;
 
-	public TokenizeContext(@NotNull ArgumentParser argumentParser) {
-		this.argumentParser = argumentParser;
-		this.tokens = argumentParser.getFullTokenList();
+	public TokenizeContext(@NotNull Command command) {
+		this.command = command;
 	}
 
-	public @NotNull Token getTokenAt(int index) {
-		return this.tokens.get(index < 0 ? this.tokens.size() + index : index);
+	public int getAbsoluteIndex(int index) {
+		return this.command.getTokenizer().getNestingOffset() + index;
 	}
 }

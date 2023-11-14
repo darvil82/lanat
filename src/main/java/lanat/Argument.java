@@ -68,7 +68,7 @@ import java.util.stream.Stream;
  * @see ArgumentParser
  */
 public class Argument<Type extends ArgumentType<TInner>, TInner>
-	implements ErrorsContainer<ErrorHandler.ArgumentTypeErrorHandler>,
+	implements ErrorsContainer<ErrorHandler.CustomErrorHandler>,
 	ErrorCallbacks<TInner,
 		Argument<Type, TInner>>,
 	Resettable,
@@ -693,23 +693,23 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	// just act as a proxy to the type error handling
 
 	@Override
-	public @NotNull List<ErrorHandler.@NotNull ArgumentTypeErrorHandler> getErrorsUnderExitLevel() {
+	public @NotNull List<ErrorHandler.@NotNull CustomErrorHandler> getErrorsUnderExitLevel() {
 		return this.argType.getErrorsUnderExitLevel();
 	}
 
 	@Override
-	public @NotNull List<ErrorHandler.@NotNull ArgumentTypeErrorHandler> getErrorsUnderDisplayLevel() {
+	public @NotNull List<ErrorHandler.@NotNull CustomErrorHandler> getErrorsUnderDisplayLevel() {
 		return this.argType.getErrorsUnderDisplayLevel();
 	}
 
 	@Override
 	public boolean hasExitErrors() {
-		return this.argType.hasExitErrors() || !this.getErrorsUnderExitLevel().isEmpty();
+		return this.argType.hasExitErrors();
 	}
 
 	@Override
 	public boolean hasDisplayErrors() {
-		return this.argType.hasDisplayErrors() || !this.getErrorsUnderDisplayLevel().isEmpty();
+		return this.argType.hasDisplayErrors();
 	}
 
 	@Override

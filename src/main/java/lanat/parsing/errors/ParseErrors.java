@@ -136,4 +136,25 @@ public abstract class ParseErrors {
 				.highlight(this.index, this.valueCount, false);
 		}
 	}
+
+	public record SimilarArgumentError(
+		int index,
+		@NotNull Argument<?, ?> argument
+	) implements ErrorHandler.ParseErrorHandler {
+		@Override
+		public void handle(@NotNull ErrorFormatter fmt, @NotNull ParseContext ctx) {
+			fmt
+				.withContent(
+					"Found argument with name given, but with a different prefix ("
+						+ this.argument.getPrefix().character
+						+ ")."
+				)
+				.highlight(this.index, 0, false);
+		}
+
+		@Override
+		public @NotNull ErrorLevel getErrorLevel() {
+			return ErrorLevel.WARNING;
+		}
+	}
 }

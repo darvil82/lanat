@@ -34,7 +34,7 @@ import java.util.stream.Stream;
  * @see Argument
  */
 public class Command
-	extends ErrorsContainerImpl<ErrorHandler.ArgumentTypeErrorHandler>
+	extends ErrorsContainerImpl<ErrorHandler.CustomErrorHandler>
 	implements ErrorCallbacks<ParsedArguments, Command>,
 	ArgumentAdder,
 	ArgumentGroupAdder,

@@ -12,7 +12,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
 
 public class Tokenizer extends ParsingStateBase<ErrorHandler.TokenizeErrorHandler> {
 	/** Are we currently within a tuple? */
@@ -209,7 +208,6 @@ public class Tokenizer extends ParsingStateBase<ErrorHandler.TokenizeErrorHandle
 		} else if (this.isSubCommand(str)) {
 			type = TokenType.COMMAND;
 		} else {
-			this.checkForSimilar(str);
 			type = TokenType.ARGUMENT_VALUE;
 		}
 
@@ -297,37 +295,6 @@ public class Tokenizer extends ParsingStateBase<ErrorHandler.TokenizeErrorHandle
 	}
 
 	/**
-	 * Checks if the given string is similar to any of the argument names.
-	 * <p>
-	 * If so, adds an error to the error list.
-	 * @param str The string to check.
-	 */
-	private void checkForSimilar(@NotNull String str) {
-		// if the string is too short, don't bother checking
-		if (str.length() < 2) return;
-
-		// check for the common prefixes
-		Stream.of(Argument.PrefixChar.COMMON_PREFIXES)
-			.map(c -> c.character)
-			.forEach(checkPrefix -> {
-				// if not present, don't bother checking
-				if (str.charAt(0) != checkPrefix) return;
-
-				// get rid of the prefix (single or double)
-				final var nameToCheck = str.substring(str.charAt(1) == checkPrefix ? 2 : 1);
-
-				for (var arg : this.command.getArguments()) {
-					if (!arg.hasName(nameToCheck)) continue;
-
-					// offset 1 because this is called before a token is pushed
-					this.addError(new TokenizeErrors.SimilarArgumentError(
-						this.currentCharIndex, str, arg
-					));
-				}
-			});
-	}
-
-	/**
 	 * Returns {@code true} if the character of {@link Tokenizer#inputChars} at a relative index from
 	 * {@link Tokenizer#currentCharIndex} is equal to the specified character.
 	 * <p>
@@ -373,6 +340,10 @@ public class Tokenizer extends ParsingStateBase<ErrorHandler.TokenizeErrorHandle
 	public @NotNull List<@NotNull Token> getFinalTokens() {
 		assert this.hasFinished : "Cannot get final tokens before tokenizing has finished";
 		return this.finalTokens;
+	}
+
+	public String getInputString() {
+		return this.inputString;
 	}
 
 	public boolean isFinishedTokenizing() {

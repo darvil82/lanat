@@ -12,14 +12,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class Parser extends ParsingStateBase<ErrorHandler.ParseErrorHandler> {
-	/**
-	 * List of all the custom errors that have been added to this parser. Custom errors are thrown by
-	 * {@link ArgumentType}s
-	 */
-	private final @NotNull ArrayList<ErrorHandler.@NotNull ArgumentTypeErrorHandler> customErrors = new ArrayList<>();
-
 	/**
 	 * Array of all the tokens that we have tokenized from the CLI arguments.
 	 */
@@ -105,12 +100,13 @@ public class Parser extends ParsingStateBase<ErrorHandler.ParseErrorHandler> {
 					.getParser()
 					.parseTokens(this.currentTokenIndex + this.nestingOffset);
 				break;
-			} else {
-				// addError depends on the currentTokenIndex, so we need to increment it before calling it
-				this.currentTokenIndex++;
+			} else if (currentToken.type() != TokenType.FORWARD_VALUE) {
+				this.addError(new ParseErrors.UnmatchedTokenError(this.currentTokenIndex));
 
-				if (currentToken.type() != TokenType.FORWARD_VALUE)
-					this.addError(new ParseErrors.UnmatchedTokenError(this.currentTokenIndex));
+				if (currentToken.type() == TokenType.ARGUMENT_VALUE)
+					this.checkForSimilarArgumentName(currentToken.contents());
+
+				this.currentTokenIndex++;
 			}
 		}
 
@@ -248,6 +244,34 @@ public class Parser extends ParsingStateBase<ErrorHandler.ParseErrorHandler> {
 		if (doSkipToken) this.currentTokenIndex++;
 	}
 
+	/**
+	 * Checks if the given string is similar to any of the argument names.
+	 * <p>
+	 * If so, add an error to the error list.
+	 * @param str The string to check.
+	 */
+	private void checkForSimilarArgumentName(@NotNull String str) {
+		// if the string is too short, don't bother checking
+		if (str.length() < 2) return;
+
+		// check for the common prefixes
+		Stream.of(Argument.PrefixChar.COMMON_PREFIXES)
+			.map(c -> c.character)
+			.forEach(checkPrefix -> {
+				// if not present, don't bother checking
+				if (str.charAt(0) != checkPrefix) return;
+
+				// get rid of the prefix (single or double)
+				final var nameToCheck = str.substring(str.charAt(1) == checkPrefix ? 2 : 1);
+
+				for (var arg : this.command.getArguments()) {
+					if (!arg.hasName(nameToCheck)) continue;
+
+					this.addError(new ParseErrors.SimilarArgumentError(this.currentTokenIndex, arg));
+				}
+			});
+	}
+
 	/** Returns the positional argument at the given index of declaration. */
 	private @Nullable Argument<?, ?> getArgumentByPositionalIndex(short index) {
 		var posArgs = this.command.getPositionalArguments();
@@ -285,19 +309,5 @@ public class Parser extends ParsingStateBase<ErrorHandler.ParseErrorHandler> {
 		this.addError(new ParseErrors.IncorrectValueNumberError(
 			this.currentTokenIndex, argument, valueCount, isInArgNameList, this.isInTuple
 		));
-	}
-
-	@Override
-	public boolean hasExitErrors() {
-		return super.hasExitErrors() || this.anyErrorInMinimum(this.customErrors, false);
-	}
-
-	@Override
-	public boolean hasDisplayErrors() {
-		return super.hasDisplayErrors() || this.anyErrorInMinimum(this.customErrors, true);
-	}
-
-	public @NotNull List<ErrorHandler.@NotNull ArgumentTypeErrorHandler> getCustomErrors() {
-		return this.getErrorsInLevelMinimum(this.customErrors, true);
 	}
 }

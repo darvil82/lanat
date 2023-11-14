@@ -1,7 +1,5 @@
 package lanat.parsing.errors;
 
-import lanat.Argument;
-import lanat.ErrorLevel;
 import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("unused")
@@ -41,28 +39,6 @@ public abstract class TokenizeErrors {
 			fmt
 				.withContent("String not closed.")
 				.highlight(this.index + 1);
-		}
-	}
-
-	public record SimilarArgumentError(
-		int index,
-		@NotNull String name,
-		@NotNull Argument<?, ?> argument
-	) implements ErrorHandler.TokenizeErrorHandler {
-		@Override
-		public void handle(@NotNull ErrorFormatter fmt, @NotNull TokenizeContext ctx) {
-			fmt
-				.withContent(
-					"Found argument with name given, but with a different prefix ("
-						+ this.argument.getPrefix().character
-						+ ")."
-				)
-				.highlight(this.index, this.name.length(), false);
-		}
-
-		@Override
-		public @NotNull ErrorLevel getErrorLevel() {
-			return ErrorLevel.WARNING;
 		}
 	}
 

@@ -5,7 +5,7 @@ import lanat.utils.ErrorLevelProvider;
 import org.jetbrains.annotations.NotNull;
 
 public sealed interface ErrorHandler<C> extends ErrorLevelProvider
-	permits ErrorHandler.ParseErrorHandler, ErrorHandler.TokenizeErrorHandler, ErrorHandler.ArgumentTypeErrorHandler
+	permits ErrorHandler.ParseErrorHandler, ErrorHandler.TokenizeErrorHandler, ErrorHandler.CustomErrorHandler
 {
 	void handle(@NotNull ErrorFormatter fmt, @NotNull C ctx);
 
@@ -16,5 +16,5 @@ public sealed interface ErrorHandler<C> extends ErrorLevelProvider
 
 	non-sealed interface ParseErrorHandler extends ErrorHandler<ParseContext> { }
 	non-sealed interface TokenizeErrorHandler extends ErrorHandler<TokenizeContext> { }
-	non-sealed interface ArgumentTypeErrorHandler extends ErrorHandler<Object> { }
+	non-sealed interface CustomErrorHandler extends ErrorHandler<Object> { }
 }

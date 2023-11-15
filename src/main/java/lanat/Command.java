@@ -7,7 +7,7 @@ import lanat.parsing.Parser;
 import lanat.parsing.Token;
 import lanat.parsing.TokenType;
 import lanat.parsing.Tokenizer;
-import lanat.parsing.errors.ErrorHandler;
+import lanat.parsing.errors.Error;
 import lanat.utils.*;
 import lanat.utils.displayFormatter.Color;
 import org.jetbrains.annotations.NotNull;
@@ -34,7 +34,7 @@ import java.util.stream.Stream;
  * @see Argument
  */
 public class Command
-	extends ErrorsContainerImpl<ErrorHandler.CustomErrorHandler>
+	extends ErrorsContainerImpl<Error.CustomError>
 	implements ErrorCallbacks<ParsedArguments, Command>,
 	ArgumentAdder,
 	ArgumentGroupAdder,

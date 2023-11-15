@@ -6,30 +6,30 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class ParseContext {
+public class ParseContext extends BaseContext {
 	private final @NotNull List<@NotNull Token> fullTokenList;
-	private final @NotNull Command command;
-
 
 	public ParseContext(@NotNull List<@NotNull Token> fullTokenList, @NotNull Command command) {
+		super(command);
 		this.fullTokenList = fullTokenList;
-		this.command = command;
 	}
 
 
+	@Override
 	public int getAbsoluteIndex(int index) {
-		return this.command.getTokenizer().getNestingOffset() + index;
+		return this.command.getParser().getNestingOffset() + index;
 	}
 
-	public int getTokenCount() {
+	@Override
+	public int getCount() {
 		return this.command.getTokenizer().getFinalTokens().size();
 	}
 
 	public @NotNull Token getTokenAt(int index) {
-		return this.fullTokenList.get(
+		return this.fullTokenList.get(this.getAbsoluteIndex(
 			index < 0
-				? this.getAbsoluteIndex(this.getTokenCount() + index)
-				: this.getAbsoluteIndex(index)
-		);
+				? this.getCount() + index
+				: index
+		));
 	}
 }

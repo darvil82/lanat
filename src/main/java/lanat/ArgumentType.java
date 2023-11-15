@@ -4,7 +4,7 @@ import lanat.argumentTypes.FromParseableArgumentType;
 import lanat.argumentTypes.IntegerArgumentType;
 import lanat.argumentTypes.Parseable;
 import lanat.exceptions.ArgumentTypeException;
-import lanat.parsing.errors.ErrorHandler;
+import lanat.parsing.errors.Error;
 import lanat.utils.ErrorsContainerImpl;
 import lanat.utils.Range;
 import lanat.utils.Resettable;
@@ -42,7 +42,7 @@ import java.util.function.Consumer;
  * @param <T> The type of the value that this argument type parses.
  */
 public abstract class ArgumentType<T>
-	extends ErrorsContainerImpl<ErrorHandler.CustomErrorHandler>
+	extends ErrorsContainerImpl<Error.CustomError>
 	implements Resettable, Parseable<T>, ParentElementGetter<ArgumentType<?>>
 {
 	/** This is the value that this argument type current has while being parsed. */
@@ -119,6 +119,11 @@ public abstract class ArgumentType<T>
 		if (subType.parentArgType == this) {
 			throw new IllegalArgumentException("The sub type is already registered to this argument type.");
 		}
+
+		if (subType.parentArgType != null) {
+			throw new IllegalArgumentException("The sub type is already registered to another argument type.");
+		}
+
 		subType.lastTokenIndex = 0; // This is so the subtype will not throw the error that it was not parsed.
 		subType.parentArgType = this;
 		this.subTypes.add(subType);
@@ -130,7 +135,7 @@ public abstract class ArgumentType<T>
 	 *
 	 * @param error The error that occurred in the subtype.
 	 */
-	protected void onSubTypeError(@NotNull ErrorHandler.CustomErrorHandler error) {
+	protected void onSubTypeError(@NotNull Error.CustomError error) {
 		error.index += this.currentArgValueIndex;
 		this.addError(error);
 	}
@@ -139,7 +144,7 @@ public abstract class ArgumentType<T>
 	 * Dispatches the error to the parent argument type.
 	 * @param error The error to dispatch.
 	 */
-	private void dispatchErrorToParent(@NotNull ErrorHandler.CustomErrorHandler error) {
+	private void dispatchErrorToParent(@NotNull Error.CustomError error) {
 		if (this.parentArgType != null) {
 			this.parentArgType.onSubTypeError(error);
 		}
@@ -236,7 +241,7 @@ public abstract class ArgumentType<T>
 	 * </p>
 	 */
 	@Override
-	public void addError(@NotNull ErrorHandler.CustomErrorHandler error) {
+	public void addError(@NotNull Error.CustomError error) {
 		if (this.lastTokenIndex == -1) {
 			throw new ArgumentTypeException("Cannot add an error to an argument that has not been parsed yet.");
 		}

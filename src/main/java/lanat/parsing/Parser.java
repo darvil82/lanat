@@ -3,7 +3,7 @@ package lanat.parsing;
 import lanat.Argument;
 import lanat.ArgumentType;
 import lanat.Command;
-import lanat.parsing.errors.ErrorHandler;
+import lanat.parsing.errors.Error;
 import lanat.parsing.errors.ParseErrors;
 import lanat.utils.Range;
 import org.jetbrains.annotations.NotNull;
@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class Parser extends ParsingStateBase<ErrorHandler.ParseErrorHandler> {
+public class Parser extends ParsingStateBase<Error.ParseError> {
 	/**
 	 * Array of all the tokens that we have tokenized from the CLI arguments.
 	 */

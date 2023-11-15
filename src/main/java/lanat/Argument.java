@@ -3,7 +3,7 @@ package lanat;
 import lanat.argumentTypes.BooleanArgumentType;
 import lanat.argumentTypes.DummyArgumentType;
 import lanat.exceptions.ArgumentAlreadyExistsException;
-import lanat.parsing.errors.ErrorHandler;
+import lanat.parsing.errors.Error;
 import lanat.parsing.errors.ParseErrors;
 import lanat.utils.*;
 import lanat.utils.displayFormatter.Color;
@@ -68,7 +68,7 @@ import java.util.stream.Stream;
  * @see ArgumentParser
  */
 public class Argument<Type extends ArgumentType<TInner>, TInner>
-	implements ErrorsContainer<ErrorHandler.CustomErrorHandler>,
+	implements ErrorsContainer<Error.CustomError>,
 	ErrorCallbacks<TInner,
 		Argument<Type, TInner>>,
 	Resettable,
@@ -693,12 +693,12 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	// just act as a proxy to the type error handling
 
 	@Override
-	public @NotNull List<ErrorHandler.@NotNull CustomErrorHandler> getErrorsUnderExitLevel() {
+	public @NotNull List<Error.@NotNull CustomError> getErrorsUnderExitLevel() {
 		return this.argType.getErrorsUnderExitLevel();
 	}
 
 	@Override
-	public @NotNull List<ErrorHandler.@NotNull CustomErrorHandler> getErrorsUnderDisplayLevel() {
+	public @NotNull List<Error.@NotNull CustomError> getErrorsUnderDisplayLevel() {
 		return this.argType.getErrorsUnderDisplayLevel();
 	}
 

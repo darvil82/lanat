@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 public abstract class TokenizeErrors {
 	private TokenizeErrors() {}
 
-	public record TupleAlreadyOpenError(int index) implements ErrorHandler.TokenizeErrorHandler {
+	public record TupleAlreadyOpenError(int index) implements Error.TokenizeError {
 		@Override
 		public void handle(@NotNull ErrorFormatter fmt, @NotNull TokenizeContext ctx) {
 			fmt
@@ -15,7 +15,7 @@ public abstract class TokenizeErrors {
 		}
 	}
 
-	public record TupleNotClosedError(int index) implements ErrorHandler.TokenizeErrorHandler {
+	public record TupleNotClosedError(int index) implements Error.TokenizeError {
 		@Override
 		public void handle(@NotNull ErrorFormatter fmt, @NotNull TokenizeContext ctx) {
 			fmt
@@ -24,7 +24,7 @@ public abstract class TokenizeErrors {
 		}
 	}
 
-	public record UnexpectedTupleCloseError(int index) implements ErrorHandler.TokenizeErrorHandler {
+	public record UnexpectedTupleCloseError(int index) implements Error.TokenizeError {
 		@Override
 		public void handle(@NotNull ErrorFormatter fmt, @NotNull TokenizeContext ctx) {
 			fmt
@@ -33,7 +33,7 @@ public abstract class TokenizeErrors {
 		}
 	}
 
-	public record StringNotClosedError(int index) implements ErrorHandler.TokenizeErrorHandler {
+	public record StringNotClosedError(int index) implements Error.TokenizeError {
 		@Override
 		public void handle(@NotNull ErrorFormatter fmt, @NotNull TokenizeContext ctx) {
 			fmt
@@ -42,7 +42,7 @@ public abstract class TokenizeErrors {
 		}
 	}
 
-	public record SpaceRequiredError(int index) implements ErrorHandler.TokenizeErrorHandler {
+	public record SpaceRequiredError(int index) implements Error.TokenizeError {
 		@Override
 		public void handle(@NotNull ErrorFormatter fmt, @NotNull TokenizeContext ctx) {
 			fmt

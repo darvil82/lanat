@@ -2,7 +2,7 @@ package lanat.parsing;
 
 import lanat.Argument;
 import lanat.Command;
-import lanat.parsing.errors.ErrorHandler;
+import lanat.parsing.errors.Error;
 import lanat.parsing.errors.TokenizeErrors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -13,7 +13,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.function.Predicate;
 
-public class Tokenizer extends ParsingStateBase<ErrorHandler.TokenizeErrorHandler> {
+public class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 	/** Are we currently within a tuple? */
 	protected boolean tupleOpen = false;
 

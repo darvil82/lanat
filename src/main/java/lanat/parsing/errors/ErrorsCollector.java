@@ -15,7 +15,7 @@ import java.util.List;
 public class ErrorsCollector {
 	private final @NotNull ArgumentParser argumentParser;
 	private final @NotNull List<@NotNull Token> fullTokenList;
-	private final @NotNull Hashtable<Command, List<ErrorHandler<?>>> errors = new Hashtable<>();
+	private final @NotNull Hashtable<Command, List<Error<?>>> errors = new Hashtable<>();
 
 	public ErrorsCollector(@NotNull ArgumentParser argumentParser) {
 		this.argumentParser = argumentParser;
@@ -48,12 +48,12 @@ public class ErrorsCollector {
 			final var errorFormatter = new ErrorFormatter();
 
 			for (var error : errors) {
-				if (error instanceof ErrorHandler.TokenizeErrorHandler tokenizeError) {
+				if (error instanceof Error.TokenizeError tokenizeError) {
 					if (tokenizeContext == null)
 						tokenizeContext = new TokenizeContext(command);
 
 					tokenizeError.handle(errorFormatter, tokenizeContext);
-				} else if (error instanceof ErrorHandler.ParseErrorHandler parseError) {
+				} else if (error instanceof Error.ParseError parseError) {
 					if (parseContext == null)
 						parseContext = new ParseContext(this.fullTokenList, command);
 

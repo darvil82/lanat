@@ -18,7 +18,7 @@ public abstract class ParseErrors {
 		int valueCount,
 		boolean isInArgNameList,
 		boolean isInTuple
-	) implements ErrorHandler.ParseErrorHandler
+	) implements Error.ParseError
 	{
 		@Override
 		public void handle(@NotNull ErrorFormatter fmt, @NotNull ParseContext ctx) {
@@ -49,7 +49,7 @@ public abstract class ParseErrors {
 		int index,
 		@NotNull Argument<?, ?> argument,
 		int usageCount
-	) implements ErrorHandler.ParseErrorHandler
+	) implements Error.ParseError
 	{
 		@Override
 		public void handle(@NotNull ErrorFormatter fmt, @NotNull ParseContext ctx) {
@@ -67,7 +67,7 @@ public abstract class ParseErrors {
 	public record RequiredArgumentNotUsedError(
 		int index,
 		@NotNull Argument<?, ?> argument
-	) implements ErrorHandler.ParseErrorHandler
+	) implements Error.ParseError
 	{
 		@Override
 		public void handle(@NotNull ErrorFormatter fmt, @NotNull ParseContext ctx) {
@@ -83,7 +83,7 @@ public abstract class ParseErrors {
 		}
 	}
 
-	public record UnmatchedTokenError(int index) implements ErrorHandler.ParseErrorHandler {
+	public record UnmatchedTokenError(int index) implements Error.ParseError {
 		@Override
 		public void handle(@NotNull ErrorFormatter fmt, @NotNull ParseContext ctx) {
 			fmt
@@ -105,7 +105,7 @@ public abstract class ParseErrors {
 		int index,
 		@NotNull Argument<?, ?> argument,
 		@NotNull String errorValue
-	) implements ErrorHandler.ParseErrorHandler
+	) implements Error.ParseError
 	{
 		@Override
 		public void handle(@NotNull ErrorFormatter fmt, @NotNull ParseContext ctx) {
@@ -127,7 +127,7 @@ public abstract class ParseErrors {
 		int index,
 		@NotNull ArgumentGroup group,
 		int valueCount
-	) implements ErrorHandler.ParseErrorHandler
+	) implements Error.ParseError
 	{
 		@Override
 		public void handle(@NotNull ErrorFormatter fmt, @NotNull ParseContext ctx) {
@@ -140,7 +140,8 @@ public abstract class ParseErrors {
 	public record SimilarArgumentError(
 		int index,
 		@NotNull Argument<?, ?> argument
-	) implements ErrorHandler.ParseErrorHandler {
+	) implements Error.ParseError
+	{
 		@Override
 		public void handle(@NotNull ErrorFormatter fmt, @NotNull ParseContext ctx) {
 			fmt

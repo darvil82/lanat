@@ -1,6 +1,6 @@
-package lanat.errorFormatterGenerators;
+package lanat.parsing.errors.formatGenerators;
 
-import lanat.parsing.errors.ErrorFormatter;
+import lanat.parsing.errors.ErrorFormattingContext;
 import lanat.utils.Range;
 import lanat.utils.UtlString;
 import lanat.utils.displayFormatter.FormatOption;
@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Pretty extends ErrorFormatter.Generator {
+public class PrettyErrorFormatter extends BaseErrorFormatter {
 	@Override
 	public @NotNull String generate() {
 		final var contents = this.getContentsWrapped();
@@ -30,7 +30,7 @@ public class Pretty extends ErrorFormatter.Generator {
 	}
 
 	@Override
-	protected @NotNull String generateTokensView(@NotNull ErrorFormatter.HighlightOptions options) {
+	protected @NotNull String generateTokensView(@NotNull ErrorFormattingContext.HighlightOptions options) {
 		final var tokensFormatters = new ArrayList<>(this.getTokensFormatters());
 		final int tokensLength = tokensFormatters.size();
 		final var tokensRange = options.tokensRange();

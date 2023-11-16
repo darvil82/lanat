@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 public sealed interface Error<C> extends ErrorLevelProvider
 	permits Error.ParseError, Error.TokenizeError, Error.CustomError
 {
-	void handle(@NotNull ErrorFormatter fmt, @NotNull C ctx);
+	void handle(@NotNull ErrorFormattingContext fmt, @NotNull C ctx);
 
 	@Override
 	default @NotNull ErrorLevel getErrorLevel() {

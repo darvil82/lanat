@@ -4,6 +4,7 @@ import lanat.argumentTypes.FromParseableArgumentType;
 import lanat.argumentTypes.IntegerArgumentType;
 import lanat.argumentTypes.Parseable;
 import lanat.exceptions.ArgumentTypeException;
+import lanat.parsing.errors.CustomErrorImpl;
 import lanat.parsing.errors.Error;
 import lanat.utils.ErrorsContainerImpl;
 import lanat.utils.Range;
@@ -31,7 +32,7 @@ import java.util.function.Consumer;
  * <p>
  * It is possible to use other Argument Types inside your custom Argument Type. This is done by using the
  * {@link ArgumentType#registerSubType(ArgumentType)} method. This allows you to listen for errors that occur in the
- * subtypes, and to add them to the list of errors of the main parser. {@link ArgumentType#onSubTypeError(CustomError)}
+ * subtypes, and to add them to the list of errors of the main parser. {@link ArgumentType#onSubTypeError(Error.CustomError)}
  * is called when an error occurs in a subtype.
  * </p>
  * <p>
@@ -113,7 +114,7 @@ public abstract class ArgumentType<T>
 
 	/**
 	 * By registering a subtype, this allows you to listen for errors that occurred in this subtype during parsing. The
-	 * {@link ArgumentType#onSubTypeError(CustomError)} method will be called when an error occurs.
+	 * {@link ArgumentType#onSubTypeError(Error.CustomError)} method will be called when an error occurs.
 	 */
 	protected final void registerSubType(@NotNull ArgumentType<?> subType) {
 		if (subType.parentArgType == this) {
@@ -136,7 +137,7 @@ public abstract class ArgumentType<T>
 	 * @param error The error that occurred in the subtype.
 	 */
 	protected void onSubTypeError(@NotNull Error.CustomError error) {
-		error.index += this.currentArgValueIndex;
+		error.offsetIndex(this.currentArgValueIndex);
 		this.addError(error);
 	}
 
@@ -230,7 +231,7 @@ public abstract class ArgumentType<T>
 	 * @param level The level of the error.
 	 */
 	protected void addError(@NotNull String message, int index, @NotNull ErrorLevel level) {
-		this.addError(new CustomError(message, index, level));
+		this.addError(new CustomErrorImpl(message, level, index));
 	}
 
 	/**
@@ -247,12 +248,14 @@ public abstract class ArgumentType<T>
 		}
 
 		// the index of the error should never be less than 0 or greater than the max value count
-		if (error.index < 0 || error.index >= this.getRequiredArgValueCount().end()) {
-			throw new IndexOutOfBoundsException("Index " + error.index + " is out of range for " + this.getClass().getName());
+		if (error.getIndex() < 0 || error.getIndex() >= this.getRequiredArgValueCount().end()) {
+			throw new IndexOutOfBoundsException("Index " + error.getIndex() + " is out of range for " + this.getClass().getName());
 		}
 
-		// the index of the error should be relative to the last token index
-		error.index = this.lastTokenIndex + Math.min(error.index + 1, this.lastReceivedValuesNum);
+		// the index of the error should be relative to the last token index.
+		// if this is a subtype, lastTokenIndex will be 0, so nothing will be done here.
+		// proper offsetting will be done when the error is dispatched to the parent.
+		error.offsetIndex(this.lastTokenIndex);
 
 		super.addError(error);
 		this.dispatchErrorToParent(error);

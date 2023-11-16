@@ -45,7 +45,7 @@ public class ErrorsCollector {
 
 			TokenizeContext tokenizeContext = null;
 			ParseContext parseContext = null;
-			final var errorFormatter = new ErrorFormatter();
+			final var errorFormatter = new ErrorFormattingContext();
 
 			for (var error : errors) {
 				if (error instanceof Error.TokenizeError tokenizeError) {

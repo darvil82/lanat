@@ -15,10 +15,10 @@ public class CustomErrorImpl implements Error.CustomError {
 	}
 
 	@Override
-	public void handle(@NotNull ErrorFormatter fmt, @NotNull ParseContext ctx) {
+	public void handle(@NotNull ErrorFormattingContext fmt, @NotNull ParseContext ctx) {
 		fmt
 			.withContent(this.message)
-			.highlight(ctx.getAbsoluteIndex(this.index), 0, false);
+			.highlight(this.index, 0, false);
 	}
 
 	@Override

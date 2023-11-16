@@ -8,7 +8,7 @@ public abstract class TokenizeErrors {
 
 	public record TupleAlreadyOpenError(int index) implements Error.TokenizeError {
 		@Override
-		public void handle(@NotNull ErrorFormatter fmt, @NotNull TokenizeContext ctx) {
+		public void handle(@NotNull ErrorFormattingContext fmt, @NotNull TokenizeContext ctx) {
 			fmt
 				.withContent("Tuple already open.")
 				.highlight(this.index, 0, false);
@@ -17,7 +17,7 @@ public abstract class TokenizeErrors {
 
 	public record TupleNotClosedError(int index) implements Error.TokenizeError {
 		@Override
-		public void handle(@NotNull ErrorFormatter fmt, @NotNull TokenizeContext ctx) {
+		public void handle(@NotNull ErrorFormattingContext fmt, @NotNull TokenizeContext ctx) {
 			fmt
 				.withContent("Tuple not closed.")
 				.highlight(this.index + 1);
@@ -26,7 +26,7 @@ public abstract class TokenizeErrors {
 
 	public record UnexpectedTupleCloseError(int index) implements Error.TokenizeError {
 		@Override
-		public void handle(@NotNull ErrorFormatter fmt, @NotNull TokenizeContext ctx) {
+		public void handle(@NotNull ErrorFormattingContext fmt, @NotNull TokenizeContext ctx) {
 			fmt
 				.withContent("Unexpected tuple close.")
 				.highlight(this.index, 0, false);
@@ -35,7 +35,7 @@ public abstract class TokenizeErrors {
 
 	public record StringNotClosedError(int index) implements Error.TokenizeError {
 		@Override
-		public void handle(@NotNull ErrorFormatter fmt, @NotNull TokenizeContext ctx) {
+		public void handle(@NotNull ErrorFormattingContext fmt, @NotNull TokenizeContext ctx) {
 			fmt
 				.withContent("String not closed.")
 				.highlight(this.index + 1);
@@ -44,7 +44,7 @@ public abstract class TokenizeErrors {
 
 	public record SpaceRequiredError(int index) implements Error.TokenizeError {
 		@Override
-		public void handle(@NotNull ErrorFormatter fmt, @NotNull TokenizeContext ctx) {
+		public void handle(@NotNull ErrorFormattingContext fmt, @NotNull TokenizeContext ctx) {
 			fmt
 				.withContent("A space is required between these tokens.")
 				.highlight(this.index, 1, false);

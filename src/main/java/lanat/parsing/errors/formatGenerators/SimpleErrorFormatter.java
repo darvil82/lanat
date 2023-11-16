@@ -1,9 +1,9 @@
-package lanat.errorFormatterGenerators;
+package lanat.parsing.errors.formatGenerators;
 
-import lanat.parsing.errors.ErrorFormatter;
+import lanat.parsing.errors.ErrorFormattingContext;
 import org.jetbrains.annotations.NotNull;
 
-public class Simple extends ErrorFormatter.Generator {
+public class SimpleErrorFormatter extends BaseErrorFormatter {
 	@Override
 	public @NotNull String generate() {
 		final var formatter = this.getErrorLevelFormatter()
@@ -13,7 +13,7 @@ public class Simple extends ErrorFormatter.Generator {
 	}
 
 	@Override
-	protected @NotNull String generateTokensView(@NotNull ErrorFormatter.HighlightOptions options) {
+	protected @NotNull String generateTokensView(@NotNull ErrorFormattingContext.HighlightOptions options) {
 		final var range = options.tokensRange();
 
 		String rangeRpr = range.isRange() ?

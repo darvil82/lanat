@@ -21,7 +21,7 @@ public abstract class ParseErrors {
 	) implements Error.ParseError
 	{
 		@Override
-		public void handle(@NotNull ErrorFormatter fmt, @NotNull ParseContext ctx) {
+		public void handle(@NotNull ErrorFormattingContext fmt, @NotNull ParseContext ctx) {
 			// offset to just show the value tokens (we don't want to highlight the argument token as well)
 			final var inTupleOffset = this.isInTuple ? 1 : 0;
 
@@ -52,7 +52,7 @@ public abstract class ParseErrors {
 	) implements Error.ParseError
 	{
 		@Override
-		public void handle(@NotNull ErrorFormatter fmt, @NotNull ParseContext ctx) {
+		public void handle(@NotNull ErrorFormattingContext fmt, @NotNull ParseContext ctx) {
 			fmt
 				.withContent("Argument '%s' was used an incorrect amount of times.%nExpected %s, but was used %s."
 					.formatted(
@@ -70,7 +70,7 @@ public abstract class ParseErrors {
 	) implements Error.ParseError
 	{
 		@Override
-		public void handle(@NotNull ErrorFormatter fmt, @NotNull ParseContext ctx) {
+		public void handle(@NotNull ErrorFormattingContext fmt, @NotNull ParseContext ctx) {
 			final var argCmd = this.argument.getParentCommand();
 
 			fmt
@@ -85,7 +85,7 @@ public abstract class ParseErrors {
 
 	public record UnmatchedTokenError(int index) implements Error.ParseError {
 		@Override
-		public void handle(@NotNull ErrorFormatter fmt, @NotNull ParseContext ctx) {
+		public void handle(@NotNull ErrorFormattingContext fmt, @NotNull ParseContext ctx) {
 			fmt
 				.withContent(
 					"Token '"
@@ -108,7 +108,7 @@ public abstract class ParseErrors {
 	) implements Error.ParseError
 	{
 		@Override
-		public void handle(@NotNull ErrorFormatter fmt, @NotNull ParseContext ctx) {
+		public void handle(@NotNull ErrorFormattingContext fmt, @NotNull ParseContext ctx) {
 			fmt
 				.withContent(
 					"Argument '" + this.argument.getName() + "' does not take any values, but got '"
@@ -130,7 +130,7 @@ public abstract class ParseErrors {
 	) implements Error.ParseError
 	{
 		@Override
-		public void handle(@NotNull ErrorFormatter fmt, @NotNull ParseContext ctx) {
+		public void handle(@NotNull ErrorFormattingContext fmt, @NotNull ParseContext ctx) {
 			fmt
 				.withContent("Multiple arguments in exclusive group '" + this.group.getName() + "' used.")
 				.highlight(this.index, this.valueCount, false);
@@ -143,7 +143,7 @@ public abstract class ParseErrors {
 	) implements Error.ParseError
 	{
 		@Override
-		public void handle(@NotNull ErrorFormatter fmt, @NotNull ParseContext ctx) {
+		public void handle(@NotNull ErrorFormattingContext fmt, @NotNull ParseContext ctx) {
 			fmt
 				.withContent(
 					"Found argument with name given, but with a different prefix ("

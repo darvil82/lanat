@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Class used by error handlers to easily format errors to be displayed to the user.
  */
-public class ErrorFormatter {
+public class ErrorFormattingContext {
 	private @NotNull String content = "";
 	private @Nullable HighlightOptions tokensViewOptions;
 	private ErrorLevel errorLevel;
@@ -18,7 +18,7 @@ public class ErrorFormatter {
 	 * @param content The content of the error message.
 	 * @return This instance.
 	 */
-	public ErrorFormatter withContent(@NotNull String content) {
+	public ErrorFormattingContext withContent(@NotNull String content) {
 		this.content = content;
 		return this;
 	}
@@ -34,7 +34,7 @@ public class ErrorFormatter {
 	 *  may be used to highlight only the token at the index {@code start}.
 	 * @param showArrows Whether to place an arrow at each token index in the range.
 	 */
-	public ErrorFormatter highlight(int start, int offsetEnd, boolean showArrows) {
+	public ErrorFormattingContext highlight(int start, int offsetEnd, boolean showArrows) {
 		this.tokensViewOptions = new HighlightOptions(
 			Range.from(start).to(start + offsetEnd),
 			showArrows
@@ -46,7 +46,7 @@ public class ErrorFormatter {
 	 * Indicates the generator to display all tokens. Places an error at the token at index {@code index}.
 	 * @param index The index of the token to highlight.
 	 */
-	public ErrorFormatter highlight(int index) {
+	public ErrorFormattingContext highlight(int index) {
 		return this.highlight(index, 0, true);
 	}
 

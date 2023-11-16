@@ -85,7 +85,7 @@ public class ParsedArguments {
 	 * <ul>
 	 *     <li>rootcommand
 	 *     <ul>
-	 *         <li>Sub-Command
+	 *         <li>subCommand
 	 *         <ul>
 	 *             <li>argument</li>
 	 *         </ul>

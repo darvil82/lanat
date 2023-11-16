@@ -18,13 +18,7 @@ public sealed interface Error<C> extends ErrorLevelProvider
 	non-sealed interface TokenizeError extends Error<TokenizeContext> { }
 
 	non-sealed interface CustomError extends Error<ParseContext> {
-		void setIndex(int index);
 		int getIndex();
-
-		default void offsetIndex(int offset) {
-			if (offset < 0)
-				throw new IllegalArgumentException("offset must be positive");
-			this.setIndex(this.getIndex() + offset);
-		}
+		void offsetIndex(int offset);
 	}
 }

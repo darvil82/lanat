@@ -47,7 +47,7 @@ public class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 	private void setInputString(@NotNull String inputString, int nestingOffset) {
 		this.nestingOffset = nestingOffset;
 		this.inputString = inputString.substring(nestingOffset);
-		this.inputChars = inputString.toCharArray();
+		this.inputChars = this.inputString.toCharArray();
 	}
 
 	/**
@@ -228,7 +228,7 @@ public class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 			// forward the rest of stuff to the Sub-Command
 			this.command.getCommand(token.contents())
 				.getTokenizer()
-				.tokenize(this.inputString, this.currentCharIndex + this.nestingOffset + 1);
+				.tokenize(this.inputString, this.currentCharIndex + 1);
 
 			this.hasFinished = true;
 		} else {

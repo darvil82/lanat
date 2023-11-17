@@ -4,6 +4,7 @@ import lanat.ErrorLevel;
 import lanat.helpRepresentation.HelpFormatter;
 import lanat.parsing.errors.Error;
 import lanat.parsing.errors.*;
+import lanat.utils.UtlMisc;
 import lanat.utils.UtlString;
 import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
@@ -35,9 +36,7 @@ public abstract class BaseErrorFormatter {
 		else if (this.currentErrorContext instanceof TokenizeContext tokenizeContext)
 			result = this.generateInputView(highlightOptions, tokenizeContext);
 
-		assert result != null; // BaseContext is sealed, so this should never happen
-
-		return result;
+		return UtlMisc.nonNullOrElse(result, "");
 	}
 
 	protected @NotNull ErrorLevel getErrorLevel() {

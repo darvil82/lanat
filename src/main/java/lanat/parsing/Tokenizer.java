@@ -223,6 +223,8 @@ public class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 	private void tokenizeCurrentValue() {
 		final Token token = this.tokenizeWord(this.currentValue.toString());
 
+		this.finalTokens.add(token);
+
 		// if this is a Sub-Command, continue tokenizing next elements
 		if (token.type() == TokenType.COMMAND) {
 			// forward the rest of stuff to the Sub-Command
@@ -231,9 +233,6 @@ public class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 				.tokenize(this.inputString, this.currentCharIndex + 1);
 
 			this.hasFinished = true;
-		} else {
-			// otherwise, just add the token to the final tokens list
-			this.finalTokens.add(token);
 		}
 
 		this.currentValue.setLength(0);

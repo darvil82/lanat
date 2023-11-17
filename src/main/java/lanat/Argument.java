@@ -426,7 +426,6 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 			? defaultValue
 			: finalValue;
 
-		this.argType.getErrorsUnderDisplayLevel().forEach(this.parentCommand::addError);
 		if (this.parentGroup != null) this.parentGroup.setArgUsed();
 
 		// if the argument type has a value defined (even if it wasn't used), use that. Otherwise, use the default value

@@ -205,7 +205,7 @@ public class Parser extends ParsingStateBase<Error.ParseError> {
 	 * Parses the given string as a list of single-char argument names.
 	 */
 	private void parseArgNameList(@NotNull String args) {
-		var doSkipToken = true; // atomic because we need to modify it in the lambda
+		var doSkipToken = true;
 		Argument<?, ?> lastArgument = null;
 
 		// its multiple of them. We can only do this with arguments that accept 0 values.
@@ -216,7 +216,7 @@ public class Parser extends ParsingStateBase<Error.ParseError> {
 				assert lastArgument != null; // we know for sure that lastArgument is not null here
 
 				this.addError(new ParseErrors.UnmatchedInArgNameListError(
-					this.currentTokenIndex, lastArgument, this.getToken(1).contents()
+					this.currentTokenIndex + 1, lastArgument, args.substring(i)
 				));
 				break;
 			}

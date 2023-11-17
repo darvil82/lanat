@@ -45,9 +45,10 @@ public class ErrorsCollector {
 
 			TokenizeContext tokenizeContext = null;
 			ParseContext parseContext = null;
-			final var errorFormatter = new ErrorFormattingContext();
 
 			for (var error : errors) {
+				final var errorFormatter = new ErrorFormattingContext();
+
 				if (error instanceof Error.TokenizeError tokenizeError) {
 					if (tokenizeContext == null)
 						tokenizeContext = new TokenizeContext(command);
@@ -59,6 +60,8 @@ public class ErrorsCollector {
 
 					parseError.handle(errorFormatter, parseContext);
 				}
+
+				errorFormatter.generate
 			}
 		}
 

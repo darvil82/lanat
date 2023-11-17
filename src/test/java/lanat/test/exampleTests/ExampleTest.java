@@ -5,6 +5,7 @@ import lanat.argumentTypes.CounterArgumentType;
 import lanat.argumentTypes.IntegerArgumentType;
 import lanat.argumentTypes.NumberRangeArgumentType;
 import lanat.argumentTypes.StringArgumentType;
+import lanat.helpRepresentation.ArgumentRepr;
 import lanat.utils.Range;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -18,6 +19,7 @@ public final class ExampleTest {
 		new ArgumentParser("my-program") {{
 			this.setCallbackInvocationOption(CallbacksInvocationOption.NO_ERROR_IN_ARGUMENT);
 			this.addHelpArgument();
+			ArgumentRepr.getDescription(this.getArgument("help"));
 			this.addArgument(Argument.create(new CounterArgumentType(), "counter", "c").onOk(System.out::println));
 			this.addArgument(Argument.create(new Example1Type(), "user", "u").required().positional());
 			this.addArgument(Argument.createOfBoolType("t").onOk(v -> System.out.println("present")));

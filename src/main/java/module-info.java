@@ -9,6 +9,7 @@ module lanat {
 	exports lanat.helpRepresentation.descriptions.exceptions;
 	exports lanat.parsing;
 	exports lanat.parsing.errors;
+	exports lanat.parsing.errors.formatGenerators;
 	exports lanat.utils;
 	exports lanat.exceptions;
 }

@@ -4,6 +4,7 @@ import lanat.ArgumentParser;
 import lanat.Command;
 import lanat.parsing.Token;
 import lanat.parsing.errors.formatGenerators.BaseErrorFormatter;
+import lanat.parsing.errors.formatGenerators.PrettyErrorFormatter;
 import lanat.utils.UtlReflection;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,7 +19,7 @@ public class ErrorsCollector {
 	private final @NotNull ArgumentParser argumentParser;
 	private final @NotNull List<@NotNull Token> fullTokenList;
 	private final @NotNull Hashtable<Command, List<Error<?>>> errors = new Hashtable<>();
-	private static @NotNull Class<? extends BaseErrorFormatter> errorFormatterClass = BaseErrorFormatter.class;
+	public static @NotNull Class<? extends BaseErrorFormatter> errorFormatterClass = PrettyErrorFormatter.class;
 
 	public ErrorsCollector(@NotNull ArgumentParser argumentParser) {
 		this.argumentParser = argumentParser;
@@ -39,7 +40,6 @@ public class ErrorsCollector {
 	}
 
 	public List<String> handleErrors() {
-		// reuse the same context for all errors of the same type. only create a new one when needed.
 		final var errorMessages = new ArrayList<String>();
 
 		for (var pair : this.errors.entrySet()) {
@@ -47,11 +47,11 @@ public class ErrorsCollector {
 			final var errors = pair.getValue();
 
 			var x = UtlReflection.instantiate(
-				ErrorsCollector.errorFormatterClass, new TokenizeContext(command)
+				ErrorsCollector.errorFormatterClass, List.of(BaseContext.class), List.of(new TokenizeContext(command))
 			);
 
 			var y = UtlReflection.instantiate(
-				ErrorsCollector.errorFormatterClass, new ParseContext(this.fullTokenList, command)
+				ErrorsCollector.errorFormatterClass, List.of(BaseContext.class), List.of(new ParseContext(this.fullTokenList, command))
 			);
 
 			for (var error : errors) {

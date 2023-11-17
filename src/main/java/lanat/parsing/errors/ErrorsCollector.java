@@ -3,6 +3,8 @@ package lanat.parsing.errors;
 import lanat.ArgumentParser;
 import lanat.Command;
 import lanat.parsing.Token;
+import lanat.parsing.errors.formatGenerators.BaseErrorFormatter;
+import lanat.utils.UtlReflection;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -16,6 +18,7 @@ public class ErrorsCollector {
 	private final @NotNull ArgumentParser argumentParser;
 	private final @NotNull List<@NotNull Token> fullTokenList;
 	private final @NotNull Hashtable<Command, List<Error<?>>> errors = new Hashtable<>();
+	private static @NotNull Class<? extends BaseErrorFormatter> errorFormatterClass = BaseErrorFormatter.class;
 
 	public ErrorsCollector(@NotNull ArgumentParser argumentParser) {
 		this.argumentParser = argumentParser;
@@ -43,27 +46,27 @@ public class ErrorsCollector {
 			final var command = pair.getKey();
 			final var errors = pair.getValue();
 
-			TokenizeContext tokenizeContext = null;
-			ParseContext parseContext = null;
+			var x = UtlReflection.instantiate(
+				ErrorsCollector.errorFormatterClass, new TokenizeContext(command)
+			);
+
+			var y = UtlReflection.instantiate(
+				ErrorsCollector.errorFormatterClass, new ParseContext(this.fullTokenList, command)
+			);
 
 			for (var error : errors) {
 				final var errorFormatter = new ErrorFormattingContext();
 
 				if (error instanceof Error.TokenizeError tokenizeError) {
-					if (tokenizeContext == null)
-						tokenizeContext = new TokenizeContext(command);
-
-					tokenizeError.handle(errorFormatter, tokenizeContext);
+					tokenizeError.handle(errorFormatter, (TokenizeContext)x.getCurrentErrorContext());
+					errorMessages.add(x.generateInternal(error, errorFormatter));
 				} else if (error instanceof Error.ParseError parseError) {
-					if (parseContext == null)
-						parseContext = new ParseContext(this.fullTokenList, command);
-
-					parseError.handle(errorFormatter, parseContext);
+					parseError.handle(errorFormatter, (ParseContext)y.getCurrentErrorContext());
+					errorMessages.add(y.generateInternal(error, errorFormatter));
 				}
-
-				errorFormatter.generate
 			}
 		}
 
+		return errorMessages;
 	}
 }

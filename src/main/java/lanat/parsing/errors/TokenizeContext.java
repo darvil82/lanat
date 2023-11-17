@@ -3,7 +3,7 @@ package lanat.parsing.errors;
 import lanat.Command;
 import org.jetbrains.annotations.NotNull;
 
-public class TokenizeContext extends BaseContext {
+public final class TokenizeContext extends BaseContext {
 	public TokenizeContext(@NotNull Command command) {
 		super(command);
 	}

@@ -50,9 +50,24 @@ public class ErrorFormattingContext {
 		return this.highlight(index, 0, true);
 	}
 
+	public @Nullable HighlightOptions getHighlightOptions() {
+		return this.tokensViewOptions;
+	}
+
+	public @NotNull String getContent() {
+		return this.content;
+	}
 
 	/**
 	 * Options used to display tokens.
 	 */
-	public record HighlightOptions(@NotNull Range tokensRange, boolean showArrows) { }
+	public record HighlightOptions(@NotNull Range range, boolean showArrows) {
+		public @NotNull HighlightOptions applyOffsetFrom(@NotNull BaseContext context) {
+			return new HighlightOptions(
+				Range.from(context.getAbsoluteIndex(this.range.start()))
+					.to(context.getAbsoluteIndex(this.range.end())),
+				this.showArrows
+			);
+		}
+	}
 }

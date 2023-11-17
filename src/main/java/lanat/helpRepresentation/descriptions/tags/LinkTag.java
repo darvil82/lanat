@@ -31,6 +31,6 @@ public class LinkTag extends Tag {
 		else if (obj instanceof ArgumentGroup group)
 			return ArgumentGroupRepr.getRepresentation(group);
 
-		throw new InvalidRouteException(user, value);
+		throw new InvalidRouteException(user, value, "The route must point to a command, argument or argument group.");
 	}
 }

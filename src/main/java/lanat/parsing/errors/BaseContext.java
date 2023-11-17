@@ -16,4 +16,8 @@ public sealed abstract class BaseContext permits ParseContext, TokenizeContext {
 	public int getAbsoluteIndex() {
 		return this.getAbsoluteIndex(0);
 	}
+
+	public @NotNull Command getCommand() {
+		return this.command;
+	}
 }

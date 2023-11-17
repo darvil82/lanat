@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Stream;
 
 public final class UtlReflection {
@@ -39,26 +40,52 @@ public final class UtlReflection {
 	}
 
 	/**
+	 * Instantiates the given class with a no-argument constructor.
+	 * @param clazz The class to instantiate.
+	 * @param <T> The type of the class.
+	 * @return The instantiated class. If the class could not be instantiated, a {@link RuntimeException} is thrown.
+	 */
+	public static <T> T instantiate(Class<T> clazz) {
+		return UtlReflection.instantiate(clazz, List.of(), List.of());
+	}
+
+	/**
 	 * Instantiates the given class with the given arguments.
-	 *
 	 * @param clazz The class to instantiate.
 	 * @param args The arguments to pass to the constructor.
 	 * @param <T> The type of the class.
 	 * @return The instantiated class. If the class could not be instantiated, a {@link RuntimeException} is thrown.
 	 */
-	public static <T> T instantiate(Class<T> clazz, Object... args) {
-		final Class<?>[] parameterTypes = Stream.of(args)
-			.map(Object::getClass)
-			.toArray(Class<?>[]::new);
+	public static <T> T instantiate(Class<T> clazz, @NotNull List<@NotNull Object> args) {
+		return UtlReflection.instantiate(
+			clazz,
+			args.stream().map(Object::getClass).toList(),
+			args
+		);
+	}
 
+
+	/**
+	 * Instantiates the given class with the given arguments.
+	 * @param clazz The class to instantiate.
+	 * @param argTypes The types of the arguments to pass to the constructor.
+	 * @param args The arguments to pass to the constructor.
+	 * @param <T> The type of the class.
+	 * @return The instantiated class. If the class could not be instantiated, a {@link RuntimeException} is thrown.
+	 */
+	public static <T> T instantiate(
+		Class<T> clazz,
+		@NotNull List<? extends Class<?>> argTypes,
+		@NotNull List<Object> args
+	) {
 		try {
-			return clazz.getDeclaredConstructor(parameterTypes).newInstance(args);
+			return clazz.getConstructor(argTypes.toArray(Class[]::new)).newInstance(args.toArray());
 		} catch (NoSuchMethodException e) {
 			throw new RuntimeException("Unable to find a public constructor for the class '" + clazz.getName()
 				+ """
 			'. Please, make sure:
 			  - This class has a public constructor with the parameters: %s
-			  - This is a static class. (Not an inner class)""".formatted(Arrays.toString(parameterTypes))
+			  - This is a static class. (Not an inner class)""".formatted(argTypes)
 			);
 		} catch (IllegalAccessException e) {
 			throw new RuntimeException(

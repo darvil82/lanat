@@ -1,6 +1,9 @@
 package lanat.parsing.errors.formatGenerators;
 
+import lanat.parsing.errors.BaseContext;
 import lanat.parsing.errors.ErrorFormattingContext;
+import lanat.parsing.errors.ParseContext;
+import lanat.parsing.errors.TokenizeContext;
 import lanat.utils.Range;
 import lanat.utils.UtlString;
 import lanat.utils.displayFormatter.FormatOption;
@@ -11,11 +14,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PrettyErrorFormatter extends BaseErrorFormatter {
+	public PrettyErrorFormatter(@NotNull BaseContext currentErrorContext) {
+		super(currentErrorContext);
+	}
+
 	@Override
-	public @NotNull String generate() {
-		final var contents = this.getContentsWrapped();
+	protected @NotNull String generate() {
+		final var contents = this.getContentWrapped();
 		final var formatter = this.getErrorLevelFormatter();
-		final String tokensFormatting = this.getTokensView();
+		final String tokensFormatting = this.getGeneratedView();
 
 		final var longestLineLength = UtlString.getLongestLine(contents).length();
 
@@ -30,10 +37,10 @@ public class PrettyErrorFormatter extends BaseErrorFormatter {
 	}
 
 	@Override
-	protected @NotNull String generateTokensView(@NotNull ErrorFormattingContext.HighlightOptions options) {
-		final var tokensFormatters = new ArrayList<>(this.getTokensFormatters());
+	protected @NotNull String generateTokensView(ErrorFormattingContext.@NotNull HighlightOptions options, @NotNull ParseContext ctx) {
+		final var tokensFormatters = new ArrayList<>(ctx.getTokensFormatters(false));
 		final int tokensLength = tokensFormatters.size();
-		final var tokensRange = options.tokensRange();
+		final var tokensRange = options.range();
 
 		// add an arrow at the start or end if the index is out of bounds
 		if (options.showArrows() || !TextFormatter.enableSequences)
@@ -44,13 +51,19 @@ public class PrettyErrorFormatter extends BaseErrorFormatter {
 
 		for (int i = 0; i < tokensLength; i++) {
 			// dim tokens before the command
-			if (i < this.getAbsoluteCmdTokenIndex()) {
+			if (i < ctx.getAbsoluteIndex()) {
 				tokensFormatters.get(i).addFormat(FormatOption.DIM);
 			}
 		}
 
 		return String.join(" ", tokensFormatters.stream().map(TextFormatter::toString).toList());
 	}
+
+	@Override
+	protected @NotNull String generateInputView(ErrorFormattingContext.@NotNull HighlightOptions options, @NotNull TokenizeContext ctx) {
+		return null;
+	}
+
 
 	private void highlightTokens(@NotNull List<TextFormatter> tokensFormatters, @NotNull Range range) {
 		for (int i = range.start(); i <= range.end(); i++) {

@@ -2,11 +2,12 @@ package lanat.parsing.errors;
 
 import lanat.Command;
 import lanat.parsing.Token;
+import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class ParseContext extends BaseContext {
+public final class ParseContext extends BaseContext {
 	private final @NotNull List<@NotNull Token> fullTokenList;
 
 	public ParseContext(@NotNull List<@NotNull Token> fullTokenList, @NotNull Command command) {
@@ -31,5 +32,21 @@ public class ParseContext extends BaseContext {
 				? this.getCount() + index
 				: index
 		));
+	}
+
+	public @NotNull List<Token> getTokens(boolean onlyInCurrentCommand) {
+		if (!onlyInCurrentCommand)
+			return this.fullTokenList;
+
+		return this.fullTokenList.subList(
+			this.getAbsoluteIndex(),
+			this.getAbsoluteIndex(this.getCount())
+		);
+	}
+
+	public @NotNull List<TextFormatter> getTokensFormatters(boolean onlyInCurrentCommand) {
+		return this.getTokens(onlyInCurrentCommand).stream()
+			.map(Token::getFormatter)
+			.toList();
 	}
 }

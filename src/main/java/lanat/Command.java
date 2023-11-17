@@ -303,7 +303,7 @@ public class Command
 	 * includes the {@link TokenType#COMMAND} tokens.
 	 * @return A list of all the tokens of all Sub-Commands.
 	 */
-	public @NotNull ArrayList<@NotNull Token> getFullTokenList() {
+	public @NotNull List<@NotNull Token> getFullTokenList() {
 		final ArrayList<Token> list = new ArrayList<>() {{
 			this.add(new Token(TokenType.COMMAND, Command.this.getName()));
 			this.addAll(Command.this.getTokenizer().getFinalTokens());
@@ -315,7 +315,7 @@ public class Command
 			list.addAll(subCmd.getFullTokenList());
 		}
 
-		return list;
+		return Collections.unmodifiableList(list);
 	}
 
 	/**

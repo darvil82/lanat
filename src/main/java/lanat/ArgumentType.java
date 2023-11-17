@@ -3,7 +3,6 @@ package lanat;
 import lanat.argumentTypes.FromParseableArgumentType;
 import lanat.argumentTypes.IntegerArgumentType;
 import lanat.argumentTypes.Parseable;
-import lanat.exceptions.ArgumentTypeException;
 import lanat.parsing.errors.CustomErrorImpl;
 import lanat.parsing.errors.Error;
 import lanat.utils.ErrorsContainerImpl;
@@ -62,9 +61,9 @@ public abstract class ArgumentType<T>
 
 	/**
 	 * This is used for storing errors that occur during parsing. We need to keep track of the index of the token that
-	 * caused the error. -1 means that this was still not parsed.
+	 * caused the error.
 	 */
-	private short lastTokenIndex = -1;
+	private short lastTokenIndex = 0;
 
 	/**
 	 * This specifies the number of values that this argument received when being parsed.
@@ -125,7 +124,6 @@ public abstract class ArgumentType<T>
 			throw new IllegalArgumentException("The sub type is already registered to another argument type.");
 		}
 
-		subType.lastTokenIndex = 0; // This is so the subtype will not throw the error that it was not parsed.
 		subType.parentArgType = this;
 		this.subTypes.add(subType);
 	}
@@ -243,10 +241,6 @@ public abstract class ArgumentType<T>
 	 */
 	@Override
 	public void addError(@NotNull Error.CustomError error) {
-		if (this.lastTokenIndex == -1) {
-			throw new ArgumentTypeException("Cannot add an error to an argument that has not been parsed yet.");
-		}
-
 		// the index of the error should never be less than 0 or greater than the max value count
 		if (error.getIndex() < 0 || error.getIndex() >= this.getRequiredArgValueCount().end()) {
 			throw new IndexOutOfBoundsException("Index " + error.getIndex() + " is out of range for " + this.getClass().getName());
@@ -257,8 +251,12 @@ public abstract class ArgumentType<T>
 		// proper offsetting will be done when the error is dispatched to the parent.
 		error.offsetIndex(this.lastTokenIndex);
 
+		if (this.parentArgType != null) {
+			this.dispatchErrorToParent(error);
+			return;
+		}
+
 		super.addError(error);
-		this.dispatchErrorToParent(error);
 	}
 
 	/**
@@ -292,7 +290,7 @@ public abstract class ArgumentType<T>
 	@Override
 	public void resetState() {
 		this.currentValue = this.initialValue;
-		this.lastTokenIndex = -1;
+		this.lastTokenIndex = 0;
 		this.currentArgValueIndex = 0;
 		this.lastReceivedValuesNum = 0;
 		this.usageCount = 0;

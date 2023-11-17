@@ -8,6 +8,7 @@ import lanat.utils.UtlMisc;
 import lanat.utils.UtlString;
 import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public abstract class BaseErrorFormatter {
 	private final @NotNull BaseContext currentErrorContext;
@@ -19,8 +20,8 @@ public abstract class BaseErrorFormatter {
 	}
 
 	protected abstract @NotNull String generate();
-	protected abstract @NotNull String generateTokensView(@NotNull ErrorFormattingContext.HighlightOptions options, @NotNull ParseContext ctx);
-	protected abstract @NotNull String generateInputView(@NotNull ErrorFormattingContext.HighlightOptions options, @NotNull TokenizeContext ctx);
+	protected abstract @Nullable String generateTokensView(@NotNull ErrorFormattingContext.HighlightOptions options, @NotNull ParseContext ctx);
+	protected abstract @Nullable String generateInputView(@NotNull ErrorFormattingContext.HighlightOptions options, @NotNull TokenizeContext ctx);
 
 	protected final @NotNull String getGeneratedView() {
 		var highlightOptions = this.formattingContext.getHighlightOptions();

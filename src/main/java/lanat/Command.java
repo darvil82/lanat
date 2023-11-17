@@ -304,10 +304,7 @@ public class Command
 	 * @return A list of all the tokens of all Sub-Commands.
 	 */
 	public @NotNull List<@NotNull Token> getFullTokenList() {
-		final ArrayList<Token> list = new ArrayList<>() {{
-			this.add(new Token(TokenType.COMMAND, Command.this.getName()));
-			this.addAll(Command.this.getTokenizer().getFinalTokens());
-		}};
+		final List<Token> list = Command.this.getTokenizer().getFinalTokens();
 
 		final Command subCmd = this.getTokenizer().getTokenizedSubCommand();
 

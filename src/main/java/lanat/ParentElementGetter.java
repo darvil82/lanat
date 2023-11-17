@@ -35,4 +35,8 @@ public interface ParentElementGetter<T extends ParentElementGetter<T>> {
 
 		return root;
 	}
+
+	default boolean isRoot() {
+		return this.getParent() == null;
+	}
 }

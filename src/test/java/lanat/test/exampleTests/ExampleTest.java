@@ -17,7 +17,7 @@ public final class ExampleTest {
 		Argument.PrefixChar.defaultPrefix = Argument.PrefixChar.MINUS;
 //		TextFormatter.enableSequences = false;
 		new ArgumentParser("my-program") {{
-			this.setCallbackInvocationOption(CallbacksInvocationOption.NO_ERROR_IN_ARGUMENT);
+//			this.setCallbackInvocationOption(CallbacksInvocationOption.NO_ERROR_IN_ARGUMENT);
 			this.addHelpArgument();
 			ArgumentRepr.getDescription(this.getArgument("help"));
 			this.addArgument(Argument.create(new CounterArgumentType(), "counter", "c").onOk(System.out::println));
@@ -26,7 +26,11 @@ public final class ExampleTest {
 			this.addArgument(Argument.create(new NumberRangeArgumentType<>(0.0, 15.23), "number").onOk(System.out::println));
 			this.addArgument(Argument.create(new StringArgumentType(), "string", "s").onOk(System.out::println).withPrefix(Argument.PrefixChar.PLUS));
 			this.addArgument(Argument.create(new IntegerArgumentType(), "test").onOk(System.out::println).allowsUnique());
-		}}.parse(CLInput.from("-h --number 3' --c -c --c -cccelloc ++string ['hello test'] -ccc]"))
+
+			this.addCommand(new Command("sub", "testing") {{
+				this.addArgument(Argument.create(new NumberRangeArgumentType<>(0.0, 15.23), "number").onOk(System.out::println));
+			}});
+		}}.parse(CLInput.from("-h --number 3 --c -c --c -cccelloc ++string test -ccc sub --number 123"))
 			.printErrors()
 			.getParsedArguments();
 	}

@@ -29,7 +29,7 @@ public abstract class BaseErrorFormatter {
 		if (highlightOptions == null)
 			return "";
 
-		highlightOptions = highlightOptions.applyOffsetFrom(this.currentErrorContext);
+		highlightOptions = highlightOptions.applyOffset(this.currentErrorContext.getAbsoluteIndex());
 
 		String result = null;
 		if (this.currentErrorContext instanceof ParseContext parseContext)

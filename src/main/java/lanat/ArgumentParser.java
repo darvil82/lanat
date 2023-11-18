@@ -2,7 +2,6 @@ package lanat;
 
 import lanat.exceptions.CommandTemplateException;
 import lanat.exceptions.IncompatibleCommandTemplateType;
-import lanat.parsing.TokenType;
 import lanat.parsing.errors.ErrorsCollector;
 import lanat.utils.UtlMisc;
 import lanat.utils.UtlReflection;
@@ -221,19 +220,11 @@ public class ArgumentParser extends Command {
 	}
 
 	/**
-	 * Returns the forward value token (if any) of the full token list.
+	 * Returns the forward value of the last parsed argument.
 	 */
 	private @Nullable String getForwardValue() {
-		final var tokens = this.getFullTokenList();
-		if (tokens.isEmpty())
-			return null;
-
-		final var lastToken = tokens.get(tokens.size() - 1);
-
-		if (lastToken.type() == TokenType.FORWARD_VALUE)
-			return lastToken.contents();
-
-		return null;
+		// the forward value is only present on the last parsed command
+		return UtlMisc.last(this.getTokenizer().getTokenizedCommands()).getParser().getForwardValue();
 	}
 
 	/**

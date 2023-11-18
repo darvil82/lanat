@@ -82,7 +82,7 @@ public class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 			} else if (cChar == '"' || cChar == '\'') {
 				// if we are already in an open string, push the current value and close the string. Make sure
 				// that the current char is the same as the one that opened the string
-				if (this.stringOpen && currentStringChar == cChar && (this.tupleOpen || this.isCharAtRelativeIndex(1, Character::isWhitespace))) {
+				if (this.stringOpen && currentStringChar == cChar) {
 					this.addToken(TokenType.ARGUMENT_VALUE, this.currentValue.toString());
 					this.currentValue.setLength(0);
 					this.stringOpen = false;
@@ -223,7 +223,7 @@ public class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 			// forward the rest of stuff to the Sub-Command
 			this.command.getCommand(token.contents())
 				.getTokenizer()
-				.tokenize(this.inputString, this.currentCharIndex + 1);
+				.tokenize(this.inputString, this.currentCharIndex);
 
 			this.hasFinished = true;
 		}

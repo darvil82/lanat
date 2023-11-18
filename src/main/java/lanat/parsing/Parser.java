@@ -36,6 +36,7 @@ public class Parser extends ParsingStateBase<Error.ParseError> {
 	 * in relation to error handling.
 	 */
 	private HashMap<@NotNull Argument<?, ?>, @Nullable Object> parsedArguments;
+	private @Nullable String forwardValue;
 
 
 	public Parser(@NotNull Command command) {
@@ -47,6 +48,10 @@ public class Parser extends ParsingStateBase<Error.ParseError> {
 	/** Returns the index of the current token that is being parsed. */
 	public short getCurrentTokenIndex() {
 		return this.currentTokenIndex;
+	}
+
+	public @Nullable String getForwardValue() {
+		return this.forwardValue;
 	}
 
 	/** Sets the tokens that this parser will parse. */
@@ -100,7 +105,10 @@ public class Parser extends ParsingStateBase<Error.ParseError> {
 					.getParser()
 					.parseTokens(this.currentTokenIndex + this.nestingOffset);
 				break;
-			} else if (currentToken.type() != TokenType.FORWARD_VALUE) {
+			} else if (currentToken.type() == TokenType.FORWARD_VALUE) {
+				this.forwardValue = currentToken.contents();
+				this.currentTokenIndex++;
+			} else {
 				this.addError(new ParseErrors.UnmatchedTokenError(this.currentTokenIndex));
 
 				if (currentToken.type() == TokenType.ARGUMENT_VALUE)
@@ -147,7 +155,7 @@ public class Parser extends ParsingStateBase<Error.ParseError> {
 		) {
 			final Token currentToken = this.tokens.get(tokenIndex);
 			if (!this.isInTuple && (
-				currentToken.type().isArgumentSpecifier() || numValues >= argNumValuesRange.end()
+				!currentToken.type().isValue() || numValues >= argNumValuesRange.end()
 			)
 				|| currentToken.type().isTuple()
 			) break;

@@ -67,4 +67,14 @@ public final class UtlMisc {
 	public static <T, R> @Nullable R nullOrElse(@Nullable T obj, @NotNull Function<@NotNull T, @NotNull R> defaultObj) {
 		return obj == null ? null : defaultObj.apply(obj);
 	}
+
+	/**
+	 * Returns the last element of the given list.
+	 * @param list The list to get the last element from
+	 * @return The last element of the given list
+	 * @param <T> The type of the elements in the list
+	 */
+	public static <T> T last(@NotNull List<T> list) {
+		return list.get(list.size() - 1);
+	}
 }

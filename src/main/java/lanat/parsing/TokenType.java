@@ -22,6 +22,10 @@ public enum TokenType {
 		return this == ARGUMENT_NAME || this == ARGUMENT_NAME_LIST;
 	}
 
+	public boolean isValue() {
+		return this == ARGUMENT_VALUE || this == ARGUMENT_VALUE_TUPLE_START || this == ARGUMENT_VALUE_TUPLE_END;
+	}
+
 	public boolean isTuple() {
 		return this == ARGUMENT_VALUE_TUPLE_START || this == ARGUMENT_VALUE_TUPLE_END;
 	}

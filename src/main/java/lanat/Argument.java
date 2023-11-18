@@ -450,7 +450,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		}
 
 		// make sure that the argument was used the minimum number of times specified
-		if (!this.argType.getRequiredUsageCount().isInRangeInclusive(usageCount)) {
+		if (!this.argType.getRequiredUsageCount().containsInclusive(usageCount)) {
 			this.parentCommand.getParser()
 				.addError(new ParseErrors.IncorrectUsagesCountError(
 					this.argType.getLastTokenIndex(), this, this.argType.getLastReceivedValuesNum()

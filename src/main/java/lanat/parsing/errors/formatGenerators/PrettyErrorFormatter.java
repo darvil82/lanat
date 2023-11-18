@@ -66,7 +66,16 @@ public class PrettyErrorFormatter extends BaseErrorFormatter {
 
 	@Override
 	protected @NotNull String generateInputView(ErrorFormattingContext.@NotNull HighlightOptions options, @NotNull TokenizeContext ctx) {
-		return null;
+		var in = ctx.getInputString();
+
+		if (options.range().end() > in.length())
+			return in + this.getArrow(false);
+
+		return in.substring(0, options.range().start() - 1)
+			+ this.getArrow(true)
+			+ in.substring(options.range().start() - 1, options.range().end())
+			+ this.getArrow(false)
+			+ in.substring(options.range().end());
 	}
 
 
@@ -81,18 +90,18 @@ public class PrettyErrorFormatter extends BaseErrorFormatter {
 	private void putArrows(@NotNull List<TextFormatter> tokensFormatters, @NotNull Range range) {
 		if (!range.isRange()) {
 			if (range.start() >= tokensFormatters.size())
-				tokensFormatters.add(this.getArrow(true));
+				tokensFormatters.add(this.getArrow(false));
 			else
-				tokensFormatters.add(range.start() + 1, this.getArrow(true));
+				tokensFormatters.add(range.start() + 1, this.getArrow(false));
 			return;
 		}
 
-		tokensFormatters.add(range.end() + 1, this.getArrow(true));
-		tokensFormatters.add(range.start(), this.getArrow(false));
+		tokensFormatters.add(range.end() + 1, this.getArrow(false));
+		tokensFormatters.add(range.start(), this.getArrow(true));
 	}
 
 	private @NotNull TextFormatter getArrow(boolean isLeft) {
-		return new TextFormatter(isLeft ? "<-" : "->", this.getErrorLevel().color)
+		return new TextFormatter(isLeft ? "->" : "<-", this.getErrorLevel().color)
 			.addFormat(FormatOption.REVERSE, FormatOption.BOLD);
 	}
 }

@@ -15,7 +15,7 @@ public class ParsedArgumentsRoot extends ParsedArguments {
 	private final @Nullable String forwardValue;
 
 	ParsedArgumentsRoot(
-		@NotNull Command cmd,
+		@NotNull ArgumentParser cmd,
 		@NotNull HashMap<@NotNull Argument<?, ?>, @Nullable Object> parsedArgs,
 		@NotNull List<@NotNull ParsedArguments> subArgs,
 		@Nullable String forwardValue

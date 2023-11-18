@@ -1,5 +1,7 @@
 package lanat.parsing.errors.formatGenerators;
 
+import lanat.parsing.Token;
+import lanat.parsing.TokenType;
 import lanat.parsing.errors.BaseContext;
 import lanat.parsing.errors.ErrorFormattingContext;
 import lanat.parsing.errors.ParseContext;
@@ -38,9 +40,12 @@ public class PrettyErrorFormatter extends BaseErrorFormatter {
 
 	@Override
 	protected @NotNull String generateTokensView(ErrorFormattingContext.@NotNull HighlightOptions options, @NotNull ParseContext ctx) {
-		final var tokensFormatters = new ArrayList<>(ctx.getTokensFormatters(false));
+		final var tokensFormatters = new ArrayList<TextFormatter>() {{
+			this.add(new Token(TokenType.COMMAND, ctx.getCommand().getRoot().getName()).getFormatter());
+			this.addAll(ctx.getTokensFormatters(false));
+		}};
 		final int tokensLength = tokensFormatters.size();
-		final var tokensRange = options.range();
+		final var tokensRange = options.range().offset(1);
 
 		// add an arrow at the start or end if the index is out of bounds
 		if (options.showArrows() || !TextFormatter.enableSequences)
@@ -66,7 +71,7 @@ public class PrettyErrorFormatter extends BaseErrorFormatter {
 
 
 	private void highlightTokens(@NotNull List<TextFormatter> tokensFormatters, @NotNull Range range) {
-		for (int i = range.start(); i <= range.end(); i++) {
+		for (int i : range) {
 			tokensFormatters.get(i)
 				.withForegroundColor(this.getErrorLevel().color)
 				.addFormat(FormatOption.REVERSE, FormatOption.BOLD);

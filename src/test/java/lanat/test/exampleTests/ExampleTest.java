@@ -16,6 +16,7 @@ public final class ExampleTest {
 	public void main() {
 		Argument.PrefixChar.defaultPrefix = Argument.PrefixChar.MINUS;
 //		TextFormatter.enableSequences = false;
+
 		new ArgumentParser("my-program") {{
 //			this.setCallbackInvocationOption(CallbacksInvocationOption.NO_ERROR_IN_ARGUMENT);
 			this.addHelpArgument();
@@ -29,8 +30,11 @@ public final class ExampleTest {
 
 			this.addCommand(new Command("sub", "testing") {{
 				this.addArgument(Argument.create(new NumberRangeArgumentType<>(0.0, 15.23), "number").onOk(System.out::println));
+				this.addCommand(new Command("sub", "testing") {{
+					this.addArgument(Argument.create(new NumberRangeArgumentType<>(0.0, 15.23), "number").onOk(System.out::println));
+				}});
 			}});
-		}}.parse(CLInput.from("-h --number 3 --c -c --c -cccelloc ++string test -ccc sub --number 123"))
+		}}.parse(CLInput.from("-h --number 2' --c -c --c -ccc ++string test -ccc sub --number 123 sub --number 45a"))
 			.printErrors()
 			.getParsedArguments();
 	}

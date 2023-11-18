@@ -62,10 +62,9 @@ public class ErrorFormattingContext {
 	 * Options used to display tokens.
 	 */
 	public record HighlightOptions(@NotNull Range range, boolean showArrows) {
-		public @NotNull HighlightOptions applyOffsetFrom(@NotNull BaseContext context) {
+		public @NotNull HighlightOptions applyOffset(int offset) {
 			return new HighlightOptions(
-				Range.from(context.getAbsoluteIndex(this.range.start()))
-					.to(context.getAbsoluteIndex(this.range.end())),
+				this.range.offset(offset),
 				this.showArrows
 			);
 		}

@@ -225,6 +225,9 @@ public class ArgumentParser extends Command {
 	 */
 	private @Nullable String getForwardValue() {
 		final var tokens = this.getFullTokenList();
+		if (tokens.isEmpty())
+			return null;
+
 		final var lastToken = tokens.get(tokens.size() - 1);
 
 		if (lastToken.type() == TokenType.FORWARD_VALUE)

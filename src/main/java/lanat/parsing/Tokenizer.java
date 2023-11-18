@@ -311,7 +311,7 @@ public class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 	}
 
 	/**
-	 * Returns a list of all tokenized Sub-Command children of {@link Tokenizer#command}.
+	 * Returns a list of all tokenized Sub-Commands children of {@link Tokenizer#command}. (Including the current)
 	 * <p>
 	 * Note that a Command only has a single tokenized Sub-Command, so this will have one Command per nesting level.
 	 * </p>

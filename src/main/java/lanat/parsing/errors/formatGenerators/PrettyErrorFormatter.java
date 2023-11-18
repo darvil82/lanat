@@ -49,7 +49,7 @@ public class PrettyErrorFormatter extends BaseErrorFormatter {
 
 		// add an arrow at the start or end if the index is out of bounds
 		if (options.showArrows() || !TextFormatter.enableSequences)
-			this.putArrows(tokensFormatters, tokensRange);
+			this.placeArrows(tokensFormatters, tokensRange);
 		else
 			this.highlightTokens(tokensFormatters, tokensRange);
 
@@ -79,7 +79,7 @@ public class PrettyErrorFormatter extends BaseErrorFormatter {
 	}
 
 
-	private void highlightTokens(@NotNull List<TextFormatter> tokensFormatters, @NotNull Range range) {
+	private void highlightTokens(@NotNull List<@NotNull TextFormatter> tokensFormatters, @NotNull Range range) {
 		for (int i : range) {
 			tokensFormatters.get(i)
 				.withForegroundColor(this.getErrorLevel().color)
@@ -87,7 +87,7 @@ public class PrettyErrorFormatter extends BaseErrorFormatter {
 		}
 	}
 
-	private void putArrows(@NotNull List<TextFormatter> tokensFormatters, @NotNull Range range) {
+	private void placeArrows(@NotNull List<@NotNull TextFormatter> tokensFormatters, @NotNull Range range) {
 		if (!range.isRange()) {
 			if (range.start() >= tokensFormatters.size())
 				tokensFormatters.add(this.getArrow(false));

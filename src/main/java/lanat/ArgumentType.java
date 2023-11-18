@@ -289,15 +289,16 @@ public abstract class ArgumentType<T>
 
 	@Override
 	public void resetState() {
+		super.resetState();
+
 		this.currentValue = this.initialValue;
 		this.lastTokenIndex = 0;
 		this.currentArgValueIndex = 0;
 		this.lastReceivedValuesNum = 0;
 		this.usageCount = 0;
-		this.subTypes.forEach(at -> {
-			at.resetState(); // reset the state of the subtypes.
-			at.lastTokenIndex = 0; // remember to reset this back to 0. otherwise, the subtype will throw an error!
-		});
+
+		// reset the state of the subtypes.
+		this.subTypes.forEach(ArgumentType::resetState);
 	}
 
 	@Override

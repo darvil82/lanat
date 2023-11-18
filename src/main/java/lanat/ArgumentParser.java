@@ -279,13 +279,14 @@ public class ArgumentParser extends Command {
 	 * Provides utilities for the parsed arguments after parsing is done.
 	 */
 	public class AfterParseOptions {
-		private final List<@NotNull String> errors;
+		private final @NotNull ErrorsCollector errorsCollector;
+		private List<@NotNull String> errors;
 		private final int errorCode;
 		private final boolean receivedArguments;
 
-		private AfterParseOptions(ErrorsCollector errorsCollector, boolean receivedArguments) {
+		private AfterParseOptions(@NotNull ErrorsCollector errorsCollector, boolean receivedArguments) {
+			this.errorsCollector = errorsCollector;
 			this.errorCode = ArgumentParser.this.getErrorCode();
-			this.errors = errorsCollector.handleErrors();
 			this.receivedArguments = receivedArguments;
 		}
 
@@ -293,6 +294,8 @@ public class ArgumentParser extends Command {
 		 * Returns a list of all the error messages that occurred during parsing.
 		 */
 		public @NotNull List<@NotNull String> getErrors() {
+			if (this.errors == null)
+				this.errors = this.errorsCollector.handleErrors();
 			return this.errors;
 		}
 
@@ -315,7 +318,7 @@ public class ArgumentParser extends Command {
 		 * Prints all errors that occurred during parsing to {@link System#err}.
 		 */
 		public AfterParseOptions printErrors() {
-			for (var error : this.errors) {
+			for (var error : this.getErrors()) {
 				System.err.println(error);
 			}
 			return this;

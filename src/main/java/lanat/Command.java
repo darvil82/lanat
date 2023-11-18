@@ -119,7 +119,10 @@ public class Command
 	 */
 	public void addHelpArgument() {
 		this.addArgument(Argument.createOfBoolType("help", "h")
-			.onOk(t -> System.out.println(this.getHelp()))
+			.onOk(t -> {
+				System.out.println(this.getHelp());
+				System.exit(0);
+			})
 			.withDescription("Shows this message.")
 			.allowsUnique()
 		);

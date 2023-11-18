@@ -17,7 +17,7 @@ public final class ExampleTest {
 		Argument.PrefixChar.defaultPrefix = Argument.PrefixChar.MINUS;
 //		TextFormatter.enableSequences = false;
 
-		new ArgumentParser("my-program") {{
+		var ap = new ArgumentParser("my-program") {{
 			this.setCallbackInvocationOption(CallbacksInvocationOption.NO_ERROR_IN_ARGUMENT);
 			this.addHelpArgument();
 			ArgumentRepr.getDescription(this.getArgument("help"));
@@ -34,9 +34,11 @@ public final class ExampleTest {
 					this.addArgument(Argument.create(new NumberRangeArgumentType<>(0.0, 15.23), "number").onOk(System.out::println));
 				}});
 			}});
-		}}.parse(CLInput.from("--number 2 --c --version -c --c -ccc ++string test -ccc sub --number 12 sub --number 4"))
-			.printErrors()
-			.getParsedArguments();
+		}};
+
+		ap.parse(CLInput.from("josh --number 123 --c -c --c -ccc ++string test -ccc sub --number 12 sub --number 4"))
+			.printErrors();
+
 	}
 
 	public static class Example1Type extends ArgumentType<String[]> {

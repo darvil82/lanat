@@ -12,7 +12,7 @@ import java.util.List;
  *
  * @param <T> The type of the errors to store.
  */
-public abstract class ErrorsContainerImpl<T extends ErrorLevelProvider> implements ErrorsContainer<T> {
+public abstract class ErrorsContainerImpl<T extends ErrorLevelProvider> implements ErrorsContainer<T>, Resettable {
 	private final ModifyRecord<ErrorLevel> minimumExitErrorLevel;
 	private final ModifyRecord<ErrorLevel> minimumDisplayErrorLevel;
 	private final @NotNull List<T> errors = new ArrayList<>();
@@ -75,6 +75,11 @@ public abstract class ErrorsContainerImpl<T extends ErrorLevelProvider> implemen
 
 	protected <TErr extends ErrorLevelProvider> boolean anyErrorInMinimum(@NotNull List<TErr> errors, boolean isDisplayError) {
 		return errors.stream().anyMatch(e -> this.errorIsInMinimumLevel(e, isDisplayError));
+	}
+
+	@Override
+	public void resetState() {
+		this.errors.clear();
 	}
 
 	// --------------------------------------------- Getters and Setters -----------------------------------------------

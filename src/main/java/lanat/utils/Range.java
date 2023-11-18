@@ -145,27 +145,6 @@ public class Range implements Iterable<Integer> {
 		return isInStart && isInEnd;
 	}
 
-	@Override
-	public @NotNull Iterator<Integer> iterator() {
-		return this.iterator(true, true);
-	}
-
-	public @NotNull Iterator<Integer> iterator(boolean startInclusive, boolean endInclusive) {
-		return new Iterator<>() {
-			private int index = Range.this.start + (startInclusive ? 0 : 1);
-
-			@Override
-			public boolean hasNext() {
-				return this.index < Range.this.end + (endInclusive ? 1 : 0);
-			}
-
-			@Override
-			public Integer next() {
-				return this.index++;
-			}
-		};
-	}
-
 	/**
 	 * Returns {@code true} if the given value is in the range, inclusive.
 	 * @param value The value to check
@@ -186,6 +165,27 @@ public class Range implements Iterable<Integer> {
 
 	public @NotNull Range offset(int offset) {
 		return new Range(this.start + offset, this.isInfinite ? -1 : this.end + offset);
+	}
+
+	@Override
+	public @NotNull Iterator<Integer> iterator() {
+		return this.iterator(true, true);
+	}
+
+	public @NotNull Iterator<Integer> iterator(boolean startInclusive, boolean endInclusive) {
+		return new Iterator<>() {
+			private int index = Range.this.start + (startInclusive ? 0 : 1);
+
+			@Override
+			public boolean hasNext() {
+				return this.index < Range.this.end + (endInclusive ? 1 : 0);
+			}
+
+			@Override
+			public Integer next() {
+				return this.index++;
+			}
+		};
 	}
 
 	@Override

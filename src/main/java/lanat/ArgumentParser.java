@@ -266,9 +266,10 @@ public class ArgumentParser extends Command {
 	 */
 	public void addVersionArgument() {
 		this.addArgument(Argument.createOfBoolType("version")
-			.onOk(t ->
-				System.out.println("Version: " + UtlMisc.nonNullOrElse(this.getVersion(), "unknown"))
-			)
+			.onOk(t -> {
+				System.out.println("Version: " + UtlMisc.nonNullOrElse(this.getVersion(), "unknown"));
+				System.exit(0);
+			})
 			.withDescription("Shows the version of this program.")
 			.allowsUnique()
 		);

@@ -20,6 +20,7 @@ public final class ExampleTest {
 		new ArgumentParser("my-program") {{
 //			this.setCallbackInvocationOption(CallbacksInvocationOption.NO_ERROR_IN_ARGUMENT);
 			this.addHelpArgument();
+			this.addVersionArgument();
 			ArgumentRepr.getDescription(this.getArgument("help"));
 			this.addArgument(Argument.create(new CounterArgumentType(), "counter", "c").onOk(System.out::println));
 			this.addArgument(Argument.create(new Example1Type(), "user", "u").required().positional());
@@ -34,7 +35,7 @@ public final class ExampleTest {
 					this.addArgument(Argument.create(new NumberRangeArgumentType<>(0.0, 15.23), "number").onOk(System.out::println));
 				}});
 			}});
-		}}.parse(CLInput.from("-h --number 2' --c -c --c -ccc ++string test -ccc sub --number 123 sub --number 45a"))
+		}}.parse(CLInput.from("--number 2 --c --version --help -c --c -ccc ++string test -ccc sub --number 12 sub --number 4"))
 			.printErrors()
 			.getParsedArguments();
 	}

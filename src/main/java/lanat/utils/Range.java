@@ -127,7 +127,7 @@ public class Range implements Iterable<Integer> {
 	 * @param endInclusive Whether the end value is inclusive
 	 * @return {@code true} if the value is in the range
 	 */
-	public boolean isInRange(int value, boolean startInclusive, boolean endInclusive) {
+	public boolean contains(int value, boolean startInclusive, boolean endInclusive) {
 		if (!this.isRange()) {
 			return value == this.start;
 		}
@@ -150,8 +150,8 @@ public class Range implements Iterable<Integer> {
 	 * @param value The value to check
 	 * @return {@code true} if the value is in the range
 	 */
-	public boolean isInRangeInclusive(int value) {
-		return this.isInRange(value, true, true);
+	public boolean containsInclusive(int value) {
+		return this.contains(value, true, true);
 	}
 
 	/**
@@ -159,8 +159,8 @@ public class Range implements Iterable<Integer> {
 	 * @param value The value to check
 	 * @return {@code true} if the value is in the range
 	 */
-	public boolean isInRangeExclusive(int value) {
-		return this.isInRange(value, false, false);
+	public boolean containsExclusive(int value) {
+		return this.contains(value, false, false);
 	}
 
 	public @NotNull Range offset(int offset) {

@@ -44,7 +44,7 @@ public class TestTerminalOutput extends UnitTests {
 	public void testExceedValueCountTuple() {
 		this.assertErrorOutput("--what [1 2 3 4 5 6 7 8 9 10]", """
 			ERROR
-			Testing --what -> [ 1 2 3 4 5 6 7 8 9 10 ] <-
+			Testing --what [ -> 1 2 3 4 5 6 7 8 9 10 <- ]
 			Incorrect number of values for argument 'what'.
 			Expected from 1 to 3 values, but got 10.""");
 	}

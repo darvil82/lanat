@@ -17,4 +17,8 @@ public final class TokenizeContext extends BaseContext {
 	public int getAbsoluteIndex(int index) {
 		return this.command.getTokenizer().getNestingOffset() + index;
 	}
+
+	public @NotNull String getInputString() {
+		return this.command.getTokenizer().getInputString();
+	}
 }

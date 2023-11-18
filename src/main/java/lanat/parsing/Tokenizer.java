@@ -107,7 +107,6 @@ public class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 				// if we are already in a tuple, add error
 				if (this.tupleOpen) {
 					// push tuple start token so the user can see the incorrect tuple char
-					this.addToken(TokenType.ARGUMENT_VALUE_TUPLE_START, this.tupleOpenChar);
 					this.addError(new TokenizeErrors.TupleAlreadyOpenError(this.currentCharIndex));
 					continue;
 				} else if (!this.currentValue.isEmpty()) { // if there was something before the tuple, tokenize it
@@ -120,12 +119,6 @@ public class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 
 				// reached a possible tuple end character
 			} else if (cChar == this.tupleCloseChar) {
-				if (!this.isCharAtRelativeIndex(1, Character::isWhitespace)) {
-					this.addToken(TokenType.ARGUMENT_VALUE_TUPLE_END, this.tupleCloseChar);
-					this.addError(new TokenizeErrors.SpaceRequiredError(this.currentCharIndex));
-					continue;
-				}
-
 				// if we are not in a tuple, set error and stop tokenizing
 				if (!this.tupleOpen) {
 					// push tuple start token so the user can see the incorrect tuple char

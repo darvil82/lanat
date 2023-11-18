@@ -18,9 +18,8 @@ public final class ExampleTest {
 //		TextFormatter.enableSequences = false;
 
 		new ArgumentParser("my-program") {{
-//			this.setCallbackInvocationOption(CallbacksInvocationOption.NO_ERROR_IN_ARGUMENT);
+			this.setCallbackInvocationOption(CallbacksInvocationOption.NO_ERROR_IN_ARGUMENT);
 			this.addHelpArgument();
-			this.addVersionArgument();
 			ArgumentRepr.getDescription(this.getArgument("help"));
 			this.addArgument(Argument.create(new CounterArgumentType(), "counter", "c").onOk(System.out::println));
 			this.addArgument(Argument.create(new Example1Type(), "user", "u").required().positional());
@@ -35,7 +34,7 @@ public final class ExampleTest {
 					this.addArgument(Argument.create(new NumberRangeArgumentType<>(0.0, 15.23), "number").onOk(System.out::println));
 				}});
 			}});
-		}}.parse(CLInput.from("--number 2 --c --version --help -c --c -ccc ++string test -ccc sub --number 12 sub --number 4"))
+		}}.parse(CLInput.from("--number 2 --c --version -c --c -ccc ++string test -ccc sub --number 12 sub --number 4"))
 			.printErrors()
 			.getParsedArguments();
 	}

@@ -164,6 +164,9 @@ public class Range implements Iterable<Integer> {
 	}
 
 	public @NotNull Range offset(int offset) {
+		if (offset == 0)
+			return this;
+
 		return new Range(this.start + offset, this.isInfinite ? -1 : this.end + offset);
 	}
 

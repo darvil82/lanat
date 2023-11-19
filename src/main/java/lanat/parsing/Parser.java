@@ -224,7 +224,7 @@ public class Parser extends ParsingStateBase<Error.ParseError> {
 				assert lastArgument != null; // we know for sure that lastArgument is not null here
 
 				this.addError(new ParseErrors.UnmatchedInArgNameListError(
-					this.currentTokenIndex + 1, lastArgument, args.substring(i)
+					this.currentTokenIndex, lastArgument, args.substring(i)
 				));
 				break;
 			}
@@ -244,6 +244,7 @@ public class Parser extends ParsingStateBase<Error.ParseError> {
 				// if this argument is not the last one in the list, then we can parse the rest of the chars as the value
 			} else {
 				this.executeArgParse(argument, args.substring(i + 1));
+				break;
 			}
 
 			lastArgument = argument;

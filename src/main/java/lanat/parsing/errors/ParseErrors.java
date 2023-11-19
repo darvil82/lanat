@@ -22,9 +22,6 @@ public abstract class ParseErrors {
 	{
 		@Override
 		public void handle(@NotNull ErrorFormattingContext fmt, @NotNull ParseContext ctx) {
-			// offset to just show the value tokens (we don't want to highlight the argument token as well)
-			final var inTupleOffset = this.isInTuple ? 1 : 0;
-
 			fmt
 				.withContent("Incorrect number of values for argument '%s'.%nExpected %s, but got %d."
 					.formatted(
@@ -33,15 +30,23 @@ public abstract class ParseErrors {
 					)
 				);
 
-			if (this.isInArgNameList)
-				// special case for when the error is caused by an argument name list
+			// special case for when the error is caused by an argument name list
+			if (this.isInArgNameList) {
 				fmt.highlight(this.index, 0, false);
-			else
-				fmt.highlight(
-					this.index + inTupleOffset,
-					this.valueCount - inTupleOffset,
-					this.valueCount == 0
-				);
+				return;
+			}
+
+			// if the tuple is empty, highlight both tuple tokens
+			if (this.isInTuple && this.valueCount == 0) {
+				fmt.highlight(this.index, 1, false);
+				return;
+			}
+
+			fmt.highlight(
+				this.index + (this.isInTuple ? 1 : 0),
+				Math.max(0, this.valueCount - 1), // only offset if the value count is greater than 1
+				this.valueCount == 0
+			);
 		}
 	}
 

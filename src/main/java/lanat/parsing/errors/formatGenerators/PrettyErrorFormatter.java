@@ -44,21 +44,17 @@ public class PrettyErrorFormatter extends BaseErrorFormatter {
 			this.add(new Token(TokenType.COMMAND, ctx.getCommand().getRoot().getName()).getFormatter());
 			this.addAll(ctx.getTokensFormatters(false));
 		}};
-		final int tokensLength = tokensFormatters.size();
 		final var tokensRange = options.range().offset(1);
 
-		// add an arrow at the start or end if the index is out of bounds
 		if (options.showArrows() || !TextFormatter.enableSequences)
 			this.placeArrows(tokensFormatters, tokensRange);
 		else
 			this.highlightTokens(tokensFormatters, tokensRange);
 
 
-		for (int i = 0; i < tokensLength; i++) {
-			// dim tokens before the command
-			if (i < ctx.getAbsoluteIndex()) {
-				tokensFormatters.get(i).addFormat(FormatOption.DIM);
-			}
+		// dim tokens before the command
+		for (int i = 0; i < ctx.getAbsoluteIndex(); i++) {
+			tokensFormatters.get(i).addFormat(FormatOption.DIM);
 		}
 
 		return String.join(" ", tokensFormatters.stream().map(TextFormatter::toString).toList());
@@ -67,15 +63,17 @@ public class PrettyErrorFormatter extends BaseErrorFormatter {
 	@Override
 	protected @NotNull String generateInputView(ErrorFormattingContext.@NotNull HighlightOptions options, @NotNull TokenizeContext ctx) {
 		var in = ctx.getInputString();
+		var cmdName = ctx.getCommand().getRoot().getName();
+		var range = options.range().offset(cmdName.length() + 1);
 
-		if (options.range().end() > in.length())
+		if (range.end() > in.length())
 			return in + this.getArrow(false);
 
-		return in.substring(0, options.range().start() - 1)
+		return in.substring(0, range.start() - 1)
 			+ this.getArrow(true)
-			+ in.substring(options.range().start() - 1, options.range().end())
+			+ in.substring(range.start() - 1, range.end())
 			+ this.getArrow(false)
-			+ in.substring(options.range().end());
+			+ in.substring(range.end());
 	}
 
 
@@ -92,7 +90,7 @@ public class PrettyErrorFormatter extends BaseErrorFormatter {
 			if (range.start() >= tokensFormatters.size())
 				tokensFormatters.add(this.getArrow(false));
 			else
-				tokensFormatters.add(range.start() + 1, this.getArrow(false));
+				tokensFormatters.add(range.start(), this.getArrow(false));
 			return;
 		}
 

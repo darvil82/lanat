@@ -48,7 +48,7 @@ public class PrettyErrorFormatter extends BaseErrorFormatter {
 		final var tokensRange = options.range().offset(1);
 
 		{
-			BiConsumer<@NotNull List<@NotNull TextFormatter>, @NotNull Range> highlighter;
+			BiConsumer<List<TextFormatter>, Range> highlighter;
 
 			if (options.showArrows())
 				highlighter = this::placeArrowsExplicit;

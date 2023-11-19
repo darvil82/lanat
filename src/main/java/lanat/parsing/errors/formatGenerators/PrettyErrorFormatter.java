@@ -14,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 public class PrettyErrorFormatter extends BaseErrorFormatter {
 	public PrettyErrorFormatter(@NotNull BaseContext currentErrorContext) {
@@ -46,11 +47,18 @@ public class PrettyErrorFormatter extends BaseErrorFormatter {
 		}};
 		final var tokensRange = options.range().offset(1);
 
-		if (options.showArrows() || !TextFormatter.enableSequences)
-			this.placeArrows(tokensFormatters, tokensRange);
-		else
-			this.highlightTokens(tokensFormatters, tokensRange);
+		{
+			BiConsumer<@NotNull List<@NotNull TextFormatter>, @NotNull Range> highlighter;
 
+			if (options.showArrows())
+				highlighter = this::placeArrowsExplicit;
+			else if (!TextFormatter.enableSequences)
+				highlighter = this::placeArrowsImplicit;
+			else
+				highlighter = this::highlightTokens;
+
+			highlighter.accept(tokensFormatters, tokensRange);
+		}
 
 		// dim tokens before the command
 		for (int i = 0; i < ctx.getAbsoluteIndex(); i++) {
@@ -79,18 +87,16 @@ public class PrettyErrorFormatter extends BaseErrorFormatter {
 
 	private void highlightTokens(@NotNull List<@NotNull TextFormatter> tokensFormatters, @NotNull Range range) {
 		for (int i : range) {
-			tokensFormatters.get(i)
-				.withForegroundColor(this.getErrorLevel().color)
-				.addFormat(FormatOption.REVERSE, FormatOption.BOLD);
+			this.applyErrorLevelFormat(tokensFormatters.get(i));
 		}
 	}
 
-	private void placeArrows(@NotNull List<@NotNull TextFormatter> tokensFormatters, @NotNull Range range) {
+	private void placeArrows(@NotNull List<@NotNull TextFormatter> tokensFormatters, @NotNull Range range, int singleOffset) {
 		if (!range.isRange()) {
 			if (range.start() >= tokensFormatters.size())
 				tokensFormatters.add(this.getArrow(false));
 			else
-				tokensFormatters.add(range.start(), this.getArrow(false));
+				tokensFormatters.add(range.start() + singleOffset, this.getArrow(false));
 			return;
 		}
 
@@ -98,8 +104,20 @@ public class PrettyErrorFormatter extends BaseErrorFormatter {
 		tokensFormatters.add(range.start(), this.getArrow(true));
 	}
 
+	private void placeArrowsImplicit(@NotNull List<@NotNull TextFormatter> tokensFormatters, @NotNull Range range) {
+		this.placeArrows(tokensFormatters, range, 1);
+	}
+
+	private void placeArrowsExplicit(@NotNull List<@NotNull TextFormatter> tokensFormatters, @NotNull Range range) {
+		this.placeArrows(tokensFormatters, range, 0);
+	}
+
 	private @NotNull TextFormatter getArrow(boolean isLeft) {
-		return new TextFormatter(isLeft ? "->" : "<-", this.getErrorLevel().color)
+		return this.applyErrorLevelFormat(new TextFormatter(isLeft ? "->" : "<-"));
+	}
+
+	private @NotNull TextFormatter applyErrorLevelFormat(@NotNull TextFormatter formatter) {
+		return formatter.withForegroundColor(this.getErrorLevel().color)
 			.addFormat(FormatOption.REVERSE, FormatOption.BOLD);
 	}
 }

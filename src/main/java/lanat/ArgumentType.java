@@ -6,6 +6,7 @@ import lanat.argumentTypes.Parseable;
 import lanat.parsing.errors.CustomErrorImpl;
 import lanat.parsing.errors.Error;
 import lanat.utils.ErrorsContainerImpl;
+import lanat.utils.Pair;
 import lanat.utils.Range;
 import lanat.utils.Resettable;
 import org.jetbrains.annotations.NotNull;
@@ -63,12 +64,14 @@ public abstract class ArgumentType<T>
 	 * This is used for storing errors that occur during parsing. We need to keep track of the index of the token that
 	 * caused the error.
 	 */
-	private short lastTokenIndex = 0;
+	private int lastTokenIndex = 0;
 
 	/**
 	 * This specifies the number of values that this argument received when being parsed.
 	 */
 	private int lastReceivedValuesNum = 0;
+
+	private boolean lastInTuple = false;
 
 	/** This specifies the number of times this argument type has been used during parsing. */
 	short usageCount = 0;
@@ -104,9 +107,10 @@ public abstract class ArgumentType<T>
 	 * @param tokenIndex The index of the token that caused the parsing of this argument type.
 	 * @param values The values to parse.
 	 */
-	public final void parseAndUpdateValue(short tokenIndex, @NotNull String... values) {
+	public final void parseAndUpdateValue(int tokenIndex, boolean inTuple, @NotNull String... values) {
 		this.usageCount++;
 		this.lastTokenIndex = tokenIndex;
+		this.lastInTuple = inTuple;
 		this.lastReceivedValuesNum = values.length;
 		this.currentValue = this.parseValues(values);
 	}
@@ -262,7 +266,7 @@ public abstract class ArgumentType<T>
 	/**
 	 * Returns the index of the last token that was parsed.
 	 */
-	protected short getLastTokenIndex() {
+	protected int getLastTokenIndex() {
 		return this.lastTokenIndex;
 	}
 
@@ -271,6 +275,19 @@ public abstract class ArgumentType<T>
 	 */
 	int getLastReceivedValuesNum() {
 		return this.lastReceivedValuesNum;
+	}
+
+	boolean wasLastInTuple() {
+		return this.lastInTuple;
+	}
+
+	@NotNull Pair<Integer, Integer> getTokensIndexRange() {
+		int inTupleOffset = (this.lastInTuple ? 2 : 0);
+
+		return new Pair<>(
+			this.lastTokenIndex - inTupleOffset,
+			this.lastReceivedValuesNum + inTupleOffset
+		);
 	}
 
 	/**
@@ -296,6 +313,7 @@ public abstract class ArgumentType<T>
 		this.currentArgValueIndex = 0;
 		this.lastReceivedValuesNum = 0;
 		this.usageCount = 0;
+		this.lastInTuple = false;
 
 		// reset the state of the subtypes.
 		this.subTypes.forEach(ArgumentType::resetState);

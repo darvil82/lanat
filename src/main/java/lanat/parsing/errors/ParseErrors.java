@@ -4,6 +4,7 @@ import lanat.Argument;
 import lanat.ArgumentGroup;
 import lanat.ArgumentParser;
 import lanat.ErrorLevel;
+import lanat.utils.Pair;
 import lanat.utils.UtlString;
 import org.jetbrains.annotations.NotNull;
 
@@ -51,9 +52,8 @@ public abstract class ParseErrors {
 	}
 
 	public record IncorrectUsagesCountError(
-		int index,
-		@NotNull Argument<?, ?> argument,
-		int usageCount
+		@NotNull Pair<Integer, Integer> indexRange,
+		@NotNull Argument<?, ?> argument
 	) implements Error.ParseError
 	{
 		@Override
@@ -64,8 +64,9 @@ public abstract class ParseErrors {
 						this.argument.getName(), this.argument.argType.getRequiredUsageCount().getMessage("usage"),
 						UtlString.plural("time", this.argument.getUsageCount())
 					)
-				)
-				.highlight(this.index, this.usageCount, false);
+				);
+
+			fmt.highlight(this.indexRange.first(), this.indexRange.second(), false);
 		}
 	}
 
@@ -129,16 +130,15 @@ public abstract class ParseErrors {
 	}
 
 	public record MultipleArgsInExclusiveGroupUsedError(
-		int index,
-		@NotNull ArgumentGroup group,
-		int valueCount
+		@NotNull Pair<Integer, Integer> indexRange,
+		@NotNull ArgumentGroup group
 	) implements Error.ParseError
 	{
 		@Override
 		public void handle(@NotNull ErrorFormattingContext fmt, @NotNull ParseContext ctx) {
 			fmt
 				.withContent("Multiple arguments in exclusive group '" + this.group.getName() + "' used.")
-				.highlight(this.index, this.valueCount, false);
+				.highlight(this.indexRange.first(), this.indexRange.second(), false);
 		}
 	}
 

@@ -400,17 +400,6 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	/**
-	 * Pass the specified values array to the argument type to parse it.
-	 *
-	 * @param tokenIndex This is the global index of the token that is currently being parsed. Used when dispatching
-	 * 	errors.
-	 * @param values The value array that should be parsed.
-	 */
-	public void parseValues(short tokenIndex, @NotNull String... values) {
-		this.argType.parseAndUpdateValue(tokenIndex, values);
-	}
-
-	/**
 	 * This method is called when the command is finished parsing. <strong>And should only ever be called once (per
 	 * parse).</strong>
 	 *
@@ -452,9 +441,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		// make sure that the argument was used the minimum number of times specified
 		if (!this.argType.getRequiredUsageCount().containsInclusive(usageCount)) {
 			this.parentCommand.getParser()
-				.addError(new ParseErrors.IncorrectUsagesCountError(
-					this.argType.getLastTokenIndex(), this, this.argType.getLastReceivedValuesNum()
-				));
+				.addError(new ParseErrors.IncorrectUsagesCountError(this.argType.getTokensIndexRange(), this));
 			return false;
 		}
 
@@ -475,7 +462,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		if (exclusivityResult == null) return true;
 
 		this.parentCommand.getParser().addError(new ParseErrors.MultipleArgsInExclusiveGroupUsedError(
-			this.argType.getLastTokenIndex(), exclusivityResult, this.argType.getLastReceivedValuesNum()
+			this.argType.getTokensIndexRange(), exclusivityResult
 		));
 		return false;
 	}

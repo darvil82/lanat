@@ -23,7 +23,7 @@ public class Parser extends ParsingStateBase<Error.ParseError> {
 	/**
 	 * The index of the current token that we are parsing.
 	 */
-	private short currentTokenIndex = 0;
+	private int currentTokenIndex = 0;
 
 	/**
 	 * Whether we are currently parsing values in a tuple.
@@ -46,7 +46,7 @@ public class Parser extends ParsingStateBase<Error.ParseError> {
 
 
 	/** Returns the index of the current token that is being parsed. */
-	public short getCurrentTokenIndex() {
+	public int getCurrentTokenIndex() {
 		return this.currentTokenIndex;
 	}
 
@@ -133,7 +133,7 @@ public class Parser extends ParsingStateBase<Error.ParseError> {
 
 		// just skip the whole thing if it doesn't need any values
 		if (argNumValuesRange.isZero()) {
-			arg.parseValues(this.currentTokenIndex);
+			this.argumentTypeParseValues(arg);
 			return;
 		}
 
@@ -172,10 +172,7 @@ public class Parser extends ParsingStateBase<Error.ParseError> {
 		}
 
 		// pass the arg values to the argument sub parser
-		arg.parseValues(
-			(short)(this.currentTokenIndex + ifTupleOffset),
-			values.stream().map(Token::contents).toArray(String[]::new)
-		);
+		this.argumentTypeParseValues(arg, ifTupleOffset, values.stream().map(Token::contents).toArray(String[]::new));
 
 		this.currentTokenIndex += skipIndexCount;
 	}
@@ -191,7 +188,7 @@ public class Parser extends ParsingStateBase<Error.ParseError> {
 
 		// just skip the whole thing if it doesn't need any values
 		if (argumentValuesRange.isZero()) {
-			arg.parseValues(this.currentTokenIndex);
+			this.argumentTypeParseValues(arg);
 			return;
 		}
 
@@ -206,7 +203,7 @@ public class Parser extends ParsingStateBase<Error.ParseError> {
 		}
 		
 		// pass the arg values to the argument subParser
-		arg.parseValues(this.currentTokenIndex, value);
+		this.argumentTypeParseValues(arg, value);
 	}
 
 	/**
@@ -303,6 +300,14 @@ public class Parser extends ParsingStateBase<Error.ParseError> {
 			}};
 		}
 		return this.parsedArguments;
+	}
+
+	private void argumentTypeParseValues(@NotNull Argument<?, ?> argument, @NotNull String... values) {
+		this.argumentTypeParseValues(argument, 0, values);
+	}
+
+	private void argumentTypeParseValues(@NotNull Argument<?, ?> argument, int offset, @NotNull String... values) {
+		argument.argType.parseAndUpdateValue(this.currentTokenIndex + offset, this.isInTuple, values);
 	}
 
 	private @NotNull Token getToken() {

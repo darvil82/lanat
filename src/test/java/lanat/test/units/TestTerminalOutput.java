@@ -100,9 +100,9 @@ public class TestTerminalOutput extends UnitTests {
 	@Test
 	@DisplayName("Test incorrect usage count")
 	public void testIncorrectUsageCount() {
-		this.assertErrorOutput("foo --double-adder 5.0", """
+		this.assertErrorOutput("foo --double-adder [5.0]", """
 			ERROR
-			Testing foo -> --double-adder 5.0 <-
+			Testing foo -> --double-adder [ 5.0 ] <-
 			Argument 'double-adder' was used an incorrect amount of times.
 			Expected from 2 to 4 usages, but was used 1 time.""");
 

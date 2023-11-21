@@ -281,12 +281,12 @@ public abstract class ArgumentType<T>
 		return this.lastInTuple;
 	}
 
-	@NotNull Pair<Integer, Integer> getTokensIndexRange() {
-		int inTupleOffset = (this.lastInTuple ? 2 : 0);
+	@NotNull Pair<Integer, Integer> getLastTokensIndexRange() {
+		int inTupleOffset = this.lastInTuple ? 1 : 0;
 
 		return new Pair<>(
-			this.lastTokenIndex - inTupleOffset,
-			this.lastReceivedValuesNum + inTupleOffset
+			this.lastTokenIndex - 1 - inTupleOffset,
+			this.lastReceivedValuesNum + inTupleOffset*2
 		);
 	}
 

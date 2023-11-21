@@ -441,7 +441,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		// make sure that the argument was used the minimum number of times specified
 		if (!this.argType.getRequiredUsageCount().containsInclusive(usageCount)) {
 			this.parentCommand.getParser()
-				.addError(new ParseErrors.IncorrectUsagesCountError(this.argType.getTokensIndexRange(), this));
+				.addError(new ParseErrors.IncorrectUsagesCountError(this.argType.getLastTokensIndexRange(), this));
 			return false;
 		}
 
@@ -462,7 +462,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		if (exclusivityResult == null) return true;
 
 		this.parentCommand.getParser().addError(new ParseErrors.MultipleArgsInExclusiveGroupUsedError(
-			this.argType.getTokensIndexRange(), exclusivityResult
+			this.argType.getLastTokensIndexRange(), exclusivityResult
 		));
 		return false;
 	}

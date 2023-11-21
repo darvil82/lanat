@@ -5,10 +5,12 @@ import lanat.Command;
 import lanat.parsing.Token;
 import lanat.parsing.errors.formatGenerators.BaseErrorFormatter;
 import lanat.parsing.errors.formatGenerators.PrettyErrorFormatter;
+import lanat.utils.Pair;
 import lanat.utils.UtlReflection;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.function.Supplier;
@@ -43,7 +45,7 @@ public class ErrorsCollector {
 	}
 
 	public List<String> handleErrors() {
-		final var errorMessages = new ArrayList<String>();
+		final var errorMessages = new ArrayList<Pair<String, Integer>>();
 
 		for (var pair : this.errors.entrySet()) {
 			final var command = pair.getKey();
@@ -62,11 +64,18 @@ public class ErrorsCollector {
 				}
 
 				assert formatter != null; // impossible because Error is sealed
-				errorMessages.add(formatter.generateInternal(error, errorFormattingCtx));
+
+				errorMessages.add(new Pair<>(
+					formatter.generateInternal(error, errorFormattingCtx),
+					0
+				));
 			}
 		}
 
-		return errorMessages;
+		return errorMessages.stream()
+			.sorted(Comparator.comparingInt(Pair::second))
+			.map(Pair::first)
+			.toList();
 	}
 
 	private @NotNull BaseErrorFormatter getTokenizeFormatter(@NotNull Command cmd) {

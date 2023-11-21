@@ -1,6 +1,5 @@
 package lanat.parsing.errors;
 
-import lanat.ErrorLevel;
 import lanat.utils.Range;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -11,7 +10,6 @@ import org.jetbrains.annotations.Nullable;
 public class ErrorFormattingContext {
 	private @NotNull String content = "";
 	private @Nullable HighlightOptions tokensViewOptions;
-	private ErrorLevel errorLevel;
 
 	/**
 	 * Sets the content of the error message.
@@ -62,7 +60,7 @@ public class ErrorFormattingContext {
 	 * Options used to display tokens.
 	 */
 	public record HighlightOptions(@NotNull Range range, boolean showArrows) {
-		public @NotNull HighlightOptions applyOffset(int offset) {
+		public @NotNull HighlightOptions withOffset(int offset) {
 			return new HighlightOptions(
 				this.range.offset(offset),
 				this.showArrows

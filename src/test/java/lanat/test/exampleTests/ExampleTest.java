@@ -36,9 +36,9 @@ public final class ExampleTest {
 			}});
 		}};
 
-		ap.parse(CLInput.from("sub sub"))
-			.printErrors();
-
+		ap.parse(CLInput.from("--number 2 --c --version -c --c -ccc ++string test -ccc sub --number 112 sub --number 4"))
+			.printErrors()
+			.getParsedArguments();
 	}
 
 	public static class Example1Type extends ArgumentType<String[]> {

@@ -45,20 +45,19 @@ public class PrettyErrorFormatter extends BaseErrorFormatter {
 			this.add(new Token(TokenType.COMMAND, ctx.getCommand().getRoot().getName()).getFormatter());
 			this.addAll(ctx.getTokensFormatters(false));
 		}};
-		final var tokensRange = this.getHighlightOptions().range().offset(1);
 
-		{
+		this.getHighlightOptions().ifPresent(opts -> {
 			BiConsumer<List<TextFormatter>, Range> highlighter;
 
-			if (this.getHighlightOptions().showArrows())
+			if (opts.showArrows())
 				highlighter = this::placeArrowsExplicit;
 			else if (!TextFormatter.enableSequences)
 				highlighter = this::placeArrowsImplicit;
 			else
 				highlighter = this::highlightTokens;
 
-			highlighter.accept(tokensFormatters, tokensRange);
-		}
+			highlighter.accept(tokensFormatters, opts.range());
+		});
 
 		// dim tokens before the command
 		for (int i = 0; i < ctx.getAbsoluteIndex(); i++) {
@@ -72,18 +71,22 @@ public class PrettyErrorFormatter extends BaseErrorFormatter {
 	protected @NotNull String generateInputView(@NotNull TokenizeContext ctx) {
 		var cmdName = ctx.getCommand().getName();
 		var in = cmdName + " " + ctx.getInputString(false);
-		var range = this.getHighlightOptions().range().offset(cmdName.length() + 1);
 
-		if (range.end() > in.length())
-			return in + this.getArrow(false);
+		return this.getHighlightOptions()
+			.map(opts -> {
+				var range = opts.range().offset(cmdName.length() + 2);
+				var buff = new StringBuilder();
 
-//		return in.substring(0, range.start() - 1)
-//			+ this.getArrow(true)
-//			+ in.substring(range.start() - 1, range.end())
-//			+ this.getArrow(false)
-//			+ in.substring(range.end());
+				if (range.end() > in.length())
+					return in + this.getArrow(false);
 
-		return in + "\n" + " ".repeat(range.start()) + "^";
+				buff.append(in.substring(0, range.start() - 1))
+					.append(this.applyErrorLevelFormat(new TextFormatter(in.substring(range.start() - 1, range.end()))))
+					.append(in.substring(range.end()));
+
+				return buff.toString();
+			})
+			.orElse(in);
 	}
 
 

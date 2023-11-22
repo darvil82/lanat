@@ -65,7 +65,7 @@ public final class ArgumentRepr {
 	 * @return the representation and description of the argument
 	 */
 	public static @Nullable String getDescription(@NotNull Argument<?, ?> arg) {
-		return UtlMisc.nullOrElse(
+		return UtlMisc.nullOrElseGet(
 			DescriptionFormatter.parse(arg),
 			desc -> ArgumentRepr.getRepresentation(arg) + ":\n" + HelpFormatter.indent(desc, arg)
 		);

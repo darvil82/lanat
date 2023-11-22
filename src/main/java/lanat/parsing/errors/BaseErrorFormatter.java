@@ -2,11 +2,13 @@ package lanat.parsing.errors;
 
 import lanat.ErrorLevel;
 import lanat.helpRepresentation.HelpFormatter;
-import lanat.utils.UtlMisc;
 import lanat.utils.UtlString;
 import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Objects;
+import java.util.Optional;
 
 public abstract class BaseErrorFormatter {
 	private final @NotNull BaseContext currentErrorContext;
@@ -21,11 +23,9 @@ public abstract class BaseErrorFormatter {
 	protected abstract @Nullable String generateTokensView(@NotNull ParseContext ctx);
 	protected abstract @Nullable String generateInputView(@NotNull TokenizeContext ctx);
 
-	public final @Nullable ErrorFormattingContext.HighlightOptions getHighlightOptions() {
-		return UtlMisc.nullOrElse(
-			this.formattingContext.getHighlightOptions(),
-			v -> v.withOffset(this.currentErrorContext.getAbsoluteIndex())
-		);
+	public final @NotNull Optional<ErrorFormattingContext.HighlightOptions> getHighlightOptions() {
+		return Optional.ofNullable(this.formattingContext.getHighlightOptions())
+			.map(v -> v.withOffset(this.currentErrorContext.getAbsoluteIndex()));
 	}
 
 	protected final @NotNull String getGeneratedView() {
@@ -35,7 +35,7 @@ public abstract class BaseErrorFormatter {
 		else if (this.currentErrorContext instanceof TokenizeContext tokenizeContext)
 			result = this.generateInputView(tokenizeContext);
 
-		return UtlMisc.nonNullOrElse(result, "");
+		return Objects.requireNonNullElse(result, "");
 	}
 
 	protected @NotNull ErrorLevel getErrorLevel() {

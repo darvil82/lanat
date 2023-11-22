@@ -71,7 +71,7 @@ public final class DescriptionFormatter {
 	 */
 	public static <T extends CommandUser & NamedWithDescription>
 	@Nullable String parse(@NotNull T element) {
-		return UtlMisc.nullOrElse(
+		return UtlMisc.nullOrElseGet(
 			element.getDescription(),
 			desc -> DescriptionFormatter.parse(element, desc)
 		);

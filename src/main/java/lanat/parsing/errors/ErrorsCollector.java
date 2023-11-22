@@ -7,7 +7,10 @@ import lanat.utils.Pair;
 import lanat.utils.UtlReflection;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Hashtable;
+import java.util.List;
 import java.util.function.Supplier;
 
 /**
@@ -58,7 +61,7 @@ public class ErrorsCollector {
 
 				errorMessages.add(new Pair<>(
 					formatter.generateInternal(error, errorFormattingCtx),
-					Optional.ofNullable(formatter.getHighlightOptions())
+					formatter.getHighlightOptions()
 						.map(v -> v.range().start())
 						.orElse(0)
 				));

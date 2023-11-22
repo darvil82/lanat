@@ -1,11 +1,8 @@
 package lanat.parsing.errors.formatGenerators;
 
-import lanat.parsing.errors.BaseContext;
-import lanat.parsing.errors.BaseErrorFormatter;
-import lanat.parsing.errors.ParseContext;
-import lanat.parsing.errors.TokenizeContext;
-import lanat.utils.Range;
+import lanat.parsing.errors.*;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class SimpleErrorFormatter extends BaseErrorFormatter {
 	public SimpleErrorFormatter(@NotNull BaseContext currentErrorContext) {
@@ -21,20 +18,25 @@ public class SimpleErrorFormatter extends BaseErrorFormatter {
 	}
 
 	@Override
-	protected @NotNull String generateTokensView(@NotNull ParseContext ctx) {
-		return getView(this.getHighlightOptions().range(), "token");
+	protected @Nullable String generateTokensView(@NotNull ParseContext ctx) {
+		return this.getView("token");
 	}
 
 	@Override
-	protected @NotNull String generateInputView(@NotNull TokenizeContext ctx) {
-		return getView(this.getHighlightOptions().range(), "char");
+	protected @Nullable String generateInputView(@NotNull TokenizeContext ctx) {
+		return this.getView("char");
 	}
 
-	private static @NotNull String getView(@NotNull Range range, @NotNull String name) {
-		String rangeRpr = range.isRange() ?
-			"s " + range.start() + " to " + range.end()
-			: " " + range.start();
+	private @Nullable String getView(@NotNull String name) {
+		return this.getHighlightOptions()
+			.map(ErrorFormattingContext.HighlightOptions::range)
+			.map(range -> {
+				String rangeRpr = range.isRange()
+					? "s " + range.start() + " to " + range.end()
+					: " " + range.start();
 
-		return " (" + name + rangeRpr + ")";
+				return " (" + name + rangeRpr + ")";
+			})
+			.orElse(null);
 	}
 }

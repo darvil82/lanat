@@ -64,7 +64,7 @@ public final class UtlMisc {
 	 * @param <T> The type of the objects
 	 * @param <R> The type of the result of the function
 	 */
-	public static <T, R> @Nullable R nullOrElse(@Nullable T obj, @NotNull Function<@NotNull T, @NotNull R> defaultObj) {
+	public static <T, R> R nullOrElse(T obj, @NotNull Function<@NotNull T, @NotNull R> defaultObj) {
 		return obj == null ? null : defaultObj.apply(obj);
 	}
 

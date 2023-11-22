@@ -3,7 +3,7 @@ package lanat.parsing.errors.formatGenerators;
 import lanat.parsing.Token;
 import lanat.parsing.TokenType;
 import lanat.parsing.errors.BaseContext;
-import lanat.parsing.errors.ErrorFormattingContext;
+import lanat.parsing.errors.BaseErrorFormatter;
 import lanat.parsing.errors.ParseContext;
 import lanat.parsing.errors.TokenizeContext;
 import lanat.utils.Range;
@@ -40,17 +40,17 @@ public class PrettyErrorFormatter extends BaseErrorFormatter {
 	}
 
 	@Override
-	protected @NotNull String generateTokensView(ErrorFormattingContext.@NotNull HighlightOptions options, @NotNull ParseContext ctx) {
+	protected @NotNull String generateTokensView(@NotNull ParseContext ctx) {
 		final var tokensFormatters = new ArrayList<TextFormatter>() {{
 			this.add(new Token(TokenType.COMMAND, ctx.getCommand().getRoot().getName()).getFormatter());
 			this.addAll(ctx.getTokensFormatters(false));
 		}};
-		final var tokensRange = options.range().offset(1);
+		final var tokensRange = this.getHighlightOptions().range().offset(1);
 
 		{
 			BiConsumer<List<TextFormatter>, Range> highlighter;
 
-			if (options.showArrows())
+			if (this.getHighlightOptions().showArrows())
 				highlighter = this::placeArrowsExplicit;
 			else if (!TextFormatter.enableSequences)
 				highlighter = this::placeArrowsImplicit;
@@ -69,10 +69,10 @@ public class PrettyErrorFormatter extends BaseErrorFormatter {
 	}
 
 	@Override
-	protected @NotNull String generateInputView(ErrorFormattingContext.@NotNull HighlightOptions options, @NotNull TokenizeContext ctx) {
-		var in = ctx.getInputString();
+	protected @NotNull String generateInputView(@NotNull TokenizeContext ctx) {
 		var cmdName = ctx.getCommand().getRoot().getName();
-		var range = options.range().offset(cmdName.length() + 1);
+		var in = cmdName + " " + ctx.getInputString(false);
+		var range = this.getHighlightOptions().range().offset(cmdName.length() + 1);
 
 		if (range.end() > in.length())
 			return in + this.getArrow(false);

@@ -4,8 +4,11 @@ import lanat.Command;
 import org.jetbrains.annotations.NotNull;
 
 public final class TokenizeContext extends BaseContext {
-	public TokenizeContext(@NotNull Command command) {
+	private @NotNull String inputString;
+
+	public TokenizeContext(@NotNull Command command, @NotNull String inputString) {
 		super(command);
+		this.inputString = inputString;
 	}
 
 	@Override
@@ -18,7 +21,13 @@ public final class TokenizeContext extends BaseContext {
 		return this.command.getTokenizer().getNestingOffset() + index;
 	}
 
-	public @NotNull String getInputString() {
-		return this.command.getTokenizer().getInputString();
+	public @NotNull String getInputString(boolean onlyInCurrentCommand) {
+		if (!onlyInCurrentCommand)
+			return this.inputString;
+
+		return this.inputString.substring(
+			this.getAbsoluteIndex(),
+			this.getAbsoluteIndex(this.getCount())
+		);
 	}
 }

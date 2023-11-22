@@ -26,17 +26,17 @@ public final class ExampleTest {
 			this.addArgument(Argument.create(new MultipleStringsArgumentType(Range.from(3).to(5)), "string", "s").onOk(System.out::println).withPrefix(Argument.PrefixChar.PLUS));
 			this.addArgument(Argument.create(new IntegerArgumentType(), "test").onOk(System.out::println).allowsUnique());
 
-			this.addCommand(new Command("sub", "testing") {{
-				this.addArgument(Argument.createOfBoolType("required").required());
+			this.addCommand(new Command("sub1", "testing") {{
+				this.addArgument(Argument.create(new IntegerArgumentType(), "required").required().positional());
 				this.addArgument(Argument.create(new NumberRangeArgumentType<>(0.0, 15.23), "number").onOk(System.out::println));
-				this.addCommand(new Command("sub", "testing") {{
-					this.addArgument(Argument.createOfBoolType("required").required());
+				this.addCommand(new Command("sub2", "testing") {{
+					this.addArgument(Argument.create(new IntegerArgumentType(), "required").required().positional());
 					this.addArgument(Argument.create(new NumberRangeArgumentType<>(0.0, 15.23), "number").onOk(System.out::println));
 				}});
 			}});
 		}};
 
-		ap.parse(CLInput.from("--number 2 --c --version -c --c -ccc ++string test -ccc sub --number 112 sub --number 4"))
+		ap.parse(CLInput.from("josh meck --number 2 -cccc ++string [test1 test2 t2] -ccc sub1 --required 1 --number 12 sub2 2 ] --number 4"))
 			.printErrors()
 			.getParsedArguments();
 	}

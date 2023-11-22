@@ -9,7 +9,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
 
-public abstract class ParsingStateBase<T extends ErrorLevelProvider> extends ErrorsContainerImpl<T> {
+public sealed abstract class ParsingStateBase<T extends ErrorLevelProvider> extends ErrorsContainerImpl<T>
+	permits Tokenizer, Parser
+{
 	protected final @NotNull Command command;
 	/** Whether the parsing/tokenizing has finished. */
 	protected boolean hasFinished = false;

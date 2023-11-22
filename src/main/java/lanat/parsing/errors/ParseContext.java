@@ -10,7 +10,7 @@ import java.util.List;
 public final class ParseContext extends BaseContext {
 	private final @NotNull List<@NotNull Token> fullTokenList;
 
-	public ParseContext(@NotNull List<@NotNull Token> fullTokenList, @NotNull Command command) {
+	public ParseContext(@NotNull Command command, @NotNull List<@NotNull Token> fullTokenList) {
 		super(command);
 		this.fullTokenList = fullTokenList;
 	}

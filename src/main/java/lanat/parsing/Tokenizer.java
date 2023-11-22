@@ -13,7 +13,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.function.Predicate;
 
-public class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
+public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 	/** Are we currently within a tuple? */
 	protected boolean tupleOpen = false;
 
@@ -46,8 +46,9 @@ public class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 
 	private void setInputString(@NotNull String inputString, int nestingOffset) {
 		this.nestingOffset = nestingOffset;
-		this.inputString = inputString.substring(nestingOffset);
+		this.inputString = inputString;
 		this.inputChars = this.inputString.toCharArray();
+		this.currentCharIndex = nestingOffset;
 	}
 
 	/**
@@ -67,8 +68,7 @@ public class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 
 		char currentStringChar = 0; // the character that opened the string
 
-		for (
-			this.currentCharIndex = 0;
+		for (;
 			this.currentCharIndex < this.inputChars.length && !this.hasFinished;
 			this.currentCharIndex++
 		) {
@@ -122,7 +122,6 @@ public class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 				// if we are not in a tuple, set error and stop tokenizing
 				if (!this.tupleOpen) {
 					// push tuple start token so the user can see the incorrect tuple char
-					this.addToken(TokenType.ARGUMENT_VALUE_TUPLE_END, this.tupleCloseChar);
 					this.addError(new TokenizeErrors.UnexpectedTupleCloseError(this.currentCharIndex));
 					continue;
 				}

@@ -1,9 +1,7 @@
-package lanat.parsing.errors.formatGenerators;
+package lanat.parsing.errors;
 
 import lanat.ErrorLevel;
 import lanat.helpRepresentation.HelpFormatter;
-import lanat.parsing.errors.Error;
-import lanat.parsing.errors.*;
 import lanat.utils.UtlMisc;
 import lanat.utils.UtlString;
 import lanat.utils.displayFormatter.TextFormatter;
@@ -20,22 +18,22 @@ public abstract class BaseErrorFormatter {
 	}
 
 	protected abstract @NotNull String generate();
-	protected abstract @Nullable String generateTokensView(@NotNull ErrorFormattingContext.HighlightOptions options, @NotNull ParseContext ctx);
-	protected abstract @Nullable String generateInputView(@NotNull ErrorFormattingContext.HighlightOptions options, @NotNull TokenizeContext ctx);
+	protected abstract @Nullable String generateTokensView(@NotNull ParseContext ctx);
+	protected abstract @Nullable String generateInputView(@NotNull TokenizeContext ctx);
+
+	public final @Nullable ErrorFormattingContext.HighlightOptions getHighlightOptions() {
+		return UtlMisc.nullOrElse(
+			this.formattingContext.getHighlightOptions(),
+			v -> v.withOffset(this.currentErrorContext.getAbsoluteIndex())
+		);
+	}
 
 	protected final @NotNull String getGeneratedView() {
-		var highlightOptions = this.formattingContext.getHighlightOptions();
-
-		if (highlightOptions == null)
-			return "";
-
-		highlightOptions = highlightOptions.withOffset(this.currentErrorContext.getAbsoluteIndex());
-
 		String result = null;
 		if (this.currentErrorContext instanceof ParseContext parseContext)
-			result = this.generateTokensView(highlightOptions, parseContext);
+			result = this.generateTokensView(parseContext);
 		else if (this.currentErrorContext instanceof TokenizeContext tokenizeContext)
-			result = this.generateInputView(highlightOptions, tokenizeContext);
+			result = this.generateInputView(tokenizeContext);
 
 		return UtlMisc.nonNullOrElse(result, "");
 	}

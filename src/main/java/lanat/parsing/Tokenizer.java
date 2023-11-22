@@ -44,21 +44,24 @@ public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 	}
 
 
-	private void setInputString(@NotNull String inputString, int nestingOffset) {
-		this.nestingOffset = nestingOffset;
-		this.inputString = inputString;
+	private void setInputString(@NotNull String inputString, int nestingOffset, int lastCharIndex) {
+		this.nestingOffset = lastCharIndex + nestingOffset;
+		this.inputString = inputString.substring(lastCharIndex);
 		this.inputChars = this.inputString.toCharArray();
-		this.currentCharIndex = nestingOffset;
 	}
 
 	/**
 	 * Tokenizes the input string given. When finished, the tokens can be retrieved using
 	 * {@link Tokenizer#getFinalTokens()}
 	 */
-	public void tokenize(@NotNull String input, int nestingOffset) {
+	public void tokenize(@NotNull String input, @Nullable Tokenizer previousTokenizer) {
 		assert !this.hasFinished : "Tokenizer has already finished tokenizing.";
 
-		this.setInputString(input, nestingOffset);
+		if (previousTokenizer == null)
+			this.setInputString(input, 0, 0);
+		else
+			this.setInputString(input, previousTokenizer.nestingOffset, previousTokenizer.currentCharIndex);
+
 
 		// nothing to tokenize. Just finish
 		if (input.isEmpty()) {
@@ -222,7 +225,7 @@ public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 			// forward the rest of stuff to the Sub-Command
 			this.command.getCommand(token.contents())
 				.getTokenizer()
-				.tokenize(this.inputString, this.currentCharIndex);
+				.tokenize(this.inputString, this);
 
 			this.hasFinished = true;
 		}

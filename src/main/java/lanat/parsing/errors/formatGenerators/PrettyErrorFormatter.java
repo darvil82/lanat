@@ -56,7 +56,7 @@ public class PrettyErrorFormatter extends BaseErrorFormatter {
 			else
 				highlighter = this::highlightTokens;
 
-			highlighter.accept(tokensFormatters, opts.range());
+			highlighter.accept(tokensFormatters, opts.range().offset(1));
 		});
 
 		// dim tokens before the command

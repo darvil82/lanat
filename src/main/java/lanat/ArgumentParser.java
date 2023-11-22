@@ -179,7 +179,7 @@ public class ArgumentParser extends Command {
 
 		this.tokenize(input.args); // first. This will tokenize all Sub-Commands recursively
 
-		var errorsCollector = new ErrorsCollector(this);
+		var errorsCollector = new ErrorsCollector(this.getFullTokenList(), input.args);
 
 		// do not parse anything if there are any errors in the tokenizer
 		if (!this.getTokenizer().hasExitErrors()) {
@@ -187,7 +187,7 @@ public class ArgumentParser extends Command {
 			this.invokeCallbacks();
 		}
 
-		errorsCollector.collectAllInTree();
+		this.getTokenizer().getTokenizedCommands().forEach(errorsCollector::collect);
 		this.isParsed = true;
 
 		return new AfterParseOptions(errorsCollector, !input.isEmpty());

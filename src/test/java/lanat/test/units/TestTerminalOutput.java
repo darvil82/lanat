@@ -4,20 +4,19 @@ import lanat.test.UnitTests;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TestTerminalOutput extends UnitTests {
 	private void assertErrorOutput(String args, String expected) {
 		final var errors = this.parser.parseGetErrors(args);
-		System.out.printf("Test error output:\n%s", errors.get(0));
+		System.out.printf("Test error output:%n%s%n", errors);
 
 		// remove all the decorations to not make the tests a pain to write
-		assertEquals(
-			expected,
-			errors.get(0)
-				// the reason we replace \r here is that windows uses CRLF (I hate windows)
-				.replaceAll(" *[│─└┌\r] ?", "")
-				.strip()
+		assertTrue(
+			errors.stream()
+				.map(e -> e.replaceAll(" *[│─└┌\r] ?", "").strip())
+				.toList()
+				.contains(expected)
 		);
 	}
 

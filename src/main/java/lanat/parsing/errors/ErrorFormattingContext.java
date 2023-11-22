@@ -48,7 +48,7 @@ public class ErrorFormattingContext {
 		return this.highlight(index, 0, true);
 	}
 
-	public @Nullable HighlightOptions getHighlightOptions() {
+	protected @Nullable HighlightOptions getHighlightOptions() {
 		return this.tokensViewOptions;
 	}
 

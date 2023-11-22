@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class Parser extends ParsingStateBase<Error.ParseError> {
+public final class Parser extends ParsingStateBase<Error.ParseError> {
 	/**
 	 * Array of all the tokens that we have tokenized from the CLI arguments.
 	 */

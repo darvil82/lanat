@@ -1,7 +1,7 @@
 package lanat.parsing.errors.formatGenerators;
 
 import lanat.parsing.errors.BaseContext;
-import lanat.parsing.errors.ErrorFormattingContext;
+import lanat.parsing.errors.BaseErrorFormatter;
 import lanat.parsing.errors.ParseContext;
 import lanat.parsing.errors.TokenizeContext;
 import lanat.utils.Range;
@@ -21,13 +21,13 @@ public class SimpleErrorFormatter extends BaseErrorFormatter {
 	}
 
 	@Override
-	protected @NotNull String generateTokensView(ErrorFormattingContext.@NotNull HighlightOptions options, @NotNull ParseContext ctx) {
-		return getView(options.range(), "token");
+	protected @NotNull String generateTokensView(@NotNull ParseContext ctx) {
+		return getView(this.getHighlightOptions().range(), "token");
 	}
 
 	@Override
-	protected @NotNull String generateInputView(ErrorFormattingContext.@NotNull HighlightOptions options, @NotNull TokenizeContext ctx) {
-		return getView(options.range(), "char");
+	protected @NotNull String generateInputView(@NotNull TokenizeContext ctx) {
+		return getView(this.getHighlightOptions().range(), "char");
 	}
 
 	private static @NotNull String getView(@NotNull Range range, @NotNull String name) {

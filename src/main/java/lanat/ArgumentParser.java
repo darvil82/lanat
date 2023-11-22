@@ -205,7 +205,7 @@ public class ArgumentParser extends Command {
 		} while ((cmd = cmd.getTokenizer().getTokenizedSubCommand()) != null);
 
 		// this parses recursively!
-		this.getParser().parseTokens(0);
+		this.getParser().parseTokens(null);
 	}
 
 

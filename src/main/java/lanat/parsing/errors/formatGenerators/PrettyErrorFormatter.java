@@ -70,18 +70,20 @@ public class PrettyErrorFormatter extends BaseErrorFormatter {
 
 	@Override
 	protected @NotNull String generateInputView(@NotNull TokenizeContext ctx) {
-		var cmdName = ctx.getCommand().getRoot().getName();
+		var cmdName = ctx.getCommand().getName();
 		var in = cmdName + " " + ctx.getInputString(false);
 		var range = this.getHighlightOptions().range().offset(cmdName.length() + 1);
 
 		if (range.end() > in.length())
 			return in + this.getArrow(false);
 
-		return in.substring(0, range.start() - 1)
-			+ this.getArrow(true)
-			+ in.substring(range.start() - 1, range.end())
-			+ this.getArrow(false)
-			+ in.substring(range.end());
+//		return in.substring(0, range.start() - 1)
+//			+ this.getArrow(true)
+//			+ in.substring(range.start() - 1, range.end())
+//			+ this.getArrow(false)
+//			+ in.substring(range.end());
+
+		return in + "\n" + " ".repeat(range.start()) + "^";
 	}
 
 

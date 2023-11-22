@@ -36,7 +36,7 @@ public final class ExampleTest {
 			}});
 		}};
 
-		ap.parse(CLInput.from("josh meck --number 2 -cccc ++string [test1 test2 t2] -ccc sub1 --required 1 --number 12 sub2 2 ] --number 4"))
+		ap.parse(CLInput.from("josh meck  ] --number 2 -cccc ++string [test1 test2 t2] -ccc sub1 ] --required 1 --number 12 sub2 2 ] --number 4"))
 			.printErrors()
 			.getParsedArguments();
 	}

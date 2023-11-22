@@ -194,7 +194,7 @@ public class ArgumentParser extends Command {
 	}
 
 	private void tokenize(@NotNull String args) {
-		this.getTokenizer().tokenize(args, 0);
+		this.getTokenizer().tokenize(args, null);
 	}
 
 	private void parseTokens() {

@@ -63,11 +63,13 @@ public final class Parser extends ParsingStateBase<Error.ParseError> {
 	 * Parses the tokens that have been set. Delegates parsing of argument values to the {@link ArgumentType} of the
 	 * argument that is being parsed.
 	 */
-	public void parseTokens(int nestingOffset) {
+	public void parseTokens(@Nullable Parser previousParser) {
 		assert this.tokens != null : "Tokens have not been set yet.";
 		assert !this.hasFinished : "This parser has already finished parsing.";
 
-		this.nestingOffset = nestingOffset;
+		this.nestingOffset = previousParser == null
+			? 0
+			: previousParser.currentTokenIndex + previousParser.nestingOffset;
 
 		// number of positional arguments that have been parsed.
 		// if this becomes -1, then we know that we are no longer parsing positional arguments
@@ -103,7 +105,7 @@ public final class Parser extends ParsingStateBase<Error.ParseError> {
 				// find the command that matches that name and let it parse the values
 				this.command.getCommand(currentToken.contents())
 					.getParser()
-					.parseTokens(this.currentTokenIndex + this.nestingOffset);
+					.parseTokens(this);
 				break;
 			} else if (currentToken.type() == TokenType.FORWARD_VALUE) {
 				this.forwardValue = currentToken.contents();

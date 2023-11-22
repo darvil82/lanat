@@ -53,7 +53,7 @@ public final class CommandRepr {
 	 * @return the parsed description of the command
 	 */
 	public static @Nullable String getDescription(@NotNull Command cmd) {
-		return UtlMisc.nullOrElse(
+		return UtlMisc.nullOrElseGet(
 			DescriptionFormatter.parse(cmd),
 			desc -> CommandRepr.getRepresentation(cmd) + ":\n" + HelpFormatter.indent(desc, cmd)
 		);

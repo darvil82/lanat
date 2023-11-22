@@ -12,6 +12,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -258,7 +259,7 @@ public class ArgumentParser extends Command {
 	public void addVersionArgument() {
 		this.addArgument(Argument.createOfBoolType("version")
 			.onOk(t -> {
-				System.out.println("Version: " + UtlMisc.nonNullOrElse(this.getVersion(), "unknown"));
+				System.out.println("Version: " + Objects.requireNonNullElse(this.getVersion(), "unknown"));
 				System.exit(0);
 			})
 			.withDescription("Shows the version of this program.")

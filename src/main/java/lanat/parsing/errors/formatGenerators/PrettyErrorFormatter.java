@@ -8,6 +8,7 @@ import lanat.parsing.errors.ParseContext;
 import lanat.parsing.errors.TokenizeContext;
 import lanat.utils.Range;
 import lanat.utils.UtlString;
+import lanat.utils.displayFormatter.Color;
 import lanat.utils.displayFormatter.FormatOption;
 import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
@@ -50,9 +51,9 @@ public class PrettyErrorFormatter extends BaseErrorFormatter {
 			BiConsumer<List<TextFormatter>, Range> highlighter;
 
 			if (opts.showArrows())
-				highlighter = this::placeArrowsExplicit;
+				highlighter = this::placeTokenArrowsExplicit;
 			else if (!TextFormatter.enableSequences)
-				highlighter = this::placeArrowsImplicit;
+				highlighter = this::placeTokenArrowsImplicit;
 			else
 				highlighter = this::highlightTokens;
 
@@ -69,24 +70,23 @@ public class PrettyErrorFormatter extends BaseErrorFormatter {
 
 	@Override
 	protected @NotNull String generateInputView(@NotNull TokenizeContext ctx) {
-		var cmdName = ctx.getCommand().getName();
+		var cmdName = ctx.getCommand().getRoot().getName();
 		var in = cmdName + " " + ctx.getInputString(false);
+		var coloredIn = Color.BRIGHT_WHITE + in;
 
 		return this.getHighlightOptions()
 			.map(opts -> {
 				var range = opts.range().offset(cmdName.length() + 2);
-				var buff = new StringBuilder();
 
-				if (range.end() > in.length())
-					return in + this.getArrow(false);
+				if (range.start() > in.length())
+					return coloredIn + this.getArrow(false);
 
-				buff.append(in.substring(0, range.start() - 1))
-					.append(this.applyErrorLevelFormat(new TextFormatter(in.substring(range.start() - 1, range.end()))))
-					.append(in.substring(range.end()));
+				if (opts.showArrows() || !TextFormatter.enableSequences)
+					return this.placeArrows(in, range);
 
-				return buff.toString();
+				return this.highlightText(in, range);
 			})
-			.orElse(in);
+			.orElse(coloredIn);
 	}
 
 
@@ -94,6 +94,13 @@ public class PrettyErrorFormatter extends BaseErrorFormatter {
 		for (int i : range) {
 			this.applyErrorLevelFormat(tokensFormatters.get(i));
 		}
+	}
+
+	private @NotNull String highlightText(@NotNull String in, @NotNull Range range) {
+		return Color.BRIGHT_WHITE
+			+ in.substring(0, range.start() - 1)
+			+ this.applyErrorLevelFormat(new TextFormatter(in.substring(range.start() - 1, range.end())))
+			+ in.substring(range.end());
 	}
 
 	private void placeArrows(@NotNull List<@NotNull TextFormatter> tokensFormatters, @NotNull Range range, int singleOffset) {
@@ -109,11 +116,23 @@ public class PrettyErrorFormatter extends BaseErrorFormatter {
 		tokensFormatters.add(range.start(), this.getArrow(true));
 	}
 
-	private void placeArrowsImplicit(@NotNull List<@NotNull TextFormatter> tokensFormatters, @NotNull Range range) {
+	private @NotNull String placeArrows(@NotNull String in, @NotNull Range range) {
+		return in.substring(0, range.start() - 1)
+			+ this.getArrow(true)
+			+ (
+				TextFormatter.enableSequences
+					? this.applyErrorLevelFormat(new TextFormatter(in.substring(range.start() - 1, range.end())))
+					: in.substring(range.start() - 1, range.end())
+			)
+			+ this.getArrow(false)
+			+ in.substring(range.end());
+	}
+
+	private void placeTokenArrowsImplicit(@NotNull List<@NotNull TextFormatter> tokensFormatters, @NotNull Range range) {
 		this.placeArrows(tokensFormatters, range, 1);
 	}
 
-	private void placeArrowsExplicit(@NotNull List<@NotNull TextFormatter> tokensFormatters, @NotNull Range range) {
+	private void placeTokenArrowsExplicit(@NotNull List<@NotNull TextFormatter> tokensFormatters, @NotNull Range range) {
 		this.placeArrows(tokensFormatters, range, 0);
 	}
 

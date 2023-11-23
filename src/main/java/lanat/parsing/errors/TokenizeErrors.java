@@ -20,7 +20,7 @@ public abstract class TokenizeErrors {
 		public void handle(@NotNull ErrorFormattingContext fmt, @NotNull TokenizeContext ctx) {
 			fmt
 				.withContent("Tuple not closed.")
-				.highlight(this.index + 1);
+				.highlight(this.index, ctx.getCount() - this.index - 1, false);
 		}
 	}
 
@@ -38,7 +38,7 @@ public abstract class TokenizeErrors {
 		public void handle(@NotNull ErrorFormattingContext fmt, @NotNull TokenizeContext ctx) {
 			fmt
 				.withContent("String not closed.")
-				.highlight(this.index + 1);
+				.highlight(this.index, ctx.getCount() - this.index - 1, false);
 		}
 	}
 

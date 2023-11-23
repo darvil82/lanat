@@ -64,12 +64,14 @@ public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 
 
 		// nothing to tokenize. Just finish
-		if (input.isEmpty()) {
+		if (input.isBlank()) {
 			this.hasFinished = true;
 			return;
 		}
 
 		char currentStringChar = 0; // the character that opened the string
+		int lastStringCharIndex = 0; // the index of the last character that opened the string
+		int lastTupleCharIndex = 0; // the index of the last character that opened the tuple
 
 		for (;
 			this.currentCharIndex < this.inputChars.length && !this.hasFinished;
@@ -99,6 +101,7 @@ public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 				} else {
 					this.stringOpen = true;
 					currentStringChar = cChar;
+					lastStringCharIndex = this.currentCharIndex;
 				}
 
 				// append characters to the current value as long as we are in a string
@@ -119,6 +122,7 @@ public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 				// set the state to tuple open
 				this.addToken(TokenType.ARGUMENT_VALUE_TUPLE_START, this.tupleOpenChar);
 				this.tupleOpen = true;
+				lastTupleCharIndex = this.currentCharIndex;
 
 				// reached a possible tuple end character
 			} else if (cChar == this.tupleCloseChar) {
@@ -165,9 +169,9 @@ public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 		}
 
 		if (this.tupleOpen)
-			this.addError(new TokenizeErrors.TupleNotClosedError(this.currentCharIndex));
+			this.addError(new TokenizeErrors.TupleNotClosedError(lastTupleCharIndex));
 		if (this.stringOpen)
-			this.addError(new TokenizeErrors.StringNotClosedError(this.currentCharIndex));
+			this.addError(new TokenizeErrors.StringNotClosedError(lastStringCharIndex));
 
 		// we left something in the current value, tokenize it
 		if (!this.currentValue.isEmpty()) {

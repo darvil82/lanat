@@ -196,12 +196,9 @@ public class ArgumentParser extends Command {
 	}
 
 	private boolean tokenizationSucceeded() {
-		return !(
-			this.getTokenizer().hasExitErrors()
-			|| this.getCommands().stream()
-				.map(Command::getTokenizer)
-				.anyMatch(Tokenizer::hasExitErrors)
-		);
+		return this.getTokenizer().getTokenizedCommands().stream()
+			.map(Command::getTokenizer)
+			.noneMatch(Tokenizer::hasDisplayErrors);
 	}
 
 	private void tokenize(@NotNull String args) {

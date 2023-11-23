@@ -15,10 +15,10 @@ import java.util.function.Predicate;
 
 public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 	/** Are we currently within a tuple? */
-	protected boolean tupleOpen = false;
+	private boolean tupleOpen = false;
 
 	/** Are we currently within a string? */
-	protected boolean stringOpen = false;
+	private boolean stringOpen = false;
 
 	/** The index of the current character in the {@link Tokenizer#inputString} */
 	private int currentCharIndex = 0;
@@ -88,14 +88,24 @@ public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 				// if we are already in an open string, push the current value and close the string. Make sure
 				// that the current char is the same as the one that opened the string
 				if (this.stringOpen && currentStringChar == cChar) {
+					// strings require a space after them
+					if (!this.isCharAtRelativeIndex(1, Character::isWhitespace) && !this.isLastChar()) {
+						this.addError(new TokenizeErrors.SpaceRequiredError(this.currentCharIndex));
+						continue;
+					}
+
 					this.addToken(TokenType.ARGUMENT_VALUE, this.currentValue.toString());
 					this.currentValue.setLength(0);
 					this.stringOpen = false;
 
 					// the string is open, but the character does not match, or there's something already in the current value.
 					// Push it as a normal character
-				} else if (this.stringOpen || !this.currentValue.isEmpty()) {
+				} else if (this.stringOpen) {
 					this.currentValue.append(cChar);
+
+					// strings require a space behind them.
+				} else if (!this.currentValue.isEmpty()) {
+					this.addError(new TokenizeErrors.SpaceRequiredError(this.currentCharIndex - 1));
 
 					// the string is not open, so open it and set the current string char to the current char
 				} else {
@@ -126,6 +136,11 @@ public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 
 				// reached a possible tuple end character
 			} else if (cChar == this.tupleCloseChar) {
+				if (!this.isCharAtRelativeIndex(1, Character::isWhitespace) && !this.isLastChar()) {
+					this.addError(new TokenizeErrors.SpaceRequiredError(this.currentCharIndex));
+					continue;
+				}
+
 				// if we are not in a tuple, set error and stop tokenizing
 				if (!this.tupleOpen) {
 					// push tuple start token so the user can see the incorrect tuple char
@@ -190,6 +205,15 @@ public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 	private void addToken(@NotNull TokenType type, char contents) {
 		this.finalTokens.add(new Token(type, String.valueOf(contents)));
 	}
+
+	/**
+	 * Returns {@code true} if the current char index is the last one in the input chars
+	 * @return {@code true} if the current char index is the last one in the input chars
+	 */
+	private boolean isLastChar() {
+		return this.currentCharIndex == this.inputChars.length - 1;
+	}
+
 
 	/**
 	 * Tokenizes a single word and returns the token matching it. If no match could be found, returns

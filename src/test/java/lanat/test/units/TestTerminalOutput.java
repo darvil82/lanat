@@ -20,6 +20,12 @@ public class TestTerminalOutput extends UnitTests {
 		);
 	}
 
+	private void assertNoErrorOutput(String args) {
+		final var errors = this.parser.parseGetErrors(args);
+		System.out.printf("Test error output:%n%s%n", String.join("\n", errors));
+		assertTrue(errors.isEmpty());
+	}
+
 	@Test
 	@DisplayName("Arrow points to the root command name on first required argument missing")
 	public void testFirstRequiredArgument() {
@@ -119,5 +125,63 @@ public class TestTerminalOutput extends UnitTests {
 			ERROR
 			Testing foo subCommand2 --extra -> --c 5 <-
 			Multiple arguments in exclusive group 'exclusive-group' used.""");
+	}
+
+	@Test
+	@DisplayName("Test space required error")
+	public void testSpaceRequiredError() {
+		this.assertErrorOutput("[foo]--what 1", """
+			ERROR
+			Testing [foo->]-<--what 1
+			A space is required between these tokens.""");
+
+		this.assertErrorOutput("foo --what'1'", """
+			ERROR
+			Testing foo --wha->t'<-1'
+			A space is required between these tokens.""");
+
+		this.assertErrorOutput("'foo'--what 1", """
+			ERROR
+			Testing 'foo->'-<--what 1
+			A space is required between these tokens.""");
+
+		this.assertNoErrorOutput("[foo]");
+		this.assertNoErrorOutput("--what='1'");
+	}
+
+	@Test
+	@DisplayName("Test tuple already open error")
+	public void testTupleAlreadyOpenError() {
+		this.assertErrorOutput("--what [1 [2 3", """
+			ERROR
+			Testing --what [1 ->[<-2 3
+			Tuple already open.""");
+	}
+
+	@Test
+	@DisplayName("Test tuple not closed error")
+	public void testTupleNotClosedError() {
+		this.assertErrorOutput("--what [1 2 3", """
+			ERROR
+			Testing --what ->[1 2 3<-
+			Tuple not closed.""");
+	}
+
+	@Test
+	@DisplayName("Test unexpected tuple close error")
+	public void testUnexpectedTupleCloseError() {
+		this.assertErrorOutput("--what 1]", """
+			ERROR
+			Testing --what 1->]<-
+			Unexpected tuple close.""");
+	}
+
+	@Test
+	@DisplayName("Test string not closed error")
+	public void testStringNotClosedError() {
+		this.assertErrorOutput("--what '1 2 3", """
+			ERROR
+			Testing --what ->'1 2 3<-
+			String not closed.""");
 	}
 }

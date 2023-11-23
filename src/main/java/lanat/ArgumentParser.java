@@ -2,6 +2,7 @@ package lanat;
 
 import lanat.exceptions.CommandTemplateException;
 import lanat.exceptions.IncompatibleCommandTemplateType;
+import lanat.parsing.Tokenizer;
 import lanat.parsing.errors.ErrorsCollector;
 import lanat.utils.UtlMisc;
 import lanat.utils.UtlReflection;
@@ -183,7 +184,7 @@ public class ArgumentParser extends Command {
 		var errorsCollector = new ErrorsCollector(this.getFullTokenList(), input.args);
 
 		// do not parse anything if there are any errors in the tokenizer
-		if (!this.getTokenizer().hasExitErrors()) {
+		if (this.tokenizationSucceeded()) {
 			this.parseTokens(); // same thing, this parses all the stuff recursively
 			this.invokeCallbacks();
 		}
@@ -192,6 +193,15 @@ public class ArgumentParser extends Command {
 		this.isParsed = true;
 
 		return new AfterParseOptions(errorsCollector, !input.isEmpty());
+	}
+
+	private boolean tokenizationSucceeded() {
+		return !(
+			this.getTokenizer().hasExitErrors()
+			|| this.getCommands().stream()
+				.map(Command::getTokenizer)
+				.anyMatch(Tokenizer::hasExitErrors)
+		);
 	}
 
 	private void tokenize(@NotNull String args) {

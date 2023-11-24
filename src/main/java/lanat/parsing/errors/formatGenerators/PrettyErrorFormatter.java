@@ -45,7 +45,7 @@ public class PrettyErrorFormatter extends ErrorFormatter {
 	protected @Nullable TextFormatter generateTokensView(@NotNull ParseContext ctx) {
 		final var tokensFormatters = new ArrayList<TextFormatter>() {{
 			this.add(new Token(TokenType.COMMAND, ctx.getCommand().getRoot().getName()).getFormatter());
-			this.addAll(ctx.getTokensFormatters(false));
+			this.addAll(ctx.getTokens(false).stream().map(Token::getFormatter).toList());
 		}};
 
 		this.getHighlightOptions().ifPresent(opts -> {
@@ -58,7 +58,7 @@ public class PrettyErrorFormatter extends ErrorFormatter {
 			else
 				highlighter = this::highlightTokens;
 
-			highlighter.accept(tokensFormatters, opts.range().offset(1));
+			highlighter.accept(tokensFormatters, ctx.applyAbsoluteOffset(opts.range()).offset(1));
 		});
 
 		// dim tokens before the command
@@ -75,7 +75,8 @@ public class PrettyErrorFormatter extends ErrorFormatter {
 		var in = cmdName + " " + ctx.getInputString(false);
 		var coloredIn = Color.BRIGHT_WHITE + in;
 
-		return new TextFormatter(this.getHighlightOptions()
+		return new TextFormatter(
+			this.getHighlightOptions()
 			.map(opts -> {
 				var range = opts.range().offset(cmdName.length() + 2);
 
@@ -87,7 +88,8 @@ public class PrettyErrorFormatter extends ErrorFormatter {
 
 				return this.highlightText(in, range);
 			})
-			.orElse(coloredIn));
+			.orElse(coloredIn)
+		);
 	}
 
 

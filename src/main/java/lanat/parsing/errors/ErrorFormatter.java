@@ -26,8 +26,7 @@ public abstract class ErrorFormatter {
 	protected abstract @Nullable TextFormatter generateInputView(@NotNull TokenizeContext ctx);
 
 	public final @NotNull Optional<ErrorFormattingContext.HighlightOptions> getHighlightOptions() {
-		return Optional.ofNullable(this.formattingContext.getHighlightOptions())
-			.map(v -> v.withOffset(this.currentErrorContext.getAbsoluteIndex()));
+		return Optional.ofNullable(this.formattingContext.getHighlightOptions());
 	}
 
 	protected final @NotNull TextFormatter getGeneratedView() {

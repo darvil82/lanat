@@ -4,7 +4,7 @@ import lanat.Command;
 import org.jetbrains.annotations.NotNull;
 
 public final class TokenizeContext extends BaseContext {
-	private @NotNull String inputString;
+	private final @NotNull String inputString;
 
 	public TokenizeContext(@NotNull Command command, @NotNull String inputString) {
 		super(command);
@@ -32,9 +32,7 @@ public final class TokenizeContext extends BaseContext {
 	}
 
 	public @NotNull String getInputNear(int index, int length) {
-		index = this.getAbsoluteIndex(index);
-
-		return this.getInputString(false).substring(
+		return this.getInputString(true).substring(
 			Math.max(0, index - length),
 			Math.min(this.getCount(), index + length)
 		);

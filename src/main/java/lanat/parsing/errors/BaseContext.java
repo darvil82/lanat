@@ -1,6 +1,7 @@
 package lanat.parsing.errors;
 
 import lanat.Command;
+import lanat.utils.Range;
 import org.jetbrains.annotations.NotNull;
 
 public sealed abstract class BaseContext permits ParseContext, TokenizeContext {
@@ -15,6 +16,9 @@ public sealed abstract class BaseContext permits ParseContext, TokenizeContext {
 
 	public int getAbsoluteIndex() {
 		return this.getAbsoluteIndex(0);
+	}
+	public @NotNull Range applyAbsoluteOffset(@NotNull Range range) {
+		return range.offset(this.getAbsoluteIndex());
 	}
 
 	public @NotNull Command getCommand() {

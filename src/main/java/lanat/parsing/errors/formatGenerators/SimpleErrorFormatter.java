@@ -4,6 +4,7 @@ import lanat.parsing.errors.BaseContext;
 import lanat.parsing.errors.ErrorFormatter;
 import lanat.parsing.errors.ParseContext;
 import lanat.parsing.errors.TokenizeContext;
+import lanat.utils.UtlString;
 import lanat.utils.displayFormatter.FormatOption;
 import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
@@ -17,9 +18,12 @@ public class SimpleErrorFormatter extends ErrorFormatter {
 	@Override
 	protected @NotNull String generate() {
 		final var formatter = this.getErrorLevelFormatter()
-			.withContents("[" + this.getErrorLevel() + this.getGeneratedView() + "]: ");
+			.withContents("[")
+			.concat(this.getErrorLevel().name())
+			.concat(this.getGeneratedView())
+			.concat("]: ");
 
-		return formatter + this.getContentSingleLine() + '\n';
+		return formatter + this.getContentSingleLine();
 	}
 
 	@Override
@@ -35,20 +39,19 @@ public class SimpleErrorFormatter extends ErrorFormatter {
 	private @Nullable TextFormatter getView(@NotNull BaseContext ctx, @NotNull String name) {
 		return this.getHighlightOptions()
 			.map(opts -> {
-				final var range = opts.range().offset(1); // +1 because we want the first char to be 1, not 0
+				final var range = ctx.applyAbsoluteOffset(opts.range());
 
-				String rangeRpr = range.isRange()
-					? "s " + range.start() + "-" + range.end()
-					: " " + range.start();
-
+				String indicator = null;
 				var nearContents = new TextFormatter().addFormat(FormatOption.ITALIC);
 				if (ctx instanceof TokenizeContext tokenizeCtx) {
-					nearContents.concat(tokenizeCtx.getInputNear(range.start(), 3));
+					indicator = "near character " + (range.start() + 1);
+					nearContents.concat(UtlString.escapeQuotes(tokenizeCtx.getInputNear(range.start(), 5)));
 				} else if (ctx instanceof ParseContext parseCtx) {
-					nearContents.concat(parseCtx.getTokenAt(range.start()).contents());
+					indicator = "at token " + (range.start() + 1);
+					nearContents.concat(parseCtx.getTokenAt(range.start()).getFormatter());
 				}
 
-				return new TextFormatter(" (" + name + rangeRpr + ", near '")
+				return new TextFormatter(" (" + indicator + ", '")
 					.concat(nearContents)
 					.concat("')");
 			})

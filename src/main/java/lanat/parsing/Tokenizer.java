@@ -2,6 +2,7 @@ package lanat.parsing;
 
 import lanat.Argument;
 import lanat.Command;
+import lanat.TupleChar;
 import lanat.parsing.errors.Error;
 import lanat.parsing.errors.TokenizeErrors;
 import org.jetbrains.annotations.NotNull;
@@ -34,9 +35,6 @@ public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 
 	/** The input string that is being tokenized, split into characters */
 	private char[] inputChars;
-
-	final char tupleOpenChar = this.command.getTupleChars().open;
-	final char tupleCloseChar = this.command.getTupleChars().close;
 
 
 	public Tokenizer(@NotNull Command command) {
@@ -119,7 +117,7 @@ public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 				this.currentValue.append(cChar);
 
 				// reached a possible tuple start character
-			} else if (cChar == this.tupleOpenChar) {
+			} else if (cChar == this.getTupleChars().open) {
 				// if we are already in a tuple, add error
 				if (this.tupleOpen) {
 					// push tuple start token so the user can see the incorrect tuple char
@@ -130,12 +128,12 @@ public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 				}
 
 				// set the state to tuple open
-				this.addToken(TokenType.ARGUMENT_VALUE_TUPLE_START, this.tupleOpenChar);
+				this.addToken(TokenType.ARGUMENT_VALUE_TUPLE_START, this.getTupleChars().open);
 				this.tupleOpen = true;
 				lastTupleCharIndex = this.currentCharIndex;
 
 				// reached a possible tuple end character
-			} else if (cChar == this.tupleCloseChar) {
+			} else if (cChar == this.getTupleChars().close) {
 				if (!this.isCharAtRelativeIndex(1, Character::isWhitespace) && !this.isLastChar()) {
 					this.addError(new TokenizeErrors.SpaceRequiredError(this.currentCharIndex));
 					continue;
@@ -154,7 +152,7 @@ public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 				}
 
 				// set the state to tuple closed
-				this.addToken(TokenType.ARGUMENT_VALUE_TUPLE_END, this.tupleCloseChar);
+				this.addToken(TokenType.ARGUMENT_VALUE_TUPLE_END, this.getTupleChars().close);
 				this.currentValue.setLength(0);
 				this.tupleOpen = false;
 
@@ -331,6 +329,10 @@ public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 		index += this.currentCharIndex;
 		if (index >= this.inputChars.length || index < 0) return false;
 		return predicate.test(this.inputChars[index]);
+	}
+
+	private @NotNull TupleChar getTupleChars() {
+		return this.command.getTupleChars();
 	}
 
 	/**

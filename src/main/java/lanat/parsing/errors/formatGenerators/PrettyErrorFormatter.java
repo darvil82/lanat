@@ -76,7 +76,7 @@ public class PrettyErrorFormatter extends ErrorFormatter {
 		return new TextFormatter(
 			this.getHighlightOptions()
 				.map(opts -> {
-					var range = opts.range().offset(cmdName.length() + 2);
+					var range = ctx.applyAbsoluteOffset(opts.range()).offset(cmdName.length() + 2);
 
 					if (range.start() > in.length())
 						return Color.BRIGHT_WHITE + in + this.getArrow(false);

@@ -258,7 +258,7 @@ public class TextFormatter {
 	 */
 	@Override
 	public @NotNull String toString() {
-		if (!TextFormatter.enableSequences || this.isSimple()) {
+		if ((!TextFormatter.enableSequences && this.concatList.isEmpty()) || this.isSimple()) {
 			return this.contents;
 		}
 

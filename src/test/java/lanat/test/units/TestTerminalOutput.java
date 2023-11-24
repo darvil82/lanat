@@ -133,17 +133,17 @@ public class TestTerminalOutput extends UnitTests {
 		this.assertErrorOutput("[foo]--what 1", """
 			ERROR
 			Testing [foo->]-<--what 1
-			A space is required between these tokens.""");
+			A space is required between these characters.""");
 
 		this.assertErrorOutput("foo --what'1'", """
 			ERROR
 			Testing foo --wha->t'<-1'
-			A space is required between these tokens.""");
+			A space is required between these characters.""");
 
 		this.assertErrorOutput("'foo'--what 1", """
 			ERROR
 			Testing 'foo->'-<--what 1
-			A space is required between these tokens.""");
+			A space is required between these characters.""");
 
 		this.assertNoErrorOutput("[foo]");
 		this.assertNoErrorOutput("--what='1'");

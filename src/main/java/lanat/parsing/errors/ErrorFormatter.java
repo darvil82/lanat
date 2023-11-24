@@ -2,6 +2,7 @@ package lanat.parsing.errors;
 
 import lanat.ErrorLevel;
 import lanat.helpRepresentation.HelpFormatter;
+import lanat.parsing.errors.formatGenerators.PrettyErrorFormatter;
 import lanat.utils.UtlString;
 import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
@@ -10,32 +11,33 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 import java.util.Optional;
 
-public abstract class BaseErrorFormatter {
+public abstract class ErrorFormatter {
+	public static @NotNull Class<? extends ErrorFormatter> errorFormatterClass = PrettyErrorFormatter.class;
 	private final @NotNull BaseContext currentErrorContext;
 	private ErrorFormattingContext formattingContext;
 	private ErrorLevel errorLevel;
 
-	public BaseErrorFormatter(@NotNull BaseContext currentErrorContext) {
+	public ErrorFormatter(@NotNull BaseContext currentErrorContext) {
 		this.currentErrorContext = currentErrorContext;
 	}
 
 	protected abstract @NotNull String generate();
-	protected abstract @Nullable String generateTokensView(@NotNull ParseContext ctx);
-	protected abstract @Nullable String generateInputView(@NotNull TokenizeContext ctx);
+	protected abstract @Nullable TextFormatter generateTokensView(@NotNull ParseContext ctx);
+	protected abstract @Nullable TextFormatter generateInputView(@NotNull TokenizeContext ctx);
 
 	public final @NotNull Optional<ErrorFormattingContext.HighlightOptions> getHighlightOptions() {
 		return Optional.ofNullable(this.formattingContext.getHighlightOptions())
 			.map(v -> v.withOffset(this.currentErrorContext.getAbsoluteIndex()));
 	}
 
-	protected final @NotNull String getGeneratedView() {
-		String result = null;
+	protected final @NotNull TextFormatter getGeneratedView() {
+		TextFormatter result = null;
 		if (this.currentErrorContext instanceof ParseContext parseContext)
 			result = this.generateTokensView(parseContext);
 		else if (this.currentErrorContext instanceof TokenizeContext tokenizeContext)
 			result = this.generateInputView(tokenizeContext);
 
-		return Objects.requireNonNullElse(result, "");
+		return Objects.requireNonNullElse(result, new TextFormatter());
 	}
 
 	protected @NotNull ErrorLevel getErrorLevel() {

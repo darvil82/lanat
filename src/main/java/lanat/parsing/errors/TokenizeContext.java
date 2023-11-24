@@ -30,4 +30,13 @@ public final class TokenizeContext extends BaseContext {
 			this.getAbsoluteIndex(this.getCount())
 		);
 	}
+
+	public @NotNull String getInputNear(int index, int length) {
+		index = this.getAbsoluteIndex(index);
+
+		return this.getInputString(false).substring(
+			Math.max(0, index - length),
+			Math.min(this.getCount(), index + length)
+		);
+	}
 }

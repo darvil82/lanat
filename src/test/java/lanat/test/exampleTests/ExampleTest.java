@@ -15,6 +15,7 @@ public final class ExampleTest {
 	public void main() {
 		Argument.PrefixChar.defaultPrefix = Argument.PrefixChar.MINUS;
 //		TextFormatter.enableSequences = false;
+//		ErrorFormatter.errorFormatterClass = SimpleErrorFormatter.class;
 
 		var ap = new ArgumentParser("my-program") {{
 			this.setCallbackInvocationOption(CallbacksInvocationOption.NO_ERROR_IN_ARGUMENT);
@@ -36,7 +37,7 @@ public final class ExampleTest {
 			}});
 		}};
 
-		ap.parse(CLInput.from("josh meck --number 2 -cccc ++string [test1 "
+		ap.parse(CLInput.from("josh meck --number 232 -cccc ++string [test1 "
 				+ "test2 t2] -ccc sub1 --required 1 --number 12 sub2 2 --number [4]"))
 			.printErrors()
 			.getParsedArguments();

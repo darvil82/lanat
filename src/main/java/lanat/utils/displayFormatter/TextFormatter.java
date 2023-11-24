@@ -39,6 +39,7 @@ public class TextFormatter {
 	private @Nullable Color foregroundColor;
 	private @Nullable Color backgroundColor;
 	private @NotNull String contents;
+	private @Nullable String concatGap;
 
 	/**
 	 * Creates a new {@link TextFormatter} with the specified contents.
@@ -118,6 +119,11 @@ public class TextFormatter {
 	 */
 	public TextFormatter withContents(@NotNull String contents) {
 		this.contents = contents;
+		return this;
+	}
+
+	public TextFormatter withConcatGap(@Nullable String gap) {
+		this.concatGap = gap;
 		return this;
 	}
 
@@ -267,8 +273,15 @@ public class TextFormatter {
 		}
 
 		// then do the same thing for the concatenated formatters
-		for (TextFormatter subFormatter : this.concatList) {
-			buff.append(subFormatter);
+		{
+			@NotNull List<TextFormatter> concatList = this.concatList;
+
+			for (int i = 0; i < concatList.size(); i++) {
+				buff.append(concatList.get(i));
+
+				if (this.concatGap != null && i < concatList.size() - 1)
+					buff.append(this.concatGap);
+			}
 		}
 
 		buff.append(this.getEndSequences());

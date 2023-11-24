@@ -46,7 +46,7 @@ public abstract class TokenizeErrors {
 		@Override
 		public void handle(@NotNull ErrorFormattingContext fmt, @NotNull TokenizeContext ctx) {
 			fmt
-				.withContent("A space is required between these tokens.")
+				.withContent("A space is required between these characters.")
 				.highlight(this.index, 1, false);
 		}
 	}

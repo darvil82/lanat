@@ -255,4 +255,8 @@ public final class UtlString {
 
 		return new Pair<>(buffWhitespace.toString(), str.substring(buffWhitespace.length()));
 	}
+
+	public static @NotNull String escapeQuotes(@NotNull String str) {
+		return str.replaceAll("(['\"])", "\\\\$1");
+	}
 }

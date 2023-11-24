@@ -2,7 +2,6 @@ package lanat.parsing.errors;
 
 import lanat.Command;
 import lanat.parsing.Token;
-import lanat.parsing.errors.formatGenerators.PrettyErrorFormatter;
 import lanat.utils.Pair;
 import lanat.utils.UtlReflection;
 import org.jetbrains.annotations.NotNull;
@@ -20,9 +19,8 @@ public class ErrorsCollector {
 	private final @NotNull List<@NotNull Token> fullTokenList;
 	private final @NotNull String fullInput;
 	private final @NotNull Hashtable<Command, List<Error<?>>> errors = new Hashtable<>();
-	public static @NotNull Class<? extends BaseErrorFormatter> errorFormatterClass = PrettyErrorFormatter.class;
 
-	private BaseErrorFormatter tokenizeFormatter, parseFormatter;
+	private ErrorFormatter tokenizeFormatter, parseFormatter;
 
 	public ErrorsCollector(@NotNull List<@NotNull Token> fullTokenList, @NotNull String fullInputString) {
 		this.fullTokenList = fullTokenList;
@@ -47,7 +45,7 @@ public class ErrorsCollector {
 
 			for (var error : errors) {
 				final var errorFormattingCtx = new ErrorFormattingContext();
-				BaseErrorFormatter formatter = null;
+				ErrorFormatter formatter = null;
 
 				if (error instanceof Error.TokenizeError tokenizeError) {
 					formatter = this.getTokenizeFormatter(command);
@@ -74,23 +72,23 @@ public class ErrorsCollector {
 			.toList();
 	}
 
-	private @NotNull BaseErrorFormatter getTokenizeFormatter(@NotNull Command cmd) {
+	private @NotNull ErrorFormatter getTokenizeFormatter(@NotNull Command cmd) {
 		if (this.tokenizeFormatter == null || this.tokenizeFormatter.getCurrentErrorContext().getCommand() != cmd)
 			this.tokenizeFormatter = getFormatter(() -> new TokenizeContext(cmd, this.fullInput));
 
 		return this.tokenizeFormatter;
 	}
 
-	private @NotNull BaseErrorFormatter getParseFormatter(@NotNull Command cmd) {
+	private @NotNull ErrorFormatter getParseFormatter(@NotNull Command cmd) {
 		if (this.parseFormatter == null || this.parseFormatter.getCurrentErrorContext().getCommand() != cmd)
 			this.parseFormatter = getFormatter(() -> new ParseContext(cmd, this.fullTokenList));
 
 		return this.parseFormatter;
 	}
 
-	private static @NotNull BaseErrorFormatter getFormatter(@NotNull Supplier<? extends BaseContext> ctx) {
+	private static @NotNull ErrorFormatter getFormatter(@NotNull Supplier<? extends BaseContext> ctx) {
 		return UtlReflection.instantiate(
-			ErrorsCollector.errorFormatterClass,
+			ErrorFormatter.errorFormatterClass,
 			List.of(BaseContext.class),
 			List.of(ctx.get())
 		);

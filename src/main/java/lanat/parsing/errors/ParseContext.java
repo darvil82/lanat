@@ -2,6 +2,7 @@ package lanat.parsing.errors;
 
 import lanat.Command;
 import lanat.parsing.Token;
+import lanat.parsing.TokenType;
 import lanat.utils.Range;
 import org.jetbrains.annotations.NotNull;
 
@@ -51,5 +52,9 @@ public final class ParseContext extends BaseContext {
 			this.getAbsoluteIndex(),
 			this.getAbsoluteIndex(this.getCount())
 		);
+	}
+
+	public @NotNull Token getRootCommandToken() {
+		return new Token(TokenType.COMMAND, this.getCommand().getRoot().getName());
 	}
 }

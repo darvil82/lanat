@@ -1,7 +1,6 @@
 package lanat.parsing.errors.formatGenerators;
 
 import lanat.parsing.Token;
-import lanat.parsing.TokenType;
 import lanat.parsing.errors.BaseContext;
 import lanat.parsing.errors.ErrorFormatter;
 import lanat.parsing.errors.ParseContext;
@@ -44,7 +43,7 @@ public class PrettyErrorFormatter extends ErrorFormatter {
 	@Override
 	protected @Nullable TextFormatter generateTokensView(@NotNull ParseContext ctx) {
 		final var tokensFormatters = new ArrayList<TextFormatter>() {{
-			this.add(new Token(TokenType.COMMAND, ctx.getCommand().getRoot().getName()).getFormatter());
+			this.add(ctx.getRootCommandToken().getFormatter());
 			this.addAll(ctx.getTokens(false).stream().map(Token::getFormatter).toList());
 		}};
 
@@ -73,22 +72,21 @@ public class PrettyErrorFormatter extends ErrorFormatter {
 	protected @Nullable TextFormatter generateInputView(@NotNull TokenizeContext ctx) {
 		var cmdName = ctx.getCommand().getRoot().getName();
 		var in = cmdName + " " + ctx.getInputString(false);
-		var coloredIn = Color.BRIGHT_WHITE + in;
 
 		return new TextFormatter(
 			this.getHighlightOptions()
-			.map(opts -> {
-				var range = opts.range().offset(cmdName.length() + 2);
+				.map(opts -> {
+					var range = opts.range().offset(cmdName.length() + 2);
 
-				if (range.start() > in.length())
-					return coloredIn + this.getArrow(false);
+					if (range.start() > in.length())
+						return Color.BRIGHT_WHITE + in + this.getArrow(false);
 
-				if (opts.showArrows() || !TextFormatter.enableSequences)
-					return this.placeArrows(in, range);
+					if (opts.showArrows() || !TextFormatter.enableSequences)
+						return this.placeArrows(in, range);
 
-				return this.highlightText(in, range);
-			})
-			.orElse(coloredIn)
+					return this.highlightText(in, range);
+				})
+				.orElse(Color.BRIGHT_WHITE + in)
 		);
 	}
 

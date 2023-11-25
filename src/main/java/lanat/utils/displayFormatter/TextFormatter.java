@@ -197,6 +197,11 @@ public class TextFormatter {
 		return buffer.toString();
 	}
 
+	/**
+	 * Returns the end sequences to add to the contents of the formatter. This should properly reset the foreground
+	 * color, the background color, and all the formatting options.
+	 * @return the end sequences to add to the contents of the formatter
+	 */
 	private @NotNull String getEndSequences() {
 		if (this.formattingNotDefined()) return "";
 		final var buffer = new StringBuilder();
@@ -274,13 +279,19 @@ public class TextFormatter {
 
 		// then do the same thing for the concatenated formatters
 		{
-			@NotNull List<TextFormatter> concatList = this.concatList;
+			var concatList = this.concatList;
 
 			for (int i = 0; i < concatList.size(); i++) {
 				buff.append(concatList.get(i));
 
-				if (this.concatGap != null && i < concatList.size() - 1)
+				// add the gap if it exists
+				if (this.concatGap != null && i < concatList.size() - 1) {
 					buff.append(this.concatGap);
+
+					// if the gap contains a new line, then add the start sequences
+					if (this.concatGap.contains("\n"))
+						buff.append(this.getStartSequences());
+				}
 			}
 		}
 

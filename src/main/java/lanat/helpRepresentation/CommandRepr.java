@@ -3,10 +3,10 @@ package lanat.helpRepresentation;
 import lanat.Command;
 import lanat.helpRepresentation.descriptions.DescriptionFormatter;
 import lanat.utils.UtlMisc;
-import lanat.utils.displayFormatter.FormatOption;
-import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import textFormatter.FormatOption;
+import textFormatter.TextFormatter;
 
 /**
  * Contains methods for generating the help representations of {@link Command}s.

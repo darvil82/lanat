@@ -12,9 +12,9 @@ import lanat.utils.ErrorCallbacks;
 import lanat.utils.ErrorsContainerImpl;
 import lanat.utils.Resettable;
 import lanat.utils.UtlMisc;
-import lanat.utils.displayFormatter.Color;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import textFormatter.Color;
 import utils.*;
 
 import java.lang.annotation.ElementType;

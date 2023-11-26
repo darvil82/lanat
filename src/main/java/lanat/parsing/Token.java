@@ -1,7 +1,7 @@
 package lanat.parsing;
 
-import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
+import textFormatter.TextFormatter;
 import utils.UtlString;
 
 public record Token(@NotNull TokenType type, @NotNull String contents) {

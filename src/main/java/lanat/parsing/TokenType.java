@@ -1,7 +1,7 @@
 package lanat.parsing;
 
-import lanat.utils.displayFormatter.Color;
 import org.jetbrains.annotations.NotNull;
+import textFormatter.Color;
 
 public enum TokenType {
 	ARGUMENT_NAME(Color.BRIGHT_GREEN),

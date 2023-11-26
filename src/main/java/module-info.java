@@ -1,10 +1,10 @@
 module lanat {
 	requires org.jetbrains.annotations;
 	requires utils;
+	requires textFormatter;
 
 	exports lanat;
 	exports lanat.argumentTypes;
-	exports lanat.utils.displayFormatter;
 	exports lanat.helpRepresentation;
 	exports lanat.helpRepresentation.descriptions;
 	exports lanat.helpRepresentation.descriptions.exceptions;

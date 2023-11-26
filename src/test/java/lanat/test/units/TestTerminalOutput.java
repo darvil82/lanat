@@ -152,9 +152,9 @@ public class TestTerminalOutput extends UnitTests {
 	@Test
 	@DisplayName("Test tuple already open error")
 	public void testTupleAlreadyOpenError() {
-		this.assertErrorOutput("--what [1 [2 3", """
+		this.assertErrorOutput("test subCommand [1 [2 3", """
 			ERROR
-			Testing --what [1 ->[<-2 3
+			Testing test subCommand [1 ->[<-2 3
 			Tuple already open.""");
 	}
 

@@ -2,9 +2,9 @@ package lanat.parsing.errors;
 
 import lanat.Command;
 import lanat.parsing.Token;
-import lanat.utils.Pair;
-import lanat.utils.UtlReflection;
 import org.jetbrains.annotations.NotNull;
+import utils.Pair;
+import utils.UtlReflection;
 
 import java.util.ArrayList;
 import java.util.Comparator;

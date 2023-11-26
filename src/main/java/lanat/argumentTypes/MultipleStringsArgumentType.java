@@ -1,7 +1,7 @@
 package lanat.argumentTypes;
 
-import lanat.utils.Range;
 import org.jetbrains.annotations.NotNull;
+import utils.Range;
 
 /**
  * An argument type that takes multiple strings.

@@ -1,8 +1,8 @@
 package lanat.parsing.errors;
 
 import lanat.Command;
-import lanat.utils.Range;
 import org.jetbrains.annotations.NotNull;
+import utils.Range;
 
 public sealed abstract class BaseContext permits ParseContext, TokenizeContext {
 	protected final @NotNull Command command;

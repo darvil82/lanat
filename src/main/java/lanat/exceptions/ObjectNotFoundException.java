@@ -1,8 +1,8 @@
 package lanat.exceptions;
 
 import lanat.NamedWithDescription;
-import lanat.utils.UtlReflection;
 import org.jetbrains.annotations.NotNull;
+import utils.UtlReflection;
 
 /**
  * Thrown when an object is not found.

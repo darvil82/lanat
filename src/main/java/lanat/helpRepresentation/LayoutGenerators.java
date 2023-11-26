@@ -4,9 +4,9 @@ import lanat.Argument;
 import lanat.ArgumentParser;
 import lanat.Command;
 import lanat.helpRepresentation.descriptions.DescriptionFormatter;
-import lanat.utils.UtlString;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import utils.UtlString;
 
 import java.util.List;
 

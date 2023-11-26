@@ -8,10 +8,14 @@ import lanat.parsing.Token;
 import lanat.parsing.TokenType;
 import lanat.parsing.Tokenizer;
 import lanat.parsing.errors.Error;
-import lanat.utils.*;
+import lanat.utils.ErrorCallbacks;
+import lanat.utils.ErrorsContainerImpl;
+import lanat.utils.Resettable;
+import lanat.utils.UtlMisc;
 import lanat.utils.displayFormatter.Color;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import utils.*;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

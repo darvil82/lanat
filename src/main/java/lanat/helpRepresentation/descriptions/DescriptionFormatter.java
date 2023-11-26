@@ -4,9 +4,9 @@ import lanat.CommandUser;
 import lanat.NamedWithDescription;
 import lanat.helpRepresentation.descriptions.exceptions.MalformedTagException;
 import lanat.utils.UtlMisc;
-import lanat.utils.UtlString;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import utils.UtlString;
 
 public final class DescriptionFormatter {
 	private static final char TAG_START = '<';

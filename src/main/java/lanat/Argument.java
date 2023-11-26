@@ -5,10 +5,16 @@ import lanat.argumentTypes.DummyArgumentType;
 import lanat.exceptions.ArgumentAlreadyExistsException;
 import lanat.parsing.errors.Error;
 import lanat.parsing.errors.ParseErrors;
-import lanat.utils.*;
+import lanat.utils.ErrorCallbacks;
+import lanat.utils.ErrorsContainer;
+import lanat.utils.Resettable;
+import lanat.utils.UtlMisc;
 import lanat.utils.displayFormatter.Color;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import utils.ModifyRecord;
+import utils.MultiComparator;
+import utils.UtlString;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -70,7 +76,7 @@ import java.util.stream.Stream;
 public class Argument<Type extends ArgumentType<TInner>, TInner>
 	implements ErrorsContainer<Error.CustomError>,
 	ErrorCallbacks<TInner,
-		Argument<Type, TInner>>,
+			Argument<Type, TInner>>,
 	Resettable,
 	CommandUser,
 	ArgumentGroupUser,

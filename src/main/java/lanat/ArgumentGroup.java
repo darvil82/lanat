@@ -2,9 +2,9 @@ package lanat;
 
 import lanat.exceptions.ArgumentGroupAlreadyExistsException;
 import lanat.utils.Resettable;
-import lanat.utils.UtlString;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import utils.UtlString;
 
 import java.util.ArrayList;
 import java.util.Collections;

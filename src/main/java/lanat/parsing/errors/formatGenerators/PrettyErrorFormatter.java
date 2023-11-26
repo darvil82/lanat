@@ -5,13 +5,13 @@ import lanat.parsing.errors.BaseContext;
 import lanat.parsing.errors.ErrorFormatter;
 import lanat.parsing.errors.ParseContext;
 import lanat.parsing.errors.TokenizeContext;
-import lanat.utils.Range;
-import lanat.utils.UtlString;
 import lanat.utils.displayFormatter.Color;
 import lanat.utils.displayFormatter.FormatOption;
 import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import utils.Range;
+import utils.UtlString;
 
 import java.util.ArrayList;
 import java.util.List;

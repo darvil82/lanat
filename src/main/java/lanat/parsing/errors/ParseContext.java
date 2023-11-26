@@ -3,8 +3,8 @@ package lanat.parsing.errors;
 import lanat.Command;
 import lanat.parsing.Token;
 import lanat.parsing.TokenType;
-import lanat.utils.Range;
 import org.jetbrains.annotations.NotNull;
+import utils.Range;
 
 import java.util.List;
 

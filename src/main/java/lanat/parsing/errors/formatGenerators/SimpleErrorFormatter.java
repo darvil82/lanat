@@ -4,10 +4,10 @@ import lanat.parsing.errors.BaseContext;
 import lanat.parsing.errors.ErrorFormatter;
 import lanat.parsing.errors.ParseContext;
 import lanat.parsing.errors.TokenizeContext;
-import lanat.utils.displayFormatter.FormatOption;
-import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import textFormatter.FormatOption;
+import textFormatter.TextFormatter;
 import utils.UtlString;
 
 public class SimpleErrorFormatter extends ErrorFormatter {

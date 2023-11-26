@@ -3,10 +3,10 @@ package lanat.helpRepresentation;
 import lanat.Argument;
 import lanat.ArgumentGroup;
 import lanat.helpRepresentation.descriptions.DescriptionFormatter;
-import lanat.utils.displayFormatter.FormatOption;
-import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import textFormatter.FormatOption;
+import textFormatter.TextFormatter;
 
 import java.util.List;
 

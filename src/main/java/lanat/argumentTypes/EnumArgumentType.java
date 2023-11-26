@@ -1,11 +1,11 @@
 package lanat.argumentTypes;
 
 import lanat.ArgumentType;
-import lanat.utils.displayFormatter.Color;
-import lanat.utils.displayFormatter.FormatOption;
-import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import textFormatter.Color;
+import textFormatter.FormatOption;
+import textFormatter.TextFormatter;
 
 import java.util.stream.Stream;
 

@@ -6,9 +6,9 @@ import lanat.helpRepresentation.descriptions.tags.ColorTag;
 import lanat.helpRepresentation.descriptions.tags.DescTag;
 import lanat.helpRepresentation.descriptions.tags.FormatTag;
 import lanat.helpRepresentation.descriptions.tags.LinkTag;
-import lanat.utils.UtlReflection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import utils.UtlReflection;
 
 import java.util.Hashtable;
 import java.util.Map;

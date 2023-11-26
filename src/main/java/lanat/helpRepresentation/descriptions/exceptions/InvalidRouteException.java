@@ -2,9 +2,9 @@ package lanat.helpRepresentation.descriptions.exceptions;
 
 import lanat.NamedWithDescription;
 import lanat.exceptions.LanatException;
-import lanat.utils.UtlReflection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import utils.UtlReflection;
 
 /** Thrown when a parsed route is invalid. */
 public class InvalidRouteException extends LanatException {

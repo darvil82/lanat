@@ -2,9 +2,9 @@ package lanat;
 
 import lanat.argumentTypes.DummyArgumentType;
 import lanat.exceptions.ArgumentTypeInferException;
-import lanat.utils.UtlReflection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import utils.UtlReflection;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;

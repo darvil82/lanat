@@ -2,6 +2,7 @@ package lanat.utils;
 
 import lanat.ErrorLevel;
 import org.jetbrains.annotations.NotNull;
+import utils.ModifyRecord;
 
 import java.util.List;
 

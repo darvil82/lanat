@@ -1,5 +1,6 @@
 module lanat {
 	requires org.jetbrains.annotations;
+	requires utils;
 
 	exports lanat;
 	exports lanat.argumentTypes;
@@ -12,4 +13,6 @@ module lanat {
 	exports lanat.parsing.errors.formatGenerators;
 	exports lanat.utils;
 	exports lanat.exceptions;
+
+	exports lanat.helpRepresentation.descriptions.tags to utils;
 }

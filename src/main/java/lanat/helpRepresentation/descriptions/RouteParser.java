@@ -2,10 +2,10 @@ package lanat.helpRepresentation.descriptions;
 
 import lanat.*;
 import lanat.helpRepresentation.descriptions.exceptions.InvalidRouteException;
-import lanat.utils.UtlReflection;
-import lanat.utils.UtlString;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import utils.UtlReflection;
+import utils.UtlString;
 
 import java.util.Arrays;
 import java.util.List;

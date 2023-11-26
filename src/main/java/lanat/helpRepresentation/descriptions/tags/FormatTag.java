@@ -3,11 +3,11 @@ package lanat.helpRepresentation.descriptions.tags;
 import lanat.NamedWithDescription;
 import lanat.helpRepresentation.descriptions.Tag;
 import lanat.helpRepresentation.descriptions.exceptions.MalformedTagException;
-import lanat.utils.UtlString;
 import lanat.utils.displayFormatter.FormatOption;
 import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import utils.UtlString;
 
 /**
  * Changes the format of the text. (e.g. {@code <format=bold>}). The available formats are the ones defined in

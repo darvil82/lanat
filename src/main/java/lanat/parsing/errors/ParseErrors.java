@@ -4,9 +4,9 @@ import lanat.Argument;
 import lanat.ArgumentGroup;
 import lanat.ArgumentParser;
 import lanat.ErrorLevel;
-import lanat.utils.Pair;
-import lanat.utils.UtlString;
 import org.jetbrains.annotations.NotNull;
+import utils.Pair;
+import utils.UtlString;
 
 @SuppressWarnings("unused")
 public abstract class ParseErrors {

@@ -8,9 +8,11 @@ version = "0.1.0"
 description = "Command line argument parser"
 
 dependencies {
+	implementation("com.darvil:utils:+")
+
 	implementation("org.jetbrains:annotations:24.0.1")
-	testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
-	testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.2")
+	testImplementation(platform("org.junit:junit-bom:5.9.1"))
+	testImplementation("org.junit.jupiter:junit-jupiter")
 }
 
 java {
@@ -22,6 +24,7 @@ java {
 
 repositories {
 	mavenCentral()
+	maven("https://repsy.io/mvn/darvil/java")
 }
 
 publishing {
@@ -46,7 +49,7 @@ publishing {
 	}
 }
 
-tasks.named<Test>("test") {
+tasks.test {
 	useJUnitPlatform()
 }
 

@@ -2,8 +2,8 @@ package lanat;
 
 import lanat.argumentTypes.*;
 import lanat.exceptions.ArgumentTypeInferException;
-import lanat.utils.Range;
 import org.jetbrains.annotations.NotNull;
+import utils.Range;
 
 import java.io.File;
 import java.util.HashMap;

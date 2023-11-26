@@ -6,11 +6,11 @@ import lanat.argumentTypes.Parseable;
 import lanat.parsing.errors.CustomErrorImpl;
 import lanat.parsing.errors.Error;
 import lanat.utils.ErrorsContainerImpl;
-import lanat.utils.Pair;
-import lanat.utils.Range;
 import lanat.utils.Resettable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import utils.Pair;
+import utils.Range;
 
 import java.util.ArrayList;
 import java.util.function.Consumer;

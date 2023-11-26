@@ -1,8 +1,8 @@
 package lanat.parsing.errors;
 
-import lanat.utils.Range;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import utils.Range;
 
 /**
  * Class used by error handlers to easily format errors to be displayed to the user.

@@ -3,11 +3,11 @@ package lanat.helpRepresentation;
 import lanat.Command;
 import lanat.CommandUser;
 import lanat.helpRepresentation.descriptions.Tag;
-import lanat.utils.UtlString;
 import lanat.utils.displayFormatter.Color;
 import lanat.utils.displayFormatter.FormatOption;
 import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
+import utils.UtlString;
 
 import java.util.*;
 

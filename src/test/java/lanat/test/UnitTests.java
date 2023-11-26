@@ -8,11 +8,11 @@ import lanat.argumentTypes.CounterArgumentType;
 import lanat.argumentTypes.IntegerArgumentType;
 import lanat.argumentTypes.StringArgumentType;
 import lanat.helpRepresentation.HelpFormatter;
-import lanat.utils.Range;
 import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
+import utils.Range;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

@@ -1,10 +1,10 @@
 package lanat.argumentTypes;
 
 import lanat.ArgumentType;
-import lanat.utils.Range;
 import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import utils.Range;
 
 /**
  * An argument type that is set in a true state if the argument was used.

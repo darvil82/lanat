@@ -4,8 +4,8 @@ import lanat.Argument;
 import lanat.argumentTypes.*;
 import lanat.test.TestingParser;
 import lanat.test.UnitTests;
-import lanat.utils.Range;
 import org.junit.jupiter.api.Test;
+import utils.Range;
 
 import java.io.File;
 import java.util.HashMap;

@@ -3,10 +3,10 @@ package lanat.parsing.errors;
 import lanat.ErrorLevel;
 import lanat.helpRepresentation.HelpFormatter;
 import lanat.parsing.errors.formatGenerators.PrettyErrorFormatter;
-import lanat.utils.UtlString;
 import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import utils.UtlString;
 
 import java.util.Objects;
 import java.util.Optional;

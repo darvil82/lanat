@@ -5,9 +5,9 @@ import lanat.exceptions.IncompatibleCommandTemplateType;
 import lanat.parsing.Tokenizer;
 import lanat.parsing.errors.ErrorsCollector;
 import lanat.utils.UtlMisc;
-import lanat.utils.UtlReflection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import utils.UtlReflection;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;

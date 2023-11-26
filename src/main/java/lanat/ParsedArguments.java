@@ -2,9 +2,9 @@ package lanat;
 
 import lanat.exceptions.ArgumentNotFoundException;
 import lanat.exceptions.CommandNotFoundException;
-import lanat.utils.UtlString;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import utils.UtlString;
 
 import java.util.Arrays;
 import java.util.HashMap;

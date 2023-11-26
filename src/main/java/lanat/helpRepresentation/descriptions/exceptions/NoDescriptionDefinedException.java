@@ -2,8 +2,8 @@ package lanat.helpRepresentation.descriptions.exceptions;
 
 import lanat.NamedWithDescription;
 import lanat.exceptions.LanatException;
-import lanat.utils.UtlReflection;
 import org.jetbrains.annotations.NotNull;
+import utils.UtlReflection;
 
 /** Thrown when a description was not defined for an object. */
 public class NoDescriptionDefinedException extends LanatException {

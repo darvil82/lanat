@@ -15,7 +15,7 @@ public class CustomErrorImpl implements Error.CustomError {
 	}
 
 	@Override
-	public void handle(@NotNull ErrorFormattingContext fmt, @NotNull ParseContext ctx) {
+	public void handle(@NotNull ErrorFormattingContext fmt, @NotNull ParseErrorContext ctx) {
 		fmt
 			.withContent(this.message)
 			.highlight(this.index, 0, false);

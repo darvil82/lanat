@@ -40,11 +40,6 @@ public class HelpFormatter {
 		this.initLayout();
 	}
 
-	public HelpFormatter(@NotNull HelpFormatter other) {
-		this.indentSize = other.indentSize;
-		this.layout.addAll(other.layout);
-	}
-
 	public void setIndentSize(int indentSize) {
 		this.indentSize = (byte)Math.max(indentSize, 0);
 	}

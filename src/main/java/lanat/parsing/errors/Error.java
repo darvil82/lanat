@@ -14,8 +14,8 @@ public sealed interface Error<C> extends ErrorLevelProvider
 		return ErrorLevel.ERROR;
 	}
 
-	non-sealed interface ParseError extends Error<ParseContext> { }
-	non-sealed interface TokenizeError extends Error<TokenizeContext> { }
+	non-sealed interface ParseError extends Error<ParseErrorContext> { }
+	non-sealed interface TokenizeError extends Error<TokenizeErrorContext> { }
 
 	interface CustomError extends ParseError {
 		int getIndex();

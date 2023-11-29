@@ -4,10 +4,10 @@ import lanat.Command;
 import org.jetbrains.annotations.NotNull;
 import utils.Range;
 
-public sealed abstract class BaseContext permits ParseContext, TokenizeContext {
+public sealed abstract class ErrorContext permits ParseErrorContext, TokenizeErrorContext {
 	protected final @NotNull Command command;
 
-	public BaseContext(@NotNull Command command) {
+	public ErrorContext(@NotNull Command command) {
 		this.command = command;
 	}
 

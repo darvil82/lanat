@@ -3,10 +3,10 @@ package lanat.parsing.errors;
 import lanat.Command;
 import org.jetbrains.annotations.NotNull;
 
-public final class TokenizeContext extends BaseContext {
+public final class TokenizeErrorContext extends ErrorContext {
 	private final @NotNull String inputString;
 
-	public TokenizeContext(@NotNull Command command, @NotNull String inputString) {
+	public TokenizeErrorContext(@NotNull Command command, @NotNull String inputString) {
 		super(command);
 		this.inputString = inputString;
 	}

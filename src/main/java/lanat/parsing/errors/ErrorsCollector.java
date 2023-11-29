@@ -49,10 +49,10 @@ public class ErrorsCollector {
 
 				if (error instanceof Error.TokenizeError tokenizeError) {
 					formatter = this.getTokenizeFormatter(command);
-					tokenizeError.handle(errorFormattingCtx, (TokenizeContext)formatter.getCurrentErrorContext());
+					tokenizeError.handle(errorFormattingCtx, (TokenizeErrorContext)formatter.getCurrentErrorContext());
 				} else if (error instanceof Error.ParseError parseError) {
 					formatter = this.getParseFormatter(command);
-					parseError.handle(errorFormattingCtx, (ParseContext)formatter.getCurrentErrorContext());
+					parseError.handle(errorFormattingCtx, (ParseErrorContext)formatter.getCurrentErrorContext());
 				}
 
 				assert formatter != null; // impossible because Error is sealed
@@ -74,22 +74,22 @@ public class ErrorsCollector {
 
 	private @NotNull ErrorFormatter getTokenizeFormatter(@NotNull Command cmd) {
 		if (this.tokenizeFormatter == null || this.tokenizeFormatter.getCurrentErrorContext().getCommand() != cmd)
-			this.tokenizeFormatter = getFormatter(() -> new TokenizeContext(cmd, this.fullInput));
+			this.tokenizeFormatter = getFormatter(() -> new TokenizeErrorContext(cmd, this.fullInput));
 
 		return this.tokenizeFormatter;
 	}
 
 	private @NotNull ErrorFormatter getParseFormatter(@NotNull Command cmd) {
 		if (this.parseFormatter == null || this.parseFormatter.getCurrentErrorContext().getCommand() != cmd)
-			this.parseFormatter = getFormatter(() -> new ParseContext(cmd, this.fullTokenList));
+			this.parseFormatter = getFormatter(() -> new ParseErrorContext(cmd, this.fullTokenList));
 
 		return this.parseFormatter;
 	}
 
-	private static @NotNull ErrorFormatter getFormatter(@NotNull Supplier<? extends BaseContext> ctx) {
+	private static @NotNull ErrorFormatter getFormatter(@NotNull Supplier<? extends ErrorContext> ctx) {
 		return UtlReflection.instantiate(
 			ErrorFormatter.errorFormatterClass,
-			List.of(BaseContext.class),
+			List.of(ErrorContext.class),
 			List.of(ctx.get())
 		);
 	}

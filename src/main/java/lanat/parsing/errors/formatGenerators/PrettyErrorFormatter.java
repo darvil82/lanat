@@ -1,10 +1,10 @@
 package lanat.parsing.errors.formatGenerators;
 
 import lanat.parsing.Token;
-import lanat.parsing.errors.BaseContext;
+import lanat.parsing.errors.ErrorContext;
 import lanat.parsing.errors.ErrorFormatter;
-import lanat.parsing.errors.ParseContext;
-import lanat.parsing.errors.TokenizeContext;
+import lanat.parsing.errors.ParseErrorContext;
+import lanat.parsing.errors.TokenizeErrorContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import textFormatter.Color;
@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 
 public class PrettyErrorFormatter extends ErrorFormatter {
-	public PrettyErrorFormatter(@NotNull BaseContext currentErrorContext) {
+	public PrettyErrorFormatter(@NotNull ErrorContext currentErrorContext) {
 		super(currentErrorContext);
 	}
 
@@ -41,7 +41,7 @@ public class PrettyErrorFormatter extends ErrorFormatter {
 	}
 
 	@Override
-	protected @Nullable TextFormatter generateTokensView(@NotNull ParseContext ctx) {
+	protected @Nullable TextFormatter generateTokensView(@NotNull ParseErrorContext ctx) {
 		final var tokensFormatters = new ArrayList<TextFormatter>() {{
 			this.add(ctx.getRootCommandToken().getFormatter());
 			this.addAll(ctx.getTokens(false).stream().map(Token::getFormatter).toList());
@@ -69,7 +69,7 @@ public class PrettyErrorFormatter extends ErrorFormatter {
 	}
 
 	@Override
-	protected @Nullable TextFormatter generateInputView(@NotNull TokenizeContext ctx) {
+	protected @Nullable TextFormatter generateInputView(@NotNull TokenizeErrorContext ctx) {
 		var cmdName = ctx.getCommand().getRoot().getName();
 		var in = cmdName + " " + ctx.getInputString(false);
 

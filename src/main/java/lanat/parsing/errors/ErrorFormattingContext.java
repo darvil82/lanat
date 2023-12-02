@@ -22,15 +22,14 @@ public class ErrorFormattingContext {
 	}
 
 	/**
-	 * Indicates the generator to display all tokens.
+	 * Indicates the formatter to display the user input.
 	 * <p>
-	 * Tokens between the index {@code start} and the {@code offsetEnd} from it will be highlighted. If {@code showArrows}
-	 * is {@code true}, an arrow will be placed at each token index in that range.
+	 * The input between the index {@code start} and the {@code offsetEnd} from it will be highlighted. If {@code showArrows}
+	 * is {@code true}, two arrows will be placed at the start and end of the highlighted range instead.
 	 * </p>
-	 * @param start The index of the first token to highlight.
-	 * @param offsetEnd The number of tokens to highlight after the token at the index {@code start}. A value of {@code 0}
-	 *  may be used to highlight only the token at the index {@code start}.
-	 * @param showArrows Whether to place an arrow at each token index in the range.
+	 * @param start The index of the first input value to highlight.
+	 * @param offsetEnd The number of values to highlight after the value at the index {@code start}.
+	 * @param showArrows Whether to show arrows instead of highlighting the input.
 	 */
 	public ErrorFormattingContext highlight(int start, int offsetEnd, boolean showArrows) {
 		this.tokensViewOptions = new HighlightOptions(
@@ -41,23 +40,30 @@ public class ErrorFormattingContext {
 	}
 
 	/**
-	 * Indicates the generator to display all tokens. Places an error at the token at index {@code index}.
-	 * @param index The index of the token to highlight.
+	 * Indicates the formatter to display the user input. The input at the given index will be highlighted.
 	 */
 	public ErrorFormattingContext highlight(int index) {
 		return this.highlight(index, 0, true);
 	}
 
+	/**
+	 * Returns the options used to display input.
+	 * @return The options used to display input.
+	 */
 	protected @Nullable HighlightOptions getHighlightOptions() {
 		return this.tokensViewOptions;
 	}
 
+	/**
+	 * Returns the content of the error message.
+	 * @return The content of the error message.
+	 */
 	public @NotNull String getContent() {
 		return this.content;
 	}
 
 	/**
-	 * Options used to display tokens.
+	 * Options used to display the input.
 	 */
 	public record HighlightOptions(@NotNull Range range, boolean showArrows) {
 		public @NotNull HighlightOptions withOffset(int offset) {

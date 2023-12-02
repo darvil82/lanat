@@ -3,11 +3,24 @@ package lanat.parsing.errors;
 import lanat.ErrorLevel;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Implements the basic behavior of a custom error.
+ * @see Error.CustomError
+ */
 public class CustomErrorImpl implements Error.CustomError {
+	/** The error message. */
 	private final @NotNull String message;
+	/** The error level. */
 	private final @NotNull ErrorLevel errorLevel;
+	/** The index of the token that caused the error. */
 	private int index;
 
+	/**
+	 * Instantiates a new custom error.
+	 * @param message the error message
+	 * @param errorLevel the error level
+	 * @param index the index of the token that caused the error
+	 */
 	public CustomErrorImpl(@NotNull String message, @NotNull ErrorLevel errorLevel, int index) {
 		this.message = message;
 		this.errorLevel = errorLevel;
@@ -26,6 +39,10 @@ public class CustomErrorImpl implements Error.CustomError {
 		return this.index;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * The offset must be positive.
+	 */
 	@Override
 	public void offsetIndex(int offset) {
 		if (offset < 0)

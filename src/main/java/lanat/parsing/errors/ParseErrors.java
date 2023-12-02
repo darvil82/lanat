@@ -8,7 +8,6 @@ import org.jetbrains.annotations.NotNull;
 import utils.Pair;
 import utils.UtlString;
 
-@SuppressWarnings("unused")
 public abstract class ParseErrors {
 	private ParseErrors() {}
 

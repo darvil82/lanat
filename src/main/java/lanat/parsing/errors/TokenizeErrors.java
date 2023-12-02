@@ -2,7 +2,6 @@ package lanat.parsing.errors;
 
 import org.jetbrains.annotations.NotNull;
 
-@SuppressWarnings("unused")
 public abstract class TokenizeErrors {
 	private TokenizeErrors() {}
 

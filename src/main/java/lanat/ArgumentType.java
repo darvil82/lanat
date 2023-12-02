@@ -281,7 +281,7 @@ public abstract class ArgumentType<T>
 		return this.lastInTuple;
 	}
 
-	@NotNull Pair<Integer, Integer> getLastTokensIndexRange() {
+	@NotNull Pair<Integer, Integer> getLastTokensIndicesPair() {
 		int inTupleOffset = this.lastInTuple ? 1 : 0;
 
 		return new Pair<>(

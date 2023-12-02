@@ -45,7 +45,7 @@ public class ErrorsCollector {
 	 * <li>Parser</li>
 	 * <li>Arguments</li>
 	 * <li>Custom errors added to the Command</li>
-	 * </p>
+	 * </ol>
 	 * @param command the command to collect the errors from
 	 */
 	public void collect(@NotNull Command command) {

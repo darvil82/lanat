@@ -17,6 +17,7 @@ public sealed abstract class ErrorContext permits ParseErrorContext, TokenizeErr
 	public int getAbsoluteIndex() {
 		return this.getAbsoluteIndex(0);
 	}
+
 	public @NotNull Range applyAbsoluteOffset(@NotNull Range range) {
 		return range.offset(this.getAbsoluteIndex());
 	}

@@ -570,7 +570,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * @return the sorted list
 	 * @see #compareByPriority(Argument, Argument)
 	 */
-	public static List<Argument<?, ?>> sortByPriority(@NotNull List<@NotNull Argument<?, ?>> args) {
+	public static @NotNull List<Argument<?, ?>> sortByPriority(@NotNull List<@NotNull Argument<?, ?>> args) {
 		return new ArrayList<>(args) {{
 			this.sort(Argument::compareByPriority);
 		}};

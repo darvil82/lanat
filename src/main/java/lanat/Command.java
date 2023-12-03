@@ -195,6 +195,10 @@ public class Command
 		this.errorCode.set(errorCode);
 	}
 
+	/**
+	 * Sets the set of characters that the user should use to indicate a start/end of a tuple.
+	 * @param tupleChars The tuple characters to set.
+	 */
 	public void setTupleChars(@NotNull TupleChar tupleChars) {
 		this.tupleChars.set(tupleChars);
 	}
@@ -237,6 +241,10 @@ public class Command
 		return this.description;
 	}
 
+	/**
+	 * Sets the help formatter that will be used to generate the help message of this command.
+	 * @param helpFormatter The help formatter to set.
+	 */
 	public void setHelpFormatter(@NotNull HelpFormatter helpFormatter) {
 		this.helpFormatter.set(helpFormatter);
 	}
@@ -260,6 +268,10 @@ public class Command
 		return this.callbackInvocationOption.get();
 	}
 
+	/**
+	 * Generates and returns the help message of this command.
+	 * @return The help message of this command.
+	 */
 	public @NotNull String getHelp() {
 		return this.helpFormatter.get().generate(this);
 	}
@@ -269,6 +281,10 @@ public class Command
 		return Collections.unmodifiableList(this.arguments);
 	}
 
+	/**
+	 * Returns a list of all the positional arguments of this command. Order is preserved.
+	 * @return A list of all the positional arguments of this command.
+	 */
 	public @NotNull List<@NotNull Argument<?, ?>> getPositionalArguments() {
 		return this.getArguments().stream().filter(Argument::isPositional).toList();
 	}
@@ -561,10 +577,12 @@ public class Command
 	private @NotNull Tokenizer tokenizer = new Tokenizer(this);
 	private @NotNull Parser parser = new Parser(this);
 
+	/** Returns the current tokenizer of this command. */
 	public @NotNull Tokenizer getTokenizer() {
 		return this.tokenizer;
 	}
 
+	/** Returns the current parser of this command. */
 	public @NotNull Parser getParser() {
 		return this.parser;
 	}
@@ -591,6 +609,10 @@ public class Command
 		return this.getParent();
 	}
 
+	/**
+	 * Annotation used to define a command template.
+	 * @see CommandTemplate
+	 */
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.TYPE)
 	public @interface Define {

@@ -21,14 +21,18 @@ import java.util.Objects;
  * @see HashMap
  */
 public class KeyValuesArgumentType<T extends ArgumentType<Ts>, Ts> extends ArgumentType<HashMap<String, Ts>> {
-	private final @NotNull ArgumentType<Ts> valueType;
+	private final @NotNull ArgumentType<Ts> valueArgumentType;
 
-	public KeyValuesArgumentType(@NotNull T type) {
-		if (type.getRequiredArgValueCount().start() != 1)
-			throw new IllegalArgumentException("The value type must at least accept one value.");
+	/**
+	 * Creates a new key-values argument type.
+	 * @param argumentType The argument type used to parse the values.
+	 */
+	public KeyValuesArgumentType(@NotNull T argumentType) {
+		if (argumentType.getRequiredArgValueCount().start() != 1)
+			throw new IllegalArgumentException("The argumentType must at least accept one value.");
 
-		this.valueType = type;
-		this.registerSubType(type);
+		this.valueArgumentType = argumentType;
+		this.registerSubType(argumentType);
 	}
 
 	@Override
@@ -61,7 +65,7 @@ public class KeyValuesArgumentType<T extends ArgumentType<Ts>, Ts> extends Argum
 				return;
 			}
 
-			tempHashMap.put(key, this.valueType.parseValues(value));
+			tempHashMap.put(key, this.valueArgumentType.parseValues(value));
 		});
 
 		if (tempHashMap.isEmpty())
@@ -73,12 +77,12 @@ public class KeyValuesArgumentType<T extends ArgumentType<Ts>, Ts> extends Argum
 	@Override
 	public @NotNull TextFormatter getRepresentation() {
 		return new TextFormatter("(key=")
-			.concat(Objects.requireNonNull(this.valueType.getRepresentation()))
+			.concat(Objects.requireNonNull(this.valueArgumentType.getRepresentation()))
 			.concat(", ...)");
 	}
 
 	@Override
 	public @Nullable String getDescription() {
-		return "A list of key-value pairs. The key must be a string and the value must be of type " + this.valueType.getName() + ".";
+		return "A list of key-value pairs. The key must be a string and the value must be of type " + this.valueArgumentType.getName() + ".";
 	}
 }

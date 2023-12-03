@@ -14,6 +14,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Stream;
 
+/**
+ * Parses the tokens that have been tokenized from the CLI input.
+ * <p>
+ * This class is responsible for parsing the tokens and delegating the parsing of the values to the {@link ArgumentType}s
+ * of the arguments that are being parsed.
+ * </p>
+ */
 public final class Parser extends ParsingStateBase<Error.ParseError> {
 	/**
 	 * Array of all the tokens that we have tokenized from the CLI arguments.
@@ -36,6 +43,8 @@ public final class Parser extends ParsingStateBase<Error.ParseError> {
 	 * in relation to error handling.
 	 */
 	private HashMap<@NotNull Argument<?, ?>, @Nullable Object> parsedArguments;
+
+	/** Contains the forward value if one was found. */
 	private @Nullable String forwardValue;
 
 
@@ -50,6 +59,10 @@ public final class Parser extends ParsingStateBase<Error.ParseError> {
 		return this.currentTokenIndex;
 	}
 
+	/**
+	 * Returns the forward value if one was found.
+	 * @return The forward value, or {@code null} if there is no forward value.
+	 */
 	public @Nullable String getForwardValue() {
 		return this.forwardValue;
 	}

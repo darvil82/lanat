@@ -18,11 +18,20 @@ public abstract class ErrorsContainerImpl<T extends ErrorLevelProvider> implemen
 	private final ModifyRecord<ErrorLevel> minimumDisplayErrorLevel;
 	private final @NotNull List<T> errors = new ArrayList<>();
 
+	/**
+	 * Creates a new {@link ErrorsContainerImpl} with the default values, those being {@link ErrorLevel#ERROR} for
+	 * {@link #minimumExitErrorLevel} and {@link ErrorLevel#INFO} for {@link #minimumDisplayErrorLevel}.
+	 */
 	public ErrorsContainerImpl() {
 		// default values
 		this(ModifyRecord.of(ErrorLevel.ERROR), ModifyRecord.of(ErrorLevel.INFO));
 	}
 
+	/**
+	 * Creates a new {@link ErrorsContainerImpl} with the given values.
+	 * @param minimumExitErrorLevelRecord    The minimum error level that will cause the program to exit.
+	 * @param minimumDisplayErrorLevelRecord The minimum error level that will be displayed to the user.
+	 */
 	public ErrorsContainerImpl(
 		@NotNull ModifyRecord<ErrorLevel> minimumExitErrorLevelRecord,
 		@NotNull ModifyRecord<ErrorLevel> minimumDisplayErrorLevelRecord

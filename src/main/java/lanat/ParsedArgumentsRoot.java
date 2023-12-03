@@ -26,8 +26,9 @@ public class ParsedArgumentsRoot extends ParsedArguments {
 	}
 
 	/**
-	 * Returns the forward value. An empty {@link String} is returned if no forward value was specified.
-	 * The forward value is the string that is passed after the {@code --} token.
+	 * Returns the forward value. The forward value is the string that is passed after the {@code --} token.
+	 * @return An {@link Optional} containing the forward value, or {@link Optional#empty()} if there is no forward
+	 *  value.
 	 */
 	public @NotNull Optional<String> getForwardValue() {
 		return Optional.ofNullable(this.forwardValue);

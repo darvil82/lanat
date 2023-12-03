@@ -13,12 +13,18 @@ import java.io.File;
  * @see File
  */
 public class FileArgumentType extends ArgumentType<File> {
+	/** The type of the file. */
 	public enum FileType {
 		REGULAR_FILE,
 		DIRECTORY,
 		ANY;
 
-		private @NotNull String getName(boolean shortName) {
+		/**
+		 * Returns a string representation of the file type.
+		 * @param shortName whether to return a short name or not
+		 * @return a string representation of the file type
+		 */
+		private @NotNull String toString(boolean shortName) {
 			return switch (this) {
 				case REGULAR_FILE -> "file";
 				case DIRECTORY -> "directory";
@@ -83,14 +89,14 @@ public class FileArgumentType extends ArgumentType<File> {
 	public @Nullable String getDescription() {
 		return "A file path of"
 			+ (this.mustExist ? " an existing " : " a ")
-			+ this.fileType.getName(false)
+			+ this.fileType.toString(false)
 			+ ".";
 	}
 
 	@Override
 	public @Nullable TextFormatter getRepresentation() {
 		return new TextFormatter(
-			"path" + File.separator + "to" + File.separator + this.fileType.getName(true)
+			"path" + File.separator + "to" + File.separator + this.fileType.toString(true)
 		);
 	}
 }

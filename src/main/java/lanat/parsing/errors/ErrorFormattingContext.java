@@ -41,6 +41,7 @@ public class ErrorFormattingContext {
 
 	/**
 	 * Indicates the formatter to display the user input. The input at the given index will be highlighted.
+	 * @param index The index of the input value to highlight.
 	 */
 	public ErrorFormattingContext highlight(int index) {
 		return this.highlight(index, 0, true);
@@ -66,6 +67,12 @@ public class ErrorFormattingContext {
 	 * Options used to display the input.
 	 */
 	public record HighlightOptions(@NotNull Range range, boolean showArrows) {
+		/**
+		 * Returns a new instance with the range offset by the given value.
+		 * @param offset The offset to apply to the range.
+		 * @return A new instance with the range offset by the given value.
+		 * @see Range#offset(int)
+		 */
 		public @NotNull HighlightOptions withOffset(int offset) {
 			return new HighlightOptions(
 				this.range.offset(offset),

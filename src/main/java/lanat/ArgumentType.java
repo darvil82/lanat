@@ -105,6 +105,7 @@ public abstract class ArgumentType<T>
 	/**
 	 * Saves the specified tokenIndex and the number of values received, and then parses the values.
 	 * @param tokenIndex The index of the token that caused the parsing of this argument type.
+	 * @param inTuple Whether the values were received in a tuple.
 	 * @param values The values to parse.
 	 */
 	public final void parseAndUpdateValue(int tokenIndex, boolean inTuple, @NotNull String... values) {
@@ -192,6 +193,7 @@ public abstract class ArgumentType<T>
 
 	/**
 	 * Specifies the number of times this argument type can be used during parsing.
+	 * By default, this is 1. ({@link Range#ONE}).
 	 * <p>
 	 * <strong>Note: </strong> The minimum value must be at least 1.
 	 * </p>

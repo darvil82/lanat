@@ -6,8 +6,6 @@ import org.jetbrains.annotations.Nullable;
 import textFormatter.TextFormatter;
 import utils.Range;
 
-import java.util.regex.Pattern;
-
 /**
  * The basic interface for all argument types. In order to use a class that implements this interface as an
  * argument type, you must use {@link FromParseableArgumentType} to wrap it.
@@ -15,9 +13,6 @@ import java.util.regex.Pattern;
  * @see FromParseableArgumentType
  */
 public interface Parseable<T> extends NamedWithDescription {
-	Pattern DEFAULT_NAME_REGEX = Pattern.compile("ArgumentType$", Pattern.CASE_INSENSITIVE);
-
-
 	/** Specifies the number of values that this parser should receive when calling {@link #parseValues(String[])}. */
 	@NotNull Range getRequiredArgValueCount();
 
@@ -36,9 +31,8 @@ public interface Parseable<T> extends NamedWithDescription {
 
 	@Override
 	default @NotNull String getName() {
-		return Parseable.DEFAULT_NAME_REGEX
-			.matcher(this.getClass().getSimpleName())
-			.replaceAll("");
+		// Remove the "ArgumentType" suffix from the class name
+		return this.getClass().getSimpleName().replaceAll("ArgumentType$", "");
 	}
 
 	@Override

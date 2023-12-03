@@ -17,11 +17,22 @@ public class FromParseableArgumentType<T extends Parseable<TInner>, TInner> exte
 	private final @NotNull T parseable;
 	private final @NotNull String errorMessage;
 
+	/**
+	 * Creates a new argument type that uses a {@link Parseable} to parse values.
+	 * @param parseable The {@link Parseable} to use.
+	 * @param errorMessage The error message to display if the {@link Parseable#parseValues(String[])} method
+	 *  returns {@code null}.
+	 */
 	public FromParseableArgumentType(@NotNull T parseable, @NotNull String errorMessage) {
 		this.parseable = parseable;
 		this.errorMessage = errorMessage;
 	}
 
+	/**
+	 * Creates a new argument type that uses a {@link Parseable} to parse values with a default error message
+	 * of "Invalid value for type {@code x}.".
+	 * @param parseable The {@link Parseable} to use.
+	 */
 	public FromParseableArgumentType(@NotNull T parseable) {
 		this(parseable, "Invalid value for type " + parseable.getName() + ".");
 	}

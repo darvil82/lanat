@@ -33,6 +33,8 @@ public class ArgumentTypeInfer {
 	 * Argument types are stored as suppliers so that we have no shared references.
 	 * */
 	private static final HashMap<Class<?>, Supplier<? extends ArgumentType<?>>> INFER_ARGUMENT_TYPES_MAP = new HashMap<>();
+
+	/** The default range to use for argument types that accept multiple values. */
 	public static final Range DEFAULT_TYPE_RANGE = Range.AT_LEAST_ONE;
 
 	/**

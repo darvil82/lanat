@@ -556,7 +556,7 @@ public class Command
 
 		// get all the error codes of the Sub-Commands recursively
 		int finalErrorCode = this.subCommands.stream()
-			.filter(c -> c.tokenizer.isFinishedTokenizing())
+			.filter(c -> c.tokenizer.hasFinished())
 			.map(Command::getErrorCode)
 			.reduce(0, (a, b) -> a | b);
 

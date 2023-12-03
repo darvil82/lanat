@@ -20,6 +20,8 @@ import java.util.stream.Stream;
  * This class is responsible for parsing the tokens and delegating the parsing of the values to the {@link ArgumentType}s
  * of the arguments that are being parsed.
  * </p>
+ * When finished parsing, this class will contain a map of the arguments to their parsed values. This map can be accessed
+ * by calling {@link Parser#getParsedArgumentsHashMap()}.
  */
 public final class Parser extends ParsingStateBase<Error.ParseError> {
 	/**

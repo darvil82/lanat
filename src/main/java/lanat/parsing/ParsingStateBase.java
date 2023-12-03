@@ -9,12 +9,21 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
 
+/**
+ * Base class for parsing states. Provides a context for parsing and tokenizing, and some utility methods that are shared
+ * by both.
+ * @param <T> The type of the errors to store.
+ */
 public sealed abstract class ParsingStateBase<T extends ErrorLevelProvider> extends ErrorsContainerImpl<T>
 	permits Tokenizer, Parser
 {
+	/** The command that is being parsed. */
 	protected final @NotNull Command command;
+
 	/** Whether the parsing/tokenizing has finished. */
 	protected boolean hasFinished = false;
+
+	/** The offset position of the input values from the previous parser. */
 	protected int nestingOffset = 0;
 
 	public ParsingStateBase(@NotNull Command command) {
@@ -85,10 +94,18 @@ public sealed abstract class ParsingStateBase<T extends ErrorLevelProvider> exte
 		return null;
 	}
 
+	/**
+	 * Returns {@code true} if the parsing of the input has finished, {@code false} otherwise.
+	 * @return {@code true} if the parsing of the input has finished, {@code false} otherwise.
+	 */
 	public boolean hasFinished() {
 		return this.hasFinished;
 	}
 
+	/**
+	 * Returns the offset position of the input values from the previous parser.
+	 * @return the offset position of the input values from the previous parser
+	 */
 	public int getNestingOffset() {
 		return this.nestingOffset;
 	}

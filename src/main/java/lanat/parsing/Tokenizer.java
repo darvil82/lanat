@@ -14,6 +14,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.function.Predicate;
 
+/**
+ * Tokenizes the input string given. When finished, the tokens can be retrieved using
+ * {@link Tokenizer#getFinalTokens()}
+ */
 public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 	/** Are we currently within a tuple? */
 	private boolean tupleOpen = false;
@@ -368,9 +372,5 @@ public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 
 	public String getInputString() {
 		return this.inputString;
-	}
-
-	public boolean isFinishedTokenizing() {
-		return this.hasFinished;
 	}
 }

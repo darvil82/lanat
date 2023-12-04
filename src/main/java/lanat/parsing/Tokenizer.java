@@ -55,6 +55,9 @@ public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 	/**
 	 * Tokenizes the input string given. When finished, the tokens can be retrieved using
 	 * {@link Tokenizer#getFinalTokens()}
+	 * @param input The input string to tokenize
+	 * @param previousTokenizer The previous tokenizer that is requesting this tokenization. If this is the first
+	 *  call to this method, this may be {@code null}
 	 */
 	public void tokenize(@NotNull String input, @Nullable Tokenizer previousTokenizer) {
 		assert !this.hasFinished : "Tokenizer has already finished tokenizing.";
@@ -359,7 +362,7 @@ public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 	/** Returns the tokenized Sub-Command of {@link Tokenizer#command}. */
 	public @Nullable Command getTokenizedSubCommand() {
 		return this.command.getCommands().stream()
-			.filter(sb -> sb.getTokenizer().hasFinished)
+			.filter(cmd -> cmd.getTokenizer().hasFinished)
 			.findFirst()
 			.orElse(null);
 	}
@@ -370,6 +373,7 @@ public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 		return this.finalTokens;
 	}
 
+	/** Returns the input string that is being tokenized. */
 	public String getInputString() {
 		return this.inputString;
 	}

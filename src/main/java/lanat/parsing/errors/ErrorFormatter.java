@@ -6,6 +6,7 @@ import lanat.parsing.errors.formatGenerators.PrettyErrorFormatter;
 import lanat.utils.ErrorLevelProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import textFormatter.FormatOption;
 import textFormatter.TextFormatter;
 import utils.UtlString;
 
@@ -106,7 +107,8 @@ public abstract class ErrorFormatter implements ErrorLevelProvider {
 	 */
 	protected @NotNull TextFormatter getErrorLevelFormatter() {
 		return new TextFormatter(this.errorLevel.name())
-			.withForegroundColor(this.errorLevel.color);
+			.withForegroundColor(this.errorLevel.color)
+			.addFormat(FormatOption.BOLD);
 	}
 
 	/**

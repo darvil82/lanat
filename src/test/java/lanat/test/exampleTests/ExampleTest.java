@@ -5,6 +5,8 @@ import lanat.argumentTypes.CounterArgumentType;
 import lanat.argumentTypes.IntegerArgumentType;
 import lanat.argumentTypes.MultipleStringsArgumentType;
 import lanat.argumentTypes.NumberRangeArgumentType;
+import lanat.parsing.errors.ErrorFormatter;
+import lanat.parsing.errors.formatGenerators.SimpleErrorFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Test;
@@ -14,6 +16,7 @@ public final class ExampleTest {
 	@Test
 	public void main() {
 		Argument.PrefixChar.defaultPrefix = Argument.PrefixChar.MINUS;
+		ErrorFormatter.errorFormatterClass = SimpleErrorFormatter.class;
 //		TextFormatter.enableSequences = false;
 //		ErrorFormatter.errorFormatterClass = SimpleErrorFormatter.class;
 
@@ -37,7 +40,7 @@ public final class ExampleTest {
 			}});
 		}};
 
-		ap.parse(CLInput.from("josh ! --number 2 -cccc ++string [test1 "
+		ap.parse(CLInput.from("josh ! --number 2 '-cccc ++string [test1 "
 				+ "test2 t2] -ccc sub1 --required 1 --number 121 sub2 2 --number [4]"))
 			.printErrors()
 			.getParsedArguments();

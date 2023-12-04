@@ -26,6 +26,10 @@ public sealed abstract class ParsingStateBase<T extends ErrorLevelProvider> exte
 	/** The offset position of the input values from the previous parser. */
 	protected int nestingOffset = 0;
 
+	/**
+	 * Instantiates a new parsing state.
+	 * @param command the command that is being parsed
+	 */
 	public ParsingStateBase(@NotNull Command command) {
 		super(command.getMinimumExitErrorLevel(), command.getMinimumDisplayErrorLevel());
 		this.command = command;

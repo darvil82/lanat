@@ -81,54 +81,54 @@ public final class ArgumentGroupRepr {
 	/**
 	 * Returns the representation of the given group like shown below:
 	 * <pre>
-	 * &lt;name&gt; &lt;arguments&gt;
+	 * &lt;arguments&gt;
 	 * </pre>
-	 *
+	 * The arguments are sorted by priority.
 	 * @param group the group
 	 */
 	public static String getRepresentation(@NotNull ArgumentGroup group) {
-		final var sb = new StringBuilder();
+		final var buff = new StringBuilder();
 
 		// its empty, nothing to append
 		if (group.isEmpty()) return "";
 
 		// if this group isn't exclusive, we just want to append the arguments, basically
 		if (group.isExclusive())
-			sb.append('(');
+			buff.append('(');
 
 		final var arguments = Argument.sortByPriority(group.getArguments());
 		for (int i = 0; i < arguments.size(); i++) {
 			Argument<?, ?> arg = arguments.get(i);
 
-			sb.append(ArgumentRepr.getRepresentation(arg));
+			buff.append(ArgumentRepr.getRepresentation(arg));
 			if (i < arguments.size() - 1) {
-				sb.append(' ');
+				buff.append(' ');
 				if (group.isExclusive())
-					sb.append('|').append(' ');
+					buff.append('|').append(' ');
 			}
 		}
 
 		final List<ArgumentGroup> groups = group.getGroups().stream().filter(g -> !g.isEmpty()).toList();
 
 		if (!arguments.isEmpty() && !groups.isEmpty()) {
-			sb.append(' ');
+			buff.append(' ');
 			if (group.isExclusive())
-				sb.append("| ");
+				buff.append("| ");
 		}
 
 		for (int i = 0; i < groups.size(); i++) {
 			ArgumentGroup grp = groups.get(i);
-			sb.append(ArgumentGroupRepr.getRepresentation(grp)); // append the group's representation recursively
+			buff.append(ArgumentGroupRepr.getRepresentation(grp)); // append the group's representation recursively
 			if (i < groups.size() - 1) {
-				sb.append(' ');
+				buff.append(' ');
 				if (grp.isExclusive())
-					sb.append('|').append(' ');
+					buff.append('|').append(' ');
 			}
 		}
 
 		if (group.isExclusive())
-			sb.append(')');
+			buff.append(')');
 
-		return sb.toString();
+		return buff.toString();
 	}
 }

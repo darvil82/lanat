@@ -5,8 +5,6 @@ import lanat.argumentTypes.CounterArgumentType;
 import lanat.argumentTypes.IntegerArgumentType;
 import lanat.argumentTypes.MultipleStringsArgumentType;
 import lanat.argumentTypes.NumberRangeArgumentType;
-import lanat.parsing.errors.ErrorFormatter;
-import lanat.parsing.errors.formatGenerators.SimpleErrorFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Test;
@@ -16,7 +14,6 @@ public final class ExampleTest {
 	@Test
 	public void main() {
 		Argument.PrefixChar.defaultPrefix = Argument.PrefixChar.MINUS;
-		ErrorFormatter.errorFormatterClass = SimpleErrorFormatter.class;
 //		TextFormatter.enableSequences = false;
 //		ErrorFormatter.errorFormatterClass = SimpleErrorFormatter.class;
 

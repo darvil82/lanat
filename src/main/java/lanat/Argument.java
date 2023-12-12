@@ -394,17 +394,6 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		this.representationColor.set(color);
 	}
 
-
-	/**
-	 * Returns {@code true} if this argument is the help argument of its parent command. This just checks if the
-	 * argument's name is "help" and if it is marked with {@link #setAllowUnique(boolean)}.
-	 *
-	 * @return {@code true} if this argument is the help argument of its parent command.
-	 */
-	public boolean isHelpArgument() {
-		return this.getName().equals("help") && this.isUniqueAllowed();
-	}
-
 	/**
 	 * This method is called when the command is finished parsing. <strong>And should only ever be called once (per
 	 * parse).</strong>

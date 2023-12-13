@@ -14,8 +14,8 @@ import java.util.List;
  * @param <T> The type of the errors to store.
  */
 public abstract class ErrorsContainerImpl<T extends ErrorLevelProvider> implements ErrorsContainer<T>, Resettable {
-	private final ModifyRecord<ErrorLevel> minimumExitErrorLevel;
-	private final ModifyRecord<ErrorLevel> minimumDisplayErrorLevel;
+	private final @NotNull ModifyRecord<ErrorLevel> minimumExitErrorLevel;
+	private final @NotNull ModifyRecord<ErrorLevel> minimumDisplayErrorLevel;
 	private final @NotNull List<T> errors = new ArrayList<>();
 
 	/**

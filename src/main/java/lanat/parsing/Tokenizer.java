@@ -141,6 +141,7 @@ public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 
 				// reached a possible tuple end character
 			} else if (cChar == this.getTupleChars().close) {
+				// tuple close char require a space after them
 				if (!this.isCharAtRelativeIndex(1, Character::isWhitespace) && !this.isLastChar()) {
 					this.addError(new TokenizeErrors.SpaceRequiredError(this.currentCharIndex));
 					continue;

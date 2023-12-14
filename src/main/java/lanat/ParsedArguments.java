@@ -95,6 +95,7 @@ public class ParsedArguments {
 	 * @throws CommandNotFoundException If the command specified in the route does not exist
 	 * @return An {@link Optional} containing the parsed value of the argument with the given name, or
 	 *  {@link Optional#empty()} if the argument was not found.
+	 * @param <T> The type of the value of the argument.
 	 */
 	@SuppressWarnings("unchecked") // we'll just have to trust the user
 	public <T> @NotNull Optional<T> get(@NotNull String... argRoute) {

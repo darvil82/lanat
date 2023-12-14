@@ -17,6 +17,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 
+/**
+ * An error formatter that displays the error in the next format:
+ * <pre>
+ *  ┌─$ERRORLEVEL
+ * $INPUT
+ *  │ $CONTENTS
+ *  └─────── ───── ── ─
+ * </pre>
+ * With, the values being:
+ * <ul>
+ * <li>{@code $ERRORLEVEL}: The error level</li>
+ * <li>{@code $INPUT}: The whole input. Either all the tokens, or the whole input string</li>
+ * <li>{@code $CONTENTS}: The content of the error</li>
+ * </ul>
+ * The generated error is colored according to the error level.
+ */
 public class PrettyErrorFormatter extends ErrorFormatter {
 	public PrettyErrorFormatter(@NotNull ErrorContext currentErrorContext) {
 		super(currentErrorContext);

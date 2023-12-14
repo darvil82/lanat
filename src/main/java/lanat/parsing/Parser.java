@@ -92,7 +92,7 @@ public final class Parser extends ParsingStateBase<Error.ParseError> {
 		Argument<?, ?> lastPositionalArgument; // this will never be null when being used
 
 		for (this.currentTokenIndex = 0; this.currentTokenIndex < this.tokens.size(); ) {
-			final Token currentToken = this.getToken();
+			final Token currentToken = this.getCurrentToken();
 
 			if (currentToken.type() == TokenType.ARGUMENT_NAME) {
 				// encountered an argument name. first skip the token of the name.
@@ -156,7 +156,7 @@ public final class Parser extends ParsingStateBase<Error.ParseError> {
 
 		this.isInTuple = (
 			this.currentTokenIndex < this.tokens.size()
-				&& this.getToken().type() == TokenType.ARGUMENT_VALUE_TUPLE_START
+				&& this.getCurrentToken().type() == TokenType.ARGUMENT_VALUE_TUPLE_START
 		);
 
 		final byte ifTupleOffset = (byte)(this.isInTuple ? 1 : 0);
@@ -171,11 +171,17 @@ public final class Parser extends ParsingStateBase<Error.ParseError> {
 			numValues++, tokenIndex++
 		) {
 			final Token currentToken = this.tokens.get(tokenIndex);
-			if (!this.isInTuple && (
-				!currentToken.type().isValue() || numValues >= argNumValuesRange.end()
-			)
-				|| currentToken.type().isTuple()
-			) break;
+
+			if (this.isInTuple) {
+				// if we reach the end of the tuple, finish.
+				if (currentToken.type().isTuple())
+					break;
+			} else {
+				// no more values to gather. we reached a non-value token or we got the max number of values
+				if (!currentToken.type().isValue() || numValues >= argNumValuesRange.end())
+					break;
+			}
+
 			values.add(currentToken);
 		}
 
@@ -327,12 +333,8 @@ public final class Parser extends ParsingStateBase<Error.ParseError> {
 		argument.argType.parseAndUpdateValue(this.currentTokenIndex + offset, this.isInTuple, values);
 	}
 
-	private @NotNull Token getToken() {
-		return this.getToken(0);
-	}
-
-	private @NotNull Token getToken(int offset) {
-		return this.tokens.get(this.currentTokenIndex + offset);
+	private @NotNull Token getCurrentToken() {
+		return this.tokens.get(this.currentTokenIndex);
 	}
 
 	// ------------------------------------------------ Error Handling ------------------------------------------------

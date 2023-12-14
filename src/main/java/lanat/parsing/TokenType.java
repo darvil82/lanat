@@ -18,14 +18,27 @@ public enum TokenType {
 		this.color = color;
 	}
 
+	/**
+	 * Returns {@code true} if this token type represents an argument specifier. (It is either
+	 * {@link #ARGUMENT_NAME} or {@link #ARGUMENT_NAME_LIST})
+	 * */
 	public boolean isArgumentSpecifier() {
 		return this == ARGUMENT_NAME || this == ARGUMENT_NAME_LIST;
 	}
 
+	/**
+	 * Returns {@code true} if this token type represents a value. (It is either
+	 * {@link #ARGUMENT_VALUE} or {@link #ARGUMENT_VALUE_TUPLE_START} or
+	 * {@link #ARGUMENT_VALUE_TUPLE_END})
+	 * */
 	public boolean isValue() {
-		return this == ARGUMENT_VALUE || this == ARGUMENT_VALUE_TUPLE_START || this == ARGUMENT_VALUE_TUPLE_END;
+		return this == ARGUMENT_VALUE || this.isTuple();
 	}
 
+	/**
+	 * Returns {@code true} if this token type represents a tuple. (It is either
+	 * {@link #ARGUMENT_VALUE_TUPLE_START} or {@link #ARGUMENT_VALUE_TUPLE_END})
+	 * */
 	public boolean isTuple() {
 		return this == ARGUMENT_VALUE_TUPLE_START || this == ARGUMENT_VALUE_TUPLE_END;
 	}

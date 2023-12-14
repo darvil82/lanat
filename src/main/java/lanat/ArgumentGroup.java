@@ -260,7 +260,7 @@ public class ArgumentGroup
 
 	/**
 	 * Sets the description of this group. The description is used to be displayed in the help message.
-	 * @param description
+	 * @param description The description of this group.
 	 */
 	public void setDescription(@NotNull String description) {
 		this.description = description;

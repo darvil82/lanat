@@ -71,6 +71,7 @@ public abstract class ArgumentType<T>
 	 */
 	private int lastReceivedValuesNum = 0;
 
+	/** This specifies whether the last value that this argument received was in a tuple. */
 	private boolean lastInTuple = false;
 
 	/** This specifies the number of times this argument type has been used during parsing. */
@@ -121,12 +122,8 @@ public abstract class ArgumentType<T>
 	 * {@link ArgumentType#onSubTypeError(Error.CustomError)} method will be called when an error occurs.
 	 */
 	protected final void registerSubType(@NotNull ArgumentType<?> subType) {
-		if (subType.parentArgType == this) {
-			throw new IllegalArgumentException("The sub type is already registered to this argument type.");
-		}
-
 		if (subType.parentArgType != null) {
-			throw new IllegalArgumentException("The sub type is already registered to another argument type.");
+			throw new IllegalArgumentException("The argument type specified is already registered to an argument type.");
 		}
 
 		subType.parentArgType = this;
@@ -277,10 +274,6 @@ public abstract class ArgumentType<T>
 	 */
 	int getLastReceivedValuesNum() {
 		return this.lastReceivedValuesNum;
-	}
-
-	boolean wasLastInTuple() {
-		return this.lastInTuple;
 	}
 
 	@NotNull Pair<Integer, Integer> getLastTokensIndicesPair() {

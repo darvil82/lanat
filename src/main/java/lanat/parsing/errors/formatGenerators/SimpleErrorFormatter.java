@@ -10,6 +10,21 @@ import textFormatter.FormatOption;
 import textFormatter.TextFormatter;
 import utils.UtlString;
 
+/**
+ * An error formatter that displays the error in the next format:
+ * <pre>
+ * [$ERRORLEVEL (at $IN_TYPE $POS, '$INPUT']: $CONTENT
+ * </pre>
+ * With, the values being:
+ * <ul>
+ * <li>{@code $ERRORLEVEL}: The error level</li>
+ * <li>{@code $IN_TYPE}: The type of the input where the error occured (either 'token' or 'char')</li>
+ * <li>{@code $POS}: The position of the error in the input</li>
+ * <li>{@code $INPUT}: The token at the position of the error, or the characters near the position</li>
+ * <li>{@code $CONTENT}: The content of the error</li>
+ * </ul>
+ * The contents inside square brackets are colored according to the error level.
+ */
 public class SimpleErrorFormatter extends ErrorFormatter {
 	public SimpleErrorFormatter(@NotNull ErrorContext currentErrorContext) {
 		super(currentErrorContext);
@@ -28,30 +43,34 @@ public class SimpleErrorFormatter extends ErrorFormatter {
 
 	@Override
 	protected @Nullable TextFormatter generateTokensView(@NotNull ParseErrorContext ctx) {
-		return this.getView(ctx, "token");
+		return this.getView(ctx, "at token");
 	}
 
 	@Override
 	protected @Nullable TextFormatter generateInputView(@NotNull TokenizeErrorContext ctx) {
-		return this.getView(ctx, "char");
+		return this.getView(ctx, "near character");
 	}
 
-	private @Nullable TextFormatter getView(@NotNull ErrorContext ctx, @NotNull String name) {
+	/**
+	 * Returns the view for the given error context.
+	 * @param ctx the current error context
+	 * @param indicator the indicator to use for the position
+	 * @return the view for the given error context
+	 */
+	private @Nullable TextFormatter getView(@NotNull ErrorContext ctx, @NotNull String indicator) {
 		return this.getHighlightOptions()
 			.map(opts -> {
 				final var range = ctx.applyAbsoluteOffset(opts.range());
 
-				String indicator = null;
 				var nearContents = new TextFormatter().addFormat(FormatOption.ITALIC);
+
 				if (ctx instanceof TokenizeErrorContext tokenizeCtx) {
-					indicator = "near character " + (range.start() + 1);
 					nearContents.concat(UtlString.escapeQuotes(tokenizeCtx.getInputNear(range.start(), 5)));
 				} else if (ctx instanceof ParseErrorContext parseCtx) {
-					indicator = "at token " + (range.start() + 1);
 					nearContents.concat(parseCtx.getTokenAt(range.start()).getFormatter());
 				}
 
-				return new TextFormatter(" (" + indicator + ", '")
+				return new TextFormatter(" (" + (indicator + " " + (range.start() + 1)) + ", '")
 					.concat(nearContents)
 					.concat("')");
 			})

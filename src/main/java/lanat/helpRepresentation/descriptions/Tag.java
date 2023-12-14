@@ -45,6 +45,12 @@ public abstract class Tag {
 		Tag.register("format", FormatTag.class);
 	}
 
+	/**
+	 * Returns the name of the tag class. This method will return the name of the tag class that is registered with the
+	 * given name.
+	 * @param tagClass tag class
+	 * @return name of the tag class
+	 */
 	public static String getTagNameFromTagClass(Class<? extends Tag> tagClass) {
 		return Tag.REGISTERED_TAGS.entrySet().stream()
 			.filter(entry -> entry.getValue() == tagClass)

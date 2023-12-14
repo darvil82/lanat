@@ -2,7 +2,9 @@ package lanat.parsing;
 
 import lanat.Argument;
 import lanat.Command;
-import lanat.parsing.errors.TokenizeError;
+import lanat.TupleChar;
+import lanat.parsing.errors.Error;
+import lanat.parsing.errors.TokenizeErrors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -10,14 +12,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Stream;
+import java.util.function.Predicate;
 
-public class Tokenizer extends ParsingStateBase<TokenizeError> {
+/**
+ * Tokenizes the input string given. When finished, the tokens can be retrieved using
+ * {@link Tokenizer#getFinalTokens()}
+ */
+public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 	/** Are we currently within a tuple? */
-	protected boolean tupleOpen = false;
+	private boolean tupleOpen = false;
 
 	/** Are we currently within a string? */
-	protected boolean stringOpen = false;
+	private boolean stringOpen = false;
 
 	/** The index of the current character in the {@link Tokenizer#inputString} */
 	private int currentCharIndex = 0;
@@ -34,39 +40,45 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	/** The input string that is being tokenized, split into characters */
 	private char[] inputChars;
 
-	final char tupleOpenChar = this.command.getTupleChars().open;
-	final char tupleCloseChar = this.command.getTupleChars().close;
-
 
 	public Tokenizer(@NotNull Command command) {
 		super(command);
 	}
 
 
-	private void setInputString(@NotNull String inputString) {
-		this.inputString = inputString;
-		this.inputChars = inputString.toCharArray();
+	private void setInputString(@NotNull String inputString, int nestingOffset, int lastCharIndex) {
+		this.nestingOffset = lastCharIndex + nestingOffset;
+		this.inputString = inputString.substring(lastCharIndex);
+		this.inputChars = this.inputString.toCharArray();
 	}
 
 	/**
 	 * Tokenizes the input string given. When finished, the tokens can be retrieved using
 	 * {@link Tokenizer#getFinalTokens()}
+	 * @param input The input string to tokenize
+	 * @param previousTokenizer The previous tokenizer that is requesting this tokenization. If this is the first
+	 *  call to this method, this may be {@code null}
 	 */
-	public void tokenize(@NotNull String input) {
+	public void tokenize(@NotNull String input, @Nullable Tokenizer previousTokenizer) {
 		assert !this.hasFinished : "Tokenizer has already finished tokenizing.";
 
-		this.setInputString(input);
+		if (previousTokenizer == null)
+			this.setInputString(input, 0, 0);
+		else
+			this.setInputString(input, previousTokenizer.nestingOffset, previousTokenizer.currentCharIndex);
+
 
 		// nothing to tokenize. Just finish
-		if (input.isEmpty()) {
+		if (input.isBlank()) {
 			this.hasFinished = true;
 			return;
 		}
 
 		char currentStringChar = 0; // the character that opened the string
+		int lastStringCharIndex = 0; // the index of the last character that opened the string
+		int lastTupleCharIndex = 0; // the index of the last character that opened the tuple
 
-		for (
-			this.currentCharIndex = 0;
+		for (;
 			this.currentCharIndex < this.inputChars.length && !this.hasFinished;
 			this.currentCharIndex++
 		) {
@@ -77,23 +89,34 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 				this.currentValue.append(this.inputChars[++this.currentCharIndex]); // skip the \ character and append the next character
 
 				// reached a possible value wrapped in quotes
-			} else if ((cChar == '"' || cChar == '\'')) {
+			} else if (cChar == '"' || cChar == '\'') {
 				// if we are already in an open string, push the current value and close the string. Make sure
 				// that the current char is the same as the one that opened the string
 				if (this.stringOpen && currentStringChar == cChar) {
+					// strings require a space after them
+					if (!this.isCharAtRelativeIndex(1, Character::isWhitespace) && !this.isLastChar()) {
+						this.addError(new TokenizeErrors.SpaceRequiredError(this.currentCharIndex));
+						continue;
+					}
+
 					this.addToken(TokenType.ARGUMENT_VALUE, this.currentValue.toString());
 					this.currentValue.setLength(0);
 					this.stringOpen = false;
 
 					// the string is open, but the character does not match, or there's something already in the current value.
 					// Push it as a normal character
-				} else if (this.stringOpen || !this.currentValue.isEmpty()) {
+				} else if (this.stringOpen) {
 					this.currentValue.append(cChar);
+
+					// strings require a space behind them.
+				} else if (!this.currentValue.isEmpty()) {
+					this.addError(new TokenizeErrors.SpaceRequiredError(this.currentCharIndex - 1));
 
 					// the string is not open, so open it and set the current string char to the current char
 				} else {
 					this.stringOpen = true;
 					currentStringChar = cChar;
+					lastStringCharIndex = this.currentCharIndex;
 				}
 
 				// append characters to the current value as long as we are in a string
@@ -101,28 +124,33 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 				this.currentValue.append(cChar);
 
 				// reached a possible tuple start character
-			} else if (cChar == this.tupleOpenChar) {
+			} else if (cChar == this.getTupleChars().open) {
 				// if we are already in a tuple, add error
 				if (this.tupleOpen) {
 					// push tuple start token so the user can see the incorrect tuple char
-					this.addToken(TokenType.ARGUMENT_VALUE_TUPLE_START, this.tupleOpenChar);
-					this.addError(TokenizeError.TokenizeErrorType.TUPLE_ALREADY_OPEN);
+					this.addError(new TokenizeErrors.TupleAlreadyOpenError(this.currentCharIndex));
 					continue;
 				} else if (!this.currentValue.isEmpty()) { // if there was something before the tuple, tokenize it
 					this.tokenizeCurrentValue();
 				}
 
 				// set the state to tuple open
-				this.addToken(TokenType.ARGUMENT_VALUE_TUPLE_START, this.tupleOpenChar);
+				this.addToken(TokenType.ARGUMENT_VALUE_TUPLE_START, this.getTupleChars().open);
 				this.tupleOpen = true;
+				lastTupleCharIndex = this.currentCharIndex;
 
 				// reached a possible tuple end character
-			} else if (cChar == this.tupleCloseChar) {
+			} else if (cChar == this.getTupleChars().close) {
+				// tuple close char require a space after them
+				if (!this.isCharAtRelativeIndex(1, Character::isWhitespace) && !this.isLastChar()) {
+					this.addError(new TokenizeErrors.SpaceRequiredError(this.currentCharIndex));
+					continue;
+				}
+
 				// if we are not in a tuple, set error and stop tokenizing
 				if (!this.tupleOpen) {
 					// push tuple start token so the user can see the incorrect tuple char
-					this.addToken(TokenType.ARGUMENT_VALUE_TUPLE_END, this.tupleCloseChar);
-					this.addError(TokenizeError.TokenizeErrorType.UNEXPECTED_TUPLE_CLOSE);
+					this.addError(new TokenizeErrors.UnexpectedTupleCloseError(this.currentCharIndex));
 					continue;
 				}
 
@@ -132,7 +160,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 				}
 
 				// set the state to tuple closed
-				this.addToken(TokenType.ARGUMENT_VALUE_TUPLE_END, this.tupleCloseChar);
+				this.addToken(TokenType.ARGUMENT_VALUE_TUPLE_END, this.getTupleChars().close);
 				this.currentValue.setLength(0);
 				this.tupleOpen = false;
 
@@ -140,7 +168,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 			} else if (
 				cChar == '-'
 					&& this.isCharAtRelativeIndex(1, '-')
-					&& this.isCharAtRelativeIndex(2, ' ')
+					&& this.isCharAtRelativeIndex(2, Character::isWhitespace)
 			)
 			{
 				this.addToken(TokenType.FORWARD_VALUE, this.inputString.substring(this.currentCharIndex + 3));
@@ -148,7 +176,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 
 				// reached a possible separator
 			} else if (
-				(cChar == ' ' && !this.currentValue.isEmpty()) // there's a space and some value to tokenize
+				(Character.isWhitespace(cChar) && !this.currentValue.isEmpty()) // there's a space and some value to tokenize
 					// also check if this is defining the value of an argument, or we are in a tuple. If so, don't tokenize
 					|| (cChar == '=' && !this.tupleOpen && this.isArgumentSpecifier(this.currentValue.toString()))
 			)
@@ -156,15 +184,15 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 				this.tokenizeCurrentValue();
 
 				// push the current char to the current value
-			} else if (cChar != ' ') {
+			} else if (!Character.isWhitespace(cChar)) {
 				this.currentValue.append(cChar);
 			}
 		}
 
 		if (this.tupleOpen)
-			this.addError(TokenizeError.TokenizeErrorType.TUPLE_NOT_CLOSED);
+			this.addError(new TokenizeErrors.TupleNotClosedError(lastTupleCharIndex));
 		if (this.stringOpen)
-			this.addError(TokenizeError.TokenizeErrorType.STRING_NOT_CLOSED);
+			this.addError(new TokenizeErrors.StringNotClosedError(lastStringCharIndex));
 
 		// we left something in the current value, tokenize it
 		if (!this.currentValue.isEmpty()) {
@@ -185,6 +213,15 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	}
 
 	/**
+	 * Returns {@code true} if the current char index is the last one in the input chars
+	 * @return {@code true} if the current char index is the last one in the input chars
+	 */
+	private boolean isLastChar() {
+		return this.currentCharIndex == this.inputChars.length - 1;
+	}
+
+
+	/**
 	 * Tokenizes a single word and returns the token matching it. If no match could be found, returns
 	 * {@link TokenType#ARGUMENT_VALUE}
 	 */
@@ -200,7 +237,6 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 		} else if (this.isSubCommand(str)) {
 			type = TokenType.COMMAND;
 		} else {
-			this.checkForSimilar(str);
 			type = TokenType.ARGUMENT_VALUE;
 		}
 
@@ -216,17 +252,16 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	private void tokenizeCurrentValue() {
 		final Token token = this.tokenizeWord(this.currentValue.toString());
 
+		this.finalTokens.add(token);
+
 		// if this is a Sub-Command, continue tokenizing next elements
 		if (token.type() == TokenType.COMMAND) {
 			// forward the rest of stuff to the Sub-Command
-			this.getSubCommandByName(token.contents())
+			this.command.getCommand(token.contents())
 				.getTokenizer()
-				.tokenize(this.inputString.substring(this.currentCharIndex));
+				.tokenize(this.inputString, this);
 
 			this.hasFinished = true;
-		} else {
-			// otherwise, just add the token to the final tokens list
-			this.finalTokens.add(token);
 		}
 
 		this.currentValue.setLength(0);
@@ -255,7 +290,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 			// if an argument is found with that char name, append its prefix to the possible prefixes
 			// and increment the foundArgs counter.
 			// If no argument is found, stop checking
-			if (!this.runForArgument(argName, argument -> possiblePrefixes.add(argument.getPrefix())))
+			if (!this.runForMatchingArgument(argName, argument -> possiblePrefixes.add(argument.getPrefix())))
 				break;
 			foundArgs++;
 		}
@@ -272,7 +307,7 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	 */
 	private boolean isArgName(@NotNull String str) {
 		// make sure we are working with long enough strings
-		return str.length() > 1 && this.getArguments().stream().anyMatch(a -> a.checkMatch(str));
+		return str.length() > 1 && this.getMatchingArgument(str) != null;
 	}
 
 	/**
@@ -283,38 +318,8 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 		return this.isArgName(str) || this.isArgNameList(str);
 	}
 
-	/** Returns {@code true} if the given string is a Sub-Command name */
 	private boolean isSubCommand(@NotNull String str) {
-		return this.getCommands().stream().anyMatch(c -> c.hasName(str));
-	}
-
-	/**
-	 * Checks if the given string is similar to any of the argument names.
-	 * <p>
-	 * If so, adds an error to the error list.
-	 * @param str The string to check.
-	 */
-	private void checkForSimilar(@NotNull String str) {
-		// if the string is too short, don't bother checking
-		if (str.length() < 2) return;
-
-		// check for the common prefixes
-		Stream.of(Argument.PrefixChar.COMMON_PREFIXES)
-			.map(c -> c.character)
-			.forEach(checkPrefix -> {
-				// if not present, don't bother checking
-				if (str.charAt(0) != checkPrefix) return;
-
-				// get rid of the prefix (single or double)
-				final var nameToCheck = str.substring(str.charAt(1) == checkPrefix ? 2 : 1);
-
-				for (var arg : this.getArguments()) {
-					if (!arg.hasName(nameToCheck)) continue;
-
-					// offset 1 because this is called before a token is pushed
-					this.addError(TokenizeError.TokenizeErrorType.SIMILAR_ARGUMENT, arg, 1);
-				}
-			});
+		return this.command.hasCommand(str);
 	}
 
 	/**
@@ -325,18 +330,21 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 	 * </p>
 	 */
 	private boolean isCharAtRelativeIndex(int index, char character) {
-		index += this.currentCharIndex;
-		if (index >= this.inputChars.length || index < 0) return false;
-		return this.inputChars[index] == character;
+		return this.isCharAtRelativeIndex(index, cChar -> cChar == character);
 	}
 
-	/** Returns a command from the Sub-Commands of {@link Tokenizer#command} that matches the given name */
-	private @NotNull Command getSubCommandByName(@NotNull String name) {
-		return this.command.getCommand(name);
+	private boolean isCharAtRelativeIndex(int index, @NotNull Predicate<@NotNull Character> predicate) {
+		index += this.currentCharIndex;
+		if (index >= this.inputChars.length || index < 0) return false;
+		return predicate.test(this.inputChars[index]);
+	}
+
+	private @NotNull TupleChar getTupleChars() {
+		return this.command.getTupleChars();
 	}
 
 	/**
-	 * Returns a list of all tokenized Sub-Command children of {@link Tokenizer#command}.
+	 * Returns a list of all tokenized Sub-Commands children of {@link Tokenizer#command}. (Including the current)
 	 * <p>
 	 * Note that a Command only has a single tokenized Sub-Command, so this will have one Command per nesting level.
 	 * </p>
@@ -354,8 +362,8 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 
 	/** Returns the tokenized Sub-Command of {@link Tokenizer#command}. */
 	public @Nullable Command getTokenizedSubCommand() {
-		return this.getCommands().stream()
-			.filter(sb -> sb.getTokenizer().hasFinished)
+		return this.command.getCommands().stream()
+			.filter(cmd -> cmd.getTokenizer().hasFinished)
 			.findFirst()
 			.orElse(null);
 	}
@@ -366,28 +374,8 @@ public class Tokenizer extends ParsingStateBase<TokenizeError> {
 		return this.finalTokens;
 	}
 
-	public boolean isFinishedTokenizing() {
-		return this.hasFinished;
-	}
-
-
-	// ------------------------------------------------ Error Handling ------------------------------------------------
-
-	/**
-	 * Inserts an error at the current token index with the given type.
-	 * @param type The type of the error to insert.
-	 */
-	private void addError(@NotNull TokenizeError.TokenizeErrorType type) {
-		this.addError(type, null, 0);
-	}
-
-	/**
-	 * Inserts an error at the current token index with the given type and argument.
-	 * @param type The type of the error to insert.
-	 * @param argument The argument that caused the error.
-	 * @param indexOffset The offset from the current token index to the token that caused the error.
-	 */
-	private void addError(@NotNull TokenizeError.TokenizeErrorType type, @Nullable Argument<?, ?> argument, int indexOffset) {
-		this.addError(new TokenizeError(type, this.finalTokens.size() + indexOffset, argument));
+	/** Returns the input string that is being tokenized. */
+	public String getInputString() {
+		return this.inputString;
 	}
 }

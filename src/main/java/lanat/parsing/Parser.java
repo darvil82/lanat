@@ -3,23 +3,27 @@ package lanat.parsing;
 import lanat.Argument;
 import lanat.ArgumentType;
 import lanat.Command;
-import lanat.parsing.errors.CustomError;
-import lanat.parsing.errors.ParseError;
-import lanat.utils.Range;
+import lanat.parsing.errors.Error;
+import lanat.parsing.errors.ParseErrors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import utils.Range;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Stream;
 
-public class Parser extends ParsingStateBase<ParseError> {
-	/**
-	 * List of all the custom errors that have been added to this parser. Custom errors are thrown by
-	 * {@link ArgumentType}s
-	 */
-	private final @NotNull ArrayList<@NotNull CustomError> customErrors = new ArrayList<>();
-
+/**
+ * Parses the tokens that have been tokenized from the CLI input.
+ * <p>
+ * This class is responsible for parsing the tokens and delegating the parsing of the values to the {@link ArgumentType}s
+ * of the arguments that are being parsed.
+ * </p>
+ * When finished parsing, this class will contain a map of the arguments to their parsed values. This map can be accessed
+ * by calling {@link Parser#getParsedArgumentsHashMap()}.
+ */
+public final class Parser extends ParsingStateBase<Error.ParseError> {
 	/**
 	 * Array of all the tokens that we have tokenized from the CLI arguments.
 	 */
@@ -28,7 +32,7 @@ public class Parser extends ParsingStateBase<ParseError> {
 	/**
 	 * The index of the current token that we are parsing.
 	 */
-	private short currentTokenIndex = 0;
+	private int currentTokenIndex = 0;
 
 	/**
 	 * Whether we are currently parsing values in a tuple.
@@ -42,49 +46,27 @@ public class Parser extends ParsingStateBase<ParseError> {
 	 */
 	private HashMap<@NotNull Argument<?, ?>, @Nullable Object> parsedArguments;
 
+	/** Contains the forward value if one was found. */
+	private @Nullable String forwardValue;
+
 
 	public Parser(@NotNull Command command) {
 		super(command);
 	}
 
 
-	// ------------------------------------------------ Error Handling ------------------------------------------------
-	@Override
-	public boolean hasExitErrors() {
-		return super.hasExitErrors() || this.anyErrorInMinimum(this.customErrors, false);
-	}
-
-	@Override
-	public boolean hasDisplayErrors() {
-		return super.hasDisplayErrors() || this.anyErrorInMinimum(this.customErrors, true);
-	}
-
-	public @NotNull List<@NotNull CustomError> getCustomErrors() {
-		return this.getErrorsInLevelMinimum(this.customErrors, true);
-	}
-
-	@Override
-	public void addError(@NotNull ParseError error) {
-		error.setIsInTuple(this.isInTuple); // set whether the error was caused while parsing values in a tuple
-		super.addError(error);
-	}
-
-	public void addError(@NotNull ParseError.ParseErrorType type, @Nullable Argument<?, ?> arg, int argValueCount, int currentIndex) {
-		this.addError(new ParseError(type, currentIndex, arg, argValueCount));
-	}
-
-	public void addError(@NotNull ParseError.ParseErrorType type, @Nullable Argument<?, ?> arg, int argValueCount) {
-		this.addError(type, arg, argValueCount, this.currentTokenIndex);
-	}
-
-	public void addError(@NotNull CustomError customError) {
-		this.customErrors.add(customError);
-	}
-	// ------------------------------------------------ ////////////// ------------------------------------------------
 
 	/** Returns the index of the current token that is being parsed. */
-	public short getCurrentTokenIndex() {
+	public int getCurrentTokenIndex() {
 		return this.currentTokenIndex;
+	}
+
+	/**
+	 * Returns the forward value if one was found.
+	 * @return The forward value, or {@code null} if there is no forward value.
+	 */
+	public @Nullable String getForwardValue() {
+		return this.forwardValue;
 	}
 
 	/** Sets the tokens that this parser will parse. */
@@ -96,9 +78,13 @@ public class Parser extends ParsingStateBase<ParseError> {
 	 * Parses the tokens that have been set. Delegates parsing of argument values to the {@link ArgumentType} of the
 	 * argument that is being parsed.
 	 */
-	public void parseTokens() {
+	public void parseTokens(@Nullable Parser previousParser) {
 		assert this.tokens != null : "Tokens have not been set yet.";
 		assert !this.hasFinished : "This parser has already finished parsing.";
+
+		this.nestingOffset = previousParser == null
+			? 0
+			: previousParser.currentTokenIndex + previousParser.nestingOffset;
 
 		// number of positional arguments that have been parsed.
 		// if this becomes -1, then we know that we are no longer parsing positional arguments
@@ -106,13 +92,13 @@ public class Parser extends ParsingStateBase<ParseError> {
 		Argument<?, ?> lastPositionalArgument; // this will never be null when being used
 
 		for (this.currentTokenIndex = 0; this.currentTokenIndex < this.tokens.size(); ) {
-			final Token currentToken = this.tokens.get(this.currentTokenIndex);
+			final Token currentToken = this.getCurrentToken();
 
 			if (currentToken.type() == TokenType.ARGUMENT_NAME) {
 				// encountered an argument name. first skip the token of the name.
 				this.currentTokenIndex++;
 				// find the argument that matches that name and let it parse the values
-				this.runForArgument(currentToken.contents(), this::executeArgParse);
+				this.runForMatchingArgument(currentToken.contents(), this::executeArgParse);
 				// we encountered an argument name, so we know that we are no longer parsing positional arguments
 				positionalArgCount = -1;
 			} else if (currentToken.type() == TokenType.ARGUMENT_NAME_LIST) {
@@ -128,21 +114,28 @@ public class Parser extends ParsingStateBase<ParseError> {
 				// so this must be a positional argument
 				this.executeArgParse(lastPositionalArgument);
 				positionalArgCount++;
-			} else {
-				// addError depends on the currentTokenIndex, so we need to increment it before calling it
+			} else if (currentToken.type() == TokenType.COMMAND) {
+				// encountered a command. first skip the token of the command.
 				this.currentTokenIndex++;
+				// find the command that matches that name and let it parse the values
+				this.command.getCommand(currentToken.contents())
+					.getParser()
+					.parseTokens(this);
+				break;
+			} else if (currentToken.type() == TokenType.FORWARD_VALUE) {
+				this.forwardValue = currentToken.contents();
+				this.currentTokenIndex++;
+			} else {
+				this.addError(new ParseErrors.UnmatchedTokenError(this.currentTokenIndex));
 
-				if (currentToken.type() != TokenType.FORWARD_VALUE)
-					this.addError(ParseError.ParseErrorType.UNMATCHED_TOKEN, null, 0);
+				if (currentToken.type() == TokenType.ARGUMENT_VALUE)
+					this.checkForSimilarArgumentName(currentToken.contents());
+
+				this.currentTokenIndex++;
 			}
 		}
 
 		this.hasFinished = true;
-
-		// now parse the Sub-Commands
-		this.getCommands().stream()
-			.filter(sb -> sb.getTokenizer().isFinishedTokenizing()) // only get the commands that were actually tokenized
-			.forEach(sb -> sb.getParser().parseTokens()); // now parse them
 	}
 
 	/**
@@ -157,13 +150,13 @@ public class Parser extends ParsingStateBase<ParseError> {
 
 		// just skip the whole thing if it doesn't need any values
 		if (argNumValuesRange.isZero()) {
-			arg.parseValues(this.currentTokenIndex);
+			this.argumentTypeParseValues(arg);
 			return;
 		}
 
 		this.isInTuple = (
 			this.currentTokenIndex < this.tokens.size()
-				&& this.tokens.get(this.currentTokenIndex).type() == TokenType.ARGUMENT_VALUE_TUPLE_START
+				&& this.getCurrentToken().type() == TokenType.ARGUMENT_VALUE_TUPLE_START
 		);
 
 		final byte ifTupleOffset = (byte)(this.isInTuple ? 1 : 0);
@@ -178,11 +171,17 @@ public class Parser extends ParsingStateBase<ParseError> {
 			numValues++, tokenIndex++
 		) {
 			final Token currentToken = this.tokens.get(tokenIndex);
-			if (!this.isInTuple && (
-				currentToken.type().isArgumentSpecifier() || numValues >= argNumValuesRange.end()
-			)
-				|| currentToken.type().isTuple()
-			) break;
+
+			if (this.isInTuple) {
+				// if we reach the end of the tuple, finish.
+				if (currentToken.type().isTuple())
+					break;
+			} else {
+				// no more values to gather. we reached a non-value token or we got the max number of values
+				if (!currentToken.type().isValue() || numValues >= argNumValuesRange.end())
+					break;
+			}
+
 			values.add(currentToken);
 		}
 
@@ -190,16 +189,13 @@ public class Parser extends ParsingStateBase<ParseError> {
 		final int skipIndexCount = numValues + ifTupleOffset*2;
 
 		if (numValues > argNumValuesRange.end() || numValues < argNumValuesRange.start()) {
-			this.addError(ParseError.ParseErrorType.ARG_INCORRECT_VALUE_NUMBER, arg, numValues);
+			this.addIncorrectValueNumberError(arg, numValues, false);
 			this.currentTokenIndex += skipIndexCount;
 			return;
 		}
 
 		// pass the arg values to the argument sub parser
-		arg.parseValues(
-			(short)(this.currentTokenIndex + ifTupleOffset),
-			values.stream().map(Token::contents).toArray(String[]::new)
-		);
+		this.argumentTypeParseValues(arg, ifTupleOffset, values.stream().map(Token::contents).toArray(String[]::new));
 
 		this.currentTokenIndex += skipIndexCount;
 	}
@@ -215,21 +211,12 @@ public class Parser extends ParsingStateBase<ParseError> {
 
 		// just skip the whole thing if it doesn't need any values
 		if (argumentValuesRange.isZero()) {
-			arg.parseValues(this.currentTokenIndex);
+			this.argumentTypeParseValues(arg);
 			return;
 		}
 
 		if (argumentValuesRange.start() > 1) {
-			this.addError(
-				new ParseError(
-					ParseError.ParseErrorType.ARG_INCORRECT_VALUE_NUMBER,
-					this.currentTokenIndex + 1,
-					arg,
-					1
-				) {{
-					this.setIsInArgNameList(true); // set that the error was caused by an argument name list
-				}}
-			);
+			this.addIncorrectValueNumberError(arg, 1, true);
 			return;
 		}
 
@@ -239,27 +226,26 @@ public class Parser extends ParsingStateBase<ParseError> {
 		}
 		
 		// pass the arg values to the argument subParser
-		arg.parseValues(this.currentTokenIndex, value);
+		this.argumentTypeParseValues(arg, value);
 	}
 
 	/**
 	 * Parses the given string as a list of single-char argument names.
 	 */
 	private void parseArgNameList(@NotNull String args) {
-		var doSkipToken = true; // atomic because we need to modify it in the lambda
+		var doSkipToken = true;
 		Argument<?, ?> lastArgument = null;
 
 		// its multiple of them. We can only do this with arguments that accept 0 values.
 		for (short i = 0; i < args.length(); i++) {
-			var argument = this.getArgument(args.charAt(i));
+			var argument = this.getMatchingArgument(args.charAt(i));
 
 			if (argument == null) {
-				this.addError(
-					ParseError.ParseErrorType.UNMATCHED_IN_ARG_NAME_LIST,
-					lastArgument,
-					i + 1, // substr for the current token
-					this.currentTokenIndex + 1 // the next token is the one that caused the error
-				);
+				assert lastArgument != null; // we know for sure that lastArgument is not null here
+
+				this.addError(new ParseErrors.UnmatchedInArgNameListError(
+					this.currentTokenIndex, lastArgument, args.substring(i)
+				));
 				break;
 			}
 
@@ -278,12 +264,41 @@ public class Parser extends ParsingStateBase<ParseError> {
 				// if this argument is not the last one in the list, then we can parse the rest of the chars as the value
 			} else {
 				this.executeArgParse(argument, args.substring(i + 1));
+				break;
 			}
 
 			lastArgument = argument;
 		}
 
 		if (doSkipToken) this.currentTokenIndex++;
+	}
+
+	/**
+	 * Checks if the given string is similar to any of the argument names.
+	 * <p>
+	 * If so, add an error to the error list.
+	 * @param str The string to check.
+	 */
+	private void checkForSimilarArgumentName(@NotNull String str) {
+		// if the string is too short, don't bother checking
+		if (str.length() < 2) return;
+
+		// check for the common prefixes
+		Stream.of(Argument.PrefixChar.COMMON_PREFIXES)
+			.map(c -> c.character)
+			.forEach(checkPrefix -> {
+				// if not present, don't bother checking
+				if (str.charAt(0) != checkPrefix) return;
+
+				// get rid of the prefix (single or double)
+				final var nameToCheck = str.substring(str.charAt(1) == checkPrefix ? 2 : 1);
+
+				for (var arg : this.command.getArguments()) {
+					if (!arg.hasName(nameToCheck)) continue;
+
+					this.addError(new ParseErrors.SimilarArgumentError(this.currentTokenIndex, arg));
+				}
+			});
 	}
 
 	/** Returns the positional argument at the given index of declaration. */
@@ -304,9 +319,28 @@ public class Parser extends ParsingStateBase<ParseError> {
 	public @NotNull HashMap<@NotNull Argument<?, ?>, @Nullable Object> getParsedArgumentsHashMap() {
 		if (this.parsedArguments == null) {
 			this.parsedArguments = new HashMap<>() {{
-				Parser.this.getArguments().forEach(arg -> this.put(arg, arg.finishParsing()));
+				Parser.this.command.getArguments().forEach(arg -> this.put(arg, arg.finishParsing()));
 			}};
 		}
 		return this.parsedArguments;
+	}
+
+	private void argumentTypeParseValues(@NotNull Argument<?, ?> argument, @NotNull String... values) {
+		this.argumentTypeParseValues(argument, 0, values);
+	}
+
+	private void argumentTypeParseValues(@NotNull Argument<?, ?> argument, int offset, @NotNull String... values) {
+		argument.argType.parseAndUpdateValue(this.currentTokenIndex + offset, this.isInTuple, values);
+	}
+
+	private @NotNull Token getCurrentToken() {
+		return this.tokens.get(this.currentTokenIndex);
+	}
+
+	// ------------------------------------------------ Error Handling ------------------------------------------------
+	private void addIncorrectValueNumberError(@NotNull Argument<?, ?> argument, int valueCount, boolean isInArgNameList) {
+		this.addError(new ParseErrors.IncorrectValueNumberError(
+			this.currentTokenIndex, argument, valueCount, isInArgNameList, this.isInTuple
+		));
 	}
 }

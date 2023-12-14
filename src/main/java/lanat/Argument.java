@@ -3,12 +3,18 @@ package lanat;
 import lanat.argumentTypes.BooleanArgumentType;
 import lanat.argumentTypes.DummyArgumentType;
 import lanat.exceptions.ArgumentAlreadyExistsException;
-import lanat.parsing.errors.CustomError;
-import lanat.parsing.errors.ParseError;
-import lanat.utils.*;
-import lanat.utils.displayFormatter.Color;
+import lanat.parsing.errors.Error;
+import lanat.parsing.errors.ParseErrors;
+import lanat.utils.ErrorCallbacks;
+import lanat.utils.ErrorsContainer;
+import lanat.utils.Resettable;
+import lanat.utils.UtlMisc;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import textFormatter.Color;
+import utils.ModifyRecord;
+import utils.MultiComparator;
+import utils.UtlString;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -68,9 +74,9 @@ import java.util.stream.Stream;
  * @see ArgumentParser
  */
 public class Argument<Type extends ArgumentType<TInner>, TInner>
-	implements ErrorsContainer<CustomError>,
+	implements ErrorsContainer<Error.CustomError>,
 	ErrorCallbacks<TInner,
-		Argument<Type, TInner>>,
+			Argument<Type, TInner>>,
 	Resettable,
 	CommandUser,
 	ArgumentGroupUser,
@@ -388,28 +394,6 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		this.representationColor.set(color);
 	}
 
-
-	/**
-	 * Returns {@code true} if this argument is the help argument of its parent command. This just checks if the
-	 * argument's name is "help" and if it is marked with {@link #setAllowUnique(boolean)}.
-	 *
-	 * @return {@code true} if this argument is the help argument of its parent command.
-	 */
-	public boolean isHelpArgument() {
-		return this.getName().equals("help") && this.isUniqueAllowed();
-	}
-
-	/**
-	 * Pass the specified values array to the argument type to parse it.
-	 *
-	 * @param tokenIndex This is the global index of the token that is currently being parsed. Used when dispatching
-	 * 	errors.
-	 * @param values The value array that should be parsed.
-	 */
-	public void parseValues(short tokenIndex, @NotNull String... values) {
-		this.argType.parseAndUpdateValue(tokenIndex, values);
-	}
-
 	/**
 	 * This method is called when the command is finished parsing. <strong>And should only ever be called once (per
 	 * parse).</strong>
@@ -418,7 +402,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 */
 	public @Nullable TInner finishParsing() {
 		final TInner finalValue = this.argType.getFinalValue();
-		final TInner defaultValue = UtlMisc.nonNullOrElse(this.defaultValue, this.argType.getInitialValue());
+		final TInner defaultValue = this.defaultValue == null ? this.argType.getInitialValue() : null;
 
 		/* no, | is not a typo. We don't want the OR operator to short-circuit, we want all of them to be evaluated
 		 * because the methods have side effects (they add errors to the parser) */
@@ -426,7 +410,6 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 			? defaultValue
 			: finalValue;
 
-		this.argType.getErrorsUnderDisplayLevel().forEach(this.parentCommand.getParser()::addError);
 		if (this.parentGroup != null) this.parentGroup.setArgUsed();
 
 		// if the argument type has a value defined (even if it wasn't used), use that. Otherwise, use the default value
@@ -443,23 +426,15 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 		if (usageCount == 0) {
 			if (this.required && !this.parentCommand.uniqueArgumentReceivedValue(this)) {
-				this.parentCommand.getParser().addError(
-					// just show it at the end. doesnt really matter
-					ParseError.ParseErrorType.REQUIRED_ARGUMENT_NOT_USED, this, 0
-				);
+				this.parentCommand.getParser().addError(new ParseErrors.RequiredArgumentNotUsedError(this));
 			}
 			return false;
 		}
 
 		// make sure that the argument was used the minimum number of times specified
-		if (!this.argType.getRequiredUsageCount().isInRangeInclusive(usageCount)) {
+		if (!this.argType.getRequiredUsageCount().containsInclusive(usageCount)) {
 			this.parentCommand.getParser()
-				.addError(
-					ParseError.ParseErrorType.ARG_INCORRECT_USAGES_COUNT,
-					this,
-					this.argType.getLastReceivedValuesNum(),
-					this.argType.getLastTokenIndex()
-				);
+				.addError(new ParseErrors.IncorrectUsagesCountError(this.argType.getLastTokensIndicesPair(), this));
 			return false;
 		}
 
@@ -479,17 +454,9 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		ArgumentGroup exclusivityResult = this.parentGroup.checkExclusivity(null);
 		if (exclusivityResult == null) return true;
 
-		this.parentCommand.getParser().addError(
-			new ParseError(
-				ParseError.ParseErrorType.MULTIPLE_ARGS_IN_EXCLUSIVE_GROUP_USED,
-				this.argType.getLastTokenIndex(),
-				this,
-				this.argType.getLastReceivedValuesNum()
-			)
-			{{
-				this.setArgumentGroup(exclusivityResult);
-			}}
-		);
+		this.parentCommand.getParser().addError(new ParseErrors.MultipleArgsInExclusiveGroupUsedError(
+			this.argType.getLastTokensIndicesPair(), exclusivityResult
+		));
 		return false;
 	}
 
@@ -590,7 +557,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * @return the sorted list
 	 * @see #compareByPriority(Argument, Argument)
 	 */
-	public static List<Argument<?, ?>> sortByPriority(@NotNull List<@NotNull Argument<?, ?>> args) {
+	public static @NotNull List<Argument<?, ?>> sortByPriority(@NotNull List<@NotNull Argument<?, ?>> args) {
 		return new ArrayList<>(args) {{
 			this.sort(Argument::compareByPriority);
 		}};
@@ -705,23 +672,23 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	// just act as a proxy to the type error handling
 
 	@Override
-	public @NotNull List<@NotNull CustomError> getErrorsUnderExitLevel() {
+	public @NotNull List<Error.@NotNull CustomError> getErrorsUnderExitLevel() {
 		return this.argType.getErrorsUnderExitLevel();
 	}
 
 	@Override
-	public @NotNull List<@NotNull CustomError> getErrorsUnderDisplayLevel() {
+	public @NotNull List<Error.@NotNull CustomError> getErrorsUnderDisplayLevel() {
 		return this.argType.getErrorsUnderDisplayLevel();
 	}
 
 	@Override
 	public boolean hasExitErrors() {
-		return this.argType.hasExitErrors() || !this.getErrorsUnderExitLevel().isEmpty();
+		return this.argType.hasExitErrors();
 	}
 
 	@Override
 	public boolean hasDisplayErrors() {
-		return this.argType.hasDisplayErrors() || !this.getErrorsUnderDisplayLevel().isEmpty();
+		return this.argType.hasDisplayErrors();
 	}
 
 	@Override

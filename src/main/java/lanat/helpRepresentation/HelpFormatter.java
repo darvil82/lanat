@@ -3,11 +3,11 @@ package lanat.helpRepresentation;
 import lanat.Command;
 import lanat.CommandUser;
 import lanat.helpRepresentation.descriptions.Tag;
-import lanat.utils.UtlString;
-import lanat.utils.displayFormatter.Color;
-import lanat.utils.displayFormatter.FormatOption;
-import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
+import textFormatter.Color;
+import textFormatter.FormatOption;
+import textFormatter.TextFormatter;
+import utils.UtlString;
 
 import java.util.*;
 
@@ -26,33 +26,52 @@ import java.util.*;
  * @see LayoutItem
  */
 public class HelpFormatter {
+	/** The size of the indent in the help message. */
 	private byte indentSize = 3;
+
+	/** The maximum length of a line in the help message. */
 	public static short lineWrapMax = 110;
-	private @NotNull ArrayList<@NotNull LayoutItem> layout = new ArrayList<>();
+
+	/** The layout that defines the structure of the help message. */
+	private @NotNull List<@NotNull LayoutItem> layout = new LinkedList<>();
+
+	/** Whether to print debug information about the layout when generating the help message. */
 	public static boolean debugLayout = false;
+
 
 	static {
 		// register the default tags before we start parsing descriptions
 		Tag.initTags();
 	}
 
+	/**
+	 * Creates a new {@link HelpFormatter}, initializing the layout.
+	 */
 	public HelpFormatter() {
 		this.initLayout();
 	}
 
-	public HelpFormatter(@NotNull HelpFormatter other) {
-		this.indentSize = other.indentSize;
-		this.layout.addAll(other.layout);
-	}
-
+	/**
+	 * Sets the indent size to the specified value. The indent size is the number of spaces that are used to indent
+	 * lines in the help message. The default value is 3.
+	 * @param indentSize the new indent size
+	 */
 	public void setIndentSize(int indentSize) {
 		this.indentSize = (byte)Math.max(indentSize, 0);
 	}
 
+	/**
+	 * Returns the indent size.
+	 * @return the indent size
+	 */
 	public byte getIndentSize() {
 		return this.indentSize;
 	}
 
+	/**
+	 * Returns the layout of the help message.
+	 * @return the layout of the help message
+	 */
 	public @NotNull List<@NotNull LayoutItem> getLayout() {
 		return this.layout;
 	}

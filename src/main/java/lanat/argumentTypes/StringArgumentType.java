@@ -1,9 +1,9 @@
 package lanat.argumentTypes;
 
 import lanat.ArgumentType;
-import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import textFormatter.TextFormatter;
 
 /**
  * An argument type that takes a string of characters.

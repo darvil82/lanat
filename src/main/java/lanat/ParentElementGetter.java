@@ -35,4 +35,12 @@ public interface ParentElementGetter<T extends ParentElementGetter<T>> {
 
 		return root;
 	}
+
+	/**
+	 * Checks if this object is the root object in the hierarchy it belongs to.
+	 * @return {@code true} if this object is the root object in the hierarchy it belongs to, {@code false} otherwise.
+	 */
+	default boolean isRoot() {
+		return this.getParent() == null;
+	}
 }

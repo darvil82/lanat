@@ -2,9 +2,9 @@ package lanat;
 
 import lanat.exceptions.ArgumentGroupAlreadyExistsException;
 import lanat.utils.Resettable;
-import lanat.utils.UtlString;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import utils.UtlString;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -258,6 +258,10 @@ public class ArgumentGroup
 		return this.name;
 	}
 
+	/**
+	 * Sets the description of this group. The description is used to be displayed in the help message.
+	 * @param description The description of this group.
+	 */
 	public void setDescription(@NotNull String description) {
 		this.description = description;
 	}

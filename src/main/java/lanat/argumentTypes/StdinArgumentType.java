@@ -1,10 +1,10 @@
 package lanat.argumentTypes;
 
 import lanat.ArgumentType;
-import lanat.utils.Range;
-import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import textFormatter.TextFormatter;
+import utils.Range;
 
 import java.util.Scanner;
 

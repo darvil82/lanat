@@ -22,11 +22,19 @@ import java.util.stream.Stream;
  * @param <T> The type to parse the string into.
  */
 public class TryParseArgumentType<T> extends ArgumentType<T> {
+	/** The method used to parse the string into the type. */
 	private final Function<String, Object> parseMethod;
+
+	/** The type to parse the string into. */
 	private final @NotNull Class<T> type;
+
+	/** The names of the methods that are used to parse the string into the type. */
 	private static final String[] TRY_PARSE_METHOD_NAMES = { "valueOf", "from", "parse" };
 
-
+	/**
+	 * Creates a new argument type that will attempt to parse a string into the type given in the constructor.
+	 * @param type The type to parse the string into.
+	 */
 	public TryParseArgumentType(@NotNull Class<T> type) {
 		this.type = type;
 
@@ -37,6 +45,19 @@ public class TryParseArgumentType<T> extends ArgumentType<T> {
 			);
 	}
 
+	/**
+	 * Returns {@code true} if the given executable is a valid executable for this argument type.
+	 * <p>
+	 * A valid executable is:
+	 * <ul>
+	 * <li>Static</li>
+	 * <li>Has one parameter</li>
+	 * <li>The parameter is a string</li>
+	 * <li>The name of the executable is one of the names in {@link #TRY_PARSE_METHOD_NAMES}</li>
+	 * </ul>
+	 * @param executable The executable to check
+	 * @return {@code true} if the given executable is a valid executable for this argument type
+	 */
 	private static boolean isValidExecutable(Executable executable) {
 		return Modifier.isStatic(executable.getModifiers())
 			&& executable.getParameterCount() == 1
@@ -44,15 +65,21 @@ public class TryParseArgumentType<T> extends ArgumentType<T> {
 			&& Arrays.asList(TryParseArgumentType.TRY_PARSE_METHOD_NAMES).contains(executable.getName());
 	}
 
+	/**
+	 * Returns {@code true} if the given method is a valid method for this argument type.
+	 * <p>
+	 * A valid method is:
+	 * <ul>
+	 * <li>One that is a valid executable (see {@link #isValidExecutable(Executable)})</li>
+	 * <li>Has a return type of the type given in the constructor</li>
+	 * </ul>
+	 * @param method
+	 * @return {@code true} if the given method is a valid method for this argument type
+	 */
 	private boolean isValidMethod(Method method) {
 		return method.getReturnType() == this.type && TryParseArgumentType.isValidExecutable(method);
 	}
 
-
-	@Override
-	protected void addError(@NotNull String value) {
-		super.addError("Unable to parse value '" + value + "' as type " + this.type.getSimpleName() + ".");
-	}
 
 	private @Nullable Function<String, Object> getParseMethod() {
 		// Get a static valueOf(String), a parse(String), or a from(String) method.
@@ -66,7 +93,7 @@ public class TryParseArgumentType<T> extends ArgumentType<T> {
 				try {
 					return method.get().invoke(null, input);
 				} catch (IllegalAccessException | InvocationTargetException exception) {
-					this.addError(input);
+					this.addError("Unable to parse value '" + input + "' as type " + this.type.getSimpleName() + ".");
 				}
 				return null;
 			};

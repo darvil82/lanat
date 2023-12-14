@@ -2,8 +2,8 @@ package lanat.argumentTypes;
 
 import lanat.ArgumentType;
 import lanat.ArgumentTypeInfer;
-import lanat.utils.Range;
 import org.jetbrains.annotations.NotNull;
+import utils.Range;
 
 /**
  * An argument type that takes multiple numbers.

@@ -3,10 +3,10 @@ package lanat.helpRepresentation;
 import lanat.Argument;
 import lanat.helpRepresentation.descriptions.DescriptionFormatter;
 import lanat.utils.UtlMisc;
-import lanat.utils.displayFormatter.FormatOption;
-import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import textFormatter.FormatOption;
+import textFormatter.TextFormatter;
 
 import java.util.List;
 import java.util.Objects;
@@ -65,7 +65,7 @@ public final class ArgumentRepr {
 	 * @return the representation and description of the argument
 	 */
 	public static @Nullable String getDescription(@NotNull Argument<?, ?> arg) {
-		return UtlMisc.nullOrElse(
+		return UtlMisc.nullOrElseGet(
 			DescriptionFormatter.parse(arg),
 			desc -> ArgumentRepr.getRepresentation(arg) + ":\n" + HelpFormatter.indent(desc, arg)
 		);

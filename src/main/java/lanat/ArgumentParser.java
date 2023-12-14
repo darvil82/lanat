@@ -2,17 +2,18 @@ package lanat;
 
 import lanat.exceptions.CommandTemplateException;
 import lanat.exceptions.IncompatibleCommandTemplateType;
-import lanat.parsing.TokenType;
-import lanat.parsing.errors.ErrorHandler;
+import lanat.parsing.Tokenizer;
+import lanat.parsing.errors.ErrorsCollector;
 import lanat.utils.UtlMisc;
-import lanat.utils.UtlReflection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import utils.UtlReflection;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -177,19 +178,42 @@ public class ArgumentParser extends Command {
 
 		// pass the properties of this Sub-Command to its children recursively (most of the time this is what the user will want)
 		this.passPropertiesToChildren();
+
 		this.tokenize(input.args); // first. This will tokenize all Sub-Commands recursively
 
-		var errorHandler = new ErrorHandler(this);
+		var errorsCollector = new ErrorsCollector(this.getFullTokenList(), input.args);
 
 		// do not parse anything if there are any errors in the tokenizer
-		if (!this.getTokenizer().hasExitErrors()) {
+		if (this.tokenizationSucceeded()) {
 			this.parseTokens(); // same thing, this parses all the stuff recursively
 			this.invokeCallbacks();
 		}
 
+		this.getTokenizer().getTokenizedCommands().forEach(errorsCollector::collect);
 		this.isParsed = true;
 
-		return new AfterParseOptions(errorHandler, !input.isEmpty());
+		return new AfterParseOptions(errorsCollector, !input.isEmpty());
+	}
+
+	private boolean tokenizationSucceeded() {
+		return this.getTokenizer().getTokenizedCommands().stream()
+			.map(Command::getTokenizer)
+			.noneMatch(Tokenizer::hasDisplayErrors);
+	}
+
+	private void tokenize(@NotNull String args) {
+		this.getTokenizer().tokenize(args, null);
+	}
+
+	private void parseTokens() {
+		// first, we need to set the tokens of all tokenized subCommands
+		Command cmd = this;
+		do {
+			cmd.getParser().setTokens(cmd.getTokenizer().getFinalTokens());
+		} while ((cmd = cmd.getTokenizer().getTokenizedSubCommand()) != null);
+
+		// this parses recursively!
+		this.getParser().parseTokens(null);
 	}
 
 
@@ -204,16 +228,11 @@ public class ArgumentParser extends Command {
 	}
 
 	/**
-	 * Returns the forward value token (if any) of the full token list.
+	 * Returns the forward value of the last parsed argument.
 	 */
 	private @Nullable String getForwardValue() {
-		final var tokens = this.getFullTokenList();
-		final var lastToken = tokens.get(tokens.size() - 1);
-
-		if (lastToken.type() == TokenType.FORWARD_VALUE)
-			return lastToken.contents();
-
-		return null;
+		// the forward value is only present on the last parsed command
+		return UtlMisc.last(this.getTokenizer().getTokenizedCommands()).getParser().getForwardValue();
 	}
 
 	/**
@@ -246,9 +265,10 @@ public class ArgumentParser extends Command {
 	 */
 	public void addVersionArgument() {
 		this.addArgument(Argument.createOfBoolType("version")
-			.onOk(t ->
-				System.out.println("Version: " + UtlMisc.nonNullOrElse(this.getVersion(), "unknown"))
-			)
+			.onOk(t -> {
+				System.out.println("Version: " + Objects.requireNonNullElse(this.getVersion(), "unknown"));
+				System.exit(0);
+			})
 			.withDescription("Shows the version of this program.")
 			.allowsUnique()
 		);
@@ -267,13 +287,14 @@ public class ArgumentParser extends Command {
 	 * Provides utilities for the parsed arguments after parsing is done.
 	 */
 	public class AfterParseOptions {
-		private final List<@NotNull String> errors;
+		private final @NotNull ErrorsCollector errorsCollector;
+		private List<@NotNull String> errors;
 		private final int errorCode;
 		private final boolean receivedArguments;
 
-		private AfterParseOptions(ErrorHandler errorHandler, boolean receivedArguments) {
+		private AfterParseOptions(@NotNull ErrorsCollector errorsCollector, boolean receivedArguments) {
+			this.errorsCollector = errorsCollector;
 			this.errorCode = ArgumentParser.this.getErrorCode();
-			this.errors = errorHandler.handleErrors();
 			this.receivedArguments = receivedArguments;
 		}
 
@@ -281,6 +302,8 @@ public class ArgumentParser extends Command {
 		 * Returns a list of all the error messages that occurred during parsing.
 		 */
 		public @NotNull List<@NotNull String> getErrors() {
+			if (this.errors == null)
+				this.errors = this.errorsCollector.handleErrors();
 			return this.errors;
 		}
 
@@ -303,7 +326,7 @@ public class ArgumentParser extends Command {
 		 * Prints all errors that occurred during parsing to {@link System#err}.
 		 */
 		public AfterParseOptions printErrors() {
-			for (var error : this.errors) {
+			for (var error : this.getErrors()) {
 				System.err.println(error);
 			}
 			return this;

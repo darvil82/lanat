@@ -7,11 +7,15 @@ import lanat.parsing.Parser;
 import lanat.parsing.Token;
 import lanat.parsing.TokenType;
 import lanat.parsing.Tokenizer;
-import lanat.parsing.errors.CustomError;
-import lanat.utils.*;
-import lanat.utils.displayFormatter.Color;
+import lanat.parsing.errors.Error;
+import lanat.utils.ErrorCallbacks;
+import lanat.utils.ErrorsContainerImpl;
+import lanat.utils.Resettable;
+import lanat.utils.UtlMisc;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import textFormatter.Color;
+import utils.*;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -34,7 +38,7 @@ import java.util.stream.Stream;
  * @see Argument
  */
 public class Command
-	extends ErrorsContainerImpl<CustomError>
+	extends ErrorsContainerImpl<Error.CustomError>
 	implements ErrorCallbacks<ParsedArguments, Command>,
 	ArgumentAdder,
 	ArgumentGroupAdder,
@@ -119,7 +123,10 @@ public class Command
 	 */
 	public void addHelpArgument() {
 		this.addArgument(Argument.createOfBoolType("help", "h")
-			.onOk(t -> System.out.println(this.getHelp()))
+			.onOk(t -> {
+				System.out.println(this.getHelp());
+				System.exit(0);
+			})
 			.withDescription("Shows this message.")
 			.allowsUnique()
 		);
@@ -188,6 +195,10 @@ public class Command
 		this.errorCode.set(errorCode);
 	}
 
+	/**
+	 * Sets the set of characters that the user should use to indicate a start/end of a tuple.
+	 * @param tupleChars The tuple characters to set.
+	 */
 	public void setTupleChars(@NotNull TupleChar tupleChars) {
 		this.tupleChars.set(tupleChars);
 	}
@@ -230,6 +241,10 @@ public class Command
 		return this.description;
 	}
 
+	/**
+	 * Sets the help formatter that will be used to generate the help message of this command.
+	 * @param helpFormatter The help formatter to set.
+	 */
 	public void setHelpFormatter(@NotNull HelpFormatter helpFormatter) {
 		this.helpFormatter.set(helpFormatter);
 	}
@@ -253,10 +268,10 @@ public class Command
 		return this.callbackInvocationOption.get();
 	}
 
-	public void addError(@NotNull String message, @NotNull ErrorLevel level) {
-		this.addError(new CustomError(message, level));
-	}
-
+	/**
+	 * Generates and returns the help message of this command.
+	 * @return The help message of this command.
+	 */
 	public @NotNull String getHelp() {
 		return this.helpFormatter.get().generate(this);
 	}
@@ -266,6 +281,10 @@ public class Command
 		return Collections.unmodifiableList(this.arguments);
 	}
 
+	/**
+	 * Returns a list of all the positional arguments of this command. Order is preserved.
+	 * @return A list of all the positional arguments of this command.
+	 */
 	public @NotNull List<@NotNull Argument<?, ?>> getPositionalArguments() {
 		return this.getArguments().stream().filter(Argument::isPositional).toList();
 	}
@@ -307,11 +326,8 @@ public class Command
 	 * includes the {@link TokenType#COMMAND} tokens.
 	 * @return A list of all the tokens of all Sub-Commands.
 	 */
-	public @NotNull ArrayList<@NotNull Token> getFullTokenList() {
-		final ArrayList<Token> list = new ArrayList<>() {{
-			this.add(new Token(TokenType.COMMAND, Command.this.getName()));
-			this.addAll(Command.this.getTokenizer().getFinalTokens());
-		}};
+	public @NotNull List<@NotNull Token> getFullTokenList() {
+		final List<Token> list = Command.this.getTokenizer().getFinalTokens();
 
 		final Command subCmd = this.getTokenizer().getTokenizedSubCommand();
 
@@ -319,7 +335,7 @@ public class Command
 			list.addAll(subCmd.getFullTokenList());
 		}
 
-		return list;
+		return Collections.unmodifiableList(list);
 	}
 
 	/**
@@ -540,7 +556,7 @@ public class Command
 
 		// get all the error codes of the Sub-Commands recursively
 		int finalErrorCode = this.subCommands.stream()
-			.filter(c -> c.tokenizer.isFinishedTokenizing())
+			.filter(c -> c.tokenizer.hasFinished())
 			.map(Command::getErrorCode)
 			.reduce(0, (a, b) -> a | b);
 
@@ -561,32 +577,20 @@ public class Command
 	private @NotNull Tokenizer tokenizer = new Tokenizer(this);
 	private @NotNull Parser parser = new Parser(this);
 
+	/** Returns the current tokenizer of this command. */
 	public @NotNull Tokenizer getTokenizer() {
 		return this.tokenizer;
 	}
 
+	/** Returns the current parser of this command. */
 	public @NotNull Parser getParser() {
 		return this.parser;
 	}
 
-	void tokenize(@NotNull String input) {
-		// this tokenizes recursively!
-		this.tokenizer.tokenize(input);
-	}
-
-	void parseTokens() {
-		// first, we need to set the tokens of all tokenized subCommands
-		Command cmd = this;
-		do {
-			cmd.parser.setTokens(cmd.tokenizer.getFinalTokens());
-		} while ((cmd = cmd.getTokenizer().getTokenizedSubCommand()) != null);
-
-		// this parses recursively!
-		this.parser.parseTokens();
-	}
 
 	@Override
 	public void resetState() {
+		super.resetState();
 		this.tokenizer = new Tokenizer(this);
 		this.parser = new Parser(this);
 		this.arguments.forEach(Argument::resetState);
@@ -605,6 +609,10 @@ public class Command
 		return this.getParent();
 	}
 
+	/**
+	 * Annotation used to define a command template.
+	 * @see CommandTemplate
+	 */
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.TYPE)
 	public @interface Define {

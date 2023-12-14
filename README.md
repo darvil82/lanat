@@ -11,6 +11,9 @@
 
 <br><br>
 
+> [!IMPORTANT]
+> **This project is still in development.** It is not recommended to use Lanat in production, as it could possibly
+> have important issues. It is also quickly evolving, thus breaking changes are constantly being made.
 
 ### Example
 - First, we define our Command by creating a *Command Template*.
@@ -76,41 +79,6 @@ The package is currently available on Repsy and GitHub Packages.
 	```kotlin
 	implementation("com.darvil:lanat:+")
 	```
-	> [!NOTE]
-	> The `+` symbol is a wildcard that will automatically use the latest version of the package.
-	> You can also specify a specific version (e.g. `0.1.0`).
-
-<details>
-
-<summary><strong>Install from Github Packages</strong></summary>
-
-If using Gradle, follow these steps:
-
-1. Authenticate to GitHub Packages to be able to download the package. You can do this by adding the following to your [gradle.properties](https://docs.gradle.org/current/userguide/build_environment.html#sec:gradle_configuration_properties) file:
-
-   ```
-   gpr.user=USERNAME
-   gpr.key=PERSONAL_ACCESS_TOKEN
-   ```
-
-   Replace `USERNAME` with your GitHub username and `PERSONAL_ACCESS_TOKEN` with a personal access token that has the `read:packages` scope.
-
-2. Add the following inside your `repositories` block:
-
-    ```kotlin
-    maven {
-        url = uri("https://maven.pkg.github.com/darvil82/lanat")
-        credentials {
-            username = project.findProperty("gpr.user") as String?
-            password = project.findProperty("gpr.key") as String?
-        }
-    }
-    ```
-
-3. Follow step 2 from the previous section.
-
-This information is available at the [GitHub Packages documentation](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-gradle-registry#using-a-published-package).
-
-For other build tools, see [here](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-gradle-registry#using-a-published-package).
-
-</details>
+> [!NOTE]
+> The `+` symbol is a wildcard that will automatically use the latest version of the package.
+> You can also specify a specific version (e.g. `0.1.0`).

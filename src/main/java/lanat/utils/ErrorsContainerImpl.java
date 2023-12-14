@@ -2,6 +2,7 @@ package lanat.utils;
 
 import lanat.ErrorLevel;
 import org.jetbrains.annotations.NotNull;
+import utils.ModifyRecord;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,16 +13,25 @@ import java.util.List;
  *
  * @param <T> The type of the errors to store.
  */
-public abstract class ErrorsContainerImpl<T extends ErrorLevelProvider> implements ErrorsContainer<T> {
-	private final ModifyRecord<ErrorLevel> minimumExitErrorLevel;
-	private final ModifyRecord<ErrorLevel> minimumDisplayErrorLevel;
+public abstract class ErrorsContainerImpl<T extends ErrorLevelProvider> implements ErrorsContainer<T>, Resettable {
+	private final @NotNull ModifyRecord<ErrorLevel> minimumExitErrorLevel;
+	private final @NotNull ModifyRecord<ErrorLevel> minimumDisplayErrorLevel;
 	private final @NotNull List<T> errors = new ArrayList<>();
 
+	/**
+	 * Creates a new {@link ErrorsContainerImpl} with the default values, those being {@link ErrorLevel#ERROR} for
+	 * {@link #minimumExitErrorLevel} and {@link ErrorLevel#INFO} for {@link #minimumDisplayErrorLevel}.
+	 */
 	public ErrorsContainerImpl() {
 		// default values
 		this(ModifyRecord.of(ErrorLevel.ERROR), ModifyRecord.of(ErrorLevel.INFO));
 	}
 
+	/**
+	 * Creates a new {@link ErrorsContainerImpl} with the given values.
+	 * @param minimumExitErrorLevelRecord    The minimum error level that will cause the program to exit.
+	 * @param minimumDisplayErrorLevelRecord The minimum error level that will be displayed to the user.
+	 */
 	public ErrorsContainerImpl(
 		@NotNull ModifyRecord<ErrorLevel> minimumExitErrorLevelRecord,
 		@NotNull ModifyRecord<ErrorLevel> minimumDisplayErrorLevelRecord
@@ -75,6 +85,11 @@ public abstract class ErrorsContainerImpl<T extends ErrorLevelProvider> implemen
 
 	protected <TErr extends ErrorLevelProvider> boolean anyErrorInMinimum(@NotNull List<TErr> errors, boolean isDisplayError) {
 		return errors.stream().anyMatch(e -> this.errorIsInMinimumLevel(e, isDisplayError));
+	}
+
+	@Override
+	public void resetState() {
+		this.errors.clear();
 	}
 
 	// --------------------------------------------- Getters and Setters -----------------------------------------------

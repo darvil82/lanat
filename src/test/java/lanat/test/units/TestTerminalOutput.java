@@ -4,21 +4,26 @@ import lanat.test.UnitTests;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TestTerminalOutput extends UnitTests {
 	private void assertErrorOutput(String args, String expected) {
 		final var errors = this.parser.parseGetErrors(args);
-		System.out.printf("Test error output:\n%s", errors.get(0));
+		System.out.printf("Test error output:%n%s%n", String.join("\n", errors));
 
 		// remove all the decorations to not make the tests a pain to write
-		assertEquals(
-			expected,
-			errors.get(0)
-				// the reason we replace \r here is that windows uses CRLF (I hate windows)
-				.replaceAll(" *[│─└┌\r] ?", "")
-				.strip()
+		assertTrue(
+			errors.stream()
+				.map(e -> e.replaceAll(" *[│─└┌\r] ?", "").strip())
+				.toList()
+				.contains(expected)
 		);
+	}
+
+	private void assertNoErrorOutput(String args) {
+		final var errors = this.parser.parseGetErrors(args);
+		System.out.printf("Test error output:%n%s%n", String.join("\n", errors));
+		assertTrue(errors.isEmpty());
 	}
 
 	@Test
@@ -44,7 +49,7 @@ public class TestTerminalOutput extends UnitTests {
 	public void testExceedValueCountTuple() {
 		this.assertErrorOutput("--what [1 2 3 4 5 6 7 8 9 10]", """
 			ERROR
-			Testing --what -> [ 1 2 3 4 5 6 7 8 9 10 ] <-
+			Testing --what [ -> 1 2 3 4 5 6 7 8 9 10 <- ]
 			Incorrect number of values for argument 'what'.
 			Expected from 1 to 3 values, but got 10.""");
 	}
@@ -100,9 +105,9 @@ public class TestTerminalOutput extends UnitTests {
 	@Test
 	@DisplayName("Test incorrect usage count")
 	public void testIncorrectUsageCount() {
-		this.assertErrorOutput("foo --double-adder 5.0", """
+		this.assertErrorOutput("foo --double-adder [5.0]", """
 			ERROR
-			Testing foo -> --double-adder 5.0 <-
+			Testing foo -> --double-adder [ 5.0 ] <-
 			Argument 'double-adder' was used an incorrect amount of times.
 			Expected from 2 to 4 usages, but was used 1 time.""");
 
@@ -120,5 +125,63 @@ public class TestTerminalOutput extends UnitTests {
 			ERROR
 			Testing foo subCommand2 --extra -> --c 5 <-
 			Multiple arguments in exclusive group 'exclusive-group' used.""");
+	}
+
+	@Test
+	@DisplayName("Test space required error")
+	public void testSpaceRequiredError() {
+		this.assertErrorOutput("[foo]--what 1", """
+			ERROR
+			Testing [foo->]-<--what 1
+			A space is required between these characters.""");
+
+		this.assertErrorOutput("foo --what'1'", """
+			ERROR
+			Testing foo --wha->t'<-1'
+			A space is required between these characters.""");
+
+		this.assertErrorOutput("'foo'--what 1", """
+			ERROR
+			Testing 'foo->'-<--what 1
+			A space is required between these characters.""");
+
+		this.assertNoErrorOutput("[foo]");
+		this.assertNoErrorOutput("--what='1'");
+	}
+
+	@Test
+	@DisplayName("Test tuple already open error")
+	public void testTupleAlreadyOpenError() {
+		this.assertErrorOutput("test subCommand [1 [2 3", """
+			ERROR
+			Testing test subCommand [1 ->[<-2 3
+			Tuple already open.""");
+	}
+
+	@Test
+	@DisplayName("Test tuple not closed error")
+	public void testTupleNotClosedError() {
+		this.assertErrorOutput("--what [1 2 3", """
+			ERROR
+			Testing --what ->[1 2 3<-
+			Tuple not closed.""");
+	}
+
+	@Test
+	@DisplayName("Test unexpected tuple close error")
+	public void testUnexpectedTupleCloseError() {
+		this.assertErrorOutput("--what 1]", """
+			ERROR
+			Testing --what 1->]<-
+			Unexpected tuple close.""");
+	}
+
+	@Test
+	@DisplayName("Test string not closed error")
+	public void testStringNotClosedError() {
+		this.assertErrorOutput("--what '1 2 3", """
+			ERROR
+			Testing --what ->'1 2 3<-
+			String not closed.""");
 	}
 }

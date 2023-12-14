@@ -3,28 +3,42 @@ package lanat.test.exampleTests;
 import lanat.*;
 import lanat.argumentTypes.CounterArgumentType;
 import lanat.argumentTypes.IntegerArgumentType;
+import lanat.argumentTypes.MultipleStringsArgumentType;
 import lanat.argumentTypes.NumberRangeArgumentType;
-import lanat.argumentTypes.StringArgumentType;
-import lanat.utils.Range;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Test;
+import utils.Range;
 
 public final class ExampleTest {
 	@Test
 	public void main() {
 		Argument.PrefixChar.defaultPrefix = Argument.PrefixChar.MINUS;
 //		TextFormatter.enableSequences = false;
-		new ArgumentParser("my-program") {{
+//		ErrorFormatter.errorFormatterClass = SimpleErrorFormatter.class;
+
+		var ap = new ArgumentParser("my-program") {{
 			this.setCallbackInvocationOption(CallbacksInvocationOption.NO_ERROR_IN_ARGUMENT);
 			this.addHelpArgument();
 			this.addArgument(Argument.create(new CounterArgumentType(), "counter", "c").onOk(System.out::println));
 			this.addArgument(Argument.create(new Example1Type(), "user", "u").required().positional());
 			this.addArgument(Argument.createOfBoolType("t").onOk(v -> System.out.println("present")));
 			this.addArgument(Argument.create(new NumberRangeArgumentType<>(0.0, 15.23), "number").onOk(System.out::println));
-			this.addArgument(Argument.create(new StringArgumentType(), "string", "s").onOk(System.out::println).withPrefix(Argument.PrefixChar.PLUS));
+			this.addArgument(Argument.create(new MultipleStringsArgumentType(Range.from(3).to(5)), "string", "s").onOk(System.out::println).withPrefix(Argument.PrefixChar.PLUS));
 			this.addArgument(Argument.create(new IntegerArgumentType(), "test").onOk(System.out::println).allowsUnique());
-		}}.parse(CLInput.from("-h --number 3' --c -c --c -cccelloc ++string hello -ccc"))
+
+			this.addCommand(new Command("sub1", "testing") {{
+				this.addArgument(Argument.create(new IntegerArgumentType(), "required").required().positional());
+				this.addArgument(Argument.create(new NumberRangeArgumentType<>(0.0, 15.23), "number").onOk(System.out::println));
+				this.addCommand(new Command("sub2", "testing") {{
+					this.addArgument(Argument.create(new IntegerArgumentType(), "required").required().positional());
+					this.addArgument(Argument.create(new NumberRangeArgumentType<>(0.0, 15.23), "number").onOk(System.out::println));
+				}});
+			}});
+		}};
+
+		ap.parse(CLInput.from("josh ! --number 2 '-cccc ++string [test1 "
+				+ "test2 t2] -ccc sub1 --required 1 --number 121 sub2 2 --number [4]"))
 			.printErrors()
 			.getParsedArguments();
 	}

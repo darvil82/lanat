@@ -3,13 +3,14 @@ package lanat;
 import lanat.argumentTypes.FromParseableArgumentType;
 import lanat.argumentTypes.IntegerArgumentType;
 import lanat.argumentTypes.Parseable;
-import lanat.exceptions.ArgumentTypeException;
-import lanat.parsing.errors.CustomError;
+import lanat.parsing.errors.CustomErrorImpl;
+import lanat.parsing.errors.Error;
 import lanat.utils.ErrorsContainerImpl;
-import lanat.utils.Range;
 import lanat.utils.Resettable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import utils.Pair;
+import utils.Range;
 
 import java.util.ArrayList;
 import java.util.function.Consumer;
@@ -31,7 +32,7 @@ import java.util.function.Consumer;
  * <p>
  * It is possible to use other Argument Types inside your custom Argument Type. This is done by using the
  * {@link ArgumentType#registerSubType(ArgumentType)} method. This allows you to listen for errors that occur in the
- * subtypes, and to add them to the list of errors of the main parser. {@link ArgumentType#onSubTypeError(CustomError)}
+ * subtypes, and to add them to the list of errors of the main parser. {@link ArgumentType#onSubTypeError(Error.CustomError)}
  * is called when an error occurs in a subtype.
  * </p>
  * <p>
@@ -42,7 +43,7 @@ import java.util.function.Consumer;
  * @param <T> The type of the value that this argument type parses.
  */
 public abstract class ArgumentType<T>
-	extends ErrorsContainerImpl<CustomError>
+	extends ErrorsContainerImpl<Error.CustomError>
 	implements Resettable, Parseable<T>, ParentElementGetter<ArgumentType<?>>
 {
 	/** This is the value that this argument type current has while being parsed. */
@@ -61,14 +62,17 @@ public abstract class ArgumentType<T>
 
 	/**
 	 * This is used for storing errors that occur during parsing. We need to keep track of the index of the token that
-	 * caused the error. -1 means that this was still not parsed.
+	 * caused the error.
 	 */
-	private short lastTokenIndex = -1;
+	private int lastTokenIndex = 0;
 
 	/**
 	 * This specifies the number of values that this argument received when being parsed.
 	 */
 	private int lastReceivedValuesNum = 0;
+
+	/** This specifies whether the last value that this argument received was in a tuple. */
+	private boolean lastInTuple = false;
 
 	/** This specifies the number of times this argument type has been used during parsing. */
 	short usageCount = 0;
@@ -102,24 +106,26 @@ public abstract class ArgumentType<T>
 	/**
 	 * Saves the specified tokenIndex and the number of values received, and then parses the values.
 	 * @param tokenIndex The index of the token that caused the parsing of this argument type.
+	 * @param inTuple Whether the values were received in a tuple.
 	 * @param values The values to parse.
 	 */
-	public final void parseAndUpdateValue(short tokenIndex, @NotNull String... values) {
+	public final void parseAndUpdateValue(int tokenIndex, boolean inTuple, @NotNull String... values) {
 		this.usageCount++;
 		this.lastTokenIndex = tokenIndex;
+		this.lastInTuple = inTuple;
 		this.lastReceivedValuesNum = values.length;
 		this.currentValue = this.parseValues(values);
 	}
 
 	/**
 	 * By registering a subtype, this allows you to listen for errors that occurred in this subtype during parsing. The
-	 * {@link ArgumentType#onSubTypeError(CustomError)} method will be called when an error occurs.
+	 * {@link ArgumentType#onSubTypeError(Error.CustomError)} method will be called when an error occurs.
 	 */
 	protected final void registerSubType(@NotNull ArgumentType<?> subType) {
-		if (subType.parentArgType == this) {
-			throw new IllegalArgumentException("The sub type is already registered to this argument type.");
+		if (subType.parentArgType != null) {
+			throw new IllegalArgumentException("The argument type specified is already registered to an argument type.");
 		}
-		subType.lastTokenIndex = 0; // This is so the subtype will not throw the error that it was not parsed.
+
 		subType.parentArgType = this;
 		this.subTypes.add(subType);
 	}
@@ -130,8 +136,8 @@ public abstract class ArgumentType<T>
 	 *
 	 * @param error The error that occurred in the subtype.
 	 */
-	protected void onSubTypeError(@NotNull CustomError error) {
-		error.tokenIndex += this.currentArgValueIndex;
+	protected void onSubTypeError(@NotNull Error.CustomError error) {
+		error.offsetIndex(this.currentArgValueIndex);
 		this.addError(error);
 	}
 
@@ -139,7 +145,7 @@ public abstract class ArgumentType<T>
 	 * Dispatches the error to the parent argument type.
 	 * @param error The error to dispatch.
 	 */
-	private void dispatchErrorToParent(@NotNull CustomError error) {
+	private void dispatchErrorToParent(@NotNull Error.CustomError error) {
 		if (this.parentArgType != null) {
 			this.parentArgType.onSubTypeError(error);
 		}
@@ -184,6 +190,7 @@ public abstract class ArgumentType<T>
 
 	/**
 	 * Specifies the number of times this argument type can be used during parsing.
+	 * By default, this is 1. ({@link Range#ONE}).
 	 * <p>
 	 * <strong>Note: </strong> The minimum value must be at least 1.
 	 * </p>
@@ -225,7 +232,7 @@ public abstract class ArgumentType<T>
 	 * @param level The level of the error.
 	 */
 	protected void addError(@NotNull String message, int index, @NotNull ErrorLevel level) {
-		this.addError(new CustomError(message, index, level));
+		this.addError(new CustomErrorImpl(message, level, index));
 	}
 
 	/**
@@ -236,27 +243,29 @@ public abstract class ArgumentType<T>
 	 * </p>
 	 */
 	@Override
-	public void addError(@NotNull CustomError error) {
-		if (this.lastTokenIndex == -1) {
-			throw new ArgumentTypeException("Cannot add an error to an argument that has not been parsed yet.");
-		}
-
+	public void addError(@NotNull Error.CustomError error) {
 		// the index of the error should never be less than 0 or greater than the max value count
-		if (error.tokenIndex < 0 || error.tokenIndex >= this.getRequiredArgValueCount().end()) {
-			throw new IndexOutOfBoundsException("Index " + error.tokenIndex + " is out of range for " + this.getClass().getName());
+		if (error.getIndex() < 0 || error.getIndex() >= this.getRequiredArgValueCount().end()) {
+			throw new IndexOutOfBoundsException("Index " + error.getIndex() + " is out of range for " + this.getClass().getName());
 		}
 
-		// the index of the error should be relative to the last token index
-		error.tokenIndex = this.lastTokenIndex + Math.min(error.tokenIndex + 1, this.lastReceivedValuesNum);
+		// the index of the error should be relative to the last token index.
+		// if this is a subtype, lastTokenIndex will be 0, so nothing will be done here.
+		// proper offsetting will be done when the error is dispatched to the parent.
+		error.offsetIndex(this.lastTokenIndex);
+
+		if (this.parentArgType != null) {
+			this.dispatchErrorToParent(error);
+			return;
+		}
 
 		super.addError(error);
-		this.dispatchErrorToParent(error);
 	}
 
 	/**
 	 * Returns the index of the last token that was parsed.
 	 */
-	protected short getLastTokenIndex() {
+	protected int getLastTokenIndex() {
 		return this.lastTokenIndex;
 	}
 
@@ -265,6 +274,15 @@ public abstract class ArgumentType<T>
 	 */
 	int getLastReceivedValuesNum() {
 		return this.lastReceivedValuesNum;
+	}
+
+	@NotNull Pair<Integer, Integer> getLastTokensIndicesPair() {
+		int inTupleOffset = this.lastInTuple ? 1 : 0;
+
+		return new Pair<>(
+			this.lastTokenIndex - 1 - inTupleOffset,
+			this.lastReceivedValuesNum + inTupleOffset*2
+		);
 	}
 
 	/**
@@ -283,15 +301,17 @@ public abstract class ArgumentType<T>
 
 	@Override
 	public void resetState() {
+		super.resetState();
+
 		this.currentValue = this.initialValue;
-		this.lastTokenIndex = -1;
+		this.lastTokenIndex = 0;
 		this.currentArgValueIndex = 0;
 		this.lastReceivedValuesNum = 0;
 		this.usageCount = 0;
-		this.subTypes.forEach(at -> {
-			at.resetState(); // reset the state of the subtypes.
-			at.lastTokenIndex = 0; // remember to reset this back to 0. otherwise, the subtype will throw an error!
-		});
+		this.lastInTuple = false;
+
+		// reset the state of the subtypes.
+		this.subTypes.forEach(ArgumentType::resetState);
 	}
 
 	@Override

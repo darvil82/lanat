@@ -46,17 +46,6 @@ public final class UtlMisc {
 	}
 
 	/**
-	 * Returns {@code obj} if it is not {@code null}, otherwise returns {@code defaultObj}.
-	 * @param obj The object to check
-	 * @param defaultObj The object to return if {@code obj} is {@code null}
-	 * @return {@code obj} if it is not {@code null}, otherwise returns {@code defaultObj}
-	 * @param <T> The type of the objects
-	 */
-	public static <T> @NotNull T nonNullOrElse(@Nullable T obj, @NotNull T defaultObj) {
-		return obj == null ? defaultObj : obj;
-	}
-
-	/**
 	 * Returns {@code null} if {@code obj} is {@code null}, otherwise returns the result of the given function.
 	 * @param obj The object to check
 	 * @param defaultObj The function to apply to {@code obj} if it is not {@code null}
@@ -64,7 +53,17 @@ public final class UtlMisc {
 	 * @param <T> The type of the objects
 	 * @param <R> The type of the result of the function
 	 */
-	public static <T, R> @Nullable R nullOrElse(@Nullable T obj, @NotNull Function<@NotNull T, @NotNull R> defaultObj) {
+	public static <T, R> R nullOrElseGet(@Nullable T obj, @NotNull Function<@NotNull T, @NotNull R> defaultObj) {
 		return obj == null ? null : defaultObj.apply(obj);
+	}
+
+	/**
+	 * Returns the last element of the given list.
+	 * @param list The list to get the last element from
+	 * @return The last element of the given list
+	 * @param <T> The type of the elements in the list
+	 */
+	public static <T> T last(@NotNull List<T> list) {
+		return list.get(list.size() - 1);
 	}
 }

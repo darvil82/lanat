@@ -1,8 +1,11 @@
 package lanat;
 
-import lanat.utils.displayFormatter.Color;
 import org.jetbrains.annotations.NotNull;
+import textFormatter.Color;
 
+/**
+ * Represents the multiple levels that an error can have.
+ */
 public enum ErrorLevel {
 	ERROR(Color.BRIGHT_RED),
 	WARNING(Color.BRIGHT_YELLOW),

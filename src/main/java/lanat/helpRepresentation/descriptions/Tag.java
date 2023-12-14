@@ -6,13 +6,13 @@ import lanat.helpRepresentation.descriptions.tags.ColorTag;
 import lanat.helpRepresentation.descriptions.tags.DescTag;
 import lanat.helpRepresentation.descriptions.tags.FormatTag;
 import lanat.helpRepresentation.descriptions.tags.LinkTag;
-import lanat.utils.UtlReflection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import utils.UtlReflection;
+import utils.UtlString;
 
 import java.util.Hashtable;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 
 /**
@@ -24,7 +24,6 @@ import java.util.regex.Pattern;
  */
 public abstract class Tag {
 	private static final Hashtable<String, Class<? extends Tag>> REGISTERED_TAGS = new Hashtable<>();
-	private static final Pattern TAG_REGEX = Pattern.compile("[a-z][a-z-]+[a-z]", Pattern.CASE_INSENSITIVE);
 
 
 	/**
@@ -46,6 +45,12 @@ public abstract class Tag {
 		Tag.register("format", FormatTag.class);
 	}
 
+	/**
+	 * Returns the name of the tag class. This method will return the name of the tag class that is registered with the
+	 * given name.
+	 * @param tagClass tag class
+	 * @return name of the tag class
+	 */
 	public static String getTagNameFromTagClass(Class<? extends Tag> tagClass) {
 		return Tag.REGISTERED_TAGS.entrySet().stream()
 			.filter(entry -> entry.getValue() == tagClass)
@@ -64,9 +69,9 @@ public abstract class Tag {
 	 * @param tag tag object that will be used to parse the tag
 	 */
 	public static void register(@NotNull String name, @NotNull Class<? extends Tag> tag) {
-		if (!Tag.TAG_REGEX.matcher(name).matches())
+		if (!Tag.isValidTagName(name))
 			throw new IllegalArgumentException("Tag name must only contain lowercase letters and dashes");
-		Tag.REGISTERED_TAGS.put(name, tag);
+		Tag.REGISTERED_TAGS.put(name.toLowerCase(), tag);
 	}
 
 	/**
@@ -89,5 +94,22 @@ public abstract class Tag {
 			throw new UnknownTagException(tagName);
 
 		return UtlReflection.instantiate(tagClass).parse(user, value);
+	}
+
+	/**
+	 * Returns {@code true} if the given name is a valid tag name. A valid tag name must:
+	 * <ul>
+	 * <li>Not be blank</li>
+	 * <li>Start and end with a letter</li>
+	 * <li>Only contain letters and dashes</li>
+	 * </ul>
+	 * @param name The name to check.
+	 * @return {@code true} if the given name is a valid tag name.
+	 */
+	private static boolean isValidTagName(@NotNull String name) {
+		return !name.isBlank()
+			&& Character.isAlphabetic(name.charAt(0))
+			&& Character.isAlphabetic(name.charAt(name.length() - 1))
+			&& UtlString.allCharsMatch(name, c -> Character.isAlphabetic(c) || c == '-');
 	}
 }

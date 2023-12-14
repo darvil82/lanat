@@ -3,12 +3,12 @@ package lanat.helpRepresentation.descriptions.tags;
 import lanat.NamedWithDescription;
 import lanat.helpRepresentation.descriptions.Tag;
 import lanat.helpRepresentation.descriptions.exceptions.MalformedTagException;
-import lanat.utils.UtlString;
-import lanat.utils.displayFormatter.Color;
-import lanat.utils.displayFormatter.FormatOption;
-import lanat.utils.displayFormatter.TextFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import textFormatter.Color;
+import textFormatter.FormatOption;
+import textFormatter.TextFormatter;
+import utils.UtlString;
 
 /**
  * Changes the color of the text. (e.g. {@code <color=red>}). The available colors are the ones defined in

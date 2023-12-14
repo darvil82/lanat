@@ -2,9 +2,9 @@ package lanat;
 
 import lanat.exceptions.ArgumentNotFoundException;
 import lanat.exceptions.CommandNotFoundException;
-import lanat.utils.UtlString;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import utils.UtlString;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -32,9 +32,10 @@ public class ParsedArguments {
 
 	/**
 	 * Returns the parsed value of the argument with the given name.
-	 *
 	 * @param arg The argument to get the value of
 	 * @param <T> The type of the value of the argument
+	 * @return An {@link Optional} containing the parsed value of the argument with the given name, or
+	 *  {@link Optional#empty()} if the argument was not found.
 	 */
 	@SuppressWarnings("unchecked") // we'll just have to trust the user
 	public <T> @NotNull Optional<T> get(@NotNull Argument<?, T> arg) {
@@ -61,7 +62,8 @@ public class ParsedArguments {
 	 * @param argRoute The route to the argument, separated by the <code>.</code> character.
 	 * @param <T> The type of the value of the argument. This is used to avoid casting. A type that does not match the
 	 * 	argument's type will result in a {@link ClassCastException}.
-	 * @return The parsed value of the argument with the given name.
+	 * @return An {@link Optional} containing the parsed value of the argument with the given name, or
+	 *  {@link Optional#empty()} if the argument was not found.
 	 * @throws CommandNotFoundException If the command specified in the route does not exist
 	 * @throws ArgumentNotFoundException If the argument specified in the route does not exist
 	 */
@@ -71,9 +73,7 @@ public class ParsedArguments {
 
 
 	/**
-	 * Specify the route of Sub-Commands for reaching the argument desired. This method will return an {@link Object}
-	 * that can be cast to the desired type. However, it is recommended to use the type parameter instead, to avoid
-	 * casting.
+	 * Specify the route of Sub-Commands for reaching the argument desired.
 	 *
 	 * <br><br>
 	 *
@@ -85,7 +85,7 @@ public class ParsedArguments {
 	 * <ul>
 	 *     <li>rootcommand
 	 *     <ul>
-	 *         <li>Sub-Command
+	 *         <li>subCommand
 	 *         <ul>
 	 *             <li>argument</li>
 	 *         </ul>
@@ -93,6 +93,9 @@ public class ParsedArguments {
 	 * </ul>
 	 *
 	 * @throws CommandNotFoundException If the command specified in the route does not exist
+	 * @return An {@link Optional} containing the parsed value of the argument with the given name, or
+	 *  {@link Optional#empty()} if the argument was not found.
+	 * @param <T> The type of the value of the argument.
 	 */
 	@SuppressWarnings("unchecked") // we'll just have to trust the user
 	public <T> @NotNull Optional<T> get(@NotNull String... argRoute) {

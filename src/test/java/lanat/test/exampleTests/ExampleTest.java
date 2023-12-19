@@ -5,7 +5,6 @@ import lanat.argumentTypes.CounterArgumentType;
 import lanat.argumentTypes.IntegerArgumentType;
 import lanat.argumentTypes.MultipleStringsArgumentType;
 import lanat.argumentTypes.NumberRangeArgumentType;
-import lanat.helpRepresentation.HelpFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Test;

@@ -15,7 +15,7 @@ public final class ExampleTest {
 	@Test
 	public void main() {
 		Argument.PrefixChar.defaultPrefix = Argument.PrefixChar.MINUS;
-		HelpFormatter.lineWrapMax = 80;
+//		HelpFormatter.lineWrapMax = 80;
 //		TextFormatter.enableSequences = false;
 //		ErrorFormatter.errorFormatterClass = SimpleErrorFormatter.class;
 

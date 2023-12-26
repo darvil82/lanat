@@ -17,6 +17,7 @@ import java.util.Optional;
 public class ParsedArguments {
 	private final @NotNull HashMap<@NotNull Argument<?, ?>, @Nullable Object> parsedArgs;
 	private final @NotNull Command cmd;
+	private final boolean wasUsed;
 	private final @NotNull List<@NotNull ParsedArguments> subParsedArguments;
 
 	ParsedArguments(
@@ -27,7 +28,16 @@ public class ParsedArguments {
 	{
 		this.parsedArgs = parsedArgs;
 		this.cmd = cmd;
+		this.wasUsed = cmd.getTokenizer().hasFinished();
 		this.subParsedArguments = subParsedArguments;
+	}
+
+	public boolean wasUsed() {
+		return this.wasUsed;
+	}
+
+	public @NotNull Command getCommand() {
+		return this.cmd;
 	}
 
 	/**

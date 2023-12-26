@@ -60,6 +60,7 @@ public class CommandTemplateExample extends CommandTemplate.Default {
 
 	@InitDef
 	public static void afterInit(@NotNull Command cmd) {
+		cmd.setOnOkCallback(p -> System.out.println("ok " + cmd.getName()));
 		cmd.addGroup(new ArgumentGroup("test-group") {{
 			this.setRestricted(true);
 			this.addArgument(cmd.getArgument("string"));
@@ -75,13 +76,21 @@ public class CommandTemplateExample extends CommandTemplate.Default {
 		@Argument.Define(argType = CounterArgumentType.class, description = "This is a counter", names = "c")
 		public int counter = 0;
 
+		@InitDef
+		public static void afterInit(@NotNull Command cmd) {
+			cmd.setOnOkCallback(p -> System.out.println("ok " + cmd.getName()));
+		}
+
 		@CommandAccessor
 		public AnotherSubCommand anotherSubCommand;
 
 		@Command.Define(names = "another-sub-command", description = "This is a sub-command.")
 		public static class AnotherSubCommand extends CommandTemplate {
 			public AnotherSubCommand() {}
-
+			@InitDef
+			public static void afterInit(@NotNull Command cmd) {
+				cmd.setOnOkCallback(p -> System.out.println("ok " + cmd.getName()));
+			}
 			@Argument.Define(argType = CounterArgumentType.class, description = "This is a counter", names = "c")
 			public int counter = 0;
 		}

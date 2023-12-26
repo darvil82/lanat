@@ -113,20 +113,16 @@ public class ParsedArguments {
 			throw new IllegalArgumentException("argument route must not be empty");
 		}
 
-		ParsedArguments matchedParsedArgs;
-
 		if (argRoute.length == 1) {
 			return (Optional<T>)this.get(this.getArgument(argRoute[0]));
-		} else if ((matchedParsedArgs = this.getSubParsedArgs(argRoute[0])) != null) {
-			return matchedParsedArgs.get(Arrays.copyOfRange(argRoute, 1, argRoute.length));
-		} else {
-			throw new CommandNotFoundException(argRoute[0]);
 		}
+
+		return this.getSubParsedArgs(argRoute[0])
+			.get(Arrays.copyOfRange(argRoute, 1, argRoute.length));
 	}
 
 	/**
 	 * Returns the argument in {@link #parsedArgs} with the given name.
-	 *
 	 * @throws ArgumentNotFoundException If no argument with the given name is found
 	 */
 	private @NotNull Argument<?, ?> getArgument(@NotNull String name) {
@@ -143,11 +139,13 @@ public class ParsedArguments {
 	 * {@code null}.
 	 *
 	 * @param name The name of the sub command
+	 * @throws CommandNotFoundException If no sub command with the given name is found
 	 * @return The sub {@link ParsedArguments} with the given name, or {@code null} if none is found
 	 */
-	public ParsedArguments getSubParsedArgs(@NotNull String name) {
+	public @NotNull ParsedArguments getSubParsedArgs(@NotNull String name) {
 		for (var sub : this.subParsedArguments)
 			if (sub.cmd.hasName(name)) return sub;
-		return null;
+
+		throw new CommandNotFoundException(name);
 	}
 }

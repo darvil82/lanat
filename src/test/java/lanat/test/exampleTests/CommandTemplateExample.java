@@ -1,9 +1,6 @@
 package lanat.test.exampleTests;
 
-import lanat.Argument;
-import lanat.ArgumentGroup;
-import lanat.Command;
-import lanat.CommandTemplate;
+import lanat.*;
 import lanat.argumentTypes.*;
 import org.jetbrains.annotations.NotNull;
 
@@ -12,8 +9,6 @@ import java.util.Optional;
 
 @Command.Define(names = "my-program", description = "This is a <color=cyan><format=b,i>test program<format=reset>.")
 public class CommandTemplateExample extends CommandTemplate.Default {
-	public CommandTemplateExample() {}
-
 	@Argument.Define(argType = StringArgumentType.class, description = "This is a string argument.")
 	public Optional<String> string;
 
@@ -60,7 +55,6 @@ public class CommandTemplateExample extends CommandTemplate.Default {
 
 	@InitDef
 	public static void afterInit(@NotNull Command cmd) {
-		cmd.setOnOkCallback(p -> System.out.println("ok " + cmd.getName()));
 		cmd.addGroup(new ArgumentGroup("test-group") {{
 			this.setRestricted(true);
 			this.addArgument(cmd.getArgument("string"));
@@ -68,31 +62,34 @@ public class CommandTemplateExample extends CommandTemplate.Default {
 		}});
 	}
 
+	@Override
+	public void onValuesReceived() {
+		System.out.println("This is the value of number: " + this.number);
+	}
 
 	@Command.Define(names = "sub-command", description = "This is a sub-command.")
 	public static class MySubCommand extends CommandTemplate.Default {
-		public MySubCommand() {}
 
 		@Argument.Define(argType = CounterArgumentType.class, description = "This is a counter", names = "c")
 		public int counter = 0;
 
-		@InitDef
-		public static void afterInit(@NotNull Command cmd) {
-			cmd.setOnOkCallback(p -> System.out.println("ok " + cmd.getName()));
-		}
-
 		@CommandAccessor
 		public AnotherSubCommand anotherSubCommand;
 
+		@Override
+		public void onValuesReceived() {
+			System.out.println("This is the value of counter: " + this.counter);
+		}
+
 		@Command.Define(names = "another-sub-command", description = "This is a sub-command.")
 		public static class AnotherSubCommand extends CommandTemplate {
-			public AnotherSubCommand() {}
-			@InitDef
-			public static void afterInit(@NotNull Command cmd) {
-				cmd.setOnOkCallback(p -> System.out.println("ok " + cmd.getName()));
-			}
 			@Argument.Define(argType = CounterArgumentType.class, description = "This is a counter", names = "c")
 			public int counter = 0;
+
+			@Override
+			public void onValuesReceived() {
+				System.out.println("This is the value of counter: " + this.counter);
+			}
 		}
 	}
 }

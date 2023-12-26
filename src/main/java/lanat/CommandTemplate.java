@@ -100,6 +100,31 @@ import java.util.List;
  */
 @Command.Define
 public abstract class CommandTemplate {
+	private ParsedArguments parsedArguments;
+
+	/**
+	 *
+	 * @param parsedArguments
+	 */
+	void afterInstantiation(@NotNull ParsedArguments parsedArguments) {
+		this.parsedArguments = parsedArguments;
+		if (this.wasUsed()) this.onValuesReceived();
+	}
+
+	public final @NotNull ParsedArguments getParsedArguments() {
+		return this.parsedArguments;
+	}
+
+	public final @NotNull Command getCommand() {
+		return this.parsedArguments.getCommand();
+	}
+
+	public final boolean wasUsed() {
+		return this.parsedArguments.wasUsed();
+	}
+
+	public void onValuesReceived() {}
+
 	/**
 	 * Annotation used to define an init method for a Command Template.
 	 * @see CommandTemplate#beforeInit(CommandBuildHelper)

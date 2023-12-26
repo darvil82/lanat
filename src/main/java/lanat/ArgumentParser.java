@@ -413,6 +413,7 @@ public class ArgumentParser extends Command {
 					AfterParseOptions.into$handleCommandAccessor(instance, commandAccesorField, parsedArgs);
 				});
 
+			instance.afterInstantiation(parsedArgs);
 			return instance;
 		}
 

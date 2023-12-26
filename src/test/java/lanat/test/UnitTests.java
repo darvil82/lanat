@@ -82,8 +82,8 @@ public class UnitTests {
 			this.addCommand(new Command("subCommand2") {{
 				this.setErrorCode(0b1000);
 
-				this.addGroup(new ArgumentGroup("exclusive-group") {{
-					this.setExclusive(true);
+				this.addGroup(new ArgumentGroup("restricted-group") {{
+					this.setRestricted(true);
 					this.addArgument(Argument.createOfBoolType("extra"));
 					this.addArgument(Argument.create(new IntegerArgumentType(), 'c').positional());
 				}});

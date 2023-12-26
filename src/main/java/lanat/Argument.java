@@ -406,11 +406,12 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 		/* no, | is not a typo. We don't want the OR operator to short-circuit, we want all of them to be evaluated
 		 * because the methods have side effects (they add errors to the parser) */
-		TInner returnValue = (finalValue == null | !this.finishParsing$checkExclusivity() | !this.finishParsing$checkUsageCount())
+		TInner returnValue = (finalValue == null | !this.finishParsing$checkGroupRestrictions() | !this.finishParsing$checkUsageCount())
 			? defaultValue
 			: finalValue;
 
-		if (this.parentGroup != null) this.parentGroup.setArgUsed();
+		if (this.parentGroup != null && this.getUsageCount() >= 1)
+			this.parentGroup.setArgUsed();
 
 		// if the argument type has a value defined (even if it wasn't used), use that. Otherwise, use the default value
 		return returnValue;
@@ -442,20 +443,19 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	/**
-	 * Checks if the argument is part of an exclusive group, and if so, checks if there is any violation of exclusivity
+	 * Checks if the argument is part of a restricted group, and if so, checks if there is any violation of restrictions
 	 * in the group hierarchy.
-	 *
-	 * @return {@code true} if there is no violation of exclusivity in the group hierarchy.
+	 * @return {@code true} if there is no violation of restrictions in the group hierarchy.
 	 */
-	private boolean finishParsing$checkExclusivity() {
-		// check if the parent group of this argument is exclusive, and if so, check if any other argument in it has been used
+	private boolean finishParsing$checkGroupRestrictions() {
+		// check if the parent group of this argument is restricted, and if so, check if any other argument in it has been used
 		if (this.parentGroup == null || this.getUsageCount() == 0) return true;
 
-		ArgumentGroup exclusivityResult = this.parentGroup.checkExclusivity(null);
-		if (exclusivityResult == null) return true;
+		ArgumentGroup restrictionViolator = this.parentGroup.getRestrictionViolator(null);
+		if (restrictionViolator == null) return true;
 
-		this.parentCommand.getParser().addError(new ParseErrors.MultipleArgsInExclusiveGroupUsedError(
-			this.argType.getLastTokensIndicesPair(), exclusivityResult
+		this.parentCommand.getParser().addError(new ParseErrors.MultipleArgsInRestrictedGroupUsedError(
+			this.argType.getLastTokensIndicesPair(), restrictionViolator
 		));
 		return false;
 	}

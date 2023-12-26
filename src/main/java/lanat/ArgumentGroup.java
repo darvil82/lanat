@@ -13,17 +13,17 @@ import java.util.List;
 /**
  * <h2>Argument Group</h2>
  * <p>
- * Represents a group of arguments. This is used to group arguments together, and to set exclusivity between them.
- * When a group is exclusive, it means that only one argument in it can be used at a time.
+ * Represents a group of arguments. This is used to group arguments together, and to set a restriction between them.
+ * When a group is restricted, it means that only one argument in it can be used at a time.
  * <p>
  * Groups can also be used to simply indicate arguments that are related to each other, and to set a description
  * to this relation. This is useful for the help message representation.
  * <p>
- * Groups can be nested, meaning that a group can contain other groups. This is useful for setting exclusivity between
+ * Groups can be nested, meaning that a group can contain other groups. This is useful for setting restrictions between
  * arguments that are in different groups. For example, given the following group tree:
  * <pre>
  *            +-----------------------+
- *            |  Group 1 (exclusive)  |
+ *            |  Group 1 (restricted)  |
  *            |-----------------------|
  *            | Argument 1            |
  *            +-----------------------+
@@ -31,7 +31,7 @@ import java.util.List;
  *          +---------------------------+
  *          |                           |
  *  +---------------+      +-------------------------+
- *  |    Group 2    |      |   Group 3 (exclusive)   |
+ *  |    Group 2    |      |   Group 3 (restricted)   |
  *  |---------------|      |-------------------------|
  *  | Argument 2.1  |      | Argument 3.1            |
  *  | Argument 2.2  |      | Argument 3.2            |
@@ -40,14 +40,14 @@ import java.util.List;
  * <ul>
  * <li>
  * If {@code Argument 1} is used, then none of the arguments in the child groups can be used, because {@code Group 1}
- * is exclusive.
+ * is restricted.
  * </li>
  * <li>
  * If {@code Argument 3.1} is used, then none of the arguments in the rest of the tree can be used, because
- * both {@code Group 3} and its parent {@code Group 1} are exclusive.
+ * both {@code Group 3} and its parent {@code Group 1} are restricted.
  * </li>
  * <li>
- * If {@code Argument 2.1} is used, {@code Argument 2.2} can still be used, because {@code Group 2} is not exclusive.
+ * If {@code Argument 2.1} is used, {@code Argument 2.2} can still be used, because {@code Group 2} is not restricted.
  * No other arguments in the tree can be used though.
  * </li>
  * </ul>
@@ -85,11 +85,11 @@ public class ArgumentGroup
 	 * them.
 	 */
 	private final @NotNull List<@NotNull ArgumentGroup> subGroups = new ArrayList<>();
-	private boolean isExclusive = false;
+	private boolean isRestricted = false;
 
 	/**
 	 * When set to {@code true}, indicates that one argument in this group has been used. This is used when later
-	 * checking for exclusivity in the groups tree at {@link ArgumentGroup#checkExclusivity(ArgumentGroup)}
+	 * checking for restrictions in the groups tree at {@link ArgumentGroup#getRestrictionViolator(ArgumentGroup)}
 	 */
 	private boolean argumentUsed = false;
 
@@ -184,42 +184,42 @@ public class ArgumentGroup
 	}
 
 	/**
-	 * Sets this group to be exclusive, meaning that only one argument in it can be used at a time.
-	 * @see ArgumentGroup#isExclusive()
+	 * Sets this group to be restricted, meaning that only one argument in it can be used at a time.
+	 * @see ArgumentGroup#isRestricted()
 	 */
-	public void setExclusive(boolean isExclusive) {
-		this.isExclusive = isExclusive;
+	public void setRestricted(boolean isRestricted) {
+		this.isRestricted = isRestricted;
 	}
 
 	/**
-	 * Returns {@code true} if this group is exclusive.
-	 * @return {@code true} if this group is exclusive.
-	 * @see ArgumentGroup#setExclusive(boolean)
+	 * Returns {@code true} if this group is restricted.
+	 * @return {@code true} if this group is restricted.
+	 * @see ArgumentGroup#setRestricted(boolean)
 	 */
-	public boolean isExclusive() {
-		return this.isExclusive;
+	public boolean isRestricted() {
+		return this.isRestricted;
 	}
 
 	/**
-	 * Checks if there is any violation of exclusivity in this group's tree, from this group to the root. This is done
+	 * Checks if there is any violation of restrictions in this group's tree, from this group to the root. This is done
 	 * by checking if this or any of the group's siblings have been used (except for the childCallee, which is the group
 	 * that called this method). If none of them have been used, the parent group is checked, and so on.
 	 *
 	 * @param childCallee The group that called this method. This is used to avoid checking the group that called this
-	 * 	method, because it is the one that is being checked for exclusivity. This can be {@code null} if this is
+	 * 	method, because it is the one that is being checked for restriction. This can be {@code null} if this is
 	 * 	the first call to this method.
 	 * @return The group that caused the violation, or {@code null} if there is no violation.
 	 */
-	@Nullable ArgumentGroup checkExclusivity(@Nullable ArgumentGroup childCallee) {
+	@Nullable ArgumentGroup getRestrictionViolator(@Nullable ArgumentGroup childCallee) {
 		if (
-			this.isExclusive && (
+			this.isRestricted && (
 				this.argumentUsed || this.subGroups.stream().filter(g -> g != childCallee).anyMatch(g -> g.argumentUsed)
 			)
 		)
 			return this;
 
 		if (this.parentGroup != null)
-			return this.parentGroup.checkExclusivity(this);
+			return this.parentGroup.getRestrictionViolator(this);
 
 		return null;
 	}
@@ -234,7 +234,7 @@ public class ArgumentGroup
 
 
 	/**
-	 * Marks that an argument in this group has been used. This is used to later check for exclusivity.
+	 * Marks that an argument in this group has been used. This is used to later check for restrictions.
 	 * This also marks the parent group as used, and so on until reaching the root of the groups tree, thus marking the
 	 * path of the used argument.
 	 */

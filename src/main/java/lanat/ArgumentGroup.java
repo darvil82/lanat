@@ -23,7 +23,7 @@ import java.util.List;
  * arguments that are in different groups. For example, given the following group tree:
  * <pre>
  *            +-----------------------+
- *            |  Group 1 (restricted)  |
+ *            |  Group 1 (restricted) |
  *            |-----------------------|
  *            | Argument 1            |
  *            +-----------------------+
@@ -31,7 +31,7 @@ import java.util.List;
  *          +---------------------------+
  *          |                           |
  *  +---------------+      +-------------------------+
- *  |    Group 2    |      |   Group 3 (restricted)   |
+ *  |    Group 2    |      |   Group 3 (restricted)  |
  *  |---------------|      |-------------------------|
  *  | Argument 2.1  |      | Argument 3.1            |
  *  | Argument 2.2  |      | Argument 3.2            |

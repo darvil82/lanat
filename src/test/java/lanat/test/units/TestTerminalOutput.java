@@ -119,12 +119,12 @@ public class TestTerminalOutput extends UnitTests {
 	}
 
 	@Test
-	@DisplayName("Test group exclusivity error")
-	public void testGroupExclusivityError() {
+	@DisplayName("Test group restriction error")
+	public void testGroupRestrictionError() {
 		this.assertErrorOutput("foo subCommand2 --extra --c 5", """
 			ERROR
 			Testing foo subCommand2 --extra -> --c 5 <-
-			Multiple arguments in exclusive group 'exclusive-group' used.""");
+			Multiple arguments in restricted group 'restricted-group' used.""");
 	}
 
 	@Test

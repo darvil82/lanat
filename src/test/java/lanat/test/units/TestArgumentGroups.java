@@ -15,7 +15,7 @@ public class TestArgumentGroups extends UnitTests {
 		final var parser = super.setParser();
 
 		parser.addGroup(new ArgumentGroup("group") {{
-			this.setExclusive(true);
+			this.setRestricted(true);
 			this.addArgument(Argument.createOfBoolType("group-arg"));
 			this.addArgument(Argument.createOfBoolType("group-arg2"));
 		}});
@@ -24,8 +24,8 @@ public class TestArgumentGroups extends UnitTests {
 	}
 
 	@Test
-	@DisplayName("Test exclusive group")
-	public void testExclusiveGroup() {
+	@DisplayName("Test restricted group")
+	public void testRestrictedGroup() {
 		var parsedArgs = this.parser.parseGetValues("--group-arg --group-arg2");
 		assertEquals(Boolean.TRUE, parsedArgs.<Boolean>get("group-arg").orElse(null));
 		assertEquals(Boolean.FALSE, parsedArgs.<Boolean>get("group-arg2").orElse(null)); // group-arg2 should not be present

@@ -32,7 +32,7 @@ public final class ArgumentGroupRepr {
 			return null;
 
 		final var name = new TextFormatter(group.getName() + ':').addFormat(FormatOption.BOLD);
-		if (group.isExclusive())
+		if (group.isRestricted())
 			name.addFormat(FormatOption.UNDERLINE);
 
 		return '\n' + name.toString() + '\n' + HelpFormatter.indent(description, group);
@@ -62,7 +62,7 @@ public final class ArgumentGroupRepr {
 		if (description == null && argumentDescriptions.isEmpty())
 			return "";
 
-		if (group.isExclusive())
+		if (group.isRestricted())
 			name.addFormat(FormatOption.UNDERLINE);
 
 		if (description != null)
@@ -92,8 +92,8 @@ public final class ArgumentGroupRepr {
 		// its empty, nothing to append
 		if (group.isEmpty()) return "";
 
-		// if this group isn't exclusive, we just want to append the arguments, basically
-		if (group.isExclusive())
+		// if this group isn't restricted, we just want to append the arguments, basically
+		if (group.isRestricted())
 			buff.append('(');
 
 		final var arguments = Argument.sortByPriority(group.getArguments());
@@ -103,7 +103,7 @@ public final class ArgumentGroupRepr {
 			buff.append(ArgumentRepr.getRepresentation(arg));
 			if (i < arguments.size() - 1) {
 				buff.append(' ');
-				if (group.isExclusive())
+				if (group.isRestricted())
 					buff.append('|').append(' ');
 			}
 		}
@@ -112,7 +112,7 @@ public final class ArgumentGroupRepr {
 
 		if (!arguments.isEmpty() && !groups.isEmpty()) {
 			buff.append(' ');
-			if (group.isExclusive())
+			if (group.isRestricted())
 				buff.append("| ");
 		}
 
@@ -121,12 +121,12 @@ public final class ArgumentGroupRepr {
 			buff.append(ArgumentGroupRepr.getRepresentation(grp)); // append the group's representation recursively
 			if (i < groups.size() - 1) {
 				buff.append(' ');
-				if (grp.isExclusive())
+				if (grp.isRestricted())
 					buff.append('|').append(' ');
 			}
 		}
 
-		if (group.isExclusive())
+		if (group.isRestricted())
 			buff.append(')');
 
 		return buff.toString();

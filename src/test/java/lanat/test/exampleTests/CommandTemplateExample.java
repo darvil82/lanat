@@ -61,7 +61,7 @@ public class CommandTemplateExample extends CommandTemplate.Default {
 	@InitDef
 	public static void afterInit(@NotNull Command cmd) {
 		cmd.addGroup(new ArgumentGroup("test-group") {{
-			this.setExclusive(true);
+			this.setRestricted(true);
 			this.addArgument(cmd.getArgument("string"));
 			this.addArgument(cmd.getArgument("number"));
 		}});

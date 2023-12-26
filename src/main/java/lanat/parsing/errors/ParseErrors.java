@@ -152,11 +152,11 @@ public abstract class ParseErrors {
 	}
 
 	/**
-	 * Error that occurs when multiple arguments in an exclusive group are used.
+	 * Error that occurs when multiple arguments in a restricted group are used.
 	 * @param indicesPair The indices of the tokens that caused the error. (start, end)
-	 * @param group The exclusive group that contains the arguments.
+	 * @param group The restricted group that contains the arguments.
 	 */
-	public record MultipleArgsInExclusiveGroupUsedError(
+	public record MultipleArgsInRestrictedGroupUsedError(
 		@NotNull Pair<Integer, Integer> indicesPair,
 		@NotNull ArgumentGroup group
 	) implements Error.ParseError
@@ -164,7 +164,7 @@ public abstract class ParseErrors {
 		@Override
 		public void handle(@NotNull ErrorFormattingContext fmt, @NotNull ParseErrorContext ctx) {
 			fmt
-				.withContent("Multiple arguments in exclusive group '" + this.group.getName() + "' used.")
+				.withContent("Multiple arguments in restricted group '" + this.group.getName() + "' used.")
 				.highlight(this.indicesPair.first(), this.indicesPair.second(), false);
 		}
 	}

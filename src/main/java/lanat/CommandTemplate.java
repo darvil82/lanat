@@ -100,30 +100,55 @@ import java.util.List;
  */
 @Command.Define
 public abstract class CommandTemplate {
+	/**  */
 	private ParsedArguments parsedArguments;
 
 	/**
-	 *
-	 * @param parsedArguments
+	 * Called right after the Command Template is instantiated by the Argument Parser.
+	 * Sets the {@link #parsedArguments} field and calls {@link #onValuesReceived()} if the command was used.
+	 * @param parsedArguments The parsed arguments of the command.
 	 */
 	void afterInstantiation(@NotNull ParsedArguments parsedArguments) {
 		this.parsedArguments = parsedArguments;
 		if (this.wasUsed()) this.onValuesReceived();
 	}
 
+	/**
+	 * Returns the {@link ParsedArguments} instance used by this Command Template. This instance is the one that was
+	 * used to initialize this Command Template.
+	 * @return The {@link ParsedArguments} instance used by this Command Template.
+	 */
 	public final @NotNull ParsedArguments getParsedArguments() {
+		if (this.parsedArguments == null)
+			throw new IllegalStateException("Command Template was not properly initialized by the Argument Parser.");
 		return this.parsedArguments;
 	}
 
+	/**
+	 * Returns the {@link Command} instance used by this Command Template. This instance is the one that was
+	 * used to initialize this Command Template.
+	 * @return The {@link Command} instance used by this Command Template.
+	 */
 	public final @NotNull Command getCommand() {
-		return this.parsedArguments.getCommand();
+		return this.getParsedArguments().getCommand();
 	}
 
+	/**
+	 * Returns {@code true} if the Command of this Template was used in the command line.
+	 * @return {@code true} if the Command of this Template was used in the command line, {@code false} otherwise.
+	 */
 	public final boolean wasUsed() {
-		return this.parsedArguments.wasUsed();
+		return this.getParsedArguments().wasUsed();
 	}
 
+	/**
+	 * Called when the Command of this Template is used in the command line.
+	 * This method is called after the parsed values are set.
+	 * <p>
+	 * This method may be overridden to perform actions when the command is used.
+	 */
 	public void onValuesReceived() {}
+
 
 	/**
 	 * Annotation used to define an init method for a Command Template.

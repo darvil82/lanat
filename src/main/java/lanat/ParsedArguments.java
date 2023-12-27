@@ -32,10 +32,19 @@ public class ParsedArguments {
 		this.subParsedArguments = subParsedArguments;
 	}
 
+	/**
+	 * Returns {@code true} if the command was used, {@code false} otherwise.
+	 * @return {@code true} if the command was used, {@code false} otherwise
+	 */
 	public boolean wasUsed() {
 		return this.wasUsed;
 	}
 
+	/**
+	 * Returns the {@link Command} that this {@link ParsedArguments} object belongs to. This is the Command
+	 * that was used to parse the arguments.
+	 * @return The {@link Command} that this {@link ParsedArguments} object belongs to
+	 */
 	public @NotNull Command getCommand() {
 		return this.cmd;
 	}
@@ -140,7 +149,7 @@ public class ParsedArguments {
 	 *
 	 * @param name The name of the sub command
 	 * @throws CommandNotFoundException If no sub command with the given name is found
-	 * @return The sub {@link ParsedArguments} with the given name, or {@code null} if none is found
+	 * @return The sub {@link ParsedArguments} with the given name
 	 */
 	public @NotNull ParsedArguments getSubParsedArgs(@NotNull String name) {
 		for (var sub : this.subParsedArguments)

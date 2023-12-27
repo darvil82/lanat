@@ -15,22 +15,30 @@ import java.util.Optional;
  * Container for all the parsed arguments and their respective values.
  */
 public class ParsedArguments {
+	/** The parsed arguments. Pairs of each argument and it's respective value */
 	private final @NotNull HashMap<@NotNull Argument<?, ?>, @Nullable Object> parsedArgs;
+
+	/** The {@link Command} that this {@link ParsedArguments} object belongs to */
 	private final @NotNull Command cmd;
+
+	/** Whether the command was used or not */
 	private final boolean wasUsed;
+
+	/** The other inner {@link ParsedArguments}s for the sub-commands */
 	private final @NotNull List<@NotNull ParsedArguments> subParsedArguments;
+
 
 	ParsedArguments(
 		@NotNull Command cmd,
 		@NotNull HashMap<@NotNull Argument<?, ?>, @Nullable Object> parsedArgs,
 		@NotNull List<@NotNull ParsedArguments> subParsedArguments
-	)
-	{
+	) {
 		this.parsedArgs = parsedArgs;
 		this.cmd = cmd;
 		this.wasUsed = cmd.getTokenizer().hasFinished();
 		this.subParsedArguments = subParsedArguments;
 	}
+
 
 	/**
 	 * Returns {@code true} if the command was used, {@code false} otherwise.

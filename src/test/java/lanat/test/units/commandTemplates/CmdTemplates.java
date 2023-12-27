@@ -3,12 +3,10 @@ package lanat.test.units.commandTemplates;
 import lanat.Argument;
 import lanat.Command;
 import lanat.CommandTemplate;
-import lanat.ParsedArguments;
 import lanat.argumentTypes.BooleanArgumentType;
 import lanat.argumentTypes.FloatArgumentType;
 import lanat.argumentTypes.IntegerArgumentType;
 import lanat.argumentTypes.StringArgumentType;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
@@ -31,7 +29,6 @@ public class CmdTemplates {
 		@CommandAccessor
 		public CmdTemplate1_1 cmd2;
 
-
 		@Command.Define(names = "cmd1-1")
 		public static class CmdTemplate1_1 extends CommandTemplate {
 			@Argument.Define(argType = FloatArgumentType.class)
@@ -45,7 +42,7 @@ public class CmdTemplates {
 	@Command.Define(names = "cmd2")
 	public static class CmdTemplate2 extends CommandTemplate {
 		@Command.Define
-		public static class CmdTemplate2_1 extends CommandTemplate {}
+		public static class CmdTemplate2_1 extends CommandTemplate { }
 	}
 
 	@Command.Define
@@ -55,7 +52,6 @@ public class CmdTemplates {
 
 		@CommandAccessor
 		public CmdTemplate3_1 cmd2;
-
 
 		@Command.Define(names = "cmd3-1")
 		public static class CmdTemplate3_1 extends CommandTemplate {

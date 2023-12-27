@@ -100,12 +100,16 @@ import java.util.List;
  */
 @Command.Define
 public abstract class CommandTemplate {
-	/**  */
+	/** The parsed arguments of the command. */
 	private ParsedArguments parsedArguments;
 
 	/**
 	 * Called right after the Command Template is instantiated by the Argument Parser.
 	 * Sets the {@link #parsedArguments} field and calls {@link #onValuesReceived()} if the command was used.
+	 * <p>
+	 * The reason this is used instead of a constructor is because we don't want to force inheritors to call
+	 * {@code super()} in their constructors. Also, this method is called first by the innermost Command in
+	 * the hierarchy, and then by the parent Commands.
 	 * @param parsedArguments The parsed arguments of the command.
 	 */
 	void afterInstantiation(@NotNull ParsedArguments parsedArguments) {

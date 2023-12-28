@@ -21,7 +21,7 @@ import java.util.stream.Stream;
  * of the arguments that are being parsed.
  * </p>
  * When finished parsing, this class will contain a map of the arguments to their parsed values. This map can be accessed
- * by calling {@link Parser#getParsedArgumentsHashMap()}.
+ * by calling {@link Parser#getParsedArgsMap()}.
  */
 public final class Parser extends ParsingStateBase<Error.ParseError> {
 	/**
@@ -41,10 +41,10 @@ public final class Parser extends ParsingStateBase<Error.ParseError> {
 
 	/**
 	 * The parsed arguments. This is a map of the argument to the value that it parsed. The reason this is saved is that
-	 * we don't want to run {@link Parser#getParsedArgumentsHashMap()} multiple times because that can break stuff badly
+	 * we don't want to run {@link Parser#getParsedArgsMap()} multiple times because that can break stuff badly
 	 * in relation to error handling.
 	 */
-	private HashMap<@NotNull Argument<?, ?>, @Nullable Object> parsedArguments;
+	private HashMap<@NotNull Argument<?, ?>, @Nullable Object> parsedArgumentValues;
 
 	/** Contains the forward value if one was found. */
 	private @Nullable String forwardValue;
@@ -316,13 +316,13 @@ public final class Parser extends ParsingStateBase<Error.ParseError> {
 	 * This function invokes the {@link Argument#finishParsing()} method on each argument the first time it is called.
 	 * After that, it will return the same hashmap.
 	 * */
-	public @NotNull HashMap<@NotNull Argument<?, ?>, @Nullable Object> getParsedArgumentsHashMap() {
-		if (this.parsedArguments == null) {
-			this.parsedArguments = new HashMap<>() {{
+	public @NotNull HashMap<@NotNull Argument<?, ?>, @Nullable Object> getParsedArgsMap() {
+		if (this.parsedArgumentValues == null) {
+			this.parsedArgumentValues = new HashMap<>() {{
 				Parser.this.command.getArguments().forEach(arg -> this.put(arg, arg.finishParsing()));
 			}};
 		}
-		return this.parsedArguments;
+		return this.parsedArgumentValues;
 	}
 
 	private void argumentTypeParseValues(@NotNull Argument<?, ?> argument, @NotNull String... values) {

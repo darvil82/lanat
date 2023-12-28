@@ -11,17 +11,17 @@ import java.util.Optional;
  * Container for all the parsed arguments and their respective values.
  * Provides methods specific to the root command.
  */
-public class ParsedArgumentsRoot extends ParsedArguments {
+public class ParseResultRoot extends ParseResult {
 	private final @Nullable String forwardValue;
 
-	ParsedArgumentsRoot(
+	ParseResultRoot(
 		@NotNull ArgumentParser cmd,
-		@NotNull HashMap<@NotNull Argument<?, ?>, @Nullable Object> parsedArgs,
-		@NotNull List<@NotNull ParsedArguments> subArgs,
+		@NotNull HashMap<@NotNull Argument<?, ?>, @Nullable Object> parsedArgumentValues,
+		@NotNull List<@NotNull ParseResult> subArgs,
 		@Nullable String forwardValue
 	)
 	{
-		super(cmd, parsedArgs, subArgs);
+		super(cmd, parsedArgumentValues, subArgs);
 		this.forwardValue = forwardValue;
 	}
 

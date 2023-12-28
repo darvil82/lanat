@@ -218,11 +218,11 @@ public class ArgumentParser extends Command {
 
 
 	@Override
-	@NotNull ParsedArgumentsRoot getParsedArguments() {
-		return new ParsedArgumentsRoot(
+	@NotNull ParseResultRoot getParseResult() {
+		return new ParseResultRoot(
 			this,
-			this.getParser().getParsedArgumentsHashMap(),
-			this.getCommands().stream().map(Command::getParsedArguments).toList(),
+			this.getParser().getParsedArgsMap(),
+			this.getCommands().stream().map(Command::getParseResult).toList(),
 			this.getForwardValue()
 		);
 	}
@@ -359,10 +359,10 @@ public class ArgumentParser extends Command {
 		}
 
 		/**
-		 * Returns a {@link ParsedArgumentsRoot} object that contains all the parsed arguments.
+		 * Returns a {@link ParseResultRoot} object that contains all the parsed arguments.
 		 */
-		public @NotNull ParsedArgumentsRoot getParsedArguments() {
-			return ArgumentParser.this.getParsedArguments();
+		public @NotNull ParseResultRoot getResult() {
+			return ArgumentParser.this.getParseResult();
 		}
 
 		/**
@@ -375,17 +375,17 @@ public class ArgumentParser extends Command {
 		 * @see CommandTemplate
 		 */
 		public <T extends CommandTemplate> T into(@NotNull Class<T> clazz) {
-			return AfterParseOptions.into(clazz, this.getParsedArguments());
+			return AfterParseOptions.into(clazz, this.getResult());
 		}
 
 		/**
 		 * {@link #into(Class)} helper method.
 		 * @param templateClass The Command Template class to instantiate.
-		 * @param parsedArgs The parsed arguments to set the fields of the Command Template class.
+		 * @param parseResult The parsed arguments to set the fields of the Command Template class.
 		 */
 		private static <T extends CommandTemplate> T into(
 			@NotNull Class<T> templateClass,
-			@NotNull ParsedArguments parsedArgs
+			@NotNull ParseResult parseResult
 		)
 		{
 			final T instance = UtlReflection.instantiate(templateClass);
@@ -393,7 +393,7 @@ public class ArgumentParser extends Command {
 			// set the values of the fields
 			Stream.of(templateClass.getFields())
 				.filter(f -> f.isAnnotationPresent(Argument.Define.class))
-				.forEach(field -> AfterParseOptions.into$setFieldValue(field, parsedArgs, instance));
+				.forEach(field -> AfterParseOptions.into$setFieldValue(field, parseResult, instance));
 
 			// now handle the sub-command field accessors (if any)
 			Stream.of(templateClass.getDeclaredClasses())
@@ -410,23 +410,23 @@ public class ArgumentParser extends Command {
 							);
 						});
 
-					AfterParseOptions.into$handleCommandAccessor(instance, commandAccesorField, parsedArgs);
+					AfterParseOptions.into$handleCommandAccessor(instance, commandAccesorField, parseResult);
 				});
 
-			instance.afterInstantiation(parsedArgs);
+			instance.afterInstantiation(parseResult);
 			return instance;
 		}
 
 		/**
 		 * {@link #into(Class)} helper method. Sets the value of the given field based on the parsed arguments.
 		 * @param field The field to set the value of.
-		 * @param parsedArgs The parsed arguments to set the field value from.
+		 * @param parseResult The parsed arguments to set the field value from.
 		 * @param instance The instance of the current Command Template class.
 		 * @param <T> The type of the Command Template class.
 		 */
 		private static <T extends CommandTemplate> void into$setFieldValue(
 			@NotNull Field field,
-			@NotNull ParsedArguments parsedArgs,
+			@NotNull ParseResult parseResult,
 			@NotNull T instance
 		) {
 			final var annotation = field.getAnnotation(Argument.Define.class);
@@ -434,7 +434,7 @@ public class ArgumentParser extends Command {
 			// get the name of the argument from the annotation or field name
 			final String argName = annotation.names().length == 0 ? field.getName() : annotation.names()[0];
 
-			final @NotNull Optional<?> parsedValue = parsedArgs.get(argName);
+			final @NotNull Optional<?> parsedValue = parseResult.get(argName);
 
 			try {
 				// if the field has a value already set and the parsed value is empty, skip it (keep the old value)
@@ -471,13 +471,13 @@ public class ArgumentParser extends Command {
 		 * {@link #into(Class)} helper method. Handles the {@link CommandTemplate.CommandAccessor} annotation.
 		 * @param parsedTemplateInstance The instance of the current Command Template class.
 		 * @param commandAccesorField The field annotated with {@link CommandTemplate.CommandAccessor}.
-		 * @param parsedArgs The parsed arguments to set the fields of the Command Template class.
+		 * @param parseResult The parsed arguments to set the fields of the Command Template class.
 		 */
 		@SuppressWarnings("unchecked")
 		private static <T extends CommandTemplate> void into$handleCommandAccessor(
 			@NotNull T parsedTemplateInstance,
 			@NotNull Field commandAccesorField,
-			@NotNull ParsedArguments parsedArgs
+			@NotNull ParseResult parseResult
 		)
 		{
 			final Class<?> fieldType = commandAccesorField.getType();
@@ -494,7 +494,7 @@ public class ArgumentParser extends Command {
 				commandAccesorField.set(parsedTemplateInstance,
 					AfterParseOptions.into(
 						(Class<T>)fieldType,
-						parsedArgs.getSubParsedArgs(cmdName)
+						parseResult.getSubResult(cmdName)
 					)
 				);
 			} catch (IllegalAccessException e) {

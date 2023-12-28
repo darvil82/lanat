@@ -14,29 +14,29 @@ import java.util.Optional;
 /**
  * Container for all the parsed arguments and their respective values.
  */
-public class ParsedArguments {
+public class ParseResult {
 	/** The parsed arguments. Pairs of each argument and it's respective value */
-	private final @NotNull HashMap<@NotNull Argument<?, ?>, @Nullable Object> parsedArgs;
+	private final @NotNull HashMap<@NotNull Argument<?, ?>, @Nullable Object> parsedArgumentValues;
 
-	/** The {@link Command} that this {@link ParsedArguments} object belongs to */
+	/** The {@link Command} that this {@link ParseResult} object belongs to */
 	private final @NotNull Command cmd;
 
 	/** Whether the command was used or not */
 	private final boolean wasUsed;
 
-	/** The other inner {@link ParsedArguments}s for the sub-commands */
-	private final @NotNull List<@NotNull ParsedArguments> subParsedArguments;
+	/** The other inner {@link ParseResult}s for the sub-commands */
+	private final @NotNull List<@NotNull ParseResult> subResults;
 
 
-	ParsedArguments(
+	ParseResult(
 		@NotNull Command cmd,
-		@NotNull HashMap<@NotNull Argument<?, ?>, @Nullable Object> parsedArgs,
-		@NotNull List<@NotNull ParsedArguments> subParsedArguments
+		@NotNull HashMap<@NotNull Argument<?, ?>, @Nullable Object> parsedArgumentValues,
+		@NotNull List<@NotNull ParseResult> subResults
 	) {
-		this.parsedArgs = parsedArgs;
+		this.parsedArgumentValues = parsedArgumentValues;
 		this.cmd = cmd;
 		this.wasUsed = cmd.getTokenizer().hasFinished();
-		this.subParsedArguments = subParsedArguments;
+		this.subResults = subResults;
 	}
 
 
@@ -49,9 +49,9 @@ public class ParsedArguments {
 	}
 
 	/**
-	 * Returns the {@link Command} that this {@link ParsedArguments} object belongs to. This is the Command
+	 * Returns the {@link Command} that this {@link ParseResult} object belongs to. This is the Command
 	 * that was used to parse the arguments.
-	 * @return The {@link Command} that this {@link ParsedArguments} object belongs to
+	 * @return The {@link Command} that this {@link ParseResult} object belongs to
 	 */
 	public @NotNull Command getCommand() {
 		return this.cmd;
@@ -66,11 +66,11 @@ public class ParsedArguments {
 	 */
 	@SuppressWarnings("unchecked") // we'll just have to trust the user
 	public <T> @NotNull Optional<T> get(@NotNull Argument<?, T> arg) {
-		if (!this.parsedArgs.containsKey(arg)) {
+		if (!this.parsedArgumentValues.containsKey(arg)) {
 			throw new ArgumentNotFoundException(arg);
 		}
 
-		return Optional.ofNullable((T)this.parsedArgs.get(arg));
+		return Optional.ofNullable((T)this.parsedArgumentValues.get(arg));
 	}
 
 	/**
@@ -81,7 +81,7 @@ public class ParsedArguments {
 	 *
 	 * <strong>Example:</strong>
 	 * <pre>
-	 * {@code var argValue = parsedArguments.<String>get("rootcommand.subCommand.argument")}
+	 * {@code var argValue = result.<String>get("rootcommand.subCommand.argument")}
 	 * </pre>
 	 * <p>
 	 * More info at {@link #get(String...)}
@@ -106,7 +106,7 @@ public class ParsedArguments {
 	 *
 	 * <strong>Example:</strong>
 	 * <pre>
-	 * {@code var argValue = parsedArguments.<String>get("rootcommand", "subCommand", "argument")}
+	 * {@code var argValue = result.<String>get("rootcommand", "subCommand", "argument")}
 	 * </pre>
 	 * Returns the parsed value of the argument in the next command hierarchy:
 	 * <ul>
@@ -134,16 +134,16 @@ public class ParsedArguments {
 			return (Optional<T>)this.get(this.getArgument(argRoute[0]));
 		}
 
-		return this.getSubParsedArgs(argRoute[0])
+		return this.getSubResult(argRoute[0])
 			.get(Arrays.copyOfRange(argRoute, 1, argRoute.length));
 	}
 
 	/**
-	 * Returns the argument in {@link #parsedArgs} with the given name.
+	 * Returns the argument in {@link #parsedArgumentValues} with the given name.
 	 * @throws ArgumentNotFoundException If no argument with the given name is found
 	 */
 	private @NotNull Argument<?, ?> getArgument(@NotNull String name) {
-		for (var arg : this.parsedArgs.keySet()) {
+		for (var arg : this.parsedArgumentValues.keySet()) {
 			if (arg.hasName(name)) {
 				return arg;
 			}
@@ -151,16 +151,17 @@ public class ParsedArguments {
 		throw new ArgumentNotFoundException(name);
 	}
 
+	// TODO: FIX DESCRIPTION
 	/**
-	 * Returns the sub {@link ParsedArguments} with the given name. If none is found with the given name, returns
+	 * Returns the sub {@link ParseResult} with the given name. If none is found with the given name, returns
 	 * {@code null}.
 	 *
 	 * @param name The name of the sub command
 	 * @throws CommandNotFoundException If no sub command with the given name is found
-	 * @return The sub {@link ParsedArguments} with the given name
+	 * @return The sub {@link ParseResult} with the given name
 	 */
-	public @NotNull ParsedArguments getSubParsedArgs(@NotNull String name) {
-		for (var sub : this.subParsedArguments)
+	public @NotNull ParseResult getSubResult(@NotNull String name) {
+		for (var sub : this.subResults)
 			if (sub.cmd.hasName(name)) return sub;
 
 		throw new CommandNotFoundException(name);

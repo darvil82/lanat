@@ -32,7 +32,7 @@ import java.util.stream.Stream;
  * <p>
  * An Argument specifies a value that the user can introduce to the command. This value will be parsed by the specified
  * {@link ArgumentType} each time the Argument is used. Once finished parsing, the value may be retrieved by using
- * {@link ParsedArguments#get(String)} on the {@link ParsedArguments} object returned by
+ * {@link ParseResult#get(String)} on the {@link ParseResult} object returned by
  * {@link ArgumentParser#parse(CLInput)}.
  *
  * <p>
@@ -750,5 +750,3 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		this.onErrorCallback.accept(this);
 	}
 }
-
-

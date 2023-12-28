@@ -29,7 +29,7 @@ public class ArgumentParser extends Command {
 	private @Nullable String license;
 	private @Nullable String version;
 
-
+	// TODO: match constructor javadocs here with the ones in Command
 	/**
 	 * Creates a new command with the given name and description.
 	 * @param programName The name of the command. This is the name the user will use to indicate that they want to use this
@@ -59,6 +59,7 @@ public class ArgumentParser extends Command {
 		super(templateClass);
 	}
 
+	// TODO: add info about the code comparison between using from() and not using it
 	/**
 	 * Constructs a new {@link ArgumentParser} based on the given {@link CommandTemplate}, taking Sub-Commands into
 	 * account.

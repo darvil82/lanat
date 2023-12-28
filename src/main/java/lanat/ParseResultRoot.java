@@ -3,6 +3,7 @@ package lanat;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -32,5 +33,31 @@ public class ParseResultRoot extends ParseResult {
 	 */
 	public @NotNull Optional<String> getForwardValue() {
 		return Optional.ofNullable(this.forwardValue);
+	}
+
+	/**
+	 * Returns a list of all the {@link ParseResult} objects that belong to a command that was used by the user.
+	 * The list is ordered from the root command to the last used command.
+	 * <p>
+	 * The list contains this {@link ParseResultRoot} object as well.
+	 * @return A list of all the {@link ParseResult} objects that belong to a command that was used by the user
+	 */
+	public @NotNull List<@NotNull ParseResult> getUsedResults() {
+		if (!this.wasUsed())
+			return List.of();
+
+		ParseResult current = this;
+		var list = new ArrayList<ParseResult>(1);
+
+		while (current != null) {
+			list.add(current);
+
+			current = current.subResults.stream()
+				.filter(ParseResult::wasUsed)
+				.findFirst()
+				.orElse(null);
+		}
+
+		return list;
 	}
 }

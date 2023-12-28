@@ -145,6 +145,7 @@ public abstract class CommandTemplate {
 		return this.getParseResult().wasUsed();
 	}
 
+	// TODO: add note to not use this method manually
 	/**
 	 * Called when the Command of this Template is used in the command line.
 	 * This method is called after the parsed values are set.

@@ -1,10 +1,6 @@
 package lanat.test.exampleTests;
 
 import lanat.*;
-import lanat.argumentTypes.CounterArgumentType;
-import lanat.argumentTypes.IntegerArgumentType;
-import lanat.argumentTypes.MultipleStringsArgumentType;
-import lanat.argumentTypes.NumberRangeArgumentType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Test;
@@ -18,11 +14,26 @@ public final class ExampleTest {
 //		TextFormatter.enableSequences = false;
 //		ErrorFormatter.errorFormatterClass = SimpleErrorFormatter.class;
 
-		var result = ArgumentParser.parseFromInto(
-			CommandTemplateExample.class,
-			CLInput.from("--number 12 sub-command -ccc"),
-			opts -> opts.printErrors()
-		);
+//		ArgumentParser.parseFromInto(
+//			CommandTemplateExample.class,
+//			CLInput.from("--number 12 sub-command -ccc"),
+//			opts -> opts.printErrors()
+//		);
+
+		ArgumentParser.from(CommandTemplateExample.class)
+			.parse(CLInput.from("--number 12 sub-command -ccc"))
+			.getResult()
+			.getUsedResults()
+			.forEach(result -> {
+				var cmdName = result.getCommand().getName();
+				System.out.println(cmdName + " was used!");
+
+				switch (cmdName) {
+					case "my-program" -> System.out.println("number value: " + result.get("number"));
+					case "sub-command" -> System.out.println("c value: " + result.get("c"));
+					case "another-sub-command" -> System.out.println("c value: " + result.get("c"));
+				}
+			});
 	}
 
 	public static class Example1Type extends ArgumentType<String[]> {

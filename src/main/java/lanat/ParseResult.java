@@ -25,7 +25,7 @@ public class ParseResult {
 	private final boolean wasUsed;
 
 	/** The other inner {@link ParseResult}s for the sub-commands */
-	private final @NotNull List<@NotNull ParseResult> subResults;
+	protected final @NotNull List<@NotNull ParseResult> subResults;
 
 
 	ParseResult(
@@ -73,6 +73,7 @@ public class ParseResult {
 		return Optional.ofNullable((T)this.parsedArgumentValues.get(arg));
 	}
 
+	// TODO: replace all <code>...</code> instances with {@code ...}
 	/**
 	 * Returns the parsed value of the argument with the given name. In order to access arguments in sub-commands, use
 	 * the <code>.</code> separator to specify the route to the argument.
@@ -95,6 +96,9 @@ public class ParseResult {
 	 * @throws ArgumentNotFoundException If the argument specified in the route does not exist
 	 */
 	public <T> @NotNull Optional<T> get(@NotNull String argRoute) {
+		if (!argRoute.contains("."))
+			return this.get(new String[] { argRoute });
+
 		return this.get(UtlString.split(argRoute, '.'));
 	}
 
@@ -120,6 +124,7 @@ public class ParseResult {
 	 * </ul>
 	 *
 	 * @throws CommandNotFoundException If the command specified in the route does not exist
+	 * @throws ArgumentNotFoundException If the argument specified in the route does not exist
 	 * @return An {@link Optional} containing the parsed value of the argument with the given name, or
 	 *  {@link Optional#empty()} if the argument was not found.
 	 * @param <T> The type of the value of the argument.

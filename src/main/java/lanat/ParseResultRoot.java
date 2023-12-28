@@ -20,8 +20,7 @@ public class ParseResultRoot extends ParseResult {
 		@NotNull HashMap<@NotNull Argument<?, ?>, @Nullable Object> parsedArgumentValues,
 		@NotNull List<@NotNull ParseResult> subArgs,
 		@Nullable String forwardValue
-	)
-	{
+	) {
 		super(cmd, parsedArgumentValues, subArgs);
 		this.forwardValue = forwardValue;
 	}

@@ -69,7 +69,7 @@ public class RouteParser {
 
 	private RouteParser(@NotNull NamedWithDescription user, @Nullable String route) {
 		// if route is empty, the command the user belongs to is the target
-		if (UtlString.isNullOrEmpty(route)) { // TODO: replace with UtlString.isNullOrBlank once utils is bumped
+		if (UtlString.isNullOrBlank(route)) {
 			this.currentTarget = RouteParser.getCommandOf(user);
 			this.route = new String[0];
 			return;

@@ -13,7 +13,7 @@ dependencies {
 		implementation(s + ":javadoc")
 	}
 
-	implWithJavadoc("com.darvil:utils:0.0.2")
+	implWithJavadoc("com.darvil:utils:0.1.0")
 	implWithJavadoc("com.darvil:terminal-text-formatter:1.0.0")
 
 	implementation("org.jetbrains:annotations:24.0.1")

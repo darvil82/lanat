@@ -268,7 +268,7 @@ public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 	}
 
 	/**
-	 * Returns {@code true} if the given string can be an argument name list, eg: <code>"-fbq"</code>.
+	 * Returns {@code true} if the given string can be an argument name list, eg: {@code "-fbq"}.
 	 * <p>
 	 * This returns {@code true} if at least the first character is a valid argument prefix and at least one of the
 	 * next characters is a valid argument name.
@@ -300,7 +300,7 @@ public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 	}
 
 	/**
-	 * Returns {@code true} if the given string can be an argument name, eg: <code>"--help"</code>.
+	 * Returns {@code true} if the given string can be an argument name, eg: {@code "--help"}.
 	 * <p>
 	 * This returns {@code true} if the given string is a valid argument name with a double prefix.
 	 * </p>

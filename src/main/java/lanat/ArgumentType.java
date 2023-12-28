@@ -287,7 +287,7 @@ public abstract class ArgumentType<T>
 
 	/**
 	 * Iterates over the values that this argument received when being parsed. This also sets
-	 * <code>this.currentArgValueIndex</code> to the current index of the value.
+	 * {@code this.currentArgValueIndex} to the current index of the value.
 	 *
 	 * @param args The values that this argument received when being parsed.
 	 * @param consumer The consumer that will be called for each value.

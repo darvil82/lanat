@@ -73,10 +73,9 @@ public class ParseResult {
 		return Optional.ofNullable((T)this.parsedArgumentValues.get(arg));
 	}
 
-	// TODO: replace all <code>...</code> instances with {@code ...}
 	/**
 	 * Returns the parsed value of the argument with the given name. In order to access arguments in sub-commands, use
-	 * the <code>.</code> separator to specify the route to the argument.
+	 * the {@code .} separator to specify the route to the argument.
 	 *
 	 * <br><br>
 	 *
@@ -87,7 +86,7 @@ public class ParseResult {
 	 * <p>
 	 * More info at {@link #get(String...)}
 	 *
-	 * @param argRoute The route to the argument, separated by the <code>.</code> character.
+	 * @param argRoute The route to the argument, separated by the {@code .} character.
 	 * @param <T> The type of the value of the argument. This is used to avoid casting. A type that does not match the
 	 * 	argument's type will result in a {@link ClassCastException}.
 	 * @return An {@link Optional} containing the parsed value of the argument with the given name, or

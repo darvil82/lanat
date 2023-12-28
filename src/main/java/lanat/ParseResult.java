@@ -156,10 +156,9 @@ public class ParseResult {
 		throw new ArgumentNotFoundException(name);
 	}
 
-	// TODO: FIX DESCRIPTION
 	/**
-	 * Returns the sub {@link ParseResult} with the given name. If none is found with the given name, returns
-	 * {@code null}.
+	 * Returns the sub {@link ParseResult} with the given name. If none is found with the given name,
+	 * {@link CommandNotFoundException} is thrown.
 	 *
 	 * @param name The name of the sub command
 	 * @throws CommandNotFoundException If no sub command with the given name is found

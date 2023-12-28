@@ -92,6 +92,7 @@ public class Command
 
 	/**
 	 * Creates a new command based on the given {@link CommandTemplate}. This does not take Sub-Commands into account.
+	 * If you want to add Sub-Commands, use {@link ArgumentParser#from(Class)} instead.
 	 * @param templateClass The class of the template to use.
 	 * @see CommandTemplate
 	 */

@@ -23,13 +23,14 @@ import java.util.stream.Stream;
  * <h2>Argument Parser</h2>
  * <p>
  * Provides the ability to parse a command line input and later gather the values of the parsed arguments.
+ * @see Command
  */
 public class ArgumentParser extends Command {
+	/** This is used to be able to tell if we should reset the state of all the commands before parsing */
 	private boolean isParsed = false;
 	private @Nullable String license;
 	private @Nullable String version;
 
-	// TODO: match constructor javadocs here with the ones in Command
 	/**
 	 * Creates a new command with the given name and description.
 	 * @param programName The name of the command. This is the name the user will use to indicate that they want to use this
@@ -52,17 +53,27 @@ public class ArgumentParser extends Command {
 
 	/**
 	 * Creates a new command based on the given {@link CommandTemplate}. This does not take Sub-Commands into account.
-	 * If you want to add Sub-Commands, use {@link #from(Class)} instead.
+	 * If you want to add Sub-Commands, use {@link ArgumentParser#from(Class)} instead.
 	 * @param templateClass The class of the template to use.
+	 * @see CommandTemplate
 	 */
 	public ArgumentParser(@NotNull Class<? extends CommandTemplate> templateClass) {
 		super(templateClass);
 	}
 
-	// TODO: add info about the code comparison between using from() and not using it
 	/**
 	 * Constructs a new {@link ArgumentParser} based on the given {@link CommandTemplate}, taking Sub-Commands into
 	 * account.
+	 * <p>
+	 * This is basically a shortcut for the following code:
+	 * <pre>{@code
+	 * new ArgumentParser(clazz) {{
+	 *     this.addCommand(new Command(subCmdClazz)); // do this for all possible sub-commands
+	 * }};
+	 * }</pre>
+	 * This method basically makes it easier to add Sub-Commands to the given {@link CommandTemplate}. It looks for
+	 * {@link lanat.CommandTemplate.CommandAccessor} annotations in the given class and adds the corresponding
+	 * sub-commands to the {@link Command} object. This is done recursively.
 	 * @param templateClass The class of the {@link CommandTemplate} to use.
 	 * @return A new {@link ArgumentParser} based on the given {@link CommandTemplate}.
 	 * @see CommandTemplate
@@ -82,14 +93,12 @@ public class ArgumentParser extends Command {
 	 * <p>
 	 * This is basically a shortcut for the following code:
 	 * <pre>{@code
-	 * new ArgumentParser(clazz).parse(input).into(clazz);
+	 * ArgumentParser.from(clazz).parse(input).into(clazz);
 	 * }</pre>
 	 * <h4>Example:</h4>
 	 * This code:
 	 * <pre>{@code
-	 * MyTemplate parsed = new ArgumentParser(MyTemplate.class) {{
-	 *     addCommand(new Command(MyTemplate.SubTemplate.class));
-	 * }}
+	 * ArgumentParser.from(MyTemplate.class)
 	 *     .parse(input)
 	 *     .printErrors()
 	 *     .exitIfErrors()
@@ -101,7 +110,10 @@ public class ArgumentParser extends Command {
 	 * MyTemplate parsed = ArgumentParser.parseFromInto(MyTemplate.class, input);
 	 * }
 	 * </pre>
-	 *
+	 * The example above uses the {@link #parseFromInto(Class, CLInput)} overload, which sets the default options for
+	 * the {@link AfterParseOptions} object.
+	 * <p>
+	 * This method uses {@link #from(Class)}. See that method for more info.
 	 * @param templateClass The class to use as a template.
 	 * @param input The input to parse.
 	 * @param options A consumer that can be used for configuring the parsing process.
@@ -109,6 +121,8 @@ public class ArgumentParser extends Command {
 	 * @return The parsed template.
 	 * @see #parseFromInto(Class, CLInput)
 	 * @see CommandTemplate
+	 * @see #from(Class)
+	 * @see AfterParseOptions
 	 */
 	public static <T extends CommandTemplate> @NotNull T parseFromInto(
 		@NotNull Class<T> templateClass,
@@ -125,12 +139,14 @@ public class ArgumentParser extends Command {
 	/**
 	 * Constructs a new {@link ArgumentParser} based on the given {@link CommandTemplate}, parses the given input, and
 	 * populates the template with the parsed values.
-	 *
+	 * <p>
+	 * See {@link #parseFromInto(Class, CLInput, Consumer)} for more info.
 	 * @param templateClass The class to use as a template.
 	 * @param input The input to parse.
 	 * @param <T> The type of the template.
 	 * @return The parsed template.
 	 * @see CommandTemplate
+	 * @see #parseFromInto(Class, CLInput, Consumer)
 	 */
 	public static <T extends CommandTemplate>
 	@NotNull T parseFromInto(@NotNull Class<T> templateClass, @NotNull CLInput input) {

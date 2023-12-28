@@ -8,8 +8,13 @@ version = "0.2.1"
 description = "Command line argument parser"
 
 dependencies {
-	implementation("com.darvil:utils:0.0.2")
-	implementation("com.darvil:terminal-text-formatter:1.0.0")
+	val implWithJavadoc = { s: String ->
+		implementation(s)
+		implementation(s + ":javadoc")
+	}
+
+	implWithJavadoc("com.darvil:utils:0.0.2")
+	implWithJavadoc("com.darvil:terminal-text-formatter:1.0.0")
 
 	implementation("org.jetbrains:annotations:24.0.1")
 	testImplementation(platform("org.junit:junit-bom:5.9.1"))

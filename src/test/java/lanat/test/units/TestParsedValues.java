@@ -1,6 +1,6 @@
 package lanat.test.units;
 
-import lanat.ParsedArgumentsRoot;
+import lanat.ParseResultRoot;
 import lanat.exceptions.ArgumentNotFoundException;
 import lanat.test.UnitTests;
 import org.junit.jupiter.api.DisplayName;
@@ -11,7 +11,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TestParsedValues extends UnitTests {
-	private ParsedArgumentsRoot parseArgs(String args) {
+	private ParseResultRoot parseArgs(String args) {
 		return this.parser.parseGetValues(args);
 	}
 

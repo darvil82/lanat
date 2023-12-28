@@ -52,7 +52,7 @@ public abstract class TupleArgumentType<T> extends ArgumentType<T[]> {
 			return null;
 
 		return argTypeRepr
-			.concat(new TextFormatter(this.argCount.getRegexRange()).withForegroundColor(Color.BRIGHT_YELLOW));
+			.concat(new TextFormatter(this.argCount.getRepresentation()).withForegroundColor(Color.BRIGHT_YELLOW));
 	}
 
 	@Override

@@ -39,7 +39,7 @@ import java.util.stream.Stream;
  */
 public class Command
 	extends ErrorsContainerImpl<Error.CustomError>
-	implements ErrorCallbacks<ParsedArguments, Command>,
+	implements ErrorCallbacks<ParseResult, Command>,
 	ArgumentAdder,
 	ArgumentGroupAdder,
 	CommandAdder,
@@ -59,7 +59,7 @@ public class Command
 
 	// error handling callbacks
 	private @Nullable Consumer<Command> onErrorCallback;
-	private @Nullable Consumer<ParsedArguments> onCorrectCallback;
+	private @Nullable Consumer<ParseResult> onCorrectCallback;
 
 	private final @NotNull ModifyRecord<HelpFormatter> helpFormatter = ModifyRecord.of(new HelpFormatter());
 	private final @NotNull ModifyRecord<@NotNull CallbacksInvocationOption> callbackInvocationOption =
@@ -92,6 +92,7 @@ public class Command
 
 	/**
 	 * Creates a new command based on the given {@link CommandTemplate}. This does not take Sub-Commands into account.
+	 * If you want to add Sub-Commands, use {@link ArgumentParser#from(Class)} instead.
 	 * @param templateClass The class of the template to use.
 	 * @see CommandTemplate
 	 */
@@ -184,10 +185,10 @@ public class Command
 	 * fail, the program will return the result of the OR bit operation that will be applied to all other command
 	 * results. For example:
 	 * <ul>
-	 *     <li>Command 'foo' has a return value of 2. <code>(0b010)</code></li>
-	 *     <li>Command 'bar' has a return value of 5. <code>(0b101)</code></li>
+	 *     <li>Command 'foo' has a return value of 2. {@code (0b010)}</li>
+	 *     <li>Command 'bar' has a return value of 5. {@code (0b101)}</li>
 	 * </ul>
-	 * Both commands failed, so in this case the resultant return value would be 7 <code>(0b111)</code>.
+	 * Both commands failed, so in this case the resultant return value would be 7 {@code (0b111)}.
 	 * @param errorCode The error code to return when this command fails.
 	 */
 	public void setErrorCode(int errorCode) {
@@ -310,14 +311,14 @@ public class Command
 	}
 
 	/**
-	 * Returns a new {@link ParsedArguments} object that contains all the parsed arguments of this command and all its
+	 * Returns a new {@link ParseResult} object that contains all the parsed arguments of this command and all its
 	 * Sub-Commands.
 	 */
-	@NotNull ParsedArguments getParsedArguments() {
-		return new ParsedArguments(
+	@NotNull ParseResult getParseResult() {
+		return new ParseResult(
 			this,
-			this.parser.getParsedArgumentsHashMap(),
-			this.subCommands.stream().map(Command::getParsedArguments).toList()
+			this.parser.getParsedArgsMap(),
+			this.subCommands.stream().map(Command::getParseResult).toList()
 		);
 	}
 
@@ -480,19 +481,19 @@ public class Command
 	 * </p>
 	 */
 	@Override
-	public void setOnOkCallback(@Nullable Consumer<@NotNull ParsedArguments> callback) {
+	public void setOnOkCallback(@Nullable Consumer<@NotNull ParseResult> callback) {
 		this.onCorrectCallback = callback;
 	}
 
 	@Override
 	public void invokeCallbacks() {
 		if (this.shouldExecuteCorrectCallback()) {
-			if (this.onCorrectCallback != null) this.onCorrectCallback.accept(this.getParsedArguments());
+			if (this.onCorrectCallback != null) this.onCorrectCallback.accept(this.getParseResult());
 		} else {
 			if (this.onErrorCallback != null) this.onErrorCallback.accept(this);
 		}
 
-		this.parser.getParsedArgumentsHashMap()
+		this.parser.getParsedArgsMap()
 			.entrySet()
 			.stream()
 			.sorted((x, y) -> Argument.compareByPriority(x.getKey(), y.getKey())) // sort by priority when invoking callbacks!

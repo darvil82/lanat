@@ -32,7 +32,7 @@ import java.util.stream.Stream;
  * <p>
  * An Argument specifies a value that the user can introduce to the command. This value will be parsed by the specified
  * {@link ArgumentType} each time the Argument is used. Once finished parsing, the value may be retrieved by using
- * {@link ParsedArguments#get(String)} on the {@link ParsedArguments} object returned by
+ * {@link ParseResult#get(String)} on the {@link ParseResult} object returned by
  * {@link ArgumentParser#parse(CLInput)}.
  *
  * <p>
@@ -276,8 +276,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * names.
 	 * <br><br>
 	 * <p>
-	 * Single character names can be used in argument name lists (e.g. <code>-abc</code>), each alphabetic character
-	 * being an argument name, that is, <code>-a -b -c</code>.
+	 * Single character names can be used in argument name lists (e.g. {@code -abc}), each alphabetic character
+	 * being an argument name, that is, {@code -a -b -c}.
 	 * </p>
 	 *
 	 * @param names the names that should be added to this argument.
@@ -463,8 +463,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	/**
 	 * Checks if this argument matches the given name, including the prefix.
 	 * <p>
-	 * For example, if the prefix is <code>'-'</code> and the argument has the name <code>"help"</code>, this method
-	 * will return {@code true} if the name is <code>"--help"</code>.
+	 * For example, if the prefix is {@code '-'} and the argument has the name {@code "help"}, this method
+	 * will return {@code true} if the name is {@code "--help"}.
 	 * </p>
 	 *
 	 * @param name the name to check
@@ -651,7 +651,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		 * <p>
 		 * <strong>NOTE:<br></strong>
 		 * The constant fields of this class should be used instead of this method. Other characters could break
-		 * compatibility with shells using special characters as prefixes, such as the <code>|</code> or <code>;</code>
+		 * compatibility with shells using special characters as prefixes, such as the {@code |} or {@code ;}
 		 * characters.
 		 * </p>
 		 *
@@ -750,5 +750,3 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		this.onErrorCallback.accept(this);
 	}
 }
-
-

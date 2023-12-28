@@ -3,7 +3,7 @@ package lanat.test;
 import lanat.ArgumentParser;
 import lanat.CLInput;
 import lanat.CommandTemplate;
-import lanat.ParsedArgumentsRoot;
+import lanat.ParseResultRoot;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -27,8 +27,8 @@ public class TestingParser extends ArgumentParser {
 		return this.parse(CLInput.from(args)).getErrors();
 	}
 
-	public @NotNull ParsedArgumentsRoot parseGetValues(@NotNull String args) {
-		var res = this.parse(CLInput.from(args)).printErrors().getParsedArguments();
+	public @NotNull ParseResultRoot parseGetValues(@NotNull String args) {
+		var res = this.parse(CLInput.from(args)).printErrors().getResult();
 		assertNotNull(res, "The result of the parsing was null (Arguments have failed)");
 		return res;
 	}

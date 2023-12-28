@@ -13,28 +13,28 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 
 /**
- * Parser for simple route syntax used in description tags (e.g. <code>args.myArg1.type</code>).
+ * Parser for simple route syntax used in description tags (e.g. {@code args.myArg1.type}).
  * <p>
  * The route syntax is very simple. It is a dot-separated list of names indicating the path to the object to be
  * returned. By default, the route initial target is the command the user belongs to. If the route starts with
- * <code>!</code>, the user itself becomes the initial target. If the route is empty or null, the command the user
+ * {@code !}, the user itself becomes the initial target. If the route is empty or null, the command the user
  * belongs to is returned.
  * </p>
  * <p>
  * These are the objects that can be accessed using the route syntax:
  * <ul>
- * <li><code>args</code>: the arguments of the command.
+ * <li>{@code args}: the arguments of the command.
  * <ul>
- * <li><code>type</code>: the type of the argument.
+ * <li>{@code type}: the type of the argument.
  * <p>
  * Note that this only works if the current target is an {@link Argument}.
  * </p>
  * </li>
  * </ul>
  * </li>
- * <li><code>groups</code>: the groups of the command.</li>
+ * <li>{@code groups}: the groups of the command.</li>
  * <li>
- * <code>cmds</code>: the subcommands of the command.
+ * {@code cmds}: the subcommands of the command.
  * <p>
  * Note that after selecting a command, all the selectors above can be used again to select inner objects of the command.
  * </p>
@@ -44,20 +44,20 @@ import java.util.function.BiFunction;
  * <h2>Examples</h2>
  * <ol>
  * <li>
- * Select the type of the argument <code>myArg1</code> of the current command:
- * <code>"args.myArg1.type"</code>
+ * Select the type of the argument {@code myArg1} of the current command:
+ * {@code "args.myArg1.type"}
  * </li>
  * <li>
- * Select the Sub-Command <code>myCmd</code> of the current command:
- * <code>"cmds.myCmd"</code>
+ * Select the Sub-Command {@code myCmd} of the current command:
+ * {@code "cmds.myCmd"}
  * </li>
  * <li>
- * Select the type of the argument <code>myArg1</code> of the Sub-Command <code>myCmd</code> of the current command:
- * <code>"cmds.myCmd.args.myArg1.type"</code>
+ * Select the type of the argument {@code myArg1} of the Sub-Command {@code myCmd} of the current command:
+ * {@code "cmds.myCmd.args.myArg1.type"}
  * </li>
  * <li>
  * Select the {@link ArgumentType} of the {@link Argument} that is requesting to parse this description:
- * <code>"!.type"</code>
+ * {@code "!.type"}
  * </li>
  * </ol>
  */
@@ -69,7 +69,7 @@ public class RouteParser {
 
 	private RouteParser(@NotNull NamedWithDescription user, @Nullable String route) {
 		// if route is empty, the command the user belongs to is the target
-		if (UtlString.isNullOrEmpty(route)) {
+		if (UtlString.isNullOrBlank(route)) {
 			this.currentTarget = RouteParser.getCommandOf(user);
 			this.route = new String[0];
 			return;
@@ -94,7 +94,7 @@ public class RouteParser {
 	 * to is returned.
 	 * <p>
 	 * The reason why the user is needed is because its likely that it will be needed to gather the Command it belongs
-	 * to, and also if the route starts with <code>!</code>, the user itself becomes the initial target.
+	 * to, and also if the route starts with {@code !}, the user itself becomes the initial target.
 	 * </p>
 	 *
 	 * @param user the user that is requesting to parse the route

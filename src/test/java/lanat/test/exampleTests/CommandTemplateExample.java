@@ -1,6 +1,9 @@
 package lanat.test.exampleTests;
 
-import lanat.*;
+import lanat.Argument;
+import lanat.ArgumentGroup;
+import lanat.Command;
+import lanat.CommandTemplate;
 import lanat.argumentTypes.*;
 import org.jetbrains.annotations.NotNull;
 
@@ -21,7 +24,7 @@ public class CommandTemplateExample extends CommandTemplate.Default {
 	@Argument.Define(names = "arg1", argType = StringArgumentType.class)
 	public String arg1;
 
-	@Argument.Define(description = "<desc=!.type>")
+	@Argument.Define(description = "<desc=!.type>. Must be executable.")
 	public File file;
 
 	@Argument.Define(names = "arg1a", argType = StringArgumentType.class)

@@ -61,10 +61,19 @@ import java.util.List;
  *   @Argument.Define(names = {"name", "n"}, argType = StringArgumentType.class)
  *   public String name;
  *
- *   @Argument.Define(argType = IntegerArgumentType.class, required = true)
+ *   @Argument.Define // name: "numbers". argType: MultipleNumbersArgumentType<Integer>
+ *   public Integer[] numbers;
+ *
+ *   @Argument.Define(required = true) // name: "file". argType: NumberRangeArgumentType<Integer>
  *   public Integer number;
- * }
- * }</pre>
+ *
+ *   @InitDef
+ *   public static void beforeInit(CommandBuildHelper helper) {
+ *      // set the argument type to NumberRangeArgumentType
+ *      helper.<NumberRangeArgumentType<Integer>, Integer>getArgument("number")
+ *         .withArgType(new NumberRangeArgumentType<>(0, 10);
+ *   }
+ * }}</pre>
  *
  * <h4>Defining Sub-Commands</h4>
  * <p>
@@ -214,19 +223,19 @@ public abstract class CommandTemplate {
 	 *   public Integer numberRange;
 	 *
 	 *   @InitDef
-	 *   public static void beforeInit(CommandBuildHelper cmdBuildHelper) {
+	 *   public static void beforeInit(CommandBuildHelper helper) {
 	 *      // set the argument type to NumberRangeArgumentType
-	 *      cmdBuildHelper.<NumberRangeArgumentType<Integer>, Integer>getArgument("numberRange")
+	 *      helper.<NumberRangeArgumentType<Integer>, Integer>getArgument("numberRange")
 	 * 			.withArgType(new NumberRangeArgumentType<>(0, 10);
 	 *   }
 	 * }
 	 * }</pre>
 
-	 * @param cmdBuildHelper A helper object that contains the command being initialized and the list of argument builders that may
+	 * @param helper A helper object that contains the command being initialized and the list of argument builders that may
 	 * 		  be altered.
 	 */
 	@InitDef
-	public static void beforeInit(@NotNull CommandBuildHelper cmdBuildHelper) {}
+	public static void beforeInit(@NotNull CommandBuildHelper helper) {}
 
 	/**
 	 * This method is called after the Command is initialized. This is after the Arguments are instantiated and added

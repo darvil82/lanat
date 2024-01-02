@@ -82,3 +82,27 @@ The package is currently available on Repsy and GitHub Packages.
 > [!NOTE]
 > The `+` symbol is a wildcard that will automatically use the latest version of the package.
 > You can also specify a specific version (e.g. `0.1.0`).
+
+
+
+## FAQ
+
+* ### Your logo has plenty of imperfections, please fix it.
+
+	The logo couldn't be simpler. I made it in five minutes in Figma. I am a terrible designer.
+	Also nothing is perfect. Heck, we are talking about software here, where bugs are
+	the norm, so, I think it's fine.
+
+	Also that isn't a question.
+
+* ### Why the name "Lanat"?
+
+	I had a tough time finding a name for this project. I wanted something short, easy to remember,
+	and that sounded good. It had to be related to the project in some way.
+	Sadly most names I came up with were already taken... Anyway, so Lanat is actually an acronym for
+	**L**iterally **A**ll **N**ames **A**re **T**aken.
+	Yeah, I'm good at naming things.
+
+	* #### How is "Lanat" related to the project?
+
+		It's not.

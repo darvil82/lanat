@@ -4,11 +4,11 @@ plugins {
 }
 
 group = "com.darvil"
-version = "0.2.1"
+version = "0.3.0"
 description = "Command line argument parser"
 
 dependencies {
-	implementation("com.darvil:utils:0.0.2")
+	implementation("com.darvil:utils:0.1.0")
 	implementation("com.darvil:terminal-text-formatter:1.0.0")
 
 	implementation("org.jetbrains:annotations:24.0.1")

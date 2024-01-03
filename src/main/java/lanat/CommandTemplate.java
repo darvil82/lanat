@@ -61,10 +61,19 @@ import java.util.List;
  *   @Argument.Define(names = {"name", "n"}, argType = StringArgumentType.class)
  *   public String name;
  *
- *   @Argument.Define(argType = IntegerArgumentType.class, required = true)
+ *   @Argument.Define // name: "numbers". argType: MultipleNumbersArgumentType<Integer>
+ *   public Integer[] numbers;
+ *
+ *   @Argument.Define(required = true) // name: "file". argType: NumberRangeArgumentType<Integer>
  *   public Integer number;
- * }
- * }</pre>
+ *
+ *   @InitDef
+ *   public static void beforeInit(CommandBuildHelper helper) {
+ *      // set the argument type to NumberRangeArgumentType
+ *      helper.<NumberRangeArgumentType<Integer>, Integer>getArgument("number")
+ *         .withArgType(new NumberRangeArgumentType<>(0, 10);
+ *   }
+ * }}</pre>
  *
  * <h4>Defining Sub-Commands</h4>
  * <p>
@@ -100,6 +109,63 @@ import java.util.List;
  */
 @Command.Define
 public abstract class CommandTemplate {
+	/** The parsed arguments of the command. */
+	private ParseResult parseResult;
+
+	/**
+	 * Called right after the Command Template is instantiated by the Argument Parser.
+	 * Sets the {@link #parseResult} field and calls {@link #onValuesReceived()} if the command was used.
+	 * <p>
+	 * The reason this is used instead of a constructor is because we don't want to force inheritors to call
+	 * {@code super()} in their constructors. Also, this method is called first by the innermost Command in
+	 * the hierarchy, and then by the parent Commands.
+	 * @param parseResult The parsed arguments of the command.
+	 */
+	void afterInstantiation(@NotNull ParseResult parseResult) {
+		this.parseResult = parseResult;
+		if (this.wasUsed()) this.onValuesReceived();
+	}
+
+	/**
+	 * Returns the {@link ParseResult} instance used by this Command Template. This instance is the one that was
+	 * used to initialize this Command Template.
+	 * @return The {@link ParseResult} instance used by this Command Template.
+	 */
+	public final @NotNull ParseResult getParseResult() {
+		if (this.parseResult == null)
+			throw new IllegalStateException("Command Template was not properly initialized by the Argument Parser.");
+		return this.parseResult;
+	}
+
+	/**
+	 * Returns the {@link Command} instance used by this Command Template. This instance is the one that was
+	 * used to initialize this Command Template.
+	 * @return The {@link Command} instance used by this Command Template.
+	 */
+	public final @NotNull Command getCommand() {
+		return this.getParseResult().getCommand();
+	}
+
+	/**
+	 * Returns {@code true} if the Command of this Template was used in the command line.
+	 * @return {@code true} if the Command of this Template was used in the command line, {@code false} otherwise.
+	 */
+	public final boolean wasUsed() {
+		return this.getParseResult().wasUsed();
+	}
+
+	/**
+	 * Called when the Command of this Template is used in the command line.
+	 * This method is called after the parsed values are set.
+	 * <p>
+	 * This method may be overridden to perform actions when the command is used.
+	 * </p>
+	 * This method should not be called manually. It is called automatically by the Argument Parser once the Command
+	 * Template is initialized.
+	 */
+	public void onValuesReceived() {}
+
+
 	/**
 	 * Annotation used to define an init method for a Command Template.
 	 * @see CommandTemplate#beforeInit(CommandBuildHelper)
@@ -157,19 +223,19 @@ public abstract class CommandTemplate {
 	 *   public Integer numberRange;
 	 *
 	 *   @InitDef
-	 *   public static void beforeInit(CommandBuildHelper cmdBuildHelper) {
+	 *   public static void beforeInit(CommandBuildHelper helper) {
 	 *      // set the argument type to NumberRangeArgumentType
-	 *      cmdBuildHelper.<NumberRangeArgumentType<Integer>, Integer>getArgument("numberRange")
+	 *      helper.<NumberRangeArgumentType<Integer>, Integer>getArgument("numberRange")
 	 * 			.withArgType(new NumberRangeArgumentType<>(0, 10);
 	 *   }
 	 * }
 	 * }</pre>
 
-	 * @param cmdBuildHelper A helper object that contains the command being initialized and the list of argument builders that may
+	 * @param helper A helper object that contains the command being initialized and the list of argument builders that may
 	 * 		  be altered.
 	 */
 	@InitDef
-	public static void beforeInit(@NotNull CommandBuildHelper cmdBuildHelper) {}
+	public static void beforeInit(@NotNull CommandBuildHelper helper) {}
 
 	/**
 	 * This method is called after the Command is initialized. This is after the Arguments are instantiated and added

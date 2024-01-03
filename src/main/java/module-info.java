@@ -8,10 +8,11 @@ module lanat {
 	exports lanat.helpRepresentation;
 	exports lanat.helpRepresentation.descriptions;
 	exports lanat.helpRepresentation.descriptions.exceptions;
-	exports lanat.parsing;
-	exports lanat.parsing.errors;
-	exports lanat.parsing.errors.formatGenerators;
 	exports lanat.utils;
+	exports lanat.utils.errors;
+	exports lanat.parsing;
+	exports lanat.parsing.errors.formatGenerators;
+	exports lanat.parsing.errors.handlers;
 	exports lanat.exceptions;
 
 	exports lanat.helpRepresentation.descriptions.tags to utils;

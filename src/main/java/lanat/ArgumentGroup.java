@@ -1,7 +1,7 @@
 package lanat;
 
 import lanat.exceptions.ArgumentGroupAlreadyExistsException;
-import lanat.utils.Resettable;
+import lanat.utils.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import utils.UtlString;
@@ -54,9 +54,9 @@ import java.util.List;
  */
 public class ArgumentGroup
 	implements ArgumentAdder,
-	ArgumentGroupAdder,
-	CommandUser,
-	ArgumentGroupUser,
+				   ArgumentGroupAdder,
+				   CommandUser,
+				   ArgumentGroupUser,
 	Resettable,
 	NamedWithDescription,
 	ParentElementGetter<ArgumentGroup>
@@ -284,5 +284,3 @@ public class ArgumentGroup
 		return false;
 	}
 }
-
-

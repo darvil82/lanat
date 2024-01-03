@@ -1,8 +1,8 @@
 package lanat.helpRepresentation.descriptions;
 
-import lanat.CommandUser;
-import lanat.NamedWithDescription;
 import lanat.helpRepresentation.descriptions.exceptions.MalformedTagException;
+import lanat.utils.CommandUser;
+import lanat.utils.NamedWithDescription;
 import lanat.utils.UtlMisc;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

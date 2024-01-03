@@ -27,5 +27,3 @@ public enum ErrorLevel {
 		return this.ordinal() <= minimum.ordinal();
 	}
 }
-
-

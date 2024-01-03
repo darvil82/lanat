@@ -1,8 +1,10 @@
-package lanat;
+package lanat.utils;
 
+import lanat.Argument;
+import lanat.ArgumentBuilder;
+import lanat.ArgumentType;
 import lanat.exceptions.ArgumentAlreadyExistsException;
 import lanat.exceptions.ArgumentNotFoundException;
-import lanat.utils.UtlMisc;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;

@@ -1,6 +1,6 @@
 package lanat.exceptions;
 
-import lanat.NamedWithDescription;
+import lanat.utils.NamedWithDescription;
 import org.jetbrains.annotations.NotNull;
 
 /** Thrown when a {@link lanat.Command} is not found. */

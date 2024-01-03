@@ -1,11 +1,11 @@
 package lanat.helpRepresentation.descriptions.tags;
 
-import lanat.NamedWithDescription;
 import lanat.helpRepresentation.descriptions.DescriptionFormatter;
 import lanat.helpRepresentation.descriptions.RouteParser;
 import lanat.helpRepresentation.descriptions.Tag;
 import lanat.helpRepresentation.descriptions.exceptions.InvalidRouteException;
 import lanat.helpRepresentation.descriptions.exceptions.NoDescriptionDefinedException;
+import lanat.utils.NamedWithDescription;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

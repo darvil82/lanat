@@ -3,13 +3,13 @@ package lanat.helpRepresentation.descriptions.tags;
 import lanat.Argument;
 import lanat.ArgumentGroup;
 import lanat.Command;
-import lanat.NamedWithDescription;
 import lanat.helpRepresentation.ArgumentGroupRepr;
 import lanat.helpRepresentation.ArgumentRepr;
 import lanat.helpRepresentation.CommandRepr;
 import lanat.helpRepresentation.descriptions.RouteParser;
 import lanat.helpRepresentation.descriptions.Tag;
 import lanat.helpRepresentation.descriptions.exceptions.InvalidRouteException;
+import lanat.utils.NamedWithDescription;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

@@ -1,7 +1,7 @@
 package lanat.helpRepresentation.descriptions.exceptions;
 
-import lanat.NamedWithDescription;
 import lanat.exceptions.LanatException;
+import lanat.utils.NamedWithDescription;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import utils.UtlReflection;

@@ -1,11 +1,11 @@
 package lanat.helpRepresentation.descriptions;
 
-import lanat.NamedWithDescription;
 import lanat.helpRepresentation.descriptions.exceptions.UnknownTagException;
 import lanat.helpRepresentation.descriptions.tags.ColorTag;
 import lanat.helpRepresentation.descriptions.tags.DescTag;
 import lanat.helpRepresentation.descriptions.tags.FormatTag;
 import lanat.helpRepresentation.descriptions.tags.LinkTag;
+import lanat.utils.NamedWithDescription;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import utils.UtlReflection;

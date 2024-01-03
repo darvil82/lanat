@@ -4,7 +4,7 @@ import lanat.Argument;
 import lanat.Command;
 import lanat.TupleChar;
 import lanat.parsing.errors.Error;
-import lanat.parsing.errors.TokenizeErrors;
+import lanat.parsing.errors.handlers.TokenizeErrors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

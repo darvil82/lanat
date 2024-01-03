@@ -2,8 +2,8 @@ package lanat.parsing;
 
 import lanat.Argument;
 import lanat.Command;
-import lanat.utils.ErrorLevelProvider;
-import lanat.utils.ErrorsContainerImpl;
+import lanat.utils.errors.ErrorLevelProvider;
+import lanat.utils.errors.ErrorsContainerImpl;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

@@ -4,11 +4,10 @@ import lanat.argumentTypes.BooleanArgumentType;
 import lanat.argumentTypes.DummyArgumentType;
 import lanat.exceptions.ArgumentAlreadyExistsException;
 import lanat.parsing.errors.Error;
-import lanat.parsing.errors.ParseErrors;
-import lanat.utils.ErrorCallbacks;
-import lanat.utils.ErrorsContainer;
-import lanat.utils.Resettable;
-import lanat.utils.UtlMisc;
+import lanat.parsing.errors.handlers.ParseErrors;
+import lanat.utils.*;
+import lanat.utils.errors.ErrorCallbacks;
+import lanat.utils.errors.ErrorsContainer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import textFormatter.Color;
@@ -76,7 +75,7 @@ import java.util.stream.Stream;
 public class Argument<Type extends ArgumentType<TInner>, TInner>
 	implements ErrorsContainer<Error.CustomError>,
 	ErrorCallbacks<TInner,
-			Argument<Type, TInner>>,
+				Argument<Type, TInner>>,
 	Resettable,
 	CommandUser,
 	ArgumentGroupUser,

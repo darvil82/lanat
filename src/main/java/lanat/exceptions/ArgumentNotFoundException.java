@@ -1,7 +1,7 @@
 package lanat.exceptions;
 
 import lanat.Argument;
-import lanat.NamedWithDescription;
+import lanat.utils.NamedWithDescription;
 import org.jetbrains.annotations.NotNull;
 
 /** Thrown when an {@link Argument} is not found. */

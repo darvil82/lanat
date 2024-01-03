@@ -1,7 +1,5 @@
 package lanat.utils;
 
-import lanat.CommandUser;
-import lanat.MultipleNamesAndDescription;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

@@ -1,6 +1,6 @@
 package lanat.argumentTypes;
 
-import lanat.NamedWithDescription;
+import lanat.utils.NamedWithDescription;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import textFormatter.TextFormatter;

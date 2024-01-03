@@ -3,7 +3,7 @@ package lanat.parsing.errors;
 import lanat.ErrorLevel;
 import lanat.helpRepresentation.HelpFormatter;
 import lanat.parsing.errors.formatGenerators.PrettyErrorFormatter;
-import lanat.utils.ErrorLevelProvider;
+import lanat.utils.errors.ErrorLevelProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import textFormatter.FormatOption;

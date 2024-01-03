@@ -1,8 +1,8 @@
 package lanat.helpRepresentation;
 
 import lanat.Command;
-import lanat.CommandUser;
 import lanat.helpRepresentation.descriptions.Tag;
+import lanat.utils.CommandUser;
 import org.jetbrains.annotations.NotNull;
 import textFormatter.Color;
 import textFormatter.FormatOption;

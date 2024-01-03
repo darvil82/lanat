@@ -1,8 +1,8 @@
 package lanat.exceptions;
 
 import lanat.ArgumentGroup;
-import lanat.ArgumentGroupAdder;
-import lanat.NamedWithDescription;
+import lanat.utils.ArgumentGroupAdder;
+import lanat.utils.NamedWithDescription;
 import org.jetbrains.annotations.NotNull;
 
 /**

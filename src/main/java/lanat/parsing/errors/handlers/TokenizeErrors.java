@@ -1,8 +1,8 @@
 package lanat.parsing.errors.handlers;
 
 import lanat.parsing.errors.Error;
-import lanat.parsing.errors.ErrorFormattingContext;
-import lanat.parsing.errors.TokenizeErrorContext;
+import lanat.parsing.errors.contexts.ErrorFormattingContext;
+import lanat.parsing.errors.contexts.TokenizeErrorContext;
 import org.jetbrains.annotations.NotNull;
 
 /** Contains all the errors definitions for errors that occur during tokenization. */

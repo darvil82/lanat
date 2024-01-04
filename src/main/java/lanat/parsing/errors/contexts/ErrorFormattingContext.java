@@ -1,4 +1,4 @@
-package lanat.parsing.errors;
+package lanat.parsing.errors.contexts;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -51,7 +51,7 @@ public class ErrorFormattingContext {
 	 * Returns the options used to display input.
 	 * @return The options used to display input.
 	 */
-	protected @Nullable HighlightOptions getHighlightOptions() {
+	public @Nullable HighlightOptions getHighlightOptions() {
 		return this.tokensViewOptions;
 	}
 

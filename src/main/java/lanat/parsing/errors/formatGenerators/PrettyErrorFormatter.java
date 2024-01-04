@@ -1,10 +1,10 @@
 package lanat.parsing.errors.formatGenerators;
 
 import lanat.parsing.Token;
-import lanat.parsing.errors.ErrorContext;
 import lanat.parsing.errors.ErrorFormatter;
-import lanat.parsing.errors.ParseErrorContext;
-import lanat.parsing.errors.TokenizeErrorContext;
+import lanat.parsing.errors.contexts.ErrorContext;
+import lanat.parsing.errors.contexts.ParseErrorContext;
+import lanat.parsing.errors.contexts.TokenizeErrorContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import textFormatter.Color;

@@ -2,6 +2,10 @@ package lanat.parsing.errors;
 
 import lanat.Command;
 import lanat.parsing.Token;
+import lanat.parsing.errors.contexts.ErrorContext;
+import lanat.parsing.errors.contexts.ErrorFormattingContext;
+import lanat.parsing.errors.contexts.ParseErrorContext;
+import lanat.parsing.errors.contexts.TokenizeErrorContext;
 import org.jetbrains.annotations.NotNull;
 import utils.Pair;
 import utils.UtlReflection;

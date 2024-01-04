@@ -13,6 +13,7 @@ module lanat {
 	exports lanat.parsing;
 	exports lanat.parsing.errors.formatGenerators;
 	exports lanat.parsing.errors.handlers;
+	exports lanat.parsing.errors.contexts;
 	exports lanat.exceptions;
 
 	exports lanat.helpRepresentation.descriptions.tags to utils;

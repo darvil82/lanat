@@ -41,6 +41,8 @@ publishing {
 			url = uri("https://repsy.io/mvn/darvil/java")
 			credentials(PasswordCredentials::class)
 		}
+
+		mavenLocal()
 	}
 
 	publications {

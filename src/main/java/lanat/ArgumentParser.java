@@ -187,8 +187,10 @@ public class ArgumentParser extends Command {
 		var errorsCollector = new ErrorsCollector(this.getFullTokenList(), input.args);
 
 		// do not parse anything if there are any errors in the tokenizer
-		if (this.tokenizationSucceeded())
+		if (this.tokenizationSucceeded()) {
 			this.parseTokens(); // same thing, this parses all the stuff recursively
+			this.generateParsedArgsMap();
+		}
 
 		this.getTokenizer().getTokenizedCommands().forEach(errorsCollector::collect);
 		this.isParsed = true;
@@ -216,7 +218,6 @@ public class ArgumentParser extends Command {
 		// this parses recursively!
 		this.getParser().parseTokens(null);
 	}
-
 
 	@Override
 	@NotNull ParseResultRoot getParseResult() {

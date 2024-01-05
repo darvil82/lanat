@@ -122,7 +122,7 @@ public class Command
 	 * (provided by the {@link Command#getHelp()} method).
 	 */
 	public void addHelpArgument() {
-		this.addArgument(Argument.createOfBoolType("help", "h", "?")
+		this.addArgument(Argument.createOfBoolType("help", "h")
 			.onOk(t -> {
 				System.out.println(this.getHelp());
 				System.exit(0);

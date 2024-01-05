@@ -1,12 +1,12 @@
 package lanat.parsing.errors;
 
-import lanat.ErrorLevel;
 import lanat.helpRepresentation.HelpFormatter;
 import lanat.parsing.errors.contexts.ErrorContext;
 import lanat.parsing.errors.contexts.ErrorFormattingContext;
 import lanat.parsing.errors.contexts.ParseErrorContext;
 import lanat.parsing.errors.contexts.TokenizeErrorContext;
 import lanat.parsing.errors.formatGenerators.PrettyErrorFormatter;
+import lanat.utils.errors.ErrorLevel;
 import lanat.utils.errors.ErrorLevelProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

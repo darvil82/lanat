@@ -125,7 +125,7 @@ public class Command
 		this.addArgument(Argument.createOfBoolType("help", "h")
 			.onOk(t -> {
 				System.out.println(this.getHelp());
-				System.exit(0);
+//				System.exit(0);
 			})
 			.withDescription("Shows this message.")
 			.allowsUnique()
@@ -273,7 +273,7 @@ public class Command
 	 * @return The help message of this command.
 	 */
 	public @NotNull String getHelp() {
-		return this.helpFormatter.get().generate(this);
+		return this.helpFormatter.get().generate(this) + "\n";
 	}
 
 	@Override

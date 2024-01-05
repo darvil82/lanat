@@ -189,6 +189,9 @@ public class ArgumentParser extends Command {
 		// do not parse anything if there are any errors in the tokenizer
 		if (this.tokenizationSucceeded()) {
 			this.parseTokens(); // same thing, this parses all the stuff recursively
+
+			// cache the parsed args map. Generating this calls Argument#finishParsing(), which is important
+			// to call before doing other stuff
 			this.generateParsedArgsMap();
 		}
 

@@ -502,6 +502,12 @@ public class Command
 		this.subCommands.forEach(Command::invokeCallbacks);
 	}
 
+	/** Generates the parsed arguments map of this command and all its Sub-Commands. */
+	void generateParsedArgsMap() {
+		this.parser.getParsedArgsMap();
+		this.subCommands.forEach(Command::generateParsedArgsMap);
+	}
+
 	/**
 	 * Returns {@code true} if the {@link #onCorrectCallback} should be executed.
 	 */

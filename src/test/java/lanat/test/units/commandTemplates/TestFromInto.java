@@ -1,5 +1,6 @@
 package lanat.test.units.commandTemplates;
 
+import lanat.AfterParseOptions;
 import lanat.ArgumentParser;
 import lanat.CLInput;
 import lanat.CommandTemplate;
@@ -16,7 +17,7 @@ public class TestFromInto {
 		@NotNull Class<T> templateClass,
 		@NotNull CLInput input
 	) {
-		return ArgumentParser.parseFromInto(templateClass, input, ArgumentParser.AfterParseOptions::printErrors);
+		return ArgumentParser.parseFromInto(templateClass, input, AfterParseOptions.AfterParseActions::printErrors);
 	}
 
 	@Test

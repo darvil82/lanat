@@ -15,7 +15,7 @@ public class CommandTemplateExample extends CommandTemplate.Default {
 	@Argument.Define(argType = StringArgumentType.class, description = "This is a string argument.")
 	public Optional<String> string;
 
-	@Argument.Define(description = "<desc=!.type>")
+	@Argument.Define(names = {"number", "n"}, description = "<desc=!.type>")
 	public double number = 12;
 
 	@Argument.Define(argType = StdinArgumentType.class)

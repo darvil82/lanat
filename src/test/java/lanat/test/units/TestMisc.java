@@ -24,7 +24,7 @@ public class TestMisc extends UnitTests {
 	@DisplayName("check error codes are correct")
 	public void testErrorCodes() {
 		// test first command failing (its error code is 0b0100)
-		assertEquals(0b0100, this.parser.parse(CLInput.from("")).getErrorCode());
+		assertEquals(0b0100, this.parser.parse(CLInput.from("dummy")).getErrorCode());
 
 		// test sub-command failing (its error code is 0b0010)
 		assertEquals(0b0110, this.parser.parse(CLInput.from("subCommand -s")).getErrorCode());

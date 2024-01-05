@@ -21,7 +21,8 @@ public final class ExampleTest {
 //		);
 
 		ArgumentParser.from(CommandTemplateExample.class)
-			.parse(CLInput.from("--number 12 sub-command -ccc"))
+			.parse(CLInput.from("-hest"))
+			.withActions(actions -> actions.printErrors())
 			.getResult()
 			.getUsedResults()
 			.forEach(result -> {
@@ -34,6 +35,7 @@ public final class ExampleTest {
 					case "another-sub-command" -> System.out.println("c value: " + result.get("c"));
 				}
 			});
+
 	}
 
 	public static class Example1Type extends ArgumentType<String[]> {

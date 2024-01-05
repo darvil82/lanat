@@ -45,7 +45,7 @@ public final class ArgumentRepr {
 		if (arg.isPositional() && repr != null) {
 			outText.concat(repr, new TextFormatter("(" + names + ")"));
 		} else {
-			outText.withContents("" + argPrefix + (names.length() > 1 ? argPrefix : "") + names + (repr == null ? "" : " "));
+			outText.withContents(arg.getPrefix() + names + (repr == null ? "" : " "));
 
 			if (repr != null)
 				outText.concat(repr);

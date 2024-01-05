@@ -664,6 +664,11 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 				throw new IllegalArgumentException("The character cannot be a whitespace character.");
 			return new PrefixChar(character);
 		}
+
+		@Override
+		public String toString() {
+			return String.valueOf(this.character);
+		}
 	}
 
 

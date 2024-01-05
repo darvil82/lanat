@@ -1,6 +1,10 @@
 package lanat.test.exampleTests;
 
-import lanat.*;
+import lanat.Argument;
+import lanat.ArgumentParser;
+import lanat.ArgumentType;
+import lanat.CLInput;
+import lanat.utils.errors.ErrorLevel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.Test;

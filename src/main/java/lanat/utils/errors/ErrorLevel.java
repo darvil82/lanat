@@ -1,4 +1,4 @@
-package lanat;
+package lanat.utils.errors;
 
 import org.jetbrains.annotations.NotNull;
 import textFormatter.Color;

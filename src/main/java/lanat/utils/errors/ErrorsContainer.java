@@ -1,6 +1,5 @@
 package lanat.utils.errors;
 
-import lanat.ErrorLevel;
 import org.jetbrains.annotations.NotNull;
 import utils.ModifyRecord;
 

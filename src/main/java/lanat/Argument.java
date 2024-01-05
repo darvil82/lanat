@@ -7,6 +7,7 @@ import lanat.parsing.errors.Error;
 import lanat.parsing.errors.handlers.ParseErrors;
 import lanat.utils.*;
 import lanat.utils.errors.ErrorCallbacks;
+import lanat.utils.errors.ErrorLevel;
 import lanat.utils.errors.ErrorsContainer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

@@ -21,7 +21,7 @@ public final class ExampleTest {
 //		);
 
 		ArgumentParser.from(CommandTemplateExample.class)
-			.parse(CLInput.from("-hest"))
+			.parse(CLInput.from("--number 12 sub-command -ccc"))
 			.withActions(actions -> actions.printErrors())
 			.getResult()
 			.getUsedResults()

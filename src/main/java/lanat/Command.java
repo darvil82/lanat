@@ -53,7 +53,6 @@ public class Command
 	private final @NotNull ArrayList<@NotNull Command> subCommands = new ArrayList<>();
 	private Command parentCommand;
 	private final @NotNull ArrayList<@NotNull ArgumentGroup> argumentGroups = new ArrayList<>();
-	private final @NotNull ModifyRecord<@NotNull TupleChar> tupleChars = ModifyRecord.of(TupleChar.SQUARE_BRACKETS);
 	private final @NotNull ModifyRecord<@NotNull Integer> errorCode = ModifyRecord.of(1);
 
 	// error handling callbacks
@@ -195,18 +194,6 @@ public class Command
 		this.errorCode.set(errorCode);
 	}
 
-	/**
-	 * Sets the set of characters that the user should use to indicate a start/end of a tuple.
-	 * @param tupleChars The tuple characters to set.
-	 */
-	public void setTupleChars(@NotNull TupleChar tupleChars) {
-		this.tupleChars.set(tupleChars);
-	}
-
-	public @NotNull TupleChar getTupleChars() {
-		return this.tupleChars.get();
-	}
-
 	@Override
 	public void addNames(@NotNull String... names) {
 		if (names.length == 0)
@@ -342,7 +329,6 @@ public class Command
 	 * Inherits certain properties from another command, only if they are not already set to something.
 	 */
 	private void inheritProperties(@NotNull Command parent) {
-		this.tupleChars.setIfNotModified(parent.tupleChars);
 		this.getMinimumExitErrorLevel().setIfNotModified(parent.getMinimumExitErrorLevel());
 		this.getMinimumDisplayErrorLevel().setIfNotModified(parent.getMinimumDisplayErrorLevel());
 		this.errorCode.setIfNotModified(parent.errorCode);

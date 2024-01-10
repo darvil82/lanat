@@ -15,7 +15,11 @@ public enum TupleChar {
 
 	public final char open, close;
 
+	/** The current tuple characters used by the parser. */
+	public static TupleChar current = SQUARE_BRACKETS;
+
 	TupleChar(char open, char close) {
+		assert open != close : "The open and close characters cannot be the same.";
 		this.open = open;
 		this.close = close;
 	}

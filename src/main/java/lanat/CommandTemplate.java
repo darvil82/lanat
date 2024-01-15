@@ -267,8 +267,8 @@ public abstract class CommandTemplate {
 
 	/**
 	 * A default command template that adds the 'help' and 'version' arguments to the command.
-	 * @see Command#addHelpArgument()
-	 * @see ArgumentParser#addVersionArgument()
+	 * @see Command#addHelpArgument(int)
+	 * @see ArgumentParser#addVersionArgument(int)
 	 */
 	@Command.Define
 	public static class Default extends CommandTemplate {
@@ -279,10 +279,10 @@ public abstract class CommandTemplate {
 		 */
 		@InitDef
 		public static void afterInit(@NotNull Command cmd) {
-			cmd.addHelpArgument();
+			cmd.addHelpArgument(0);
 
 			if (cmd instanceof ArgumentParser ap)
-				ap.addVersionArgument();
+				ap.addVersionArgument(0);
 		}
 	}
 }

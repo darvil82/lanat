@@ -118,13 +118,14 @@ public class Command
 
 	/**
 	 * Adds a 'help' argument which shows the help message of the command
-	 * (provided by the {@link Command#getHelp()} method).
+	 * (provided by the {@link Command#getHelp()} method), and then exits the program with the given return code.
+	 * @param returnCode The return code to exit the program with.
 	 */
-	public void addHelpArgument() {
+	public void addHelpArgument(int returnCode) {
 		this.addArgument(Argument.createOfBoolType("help", "h")
 			.onOk(t -> {
 				System.out.println(this.getHelp());
-				System.exit(0);
+				System.exit(returnCode);
 			})
 			.withDescription("Shows this message.")
 			.allowsUnique()

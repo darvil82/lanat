@@ -266,13 +266,15 @@ public class ArgumentParser extends Command {
 
 	/**
 	 * Adds a 'version' argument which shows the version of the program
-	 * (provided by the {@link ArgumentParser#getVersion()} method).
+	 * (provided by the {@link ArgumentParser#getVersion()} method), and then exits the program with the given return
+	 * code.
+	 * @param returnCode The return code to exit the program with.
 	 */
-	public void addVersionArgument() {
+	public void addVersionArgument(int returnCode) {
 		this.addArgument(Argument.createOfBoolType("version")
 			.onOk(t -> {
 				System.out.println("Version: " + Objects.requireNonNullElse(this.getVersion(), "unknown"));
-				System.exit(0);
+				System.exit(returnCode);
 			})
 			.withDescription("Shows the version of this program.")
 			.allowsUnique()
@@ -286,6 +288,4 @@ public class ArgumentParser extends Command {
 	public @Nullable String getVersion() {
 		return this.version;
 	}
-
-
 }

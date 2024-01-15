@@ -86,7 +86,11 @@ public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 
 			// user is trying to escape a character
 			if (cChar == '\\') {
-				this.currentValue.append(this.inputChars[++this.currentCharIndex]); // skip the \ character and append the next character
+				// skip the \ character and append the next character if it's not the last one
+				// if it is the last one, just append it
+				this.currentValue.append(
+					this.inputChars[this.isLastChar() ? this.currentCharIndex : ++this.currentCharIndex]
+				);
 
 				// reached a possible value wrapped in quotes
 			} else if (cChar == '"' || cChar == '\'') {

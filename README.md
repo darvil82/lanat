@@ -11,10 +11,6 @@
 
 <br><br>
 
-> [!IMPORTANT]
-> **This project is still in development.** It is not recommended to use Lanat in production, as it could possibly
-> have important issues. It is also quickly evolving, thus breaking changes are constantly being made.
-
 ### Example
 - First, we define our Command by creating a *Command Template*.
 	
@@ -59,30 +55,16 @@
 	}
  	```
 
+
 ## Documentation
 
-Javadoc documentation for the latest stable version is available [here](https://darvil82.github.io/Lanat/).
+> [!WARNING]
+> The documentation is still work in progress. Some parts may be missing or incomplete.
 
-Deep documentation and tutorials comming soon.
+[Click here](https://darvil82.github.io/lanat-docs/acquire-lanat.html) to get started with Lanat, and to check out the
+full documentation of the latest stable version.
 
-
-## Installation
-
-The package is currently available on Repsy and GitHub Packages.
-
-1. Add the following to your `repositories` block:
-	```kotlin
-	maven("https://repsy.io/mvn/darvil/java")
-	```
- 
-2. And add the following to your `dependencies` block:
-	```kotlin
-	implementation("com.darvil:lanat:+")
-	```
-> [!NOTE]
-> The `+` symbol is a wildcard that will automatically use the latest version of the package.
-> You can also specify a specific version (e.g. `0.1.0`).
-
+Javadocs for the latest stable version is available [here](https://darvil82.github.io/Lanat/).
 
 
 ## FAQ

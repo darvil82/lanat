@@ -360,15 +360,23 @@ public class Command
 			.map(f -> new Pair<>(f, ArgumentBuilder.fromField(f)))
 			.toList();
 
-		var argumentBuilders = argumentBuildersFieldPairs.stream().map(Pair::second).toList();
-
-		this.from$invokeBeforeInitMethod(cmdTemplate, argumentBuilders);
+		this.from$invokeBeforeInitMethod(cmdTemplate, argumentBuildersFieldPairs.stream().map(Pair::second).toList());
 
 		// set the argument types from the fields (if they are not already set)
 		argumentBuildersFieldPairs.forEach(pair -> pair.second().setArgTypeFromField(pair.first()));
 
 		// add the arguments to the command
-		argumentBuilders.forEach(this::addArgument);
+		argumentBuildersFieldPairs.forEach(pair -> {
+			try {
+				this.addArgument(pair.second());
+			} catch (IllegalStateException builderException) {
+				throw new CommandTemplateException(
+					"Could not build argument from field '" + pair.first().getName() + "': "
+					+ builderException.getMessage()
+				);
+			}
+		});
+
 
 		this.from$invokeAfterInitMethod(cmdTemplate);
 	}

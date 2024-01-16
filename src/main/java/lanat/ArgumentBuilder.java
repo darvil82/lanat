@@ -2,6 +2,7 @@ package lanat;
 
 import lanat.argumentTypes.DummyArgumentType;
 import lanat.exceptions.ArgumentTypeInferException;
+import lanat.exceptions.CommandTemplateException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import utils.UtlReflection;
@@ -103,9 +104,10 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
 			.filter(f -> f.isAnnotationPresent(Argument.Define.class))
 			.filter(f -> f.getName().equals(fieldName))
 			.findFirst()
-			.orElseThrow(() -> new IllegalArgumentException("The field " + fieldName + " does not exist in "
-				+ "the template class " + templateClass.getSimpleName())
-			)
+			.orElseThrow(() -> new CommandTemplateException(
+				"No field named '" + fieldName + "' with the Argument.Define annotation "
+				+ "could be found in the template class '" + templateClass.getSimpleName() + "'."
+			))
 		);
 	}
 

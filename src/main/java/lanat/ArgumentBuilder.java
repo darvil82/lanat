@@ -43,7 +43,7 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
 	 */
 	public static @Nullable ArgumentType<?> getArgumentTypeFromField(@NotNull Field field) {
 		final var annotation = field.getAnnotation(Argument.Define.class);
-		assert annotation != null : "The field must have an Argument.Define annotation.";
+		assert annotation != null : "The field must have an @Argument.Define annotation.";
 
 		// if the type is not a dummy type (it was specified on the annotation), instantiate it and return it
 		if (annotation.argType() != DummyArgumentType.class)
@@ -71,7 +71,7 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
 		final var annotation = field.getAnnotation(Argument.Define.class);
 
 		if (annotation == null)
-			throw new IllegalArgumentException("The field must have an Argument.Define annotation.");
+			throw new IllegalArgumentException("The field must have an @Argument.Define annotation.");
 
 		final var argumentBuilder = new ArgumentBuilder<Type, TInner>()
 			.withNames(ArgumentBuilder.getTemplateFieldNames(field));
@@ -105,7 +105,7 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
 			.filter(f -> f.getName().equals(fieldName))
 			.findFirst()
 			.orElseThrow(() -> new CommandTemplateException(
-				"No field named '" + fieldName + "' with the Argument.Define annotation "
+				"No field named '" + fieldName + "' with the @Argument.Define annotation "
 				+ "could be found in the template class '" + templateClass.getSimpleName() + "'."
 			))
 		);
@@ -121,7 +121,7 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
 	 */
 	static @NotNull String[] getTemplateFieldNames(@NotNull Field field) {
 		final var annotation = field.getAnnotation(Argument.Define.class);
-		assert annotation != null : "The field must have an Argument.Define annotation.";
+		assert annotation != null : "The field must have an @Argument.Define annotation.";
 
 		final var annotationNames = annotation.names();
 

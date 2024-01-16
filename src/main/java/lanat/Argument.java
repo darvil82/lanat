@@ -544,8 +544,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 */
 	public static int compareByPriority(@NotNull Argument<?, ?> first, @NotNull Argument<?, ?> second) {
 		return new MultiComparator<Argument<?, ?>>()
-			.addPredicate(Argument::isUniqueAllowed, 2)
-			.addPredicate(Argument::isPositional, 1)
+			.addPredicate(Argument::isPositional, 2)
+			.addPredicate(Argument::isUniqueAllowed, 1)
 			.addPredicate(Argument::isRequired)
 			.compare(first, second);
 	}

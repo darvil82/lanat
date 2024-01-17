@@ -2,6 +2,10 @@ package lanat;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 /**
  * A class to gather the input from the command line.
  */
@@ -42,6 +46,20 @@ public final class CLInput {
 
 		// remove first word from args (the program name)
 		return new CLInput(args.substring(args.indexOf(' ') + 1));
+	}
+
+	/**
+	 * Constructs a new {@link CLInput} from the given file. The input will be the contents of the file.
+	 * If the file does not exist, the input will be an empty string.
+	 * @param path The path to the file.
+	 * @return A new {@link CLInput} from the given file.
+	 */
+	public static @NotNull CLInput fromFile(@NotNull String path) {
+		try {
+			return new CLInput(Files.readString(Path.of(path)));
+		} catch (IOException e) {
+			return new CLInput("");
+		}
 	}
 
 	/** Returns {@code true} if no arguments were passed to the program. */

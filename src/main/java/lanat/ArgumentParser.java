@@ -144,6 +144,23 @@ public class ArgumentParser extends Command {
 	}
 
 	/**
+	 * Constructs a new {@link ArgumentParser} based on the given {@link CommandTemplate}, parses the given input, and
+	 * populates the template with the parsed values.
+	 * <p>
+	 * See {@link #parseFromInto(Class, CLInput, Consumer)} for more info.
+	 * @param templateClass The class to use as a template.
+	 * @param input The input to parse.
+	 * @param <T> The type of the template.
+	 * @return The parsed template.
+	 * @see CommandTemplate
+	 * @see #parseFromInto(Class, CLInput, Consumer)
+	 */
+	public static <T extends CommandTemplate>
+	@NotNull T parseFromInto(@NotNull Class<T> templateClass, @NotNull String[] input) {
+		return ArgumentParser.parseFromInto(templateClass, CLInput.from(input));
+	}
+
+	/**
 	 * Adds all commands defined with {@link Command.Define} in the given class to the given parent command. This method
 	 * is recursive and will add all sub-commands of the given class.
 	 *

@@ -77,8 +77,8 @@ public class AfterParseOptions {
 	}
 
 	/**
-	 * Sets the actions to be executed after parsing is done. The actions will be executed in the order they were
-	 * passed to this method.
+	 * Sets the actions to be executed after parsing is done. The actions will be executed in the order they are
+	 * specified in the method chain.
 	 * <p>
 	 * By default, the actions are:
 	 * <ul>

@@ -146,11 +146,14 @@ public abstract class ArgumentType<T>
 	/**
 	 * Dispatches the error to the parent argument type.
 	 * @param error The error to dispatch.
+	 * @return {@code true} if the error was dispatched, {@code false} otherwise.
 	 */
-	private void dispatchErrorToParent(@NotNull Error.CustomError error) {
-		if (this.parentArgType != null) {
-			this.parentArgType.onSubTypeError(error);
-		}
+	private boolean dispatchErrorToParent(@NotNull Error.CustomError error) {
+		if (this.parentArgType == null)
+			return false;
+
+		this.parentArgType.onSubTypeError(error);
+		return true;
 	}
 
 	/**
@@ -256,10 +259,8 @@ public abstract class ArgumentType<T>
 		// proper offsetting will be done when the error is dispatched to the parent.
 		error.offsetIndex(this.lastTokenIndex);
 
-		if (this.parentArgType != null) {
-			this.dispatchErrorToParent(error);
-			return;
-		}
+		if (this.dispatchErrorToParent(error))
+			return; // if the error was dispatched to the parent, we don't need to add it to the list of errors.
 
 		super.addError(error);
 	}

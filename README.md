@@ -1,7 +1,7 @@
 <div align="center">
-	<div>
-		<img alt="Lanat logo" src="https://github.com/DarviL82/Lanat/assets/48654552/33f9a03d-1ce3-49f0-839d-475e35d9e816" width="450">
-	</div>
+	<a href="https://darvil82.github.io/lanat-web/">
+		<img alt="Lanat logo" src="https://github.com/DarviL82/Lanat/assets/48654552/d9e247da-f510-4d8b-bf8a-c66b710af2ac" width="450">
+	</a>
 	<br>
 	<strong>
 		A command line argument parser for Java 17 with <br>
@@ -65,26 +65,3 @@
 full documentation of the latest stable version.
 
 Javadocs for the latest stable version is available [here](https://darvil82.github.io/Lanat/).
-
-
-## FAQ
-
-* ### Your logo has plenty of imperfections, please fix it.
-
-	The logo couldn't be simpler. I made it in five minutes in Figma. I am a terrible designer.
-	Also nothing is perfect. Heck, we are talking about software here, where bugs are
-	the norm, so, I think it's fine.
-
-	Also that isn't a question.
-
-* ### Why the name "Lanat"?
-
-	I had a tough time finding a name for this project. I wanted something short, easy to remember,
-	and that sounded good. It had to be related to the project in some way.
-	Sadly most names I came up with were already taken... Anyway, so Lanat is actually an acronym for
-	**L**iterally **A**ll **N**ames **A**re **T**aken.
-	Yeah, I'm good at naming things.
-
-	* #### How is "Lanat" related to the project?
-
-		It's not.

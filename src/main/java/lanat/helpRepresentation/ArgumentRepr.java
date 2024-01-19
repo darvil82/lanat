@@ -30,7 +30,7 @@ public final class ArgumentRepr {
 	 * @return the representation of the argument
 	 */
 	public static @NotNull String getRepresentation(@NotNull Argument<?, ?> arg) {
-		final var repr = arg.argType.getRepresentation();
+		final var repr = arg.type.getRepresentation();
 
 		final var outText = new TextFormatter();
 		final String names = String.join("/", arg.getNames());

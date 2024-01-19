@@ -145,7 +145,7 @@ public class RouteParser {
 			else if (token.equals("cmds") && this.currentTarget instanceof Command cmdsContainer)
 				this.setCurrentTarget(cmdsContainer.getCommands(), MultipleNamesAndDescription::hasName);
 			else if (token.equals("type") && this.currentTarget instanceof Argument<?, ?> arg)
-				this.currentTarget = arg.argType;
+				this.currentTarget = arg.type;
 			else
 				throw new InvalidRouteException(this.currentTarget, token);
 		}

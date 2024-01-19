@@ -146,7 +146,7 @@ public final class Parser extends ParsingStateBase<Error.ParseError> {
 	 * </p>
 	 */
 	private void executeArgParse(@NotNull Argument<?, ?> arg) {
-		final Range argNumValuesRange = arg.argType.getRequiredArgValueCount();
+		final Range argNumValuesRange = arg.type.getRequiredArgValueCount();
 
 		// just skip the whole thing if it doesn't need any values
 		if (argNumValuesRange.isZero()) {
@@ -207,7 +207,7 @@ public final class Parser extends ParsingStateBase<Error.ParseError> {
 	 * </p>
 	 */
 	private void executeArgParse(@NotNull Argument<?, ?> arg, @Nullable String value) {
-		final Range argumentValuesRange = arg.argType.getRequiredArgValueCount();
+		final Range argumentValuesRange = arg.type.getRequiredArgValueCount();
 
 		// just skip the whole thing if it doesn't need any values
 		if (argumentValuesRange.isZero()) {
@@ -250,7 +250,7 @@ public final class Parser extends ParsingStateBase<Error.ParseError> {
 			}
 
 			// if the argument accepts 0 values, then we can just parse it like normal
-			if (argument.argType.getRequiredArgValueCount().isZero()) {
+			if (argument.type.getRequiredArgValueCount().isZero()) {
 				this.executeArgParse(argument);
 
 				// -- arguments now may accept 1 or more values from now on:
@@ -330,7 +330,7 @@ public final class Parser extends ParsingStateBase<Error.ParseError> {
 	}
 
 	private void argumentTypeParseValues(@NotNull Argument<?, ?> argument, int offset, @NotNull String... values) {
-		argument.argType.parseAndUpdateValue(this.currentTokenIndex + offset, this.isInTuple, values);
+		argument.type.parseAndUpdateValue(this.currentTokenIndex + offset, this.isInTuple, values);
 	}
 
 	private @NotNull Token getCurrentToken() {

@@ -36,7 +36,7 @@ public final class LayoutGenerators {
 		}
 
 		if (description != null) {
-			buff.append(":\n\n");
+			buff.append(":").append(System.lineSeparator().repeat(2));
 			buff.append(HelpFormatter.indent(description, cmd));
 		}
 

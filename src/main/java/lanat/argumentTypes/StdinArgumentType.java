@@ -29,7 +29,7 @@ public class StdinArgumentType extends ArgumentType<String> {
 
 		try (var scanner = new Scanner(System.in)) {
 			while (scanner.hasNextLine()) {
-				input.append(scanner.nextLine()).append('\n');
+				input.append(scanner.nextLine()).append(System.lineSeparator());
 			}
 		}
 

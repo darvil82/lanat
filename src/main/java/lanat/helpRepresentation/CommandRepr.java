@@ -55,7 +55,7 @@ public final class CommandRepr {
 	public static @Nullable String getDescription(@NotNull Command cmd) {
 		return UtlMisc.nullOrElseGet(
 			DescriptionFormatter.parse(cmd),
-			desc -> CommandRepr.getRepresentation(cmd) + ":\n" + HelpFormatter.indent(desc, cmd)
+			desc -> CommandRepr.getRepresentation(cmd) + ":" + System.lineSeparator() + HelpFormatter.indent(desc, cmd)
 		);
 	}
 
@@ -82,7 +82,7 @@ public final class CommandRepr {
 
 			buff.append(desc);
 
-			if (i < subCommands.size() - 1) buff.append("\n\n");
+			if (i < subCommands.size() - 1) buff.append(System.lineSeparator().repeat(2));
 		}
 
 		return buff.toString();

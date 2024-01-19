@@ -128,7 +128,7 @@ public abstract class ErrorFormatter implements ErrorLevelProvider {
 	 * @return the contents of the error, with all newlines replaced with spaces
 	 */
 	protected @NotNull String getContentSingleLine() {
-		return this.formattingContext.getContent().replaceAll("\n", " ");
+		return this.formattingContext.getContent().replaceAll(System.lineSeparator(), " ");
 	}
 
 	/**

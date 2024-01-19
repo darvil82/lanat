@@ -173,12 +173,12 @@ public class HelpFormatter {
 				continue;
 
 			if (HelpFormatter.debugLayout)
-				buffer.append(new TextFormatter("LayoutItem " + i + ":\n")
+				buffer.append(new TextFormatter("LayoutItem " + i + ":" + System.lineSeparator())
 					.addFormat(FormatOption.UNDERLINE)
 					.withForegroundColor(Color.GREEN)
 				);
 
-			buffer.append(UtlString.wrap(generatedContent, lineWrapMax)).append('\n');
+			buffer.append(UtlString.wrap(generatedContent, lineWrapMax)).append(System.lineSeparator());
 		}
 
 		// strip() is used here because trim() also removes \022 (escape character)

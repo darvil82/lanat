@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class TestTerminalOutput extends UnitTests {
 	private void assertErrorOutput(String args, String expected) {
 		final var errors = this.parser.parseGetErrors(args);
-		System.out.printf("Test error output:%n%s%n", String.join("\n", errors));
+		System.out.printf("Test error output:%n%s%n", String.join(System.lineSeparator(), errors));
 
 		// remove all the decorations to not make the tests a pain to write
 		assertTrue(
@@ -22,7 +22,7 @@ public class TestTerminalOutput extends UnitTests {
 
 	private void assertNoErrorOutput(String args) {
 		final var errors = this.parser.parseGetErrors(args);
-		System.out.printf("Test error output:%n%s%n", String.join("\n", errors));
+		System.out.printf("Test error output:%n%s%n", String.join(System.lineSeparator(), errors));
 		assertTrue(errors.isEmpty());
 	}
 

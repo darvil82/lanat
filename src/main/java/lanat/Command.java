@@ -261,7 +261,7 @@ public class Command
 	 * @return The help message of this command.
 	 */
 	public @NotNull String getHelp() {
-		return this.helpFormatter.get().generate(this) + "\n";
+		return this.helpFormatter.get().generate(this) + System.lineSeparator();
 	}
 
 	@Override

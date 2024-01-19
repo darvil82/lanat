@@ -48,12 +48,19 @@ public class PrettyErrorFormatter extends ErrorFormatter {
 
 		return formatter.withContents(" ┌─%s".formatted(this.getErrorLevel())).toString()
 			// only add a new line if there are tokens to display
-			+ (tokensFormatting.isEmpty() ? "" : "\n" + tokensFormatting)
+			+ (tokensFormatting.isEmpty() ? "" : System.lineSeparator() + tokensFormatting)
 			// first insert a vertical bar at the start of each line
-			+ contents.replaceAll("^|\\n", formatter.withContents("\n │ ").toString())
+			+ contents.replaceAll(
+				"^|" + System.lineSeparator(),
+				formatter.withContents(System.lineSeparator() + " │ ").toString()
+			)
 			// then insert a horizontal bar at the end, with the length of the longest line approximately
-			+ formatter.withContents("\n └" + "─".repeat(Math.max(longestLineLength - 5, 0)) + " ───── ── ─")
-			+ '\n';
+			+ formatter.withContents(
+				System.lineSeparator()
+					+ " └" + "─".repeat(Math.max(longestLineLength - 5, 0))
+					+ " ───── ── ─"
+			)
+			+ System.lineSeparator();
 	}
 
 	@Override

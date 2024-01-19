@@ -35,7 +35,10 @@ public final class ArgumentGroupRepr {
 		if (group.isRestricted())
 			name.addFormat(FormatOption.UNDERLINE);
 
-		return '\n' + name.toString() + '\n' + HelpFormatter.indent(description, group);
+		return System.lineSeparator()
+			+ name.toString()
+			+ System.lineSeparator()
+			+ HelpFormatter.indent(description, group);
 	}
 
 	/**
@@ -66,7 +69,7 @@ public final class ArgumentGroupRepr {
 			name.addFormat(FormatOption.UNDERLINE);
 
 		if (description != null)
-			buff.append(description).append("\n\n");
+			buff.append(description).append(System.lineSeparator().repeat(2));
 
 		buff.append(ArgumentRepr.getDescriptions(arguments));
 
@@ -74,7 +77,10 @@ public final class ArgumentGroupRepr {
 			buff.append(ArgumentGroupRepr.getDescriptions(subGroup));
 		}
 
-		return '\n' + name.toString() + '\n' + HelpFormatter.indent(buff.toString(), group);
+		return System.lineSeparator()
+			+ name.toString()
+			+ System.lineSeparator()
+			+ HelpFormatter.indent(buff.toString(), group);
 	}
 
 

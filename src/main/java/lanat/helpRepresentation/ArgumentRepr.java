@@ -67,7 +67,7 @@ public final class ArgumentRepr {
 	public static @Nullable String getDescription(@NotNull Argument<?, ?> arg) {
 		return UtlMisc.nullOrElseGet(
 			DescriptionFormatter.parse(arg),
-			desc -> ArgumentRepr.getRepresentation(arg) + ":\n" + HelpFormatter.indent(desc, arg)
+			desc -> ArgumentRepr.getRepresentation(arg) + ":" + System.lineSeparator() + HelpFormatter.indent(desc, arg)
 		);
 	}
 
@@ -94,10 +94,10 @@ public final class ArgumentRepr {
 			buff.append(argDescriptions.get(i));
 
 			if (i < argDescriptions.size() - 1)
-				buff.append("\n\n");
+				buff.append(System.lineSeparator().repeat(2));
 		}
 
-		buff.append('\n');
+		buff.append(System.lineSeparator());
 		return buff.toString();
 	}
 }

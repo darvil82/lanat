@@ -10,10 +10,11 @@ import textFormatter.TextFormatter;
 import java.util.stream.Stream;
 
 /**
- * An argument type that takes an enum value.
+ * An argument type that takes an enum.
  * By supplying a default value in the constructor, the enum type is inferred.
  * <p>
- * The user can specify the enum value by its name, case insensitive.
+ * The user can specify any of the enum values by their names.
+ * The names are case-insensitive.
  * </p>
  * @param <T> The enum type.
  */

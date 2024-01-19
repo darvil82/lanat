@@ -576,6 +576,92 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 			);
 	}
 
+
+	// ------------------------------------------------ Error Handling ------------------------------------------------
+	// just act as a proxy to the type error handling
+
+	@Override
+	public @NotNull List<Error.@NotNull CustomError> getErrorsUnderExitLevel() {
+		return this.type.getErrorsUnderExitLevel();
+	}
+
+	@Override
+	public @NotNull List<Error.@NotNull CustomError> getErrorsUnderDisplayLevel() {
+		return this.type.getErrorsUnderDisplayLevel();
+	}
+
+	@Override
+	public boolean hasExitErrors() {
+		return this.type.hasExitErrors();
+	}
+
+	@Override
+	public boolean hasDisplayErrors() {
+		return this.type.hasDisplayErrors();
+	}
+
+	@Override
+	public void setMinimumDisplayErrorLevel(@NotNull ErrorLevel level) {
+		this.type.setMinimumDisplayErrorLevel(level);
+	}
+
+	@Override
+	public @NotNull ModifyRecord<@NotNull ErrorLevel> getMinimumDisplayErrorLevel() {
+		return this.type.getMinimumDisplayErrorLevel();
+	}
+
+	@Override
+	public void setMinimumExitErrorLevel(@NotNull ErrorLevel level) {
+		this.type.setMinimumExitErrorLevel(level);
+	}
+
+	@Override
+	public @NotNull ModifyRecord<@NotNull ErrorLevel> getMinimumExitErrorLevel() {
+		return this.type.getMinimumExitErrorLevel();
+	}
+
+	/**
+	 * Specify a function that will be called if an error occurs when parsing this argument.
+	 * <p>
+	 * <strong>Note</strong> that this callback is only called if the error was dispatched by this argument's type.
+	 * That
+	 * is, if the argument, for example, is required, and the user does not specify a value, an error will be
+	 * thrown, but this callback will not be called, as the error was not dispatched by this argument's type.
+	 * </p>
+	 *
+	 * @param callback the function that will be called if an error occurs when parsing this argument.
+	 */
+	@Override
+	public void setOnErrorCallback(@Nullable Consumer<@NotNull Argument<Type, TInner>> callback) {
+		this.onErrorCallback = callback;
+	}
+
+	/**
+	 * Specify a function that will be called with the value introduced by the user.
+	 * <p>
+	 * By default this callback is called only if all commands succeed, but you can change this behavior with
+	 * {@link Command#setCallbackInvocationOption(Command.CallbacksInvocationOption)}
+	 * </p>
+	 *
+	 * @param callback the function that will be called with the value introduced by the user.
+	 */
+	@Override
+	public void setOnOkCallback(@Nullable Consumer<@NotNull TInner> callback) {
+		this.onCorrectCallback = callback;
+	}
+
+	/**
+	 * <b>NOTE:</b> Only invokes the error callback! Use {@link Argument#invokeCallbacks(Object)} for invoking both.
+	 */
+	@Override
+	public void invokeCallbacks() {
+		if (this.onErrorCallback == null) return;
+		this.onErrorCallback.accept(this);
+	}
+
+	// -----------------------------------------------------------------------------------------------------------------
+
+
 	/**
 	 * Used in {@link CommandTemplate}s to specify the properties of an argument belonging to the command.
 	 * @see CommandTemplate
@@ -669,88 +755,5 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		public String toString() {
 			return String.valueOf(this.character);
 		}
-	}
-
-
-	// ------------------------------------------------ Error Handling ------------------------------------------------
-	// just act as a proxy to the type error handling
-
-	@Override
-	public @NotNull List<Error.@NotNull CustomError> getErrorsUnderExitLevel() {
-		return this.type.getErrorsUnderExitLevel();
-	}
-
-	@Override
-	public @NotNull List<Error.@NotNull CustomError> getErrorsUnderDisplayLevel() {
-		return this.type.getErrorsUnderDisplayLevel();
-	}
-
-	@Override
-	public boolean hasExitErrors() {
-		return this.type.hasExitErrors();
-	}
-
-	@Override
-	public boolean hasDisplayErrors() {
-		return this.type.hasDisplayErrors();
-	}
-
-	@Override
-	public void setMinimumDisplayErrorLevel(@NotNull ErrorLevel level) {
-		this.type.setMinimumDisplayErrorLevel(level);
-	}
-
-	@Override
-	public @NotNull ModifyRecord<@NotNull ErrorLevel> getMinimumDisplayErrorLevel() {
-		return this.type.getMinimumDisplayErrorLevel();
-	}
-
-	@Override
-	public void setMinimumExitErrorLevel(@NotNull ErrorLevel level) {
-		this.type.setMinimumExitErrorLevel(level);
-	}
-
-	@Override
-	public @NotNull ModifyRecord<@NotNull ErrorLevel> getMinimumExitErrorLevel() {
-		return this.type.getMinimumExitErrorLevel();
-	}
-
-	/**
-	 * Specify a function that will be called if an error occurs when parsing this argument.
-	 * <p>
-	 * <strong>Note</strong> that this callback is only called if the error was dispatched by this argument's type.
-	 * That
-	 * is, if the argument, for example, is required, and the user does not specify a value, an error will be
-	 * thrown, but this callback will not be called, as the error was not dispatched by this argument's type.
-	 * </p>
-	 *
-	 * @param callback the function that will be called if an error occurs when parsing this argument.
-	 */
-	@Override
-	public void setOnErrorCallback(@Nullable Consumer<@NotNull Argument<Type, TInner>> callback) {
-		this.onErrorCallback = callback;
-	}
-
-	/**
-	 * Specify a function that will be called with the value introduced by the user.
-	 * <p>
-	 * By default this callback is called only if all commands succeed, but you can change this behavior with
-	 * {@link Command#setCallbackInvocationOption(CallbacksInvocationOption)}
-	 * </p>
-	 *
-	 * @param callback the function that will be called with the value introduced by the user.
-	 */
-	@Override
-	public void setOnOkCallback(@Nullable Consumer<@NotNull TInner> callback) {
-		this.onCorrectCallback = callback;
-	}
-
-	/**
-	 * <b>NOTE:</b> Only invokes the error callback! Use {@link Argument#invokeCallbacks(Object)} for invoking both.
-	 */
-	@Override
-	public void invokeCallbacks() {
-		if (this.onErrorCallback == null) return;
-		this.onErrorCallback.accept(this);
 	}
 }

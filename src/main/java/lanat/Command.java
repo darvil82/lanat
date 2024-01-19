@@ -459,6 +459,27 @@ public class Command
 		UtlMisc.requireUniqueElements(this.subCommands, c -> new CommandAlreadyExistsException(c, this));
 	}
 
+	@Override
+	public void resetState() {
+		super.resetState();
+		this.tokenizer = new Tokenizer(this);
+		this.parser = new Parser(this);
+		this.arguments.forEach(Argument::resetState);
+		this.argumentGroups.forEach(ArgumentGroup::resetState);
+
+		this.subCommands.forEach(Command::resetState);
+	}
+
+	@Override
+	public @Nullable Command getParent() {
+		return this.parentCommand;
+	}
+
+	@Override
+	public @Nullable Command getParentCommand() {
+		return this.getParent();
+	}
+
 
 	// ------------------------------------------------ Error Handling ------------------------------------------------
 
@@ -571,9 +592,7 @@ public class Command
 	}
 
 
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//                                         Argument tokenization and parsing    							      //
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// --------------------------------------------------- Parsing ----------------------------------------------------
 
 	private @NotNull Tokenizer tokenizer = new Tokenizer(this);
 	private @NotNull Parser parser = new Parser(this);
@@ -588,27 +607,8 @@ public class Command
 		return this.parser;
 	}
 
+	// -----------------------------------------------------------------------------------------------------------------
 
-	@Override
-	public void resetState() {
-		super.resetState();
-		this.tokenizer = new Tokenizer(this);
-		this.parser = new Parser(this);
-		this.arguments.forEach(Argument::resetState);
-		this.argumentGroups.forEach(ArgumentGroup::resetState);
-
-		this.subCommands.forEach(Command::resetState);
-	}
-
-	@Override
-	public @Nullable Command getParent() {
-		return this.parentCommand;
-	}
-
-	@Override
-	public @Nullable Command getParentCommand() {
-		return this.getParent();
-	}
 
 	/**
 	 * Annotation used to define a command template.
@@ -622,5 +622,25 @@ public class Command
 
 		/** @see Command#setDescription(String) */
 		String description() default "";
+	}
+
+	/**
+	 * @see Command#setCallbackInvocationOption(CallbacksInvocationOption)
+	 */
+	public enum CallbacksInvocationOption {
+		/** The callback will only be invoked when there are no errors in the argument. */
+		NO_ERROR_IN_ARGUMENT,
+
+		/** The callback will only be invoked when there are no errors in the command it belongs to. */
+		NO_ERROR_IN_COMMAND,
+
+		/**
+		 * The callback will only be invoked when there are no errors in the command it belongs to, and all its
+		 * Sub-Commands.
+		 */
+		NO_ERROR_IN_COMMAND_AND_SUBCOMMANDS,
+
+		/** The callback will only be invoked when there are no errors in the whole command tree. */
+		NO_ERROR_IN_ALL_COMMANDS,
 	}
 }

@@ -1,7 +1,6 @@
 package lanat.test.units;
 
 import lanat.Argument;
-import lanat.CallbacksInvocationOption;
 import lanat.Command;
 import lanat.argumentTypes.CounterArgumentType;
 import lanat.argumentTypes.FloatArgumentType;
@@ -71,7 +70,7 @@ public class TestErrors extends UnitTests {
 	@Test
 	@DisplayName("Test the argument callbacks (onOk and onErr) (ArgumentCallbacksOption.NO_ERROR_IN_ARGUMENT)")
 	public void testArgumentCallbacks$NoErrorInArg() {
-		this.parser.setCallbackInvocationOption(CallbacksInvocationOption.NO_ERROR_IN_ARGUMENT);
+		this.parser.setCallbackInvocationOption(Command.CallbacksInvocationOption.NO_ERROR_IN_ARGUMENT);
 		this.parser.parseGetValues("--bool-arg --int-arg foo --float 55.0 sub --sub-float bar");
 
 		this.assertOk("bool-arg", true);

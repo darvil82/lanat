@@ -36,7 +36,7 @@ public abstract class ParseErrors {
 			fmt
 				.withContent("Incorrect number of values for argument '%s'.%nExpected %s, but got %d."
 					.formatted(
-						this.argument.getName(), this.argument.argType.getRequiredArgValueCount().getMessage("value"),
+						this.argument.getName(), this.argument.type.getRequiredArgValueCount().getMessage("value"),
 						this.receivedValueCount
 					)
 				);
@@ -76,7 +76,7 @@ public abstract class ParseErrors {
 			fmt
 				.withContent("Argument '%s' was used an incorrect amount of times.%nExpected %s, but was used %s."
 					.formatted(
-						this.argument.getName(), this.argument.argType.getRequiredUsageCount().getMessage("usage"),
+						this.argument.getName(), this.argument.type.getRequiredUsageCount().getMessage("usage"),
 						UtlString.plural("time", this.argument.getUsageCount())
 					)
 				)

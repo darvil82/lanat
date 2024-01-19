@@ -86,7 +86,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * The type of this argument. This is the subParser that will be used to parse the value/s this argument should
 	 * receive.
 	 */
-	public final @NotNull Type argType;
+	public final @NotNull Type type;
 	private PrefixChar prefixChar = PrefixChar.defaultPrefix;
 	private final @NotNull List<@NotNull String> names = new ArrayList<>();
 	private @Nullable String description;
@@ -118,7 +118,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 
 	Argument(@NotNull Type type, @NotNull String... names) {
-		this.argType = type;
+		this.type = type;
 		this.addNames(names);
 	}
 
@@ -134,39 +134,38 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 	/**
 	 * Creates an argument builder with the specified type and names.
-	 *
-	 * @param argType the type of the argument. This is the subParser that will be used to parse the value/s this
+	 * @param type the type of the argument. This is the subParser that will be used to parse the value/s this
 	 * 	argument should receive.
 	 * @param names the names of the argument. See {@link Argument#addNames(String...)} for more information.
 	 */
 	public static <Type extends ArgumentType<TInner>, TInner>
-	ArgumentBuilder<Type, TInner> create(@NotNull Type argType, @NotNull String... names) {
-		return Argument.<Type, TInner>create().withNames(names).withArgType(argType);
+	ArgumentBuilder<Type, TInner> create(@NotNull Type type, @NotNull String... names) {
+		return Argument.<Type, TInner>create().withNames(names).withType(type);
 	}
 
 	/**
 	 * Creates an argument builder with the specified single character name and type.
 	 *
 	 * @param name the name of the argument. See {@link Argument#addNames(String...)} for more information.
-	 * @param argType the type of the argument. This is the subParser that will be used to parse the value/s this
+	 * @param type the type of the argument. This is the subParser that will be used to parse the value/s this
 	 */
 	public static <Type extends ArgumentType<TInner>, TInner>
-	ArgumentBuilder<Type, TInner> create(@NotNull Type argType, char name) {
-		return Argument.create(argType, String.valueOf(name));
+	ArgumentBuilder<Type, TInner> create(@NotNull Type type, char name) {
+		return Argument.create(type, String.valueOf(name));
 	}
 
 	/**
 	 * Creates an argument builder with the specified single character name, full name and type.
 	 * <p>
-	 * This is equivalent to calling <pre>{@code Argument.create(charName, argType).addNames(fullName)}</pre>
+	 * This is equivalent to calling <pre>{@code Argument.create(charName, type).addNames(fullName)}</pre>
 	 *
 	 * @param charName the single character name of the argument.
 	 * @param fullName the full name of the argument.
-	 * @param argType the type of the argument. This is the subParser that will be used to parse the value/s this
+	 * @param type the type of the argument. This is the subParser that will be used to parse the value/s this
 	 */
 	public static <Type extends ArgumentType<TInner>, TInner>
-	ArgumentBuilder<Type, TInner> create(@NotNull Type argType, char charName, @NotNull String fullName) {
-		return Argument.create(argType).withNames(fullName, String.valueOf(charName));
+	ArgumentBuilder<Type, TInner> create(@NotNull Type type, char charName, @NotNull String fullName) {
+		return Argument.create(type).withNames(fullName, String.valueOf(charName));
 	}
 
 	/**
@@ -204,7 +203,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * </ul>
 	 */
 	public void setPositional(boolean positional) {
-		if (positional && this.argType.getRequiredArgValueCount().end() == 0) {
+		if (positional && this.type.getRequiredArgValueCount().end() == 0) {
 			throw new IllegalArgumentException("An argument that does not accept values cannot be positional");
 		}
 		this.positional = positional;
@@ -373,7 +372,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * @return the number of times this argument has been used in a command.
 	 */
 	public short getUsageCount() {
-		return this.argType.usageCount;
+		return this.type.usageCount;
 	}
 
 	/**
@@ -401,8 +400,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * @return the final value parsed by the argument type, or the default value if the argument was not used.
 	 */
 	public @Nullable TInner finishParsing() {
-		final TInner finalValue = this.argType.getFinalValue();
-		final TInner defaultValue = this.defaultValue == null ? this.argType.getInitialValue() : null;
+		final TInner finalValue = this.type.getFinalValue();
+		final TInner defaultValue = this.defaultValue == null ? this.type.getInitialValue() : null;
 
 		/* no, | is not a typo. We don't want the OR operator to short-circuit, we want all of them to be evaluated
 		 * because the methods have side effects (they add errors to the parser) */
@@ -433,9 +432,9 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		}
 
 		// make sure that the argument was used the minimum number of times specified
-		if (!this.argType.getRequiredUsageCount().containsInclusive(usageCount)) {
+		if (!this.type.getRequiredUsageCount().containsInclusive(usageCount)) {
 			this.parentCommand.getParser()
-				.addError(new ParseErrors.IncorrectUsagesCountError(this.argType.getLastTokensIndicesPair(), this));
+				.addError(new ParseErrors.IncorrectUsagesCountError(this.type.getLastTokensIndicesPair(), this));
 			return false;
 		}
 
@@ -455,7 +454,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		if (restrictionViolator == null) return true;
 
 		this.parentCommand.getParser().addError(new ParseErrors.MultipleArgsInRestrictedGroupUsedError(
-			this.argType.getLastTokensIndicesPair(), restrictionViolator
+			this.type.getLastTokensIndicesPair(), restrictionViolator
 		));
 		return false;
 	}
@@ -565,14 +564,14 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 	@Override
 	public void resetState() {
-		this.argType.resetState();
+		this.type.resetState();
 	}
 
 	@Override
 	public @NotNull String toString() {
 		return "Argument<%s>[names=%s, prefix='%c', required=%b, positional=%b, allowUnique=%b, defaultValue=%s]"
 			.formatted(
-				this.argType.getClass().getSimpleName(), this.names, this.getPrefix().character, this.required,
+				this.type.getClass().getSimpleName(), this.names, this.getPrefix().character, this.required,
 				this.positional, this.allowUnique, this.defaultValue
 			);
 	}
@@ -590,8 +589,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		/** @see Argument#setDescription(String) */
 		String description() default "";
 
-		/** @see ArgumentBuilder#withArgType(ArgumentType) */
-		Class<? extends ArgumentType<?>> argType() default DummyArgumentType.class;
+		/** @see ArgumentBuilder#withType(ArgumentType) */
+		Class<? extends ArgumentType<?>> type() default DummyArgumentType.class;
 
 		/**
 		 * Specifies the prefix character for this argument. This uses {@link PrefixChar#fromCharUnsafe(char)}.
@@ -678,42 +677,42 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 	@Override
 	public @NotNull List<Error.@NotNull CustomError> getErrorsUnderExitLevel() {
-		return this.argType.getErrorsUnderExitLevel();
+		return this.type.getErrorsUnderExitLevel();
 	}
 
 	@Override
 	public @NotNull List<Error.@NotNull CustomError> getErrorsUnderDisplayLevel() {
-		return this.argType.getErrorsUnderDisplayLevel();
+		return this.type.getErrorsUnderDisplayLevel();
 	}
 
 	@Override
 	public boolean hasExitErrors() {
-		return this.argType.hasExitErrors();
+		return this.type.hasExitErrors();
 	}
 
 	@Override
 	public boolean hasDisplayErrors() {
-		return this.argType.hasDisplayErrors();
+		return this.type.hasDisplayErrors();
 	}
 
 	@Override
 	public void setMinimumDisplayErrorLevel(@NotNull ErrorLevel level) {
-		this.argType.setMinimumDisplayErrorLevel(level);
+		this.type.setMinimumDisplayErrorLevel(level);
 	}
 
 	@Override
 	public @NotNull ModifyRecord<@NotNull ErrorLevel> getMinimumDisplayErrorLevel() {
-		return this.argType.getMinimumDisplayErrorLevel();
+		return this.type.getMinimumDisplayErrorLevel();
 	}
 
 	@Override
 	public void setMinimumExitErrorLevel(@NotNull ErrorLevel level) {
-		this.argType.setMinimumExitErrorLevel(level);
+		this.type.setMinimumExitErrorLevel(level);
 	}
 
 	@Override
 	public @NotNull ModifyRecord<@NotNull ErrorLevel> getMinimumExitErrorLevel() {
-		return this.argType.getMinimumExitErrorLevel();
+		return this.type.getMinimumExitErrorLevel();
 	}
 
 	/**

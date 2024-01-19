@@ -20,7 +20,7 @@
 		@Argument.Define(required = true, positional = true, description = "The name of the user.")
 		public String name;
 	
-		@Argument.Define(argType = StringArgumentType.class, description = "The surname of the user.")
+		@Argument.Define(type = StringArgumentType.class, description = "The surname of the user.")
 		public Optional<String> surname;
 	
 		@Argument.Define(names = {"age", "a"}, description = "The age of the user.", prefix = '+')
@@ -30,8 +30,7 @@
 		public static void beforeInit(@NotNull CommandBuildHelper helper) {
 			// configure the argument "age" to have an argument type of
 			// number range and set the range to 1-100
-			helper.<NumberRangeArgumentType<Integer>, Integer>getArgument("age")
-				.withArgType(new NumberRangeArgumentType<>(1, 100))
+			helper.argWithType("age", new NumberRangeArgumentType<>(1, 100))
 				.onOk(v -> System.out.println("The age is valid!"));
 		}
 	}

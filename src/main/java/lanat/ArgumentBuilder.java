@@ -20,7 +20,7 @@ import java.util.stream.Stream;
 public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
 	private @NotNull String @Nullable [] names;
 	private @Nullable String description;
-	private @Nullable Type argType;
+	private @Nullable Type type;
 	private boolean required = false,
 		positional = false,
 		allowUnique = false;
@@ -46,8 +46,8 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
 		assert annotation != null : "The field must have an @Argument.Define annotation.";
 
 		// if the type is not a dummy type (it was specified on the annotation), instantiate it and return it
-		if (annotation.argType() != DummyArgumentType.class)
-			return UtlReflection.instantiate(annotation.argType());
+		if (annotation.type() != DummyArgumentType.class)
+			return UtlReflection.instantiate(annotation.type());
 
 		// try to infer the type from the field type. If it can't be inferred, return null
 		try {
@@ -59,7 +59,7 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
 
 	/**
 	 * Builds an {@link Argument} from the specified field annotated with {@link Argument.Define}.
-	 * Note that this doesn't set the argument type. Use {@link #setArgTypeFromField(Field)} for that.
+	 * Note that this doesn't set the argument type. Use {@link #setTypeFromField(Field)} for that.
 	 *
 	 * @param field the field that will be used to build the argument
 	 * @param <Type> the {@link ArgumentType} subclass that will parse the value passed to the argument
@@ -200,10 +200,10 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
 	 * input string to the desired type.
 	 *
 	 * @see ArgumentType
-	 * @see Argument#argType
+	 * @see Argument#type
 	 */
-	public ArgumentBuilder<Type, TInner> withArgType(@NotNull Type argType) {
-		this.argType = argType;
+	public ArgumentBuilder<Type, TInner> withType(@NotNull Type argType) {
+		this.type = argType;
 		return this;
 	}
 
@@ -211,12 +211,12 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
 	 * Sets the argument type from the specified field. If the argument type is already set, this method does nothing.
 	 */
 	@SuppressWarnings("unchecked")
-	void setArgTypeFromField(@NotNull Field field) {
+	void setTypeFromField(@NotNull Field field) {
 		// if the argType is already set, don't change it
-		if (this.argType != null) return;
+		if (this.type != null) return;
 
 		var argType = ArgumentBuilder.getArgumentTypeFromField(field);
-		if (argType != null) this.withArgType((Type)argType);
+		if (argType != null) this.withType((Type)argType);
 	}
 
 	/**
@@ -228,10 +228,10 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
 		if (this.names == null || this.names.length == 0)
 			throw new IllegalStateException("The argument must have at least one name.");
 
-		if (this.argType == null)
+		if (this.type == null)
 			throw new IllegalStateException("The argument must have a type defined.");
 
-		return new Argument<>(this.argType, this.names) {{
+		return new Argument<>(this.type, this.names) {{
 			this.setDescription(ArgumentBuilder.this.description);
 			this.setRequired(ArgumentBuilder.this.required);
 			this.setPositional(ArgumentBuilder.this.positional);

@@ -60,11 +60,11 @@ public class TestFromInto {
 	public void testTypeInference() {
 		final var result = ArgumentParser.from(CmdTemplates.CmdTemplate4.class);
 
-		assertTrue(result.getArgument("number").argType instanceof IntegerArgumentType);
-		assertTrue(result.getArgument("text").argType instanceof StringArgumentType);
-		assertTrue(result.getArgument("flag").argType instanceof BooleanArgumentType);
-		assertTrue(result.getArgument("number2").argType instanceof DoubleArgumentType);
-		assertTrue(result.getArgument("bytes").argType instanceof MultipleNumbersArgumentType);
+		assertInstanceOf(IntegerArgumentType.class, result.getArgument("number").type);
+		assertInstanceOf(StringArgumentType.class, result.getArgument("text").type);
+		assertInstanceOf(BooleanArgumentType.class, result.getArgument("flag").type);
+		assertInstanceOf(DoubleArgumentType.class, result.getArgument("number2").type);
+		assertInstanceOf(MultipleNumbersArgumentType.class, result.getArgument("bytes").type);
 	}
 
 	@Test

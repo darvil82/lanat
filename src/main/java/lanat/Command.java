@@ -363,7 +363,7 @@ public class Command
 		this.from$invokeBeforeInitMethod(cmdTemplate, argumentBuildersFieldPairs.stream().map(Pair::second).toList());
 
 		// set the argument types from the fields (if they are not already set)
-		argumentBuildersFieldPairs.forEach(pair -> pair.second().setArgTypeFromField(pair.first()));
+		argumentBuildersFieldPairs.forEach(pair -> pair.second().setTypeFromField(pair.first()));
 
 		// add the arguments to the command
 		argumentBuildersFieldPairs.forEach(pair -> {

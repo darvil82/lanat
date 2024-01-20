@@ -16,7 +16,7 @@ import java.util.List;
 public abstract class ErrorsContainerImpl<T extends ErrorLevelProvider> implements ErrorsContainer<T>, Resettable {
 	private final @NotNull ModifyRecord<ErrorLevel> minimumExitErrorLevel;
 	private final @NotNull ModifyRecord<ErrorLevel> minimumDisplayErrorLevel;
-	private final @NotNull List<T> errors = new ArrayList<>();
+	private final @NotNull List<T> errors = new ArrayList<>(5);
 
 	/**
 	 * Creates a new {@link ErrorsContainerImpl} with the default values, those being {@link ErrorLevel#ERROR} for

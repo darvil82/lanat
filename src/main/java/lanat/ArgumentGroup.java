@@ -54,12 +54,12 @@ import java.util.List;
  */
 public class ArgumentGroup
 	implements ArgumentAdder,
-				   ArgumentGroupAdder,
-				   CommandUser,
-				   ArgumentGroupUser,
-	Resettable,
-	NamedWithDescription,
-	ParentElementGetter<ArgumentGroup>
+		ArgumentGroupAdder,
+		CommandUser,
+		ArgumentGroupUser,
+		Resettable,
+		NamedWithDescription,
+		ParentElementGetter<ArgumentGroup>
 {
 	private final @NotNull String name;
 	private @Nullable String description;
@@ -84,7 +84,7 @@ public class ArgumentGroup
 	 * We need to later set the parent command of all group children after initialization, so we keep a reference to
 	 * them.
 	 */
-	private final @NotNull List<@NotNull ArgumentGroup> subGroups = new ArrayList<>();
+	private final @NotNull List<@NotNull ArgumentGroup> subGroups = new ArrayList<>(0);
 	private boolean isRestricted = false;
 
 	/**

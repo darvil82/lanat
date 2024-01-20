@@ -84,7 +84,7 @@ public abstract class ArgumentType<T>
 	 * is set by the parent argument type when it runs {@link ArgumentType#registerSubType(ArgumentType)}.
 	 */
 	private @Nullable ArgumentType<?> parentArgType;
-	private final @NotNull ArrayList<@NotNull ArgumentType<?>> subTypes = new ArrayList<>();
+	private final @NotNull ArrayList<@NotNull ArgumentType<?>> subTypes = new ArrayList<>(0);
 
 
 	/**
@@ -120,7 +120,7 @@ public abstract class ArgumentType<T>
 	}
 
 	/**
-	 * By registering a subtype, this allows you to listen for errors that occurred in this subtype during parsing. The
+	 * Registers a subtype. This allows you to listen for errors that occurred in this subtype during parsing. The
 	 * {@link ArgumentType#onSubTypeError(Error.CustomError)} method will be called when an error occurs.
 	 */
 	protected final void registerSubType(@NotNull ArgumentType<?> subType) {
@@ -130,6 +130,18 @@ public abstract class ArgumentType<T>
 
 		subType.parentArgType = this;
 		this.subTypes.add(subType);
+	}
+
+	/**
+	 * Unregisters the specified subtype from this argument type.
+	 */
+	protected final void unregisterSubType(@NotNull ArgumentType<?> subType) {
+		if (this.subTypes == null || subType.parentArgType != this) {
+			throw new IllegalArgumentException("The argument type specified is not registered to this argument type.");
+		}
+
+		subType.parentArgType = null;
+		this.subTypes.remove(subType);
 	}
 
 	/**
@@ -320,7 +332,8 @@ public abstract class ArgumentType<T>
 		this.lastInTuple = false;
 
 		// reset the state of the subtypes.
-		this.subTypes.forEach(ArgumentType::resetState);
+		if (this.subTypes != null)
+			this.subTypes.forEach(ArgumentType::resetState);
 	}
 
 	@Override

@@ -161,7 +161,7 @@ public final class Parser extends ParsingStateBase<Error.ParseError> {
 
 		final byte ifTupleOffset = (byte)(this.isInTuple ? 1 : 0);
 
-		final ArrayList<Token> values = new ArrayList<>();
+		final ArrayList<Token> values = new ArrayList<>(argNumValuesRange.start());
 		short numValues = 0;
 
 		// add more values until we get to the max of the type, or we encounter another argument specifier

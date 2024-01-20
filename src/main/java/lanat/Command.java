@@ -39,20 +39,20 @@ import java.util.stream.Stream;
 public class Command
 	extends ErrorsContainerImpl<Error.CustomError>
 	implements ErrorCallbacks<ParseResult, Command>,
-				   ArgumentAdder,
-	ArgumentGroupAdder,
-	CommandAdder,
-	CommandUser,
-	Resettable,
-	MultipleNamesAndDescription,
-	ParentElementGetter<Command>
+		ArgumentAdder,
+		ArgumentGroupAdder,
+		CommandAdder,
+		CommandUser,
+		Resettable,
+		MultipleNamesAndDescription,
+		ParentElementGetter<Command>
 {
-	private final @NotNull List<@NotNull String> names = new ArrayList<>();
+	private final @NotNull List<@NotNull String> names = new ArrayList<>(1);
 	private @Nullable String description;
 	private final @NotNull ArrayList<@NotNull Argument<?, ?>> arguments = new ArrayList<>();
-	private final @NotNull ArrayList<@NotNull Command> subCommands = new ArrayList<>();
-	private Command parentCommand;
-	private final @NotNull ArrayList<@NotNull ArgumentGroup> argumentGroups = new ArrayList<>();
+	private final @NotNull ArrayList<@NotNull Command> subCommands = new ArrayList<>(0);
+	private @Nullable Command parentCommand;
+	private final @NotNull ArrayList<@NotNull ArgumentGroup> argumentGroups = new ArrayList<>(0);
 	private final @NotNull ModifyRecord<@NotNull Integer> errorCode = ModifyRecord.of(1);
 
 	// error handling callbacks

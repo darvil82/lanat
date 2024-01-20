@@ -75,12 +75,11 @@ import java.util.stream.Stream;
  */
 public class Argument<Type extends ArgumentType<TInner>, TInner>
 	implements ErrorsContainer<Error.CustomError>,
-	ErrorCallbacks<TInner,
-				Argument<Type, TInner>>,
-	Resettable,
-	CommandUser,
-	ArgumentGroupUser,
-	MultipleNamesAndDescription
+		ErrorCallbacks<TInner, Argument<Type, TInner>>,
+		Resettable,
+		CommandUser,
+		ArgumentGroupUser,
+		MultipleNamesAndDescription
 {
 	/**
 	 * The type of this argument. This is the subParser that will be used to parse the value/s this argument should
@@ -88,7 +87,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 */
 	public final @NotNull Type type;
 	private PrefixChar prefixChar = PrefixChar.defaultPrefix;
-	private final @NotNull List<@NotNull String> names = new ArrayList<>();
+	private final @NotNull List<@NotNull String> names = new ArrayList<>(1);
 	private @Nullable String description;
 	private boolean required = false,
 		positional = false,

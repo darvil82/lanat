@@ -279,7 +279,13 @@ public abstract class ArgumentType<T>
 		return this.lastReceivedValuesNum;
 	}
 
-	@NotNull Pair<Integer, Integer> getLastTokensIndicesPair() {
+	/**
+	 * Returns a pair of two integers. The first integer is the index of the last token that was parsed. The second
+	 * integer is the number of values that this argument received when being parsed the last time.
+	 * These indices take into account whether the last value was in a tuple or not.
+	 * @return The index of the last token that was parsed, and the number of values that this argument received.
+	 */
+	@NotNull Pair<@NotNull Integer, @NotNull Integer> getLastTokensIndicesPair() {
 		int inTupleOffset = this.lastInTuple ? 1 : 0;
 
 		return new Pair<>(

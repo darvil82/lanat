@@ -27,7 +27,7 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
 	private @Nullable TInner defaultValue;
 	private @Nullable Consumer<@NotNull Argument<Type, TInner>> onErrorCallback;
 	private @Nullable Consumer<@NotNull TInner> onCorrectCallback;
-	private @Nullable Argument.PrefixChar prefixChar = Argument.PrefixChar.defaultPrefix;
+	private @Nullable Argument.PrefixChar prefixChar = Argument.PrefixChar.DEFAULT;
 
 	ArgumentBuilder() {}
 
@@ -76,7 +76,7 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
 		final var argumentBuilder = new ArgumentBuilder<Type, TInner>()
 			.withNames(ArgumentBuilder.getTemplateFieldNames(field));
 
-		argumentBuilder.withPrefix(Argument.PrefixChar.fromCharUnsafe(annotation.prefix()));
+		argumentBuilder.withPrefix(annotation.prefix());
 		if (!annotation.description().isEmpty()) argumentBuilder.withDescription(annotation.description());
 		if (annotation.required()) argumentBuilder.required();
 		if (annotation.positional()) argumentBuilder.positional();

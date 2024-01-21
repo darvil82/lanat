@@ -300,7 +300,7 @@ public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 		}
 
 		// if there's at least one argument and the first character is a valid prefix, return true
-		return foundArgs >= 1 && possiblePrefixes.stream().anyMatch(p -> p.character == str.charAt(0));
+		return foundArgs >= 1 && possiblePrefixes.stream().anyMatch(p -> p.getCharacter() == str.charAt(0));
 	}
 
 	/**

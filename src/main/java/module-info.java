@@ -20,5 +20,5 @@ module lanat {
 	exports lanat.parsing.errors.handlers;
 	exports lanat.parsing.errors.contexts;
 
-	exports lanat.helpRepresentation.descriptions.tags to utils;
+	opens lanat.helpRepresentation.descriptions.tags to utils;
 }

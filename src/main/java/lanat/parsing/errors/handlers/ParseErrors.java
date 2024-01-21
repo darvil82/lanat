@@ -187,7 +187,7 @@ public abstract class ParseErrors {
 			fmt
 				.withContent(
 					"Found argument with name given, but with a different prefix ("
-						+ this.argument.getPrefix().character
+						+ this.argument.getPrefix().getCharacter()
 						+ ")."
 				)
 				.highlight(this.index, 0, false);

@@ -86,7 +86,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * receive.
 	 */
 	public final @NotNull Type type;
-	private PrefixChar prefixChar = PrefixChar.defaultPrefix;
+	private PrefixChar prefixChar = PrefixChar.DEFAULT;
 	private final @NotNull List<@NotNull String> names = new ArrayList<>(1);
 	private @Nullable String description;
 	private boolean required = false,
@@ -469,7 +469,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * @return {@code true} if the name matches, {@code false} otherwise.
 	 */
 	public boolean checkMatch(@NotNull String name) {
-		final char prefixChar = this.getPrefix().character;
+		final char prefixChar = this.getPrefix().getCharacter();
 		return this.names.stream()
 			.anyMatch(a -> name.equals("" + prefixChar + a) || name.equals("" + prefixChar + prefixChar + a));
 	}
@@ -570,7 +570,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	public @NotNull String toString() {
 		return "Argument<%s>[names=%s, prefix='%c', required=%b, positional=%b, allowUnique=%b, defaultValue=%s]"
 			.formatted(
-				this.type.getClass().getSimpleName(), this.names, this.getPrefix().character, this.required,
+				this.type.getClass().getSimpleName(), this.names, this.getPrefix().getCharacter(), this.required,
 				this.positional, this.allowUnique, this.defaultValue
 			);
 	}
@@ -678,12 +678,12 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		Class<? extends ArgumentType<?>> type() default DummyArgumentType.class;
 
 		/**
-		 * Specifies the prefix character for this argument. This uses {@link PrefixChar#fromCharUnsafe(char)}.
+		 * Specifies the prefix character for this argument.
 		 * <p>
 		 * By default, this is set to the value of {@link PrefixChar#defaultPrefix}.
 		 * @see Argument#setPrefix(PrefixChar)
 		 * */
-		char prefix() default Character.MAX_VALUE; // Character.MAX_VALUE will be replaced with PrefixChar.defaultPrefix
+		PrefixChar prefix() default PrefixChar.DEFAULT; // Character.MAX_VALUE will be replaced with PrefixChar.defaultPrefix
 
 		/** @see Argument#setRequired(boolean) */
 		boolean required() default false;
@@ -699,28 +699,40 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	/**
 	 * Specifies the prefix character for an {@link Argument}.
 	 */
-	public static class PrefixChar {
-		public static final PrefixChar MINUS = new PrefixChar('-');
-		public static final PrefixChar PLUS = new PrefixChar('+');
-		public static final PrefixChar SLASH = new PrefixChar('/');
-		public static final PrefixChar AT = new PrefixChar('@');
-		public static final PrefixChar PERCENT = new PrefixChar('%');
-		public static final PrefixChar CARET = new PrefixChar('^');
-		public static final PrefixChar EXCLAMATION = new PrefixChar('!');
-		public static final PrefixChar TILDE = new PrefixChar('~');
-		public static final PrefixChar QUESTION = new PrefixChar('?');
-		public static final PrefixChar EQUALS = new PrefixChar('=');
-		public static final PrefixChar COLON = new PrefixChar(':');
+	public enum PrefixChar {
+		/** The minus sign (-). */
+		MINUS('-'),
+		/** The plus sign (+). */
+		PLUS('+'),
+		/** The slash (/). */
+		SLASH('/'),
+		/** The at sign (@). */
+		AT('@'),
+		/** The percent sign (%). */
+		PERCENT('%'),
+		/** The caret (^). */
+		CARET('^'),
+		/** The exclamation mark (!). */
+		EXCLAMATION('!'),
+		/** The tilde (~). */
+		TILDE('~'),
+		/** The question mark (?). */
+		QUESTION('?'),
+		/** The equals sign (=). */
+		EQUALS('='),
+		/** The colon (:). */
+		COLON(':'),
 
-		/**
-		 * This prefix will be automatically set depending on the Operating System. On Linux, it will be
-		 * {@link PrefixChar#MINUS}, and on Windows, it will be {@link PrefixChar#SLASH}.
-		 */
-		public static final PrefixChar AUTO = System.getProperty("os.name").toLowerCase().contains("win") ? SLASH : MINUS;
+		/** Automatically set depending on the Operating System. On Linux, it will be
+		 * {@link PrefixChar#MINUS}, and on Windows, it will be {@link PrefixChar#SLASH}. */
+		AUTO(System.getProperty("os.name").toLowerCase().contains("win") ? SLASH : MINUS),
+
+		/** Set to the value of {@link PrefixChar#getDefaultPrefix()}. */
+		DEFAULT;
 
 
-		public final char character;
-		public static @NotNull PrefixChar defaultPrefix = PrefixChar.AUTO;
+		private final @Nullable Character character;
+		private static @NotNull PrefixChar defaultPrefix = PrefixChar.AUTO;
 
 		/** Prefixes that a user may be familiar with. */
 		public static final @NotNull PrefixChar[] COMMON_PREFIXES = { MINUS, SLASH };
@@ -730,29 +742,60 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 			this.character = character;
 		}
 
+		private PrefixChar() {
+			this.character = null;
+		}
+
+		private PrefixChar(PrefixChar prefixChar) {
+			this.character = prefixChar.character;
+		}
+
 		/**
-		 * Creates a new {@link PrefixChar} with the specified non-whitespace character.
-		 * <p>
-		 * <strong>NOTE:<br></strong>
-		 * The constant fields of this class should be used instead of this method. Other characters could break
-		 * compatibility with shells using special characters as prefixes, such as the {@code |} or {@code ;}
-		 * characters.
-		 * </p>
-		 *
-		 * @param character the character that will be used as a prefix. {@link Character#MAX_VALUE} will return
-		 *  {@link PrefixChar#defaultPrefix}.
+		 * Sets the default prefix character. This is used when the prefix is set to {@link PrefixChar#DEFAULT}.
+		 * @param prefixChar the new default prefix character
+		 * @throws IllegalArgumentException if the prefix character is {@link PrefixChar#DEFAULT}
 		 */
-		public static @NotNull PrefixChar fromCharUnsafe(char character) {
-			if (character == Character.MAX_VALUE)
-				return PrefixChar.defaultPrefix;
-			if (Character.isWhitespace(character))
-				throw new IllegalArgumentException("The character cannot be a whitespace character.");
-			return new PrefixChar(character);
+		public static void setDefaultPrefix(@NotNull PrefixChar prefixChar) {
+			if (prefixChar == DEFAULT)
+				throw new IllegalArgumentException("Cannot set the default prefix to DEFAULT");
+
+			PrefixChar.defaultPrefix = prefixChar;
+		}
+
+		/**
+		 * Returns the default prefix character. This is used when the prefix is set to {@link PrefixChar#DEFAULT}.
+		 * @return the default prefix character
+		 */
+		public static @NotNull PrefixChar getDefaultPrefix() {
+			return PrefixChar.defaultPrefix;
+		}
+
+		/**
+		 * Returns the character that represents this prefix. If this prefix is {@link PrefixChar#DEFAULT}, then the
+		 * default prefix character will be returned.
+		 * @return the character that represents this prefix.
+		 */
+		public char getCharacter() {
+			if (this.character == null)
+				// this can never recurse because the default prefix is never DEFAULT
+				return PrefixChar.defaultPrefix.getCharacter();
+
+			return this.character;
+		}
+
+		/**
+		 * Returns a {@link PrefixChar} that can't be {@link PrefixChar#DEFAULT} from the given {@link PrefixChar}.
+		 * If the given prefix is {@link PrefixChar#DEFAULT}, then the default prefix will be returned.
+		 * @param prefixChar the prefix character
+		 * @return the given prefix character if it is not {@link PrefixChar#DEFAULT}, or the default prefix otherwise.
+		 */
+		public static @NotNull PrefixChar getFromMaybeDefault(@NotNull PrefixChar prefixChar) {
+			return prefixChar == DEFAULT ? PrefixChar.getDefaultPrefix() : prefixChar;
 		}
 
 		@Override
 		public String toString() {
-			return String.valueOf(this.character);
+			return String.valueOf(this.getCharacter());
 		}
 	}
 }

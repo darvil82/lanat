@@ -285,7 +285,7 @@ public final class Parser extends ParsingStateBase<Error.ParseError> {
 
 		// check for the common prefixes
 		Stream.of(Argument.PrefixChar.COMMON_PREFIXES)
-			.map(c -> c.character)
+			.map(c -> c.getCharacter())
 			.forEach(checkPrefix -> {
 				// if not present, don't bother checking
 				if (str.charAt(0) != checkPrefix) return;

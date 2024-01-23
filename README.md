@@ -1,6 +1,6 @@
 <div align="center">
 	<a href="https://darvil82.github.io/lanat-web/">
-		<img alt="Lanat logo" src="https://github.com/DarviL82/Lanat/assets/48654552/d9e247da-f510-4d8b-bf8a-c66b710af2ac" width="450">
+		<img alt="Lanat logo" src="logo.png" width="450">
 	</a>
 	<br>
 	<strong>

@@ -271,10 +271,19 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		this.defaultValue = value;
 	}
 
+	/**
+	 * Marks the argument as hidden to not be shown in the help message.
+	 * @param hidden {@code true} if the argument should be hidden.
+	 */
 	public void setHidden(boolean hidden) {
 		this.hidden = hidden;
 	}
 
+	/**
+	 * Returns {@code true} if the argument is hidden.
+	 * @return {@code true} if the argument is hidden.
+	 * @see #setHidden(boolean)
+	 */
 	public boolean isHidden() {
 		return this.hidden;
 	}

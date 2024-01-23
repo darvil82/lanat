@@ -92,7 +92,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	private @Nullable String description;
 	private boolean required = false,
 		positional = false,
-		allowUnique = false;
+		allowUnique = false,
+		hidden = false;
 
 	private @Nullable TInner defaultValue;
 
@@ -268,6 +269,14 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 */
 	public void setDefaultValue(@Nullable TInner value) {
 		this.defaultValue = value;
+	}
+
+	public void setHidden(boolean hidden) {
+		this.hidden = hidden;
+	}
+
+	public boolean isHidden() {
+		return this.hidden;
 	}
 
 	/**
@@ -694,6 +703,9 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 		/** @see Argument#setAllowUnique(boolean) */
 		boolean allowsUnique() default false;
+
+		/** @see Argument#setHidden(boolean) */
+		boolean hidden() default false;
 	}
 
 

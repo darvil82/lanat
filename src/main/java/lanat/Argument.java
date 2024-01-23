@@ -716,6 +716,11 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		/** @see Argument#setHidden(boolean) */
 		boolean hidden() default false;
 
+		/**
+		 * The name of the group this argument will be added to; in the case the named group does not exist then it
+		 * will be created.
+		 * If multiple arguments have the same group name, they will be added to the same group.
+		 */
 		@NotNull String group() default "";
 	}
 

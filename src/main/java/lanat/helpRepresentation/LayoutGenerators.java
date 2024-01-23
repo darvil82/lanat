@@ -61,6 +61,7 @@ public final class LayoutGenerators {
 	public static @Nullable String synopsis(@NotNull Command cmd) {
 		final var args = Argument.sortByPriority(cmd.getArguments()).stream()
 			.filter(arg -> arg.getParentGroup() == null)
+			.filter(arg -> !arg.isHidden())
 			.toList();
 
 		if (args.isEmpty() && cmd.getGroups().isEmpty()) return null;
@@ -104,12 +105,11 @@ public final class LayoutGenerators {
 	 * @param cmd The command to generate the descriptions for.
 	 * @return the generated descriptions.
 	 */
-	public static @Nullable String argumentDescriptions(@NotNull Command cmd) {
+	public static @Nullable String argumentsDescriptions(@NotNull Command cmd) {
 		final var buff = new StringBuilder();
 		// skip arguments that are in groups (handled later)
 		final var arguments = Argument.sortByPriority(cmd.getArguments()).stream()
 			.filter(arg -> arg.getParentGroup() == null)
-			.filter(arg -> !arg.isHidden())
 			.toList();
 
 		if (arguments.isEmpty() && cmd.getGroups().isEmpty()) return null;

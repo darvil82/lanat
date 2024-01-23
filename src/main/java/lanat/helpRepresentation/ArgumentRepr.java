@@ -85,6 +85,7 @@ public final class ArgumentRepr {
 	 */
 	static String getDescriptions(@NotNull List<@NotNull Argument<?, ?>> arguments) {
 		final var argDescriptions = arguments.stream()
+			.filter(arg -> !arg.isHidden())
 			.map(ArgumentRepr::getDescription)
 			.filter(Objects::nonNull)
 			.toList();

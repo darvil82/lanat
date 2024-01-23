@@ -88,7 +88,7 @@ public class HelpFormatter {
 			LayoutItem.of(LayoutGenerators::synopsis)
 				.indent(1)
 				.margin(1),
-			LayoutItem.of(LayoutGenerators::argumentDescriptions)
+			LayoutItem.of(LayoutGenerators::argumentsDescriptions)
 				.title("Description:")
 				.indent(1),
 			LayoutItem.of(LayoutGenerators::subCommandsDescriptions)

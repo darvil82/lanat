@@ -62,14 +62,13 @@ public final class ArgumentGroupRepr {
 		final var description = DescriptionFormatter.parse(group);
 		final var argumentDescriptions = ArgumentRepr.getDescriptions(arguments);
 
-		if (description == null && argumentDescriptions.isEmpty())
+		if (description == null || argumentDescriptions.isEmpty())
 			return "";
 
 		if (group.isRestricted())
 			name.addFormat(FormatOption.UNDERLINE);
 
-		if (description != null)
-			buff.append(description).append(System.lineSeparator().repeat(2));
+		buff.append(description).append(System.lineSeparator().repeat(2));
 
 		buff.append(ArgumentRepr.getDescriptions(arguments));
 

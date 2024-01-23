@@ -20,6 +20,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.function.Consumer;
@@ -363,23 +364,25 @@ public class Command
 		// set the argument types from the fields (if they are not already set)
 		argumentBuildersFieldPairs.forEach(pair -> pair.second().setTypeFromField(pair.first()));
 
-		// add the arguments to the command
-		argumentBuildersFieldPairs.forEach(pair -> {
-			try {
-				this.addArgument(pair.second());
-			} catch (IllegalStateException builderException) {
-				throw new CommandTemplateException(
-					"Could not build argument from field '" + pair.first().getName() + "': "
-					+ builderException.getMessage()
-				);
-			}
-		});
+		// add the arguments to the command and the groups
+		from$addArguments(argumentBuildersFieldPairs);
 
-		var groupsMap = new Hashtable<String, ArgumentGroup>();
+		// invoke the afterInit method
+		this.from$invokeAfterInitMethod(cmdTemplate);
+	}
+
+	private void from$addArguments(
+		List<Pair<Field, ArgumentBuilder<ArgumentType<Object>, Object>>> argumentBuildersFieldPairs
+	) {
+		final var groupsMap = new Hashtable<String, ArgumentGroup>();
 
 		argumentBuildersFieldPairs.forEach(pair -> {
+			var builtArgument = pair.second().build();
 			var groupName = pair.first().getAnnotation(Argument.Define.class).group();
-			if (groupName.isBlank()) return;
+			if (groupName.isBlank()) {
+				this.addArgument(builtArgument);
+				return;
+			}
 
 			var matchingGroup = groupsMap.get(groupName);
 
@@ -389,11 +392,8 @@ public class Command
 				this.addGroup(matchingGroup);
 			}
 
-			matchingGroup.addArgument(pair.second());
+			matchingGroup.addArgument(builtArgument);
 		});
-
-		// invoke the afterInit method
-		this.from$invokeAfterInitMethod(cmdTemplate);
 	}
 
 	/**

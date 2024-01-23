@@ -35,8 +35,7 @@ public final class ArgumentGroupRepr {
 		if (group.isRestricted())
 			name.addFormat(FormatOption.UNDERLINE);
 
-		return System.lineSeparator()
-			+ name.toString()
+		return name.toString()
 			+ System.lineSeparator()
 			+ HelpFormatter.indent(description, group);
 	}
@@ -58,27 +57,16 @@ public final class ArgumentGroupRepr {
 	public static @NotNull String getDescriptions(@NotNull ArgumentGroup group) {
 		final var arguments = Argument.sortByPriority(group.getArguments());
 		final var buff = new StringBuilder();
-		final var name = new TextFormatter(group.getName() + ':').addFormat(FormatOption.BOLD);
-		final var description = DescriptionFormatter.parse(group);
-		final var argumentDescriptions = ArgumentRepr.getDescriptions(arguments);
 
-		if (description == null || argumentDescriptions.isEmpty())
-			return "";
-
-		if (group.isRestricted())
-			name.addFormat(FormatOption.UNDERLINE);
-
-		buff.append(description).append(System.lineSeparator().repeat(2));
-
-		buff.append(ArgumentRepr.getDescriptions(arguments));
+		buff.append(ArgumentRepr.getDescriptions(arguments, true));
 
 		for (final var subGroup : group.getGroups()) {
 			buff.append(ArgumentGroupRepr.getDescriptions(subGroup));
 		}
 
 		return System.lineSeparator()
-			+ name.toString()
-			+ System.lineSeparator()
+			+ ArgumentGroupRepr.getDescription(group)
+			+ System.lineSeparator().repeat(2)
 			+ HelpFormatter.indent(buff.toString(), group);
 	}
 

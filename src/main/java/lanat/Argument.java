@@ -715,6 +715,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 		/** @see Argument#setHidden(boolean) */
 		boolean hidden() default false;
+
+		String group() default "";
 	}
 
 

@@ -21,10 +21,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -360,6 +357,7 @@ public class Command
 			.map(f -> new Pair<>(f, ArgumentBuilder.fromField(f)))
 			.toList();
 
+		// invoke the beforeInit method
 		this.from$invokeBeforeInitMethod(cmdTemplate, argumentBuildersFieldPairs.stream().map(Pair::second).toList());
 
 		// set the argument types from the fields (if they are not already set)
@@ -377,7 +375,24 @@ public class Command
 			}
 		});
 
+		var groupsMap = new Hashtable<String, ArgumentGroup>();
 
+		argumentBuildersFieldPairs.forEach(pair -> {
+			var groupName = pair.first().getAnnotation(Argument.Define.class).group();
+			if (groupName.isBlank()) return;
+
+			var matchingGroup = groupsMap.get(groupName);
+
+			if (matchingGroup == null) {
+				matchingGroup = new ArgumentGroup(groupName);
+				groupsMap.put(groupName, matchingGroup);
+				this.addGroup(matchingGroup);
+			}
+
+			matchingGroup.addArgument(pair.second());
+		});
+
+		// invoke the afterInit method
 		this.from$invokeAfterInitMethod(cmdTemplate);
 	}
 

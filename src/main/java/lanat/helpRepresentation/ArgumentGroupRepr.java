@@ -102,7 +102,9 @@ public final class ArgumentGroupRepr {
 		if (group.isRestricted())
 			buff.append('(');
 
-		final var arguments = Argument.sortByPriority(group.getArguments());
+		final var arguments = Argument.sortByPriority(group.getArguments()).stream()
+			.filter(arg -> !arg.isHidden())
+			.toList();
 
 		for (int i = 0; i < arguments.size(); i++) {
 			Argument<?, ?> arg = arguments.get(i);

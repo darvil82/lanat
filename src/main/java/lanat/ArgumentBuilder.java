@@ -23,7 +23,8 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
 	private @Nullable Type type;
 	private boolean required = false,
 		positional = false,
-		allowUnique = false;
+		allowUnique = false,
+		hidden = false;
 	private @Nullable TInner defaultValue;
 	private @Nullable Consumer<@NotNull Argument<Type, TInner>> onErrorCallback;
 	private @Nullable Consumer<@NotNull TInner> onCorrectCallback;
@@ -81,6 +82,7 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
 		if (annotation.required()) argumentBuilder.required();
 		if (annotation.positional()) argumentBuilder.positional();
 		if (annotation.allowsUnique()) argumentBuilder.allowsUnique();
+		if (annotation.hidden()) argumentBuilder.hidden();
 
 		return argumentBuilder;
 	}
@@ -165,6 +167,12 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
 		return this;
 	}
 
+	/** @see Argument#setHidden(boolean) */
+	public ArgumentBuilder<Type, TInner> hidden() {
+		this.hidden = true;
+		return this;
+	}
+
 	/** @see Argument#setDefaultValue(Object) */
 	public ArgumentBuilder<Type, TInner> withDefaultValue(@NotNull TInner defaultValue) {
 		this.defaultValue = defaultValue;
@@ -236,6 +244,7 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
 			this.setRequired(ArgumentBuilder.this.required);
 			this.setPositional(ArgumentBuilder.this.positional);
 			this.setAllowUnique(ArgumentBuilder.this.allowUnique);
+			this.setHidden(ArgumentBuilder.this.hidden);
 			this.setDefaultValue(ArgumentBuilder.this.defaultValue);
 			this.setPrefix(ArgumentBuilder.this.prefixChar);
 			this.setOnErrorCallback(ArgumentBuilder.this.onErrorCallback);

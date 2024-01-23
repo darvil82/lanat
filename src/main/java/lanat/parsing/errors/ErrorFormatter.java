@@ -21,7 +21,7 @@ import java.util.Optional;
  * Base class for error formatters. An error formatter defines how an error should be displayed to the user.
  * <p>
  * To use a custom error formatter, set {@link #errorFormatterClass} to the class of your custom error formatter.
- * This class will be automtically instantiated and used to generate the error message.
+ * This class will be automatically instantiated and used to generate the error message.
  * <p>
  * <strong>NOTE:</strong> the
  * custom error formatter class must <i>always</i> have a constructor that takes a {@link ErrorContext}.

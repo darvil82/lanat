@@ -51,7 +51,7 @@ public final class DescriptionFormatter {
 			if (chr == '\\') {
 				(inTag ? currentTag : out).append(chars[i == chars.length - 1 ? i : ++i]);
 			} else if (chr == TAG_END && inTag) {
-				if (currentTag.length() == 0)
+				if (currentTag.isEmpty())
 					throw new MalformedTagException("empty tag at index " + lastTagOpenIndex);
 
 				out.append(DescriptionFormatter.parseTag(currentTag.toString(), user));

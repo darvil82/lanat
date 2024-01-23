@@ -81,7 +81,7 @@ public class ParseResult {
 	 *
 	 * <strong>Example:</strong>
 	 * <pre>
-	 * {@code var argValue = result.<String>get("rootcommand.subCommand.argument")}
+	 * {@code var argValue = result.<String>get("rootCommand.subCommand.argument")}
 	 * </pre>
 	 * <p>
 	 * More info at {@link #get(String...)}
@@ -109,11 +109,11 @@ public class ParseResult {
 	 *
 	 * <strong>Example:</strong>
 	 * <pre>
-	 * {@code var argValue = result.<String>get("rootcommand", "subCommand", "argument")}
+	 * {@code var argValue = result.<String>get("rootCommand", "subCommand", "argument")}
 	 * </pre>
 	 * Returns the parsed value of the argument in the next command hierarchy:
 	 * <ul>
-	 *     <li>rootcommand
+	 *     <li>rootCommand
 	 *     <ul>
 	 *         <li>subCommand
 	 *         <ul>

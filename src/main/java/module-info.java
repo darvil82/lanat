@@ -14,7 +14,6 @@ module lanat {
 	exports lanat.utils;
 	exports lanat.utils.errors;
 
-	exports lanat.parsing;
 	exports lanat.parsing.errors;
 	exports lanat.parsing.errors.formatGenerators;
 	exports lanat.parsing.errors.handlers;

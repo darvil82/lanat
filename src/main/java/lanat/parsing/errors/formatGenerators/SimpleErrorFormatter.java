@@ -18,7 +18,7 @@ import utils.UtlString;
  * With, the values being:
  * <ul>
  * <li>{@code $ERRORLEVEL}: The error level</li>
- * <li>{@code $IN_TYPE}: The type of the input where the error occured (either 'token' or 'char')</li>
+ * <li>{@code $IN_TYPE}: The type of the input where the error occurred (either 'token' or 'char')</li>
  * <li>{@code $POS}: The position of the error in the input</li>
  * <li>{@code $INPUT}: The token at the position of the error, or the characters near the position</li>
  * <li>{@code $CONTENT}: The content of the error</li>

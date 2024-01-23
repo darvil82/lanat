@@ -29,8 +29,11 @@ public class HelpFormatter {
 	/** The size of the indent in the help message. */
 	private byte indentSize = 3;
 
+	/** The default maximum length of a line in the help message. */
+	public static final short DEFAULT_LINE_WRAP_MAX = 110;
+
 	/** The maximum length of a line in the help message. */
-	public static short lineWrapMax = 110;
+	public static short lineWrapMax = DEFAULT_LINE_WRAP_MAX;
 
 	/** The layout that defines the structure of the help message. */
 	private @NotNull List<@NotNull LayoutItem> layout = new LinkedList<>();

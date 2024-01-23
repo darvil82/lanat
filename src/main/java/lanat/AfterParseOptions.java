@@ -151,12 +151,10 @@ public class AfterParseOptions {
 					.filter(f -> f.isAnnotationPresent(CommandTemplate.CommandAccessor.class))
 					.filter(f -> f.getType() == cmdDef)
 					.findFirst()
-					.orElseThrow(() -> {
-						throw new CommandTemplateException(
-							"The class '" + cmdDef.getSimpleName() + "' is annotated with @Command.Define but it's "
-								+ "enclosing class does not have a field annotated with @CommandAccessor"
-						);
-					});
+					.orElseThrow(() -> new CommandTemplateException(
+						"The class '" + cmdDef.getSimpleName() + "' is annotated with @Command.Define but it's "
+							+ "enclosing class does not have a field annotated with @CommandAccessor"
+					));
 
 				AfterParseOptions.into$handleCommandAccessor(instance, commandAccesorField, parseResult);
 			});
@@ -221,28 +219,28 @@ public class AfterParseOptions {
 	 * {@link #into(Class)} helper method. Handles the {@link CommandTemplate.CommandAccessor} annotation.
 	 *
 	 * @param parsedTemplateInstance The instance of the current Command Template class.
-	 * @param commandAccesorField The field annotated with {@link CommandTemplate.CommandAccessor}.
+	 * @param commandAccessorField The field annotated with {@link CommandTemplate.CommandAccessor}.
 	 * @param parseResult The parsed arguments to set the fields of the Command Template class.
 	 */
 	@SuppressWarnings("unchecked")
 	private static <T extends CommandTemplate> void into$handleCommandAccessor(
 		@NotNull T parsedTemplateInstance,
-		@NotNull Field commandAccesorField,
+		@NotNull Field commandAccessorField,
 		@NotNull ParseResult parseResult
 	)
 	{
-		final Class<?> fieldType = commandAccesorField.getType();
+		final Class<?> fieldType = commandAccessorField.getType();
 
 		if (!CommandTemplate.class.isAssignableFrom(fieldType))
 			throw new CommandTemplateException(
-				"The field '" + commandAccesorField.getName() + "' is annotated with @CommandAccessor "
+				"The field '" + commandAccessorField.getName() + "' is annotated with @CommandAccessor "
 					+ "but its type is not a subclass of CommandTemplate"
 			);
 
 		final String cmdName = CommandTemplate.getTemplateNames((Class<? extends CommandTemplate>)fieldType)[0];
 
 		try {
-			commandAccesorField.set(parsedTemplateInstance,
+			commandAccessorField.set(parsedTemplateInstance,
 				AfterParseOptions.into(
 					(Class<T>)fieldType,
 					parseResult.getSubResult(cmdName)
@@ -258,13 +256,13 @@ public class AfterParseOptions {
 	 * parsed value is {@code null}, this method will return {@code null} as well. If both the field and the parsed
 	 * value are arrays, this method will return a new array with the same type.
 	 *
-	 * @param commandAccesorField The field to get the new value for.
+	 * @param commandAccessorField The field to get the new value for.
 	 * @param parsedValue The parsed value to get the new value from.
 	 * @return The new value for the given field based on the parsed value. This will be {@code null} if the parsed
 	 * 	value is {@code null}.
 	 */
 	private static Object into$getNewFieldValue(
-		@NotNull Field commandAccesorField,
+		@NotNull Field commandAccessorField,
 		@NotNull Optional<?> parsedValue
 	)
 	{
@@ -273,12 +271,12 @@ public class AfterParseOptions {
 
 		final Object value = parsedValue.get();
 
-		if (!(commandAccesorField.getType().isArray() && value.getClass().isArray()))
+		if (!(commandAccessorField.getType().isArray() && value.getClass().isArray()))
 			return value;
 
 
 		// handle array types
-		final var fieldType = commandAccesorField.getType().getComponentType();
+		final var fieldType = commandAccessorField.getType().getComponentType();
 		final var originalArray = (Object[])value; // to get rid of warnings
 
 		try {
@@ -291,8 +289,8 @@ public class AfterParseOptions {
 			return newArray;
 		} catch (ClassCastException e) {
 			throw new IncompatibleCommandTemplateType(
-				"Field '" + commandAccesorField.getName() + "' of type '" + commandAccesorField.getType().getSimpleName()
-					+ "' is not compatible with the type (" + fieldType.arrayType() + ") of the parsed argument"
+				"Field '" + commandAccessorField.getName() + "' of type '" + commandAccessorField.getType().getSimpleName()
+				+ "' is not compatible with the type (" + fieldType.arrayType() + ") of the parsed argument"
 			);
 		}
 	}

@@ -177,7 +177,7 @@ public final class Parser extends ParsingStateBase<Error.ParseError> {
 				if (currentToken.type().isTuple())
 					break;
 			} else {
-				// no more values to gather. we reached a non-value token or we got the max number of values
+				// no more values to gather. we reached a non-value token, or we got the max number of values
 				if (!currentToken.type().isValue() || numValues >= argNumValuesRange.end())
 					break;
 			}
@@ -285,7 +285,7 @@ public final class Parser extends ParsingStateBase<Error.ParseError> {
 
 		// check for the common prefixes
 		Stream.of(Argument.PrefixChar.COMMON_PREFIXES)
-			.map(c -> c.getCharacter())
+			.map(Argument.PrefixChar::getCharacter)
 			.forEach(checkPrefix -> {
 				// if not present, don't bother checking
 				if (str.charAt(0) != checkPrefix) return;

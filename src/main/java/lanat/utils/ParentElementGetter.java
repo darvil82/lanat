@@ -11,8 +11,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public interface ParentElementGetter<T extends ParentElementGetter<T>> {
 	/**
-	 * Gets the parent object of this object.
-	 *
+	 * Gets the parent object of this object. If this object is already the root, then {@code null} is returned.
 	 * @return The parent object of this object.
 	 */
 	@Nullable T getParent();
@@ -25,8 +24,8 @@ public interface ParentElementGetter<T extends ParentElementGetter<T>> {
 	 */
 	@SuppressWarnings("unchecked")
 	default @NotNull T getRoot() {
-		T root = (T)this;
-		T parent = root.getParent();
+		var root = (T)this;
+		var parent = root.getParent();
 
 		while (parent != null) {
 			root = parent;

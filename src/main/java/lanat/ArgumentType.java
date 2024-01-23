@@ -136,7 +136,7 @@ public abstract class ArgumentType<T>
 	 * Unregisters the specified subtype from this argument type.
 	 */
 	protected final void unregisterSubType(@NotNull ArgumentType<?> subType) {
-		if (this.subTypes == null || subType.parentArgType != this) {
+		if (subType.parentArgType != this) {
 			throw new IllegalArgumentException("The argument type specified is not registered to this argument type.");
 		}
 
@@ -332,8 +332,7 @@ public abstract class ArgumentType<T>
 		this.lastInTuple = false;
 
 		// reset the state of the subtypes.
-		if (this.subTypes != null)
-			this.subTypes.forEach(ArgumentType::resetState);
+		this.subTypes.forEach(ArgumentType::resetState);
 	}
 
 	@Override

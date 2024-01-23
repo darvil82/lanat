@@ -2,7 +2,6 @@ package lanat.helpRepresentation;
 
 import lanat.Argument;
 import lanat.helpRepresentation.descriptions.DescriptionFormatter;
-import lanat.utils.UtlMisc;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import textFormatter.FormatOption;
@@ -63,11 +62,19 @@ public final class ArgumentRepr {
 	 * @param arg the argument
 	 * @return the representation and description of the argument
 	 */
-	public static @Nullable String getDescription(@NotNull Argument<?, ?> arg) {
-		return UtlMisc.nullOrElseGet(
-			DescriptionFormatter.parse(arg),
-			desc -> ArgumentRepr.getRepresentation(arg) + ":" + System.lineSeparator() + HelpFormatter.indent(desc, arg)
-		);
+	public static @Nullable String getDescription(@NotNull Argument<?, ?> arg, boolean forceName) {
+		var description = DescriptionFormatter.parse(arg);
+
+		if (description == null) {
+			if (forceName)
+				return ArgumentRepr.getRepresentation(arg);
+			return null;
+		}
+
+		return ArgumentRepr.getRepresentation(arg) + ":"
+			+ System.lineSeparator()
+			+ HelpFormatter.indent(description, arg)
+			+ System.lineSeparator();
 	}
 
 	/**
@@ -83,10 +90,10 @@ public final class ArgumentRepr {
 	 * @param arguments the arguments
 	 * @return the descriptions of the arguments
 	 */
-	static String getDescriptions(@NotNull List<@NotNull Argument<?, ?>> arguments) {
+	static String getDescriptions(@NotNull List<@NotNull Argument<?, ?>> arguments, boolean forceNames) {
 		final var argDescriptions = arguments.stream()
 			.filter(arg -> !arg.isHidden())
-			.map(ArgumentRepr::getDescription)
+			.map(arg -> ArgumentRepr.getDescription(arg, forceNames))
 			.filter(Objects::nonNull)
 			.toList();
 
@@ -99,7 +106,7 @@ public final class ArgumentRepr {
 			buff.append(argDescriptions.get(i));
 
 			if (i < argDescriptions.size() - 1)
-				buff.append(System.lineSeparator().repeat(2));
+				buff.append(System.lineSeparator());
 		}
 
 		buff.append(System.lineSeparator());

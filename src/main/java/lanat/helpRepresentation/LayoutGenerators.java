@@ -114,7 +114,7 @@ public final class LayoutGenerators {
 
 		if (arguments.isEmpty() && cmd.getGroups().isEmpty()) return null;
 
-		buff.append(ArgumentRepr.getDescriptions(arguments));
+		buff.append(ArgumentRepr.getDescriptions(arguments, false));
 
 		for (var group : cmd.getGroups()) {
 			buff.append(ArgumentGroupRepr.getDescriptions(group));

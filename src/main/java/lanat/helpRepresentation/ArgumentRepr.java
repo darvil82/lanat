@@ -84,9 +84,14 @@ public final class ArgumentRepr {
 	 * @return the descriptions of the arguments
 	 */
 	static String getDescriptions(@NotNull List<@NotNull Argument<?, ?>> arguments) {
-		final var argDescriptions = arguments.stream().map(ArgumentRepr::getDescription).filter(Objects::nonNull).toList();
+		final var argDescriptions = arguments.stream()
+			.map(ArgumentRepr::getDescription)
+			.filter(Objects::nonNull)
+			.toList();
+
 		if (argDescriptions.isEmpty())
 			return "";
+
 		final var buff = new StringBuilder();
 
 		for (int i = 0; i < argDescriptions.size(); i++) {

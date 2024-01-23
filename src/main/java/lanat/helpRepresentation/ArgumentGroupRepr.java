@@ -103,6 +103,7 @@ public final class ArgumentGroupRepr {
 			buff.append('(');
 
 		final var arguments = Argument.sortByPriority(group.getArguments());
+
 		for (int i = 0; i < arguments.size(); i++) {
 			Argument<?, ?> arg = arguments.get(i);
 

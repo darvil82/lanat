@@ -59,22 +59,15 @@ public final class LayoutGenerators {
 	 * @return the generated synopsis.
 	 */
 	public static @Nullable String synopsis(@NotNull Command cmd) {
-		final var args = Argument.sortByPriority(cmd.getArguments());
+		final var args = Argument.sortByPriority(cmd.getArguments()).stream()
+			.filter(arg -> arg.getParentGroup() == null)
+			.toList();
 
 		if (args.isEmpty() && cmd.getGroups().isEmpty()) return null;
 		final var buffer = new StringBuilder();
 
-		for (var arg : args) {
-			// skip arguments that are in groups (handled later)
-			if (arg.getParentGroup() != null)
-				continue;
-
-			buffer.append(ArgumentRepr.getRepresentation(arg)).append(' ');
-		}
-
-		for (var group : cmd.getGroups()) {
-			buffer.append(ArgumentGroupRepr.getRepresentation(group)).append(' ');
-		}
+		args.forEach(arg -> buffer.append(ArgumentRepr.getRepresentation(arg)).append(' '));
+		cmd.getGroups().forEach(group -> buffer.append(ArgumentGroupRepr.getRepresentation(group)).append(' '));
 
 		if (!cmd.getCommands().isEmpty())
 			buffer.append(CommandRepr.getSubCommandsRepresentation(cmd));
@@ -114,9 +107,10 @@ public final class LayoutGenerators {
 	public static @Nullable String argumentDescriptions(@NotNull Command cmd) {
 		final var buff = new StringBuilder();
 		// skip arguments that are in groups (handled later)
-		final var arguments = Argument.sortByPriority(cmd.getArguments()).stream().filter(arg ->
-			arg.getParentGroup() == null
-		).toList();
+		final var arguments = Argument.sortByPriority(cmd.getArguments()).stream()
+			.filter(arg -> arg.getParentGroup() == null)
+			.filter(arg -> !arg.isHidden())
+			.toList();
 
 		if (arguments.isEmpty() && cmd.getGroups().isEmpty()) return null;
 

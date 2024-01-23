@@ -118,6 +118,12 @@ public class ArgumentGroup
 	public <T extends ArgumentType<TInner>, TInner>
 	void addArgument(@NotNull Argument<T, TInner> argument) {
 		argument.registerToGroup(this);
+
+		// arguments are being added after the group was added to the command, so we need to add them to the command
+		// at this point as well
+		if (this.parentCommand != null)
+			this.parentCommand.addArgument(argument);
+
 		this.arguments.add(argument);
 		this.checkUniqueArguments();
 	}
@@ -165,7 +171,8 @@ public class ArgumentGroup
 		this.parentCommand = parentCommand;
 
 		// if the argument already has a parent command, it means that it was added to the command before this group was
-		// added to it, so we don't need to add it again (it would cause an exception)
+		// added to it, so we don't need to add it again (it would cause an exception).
+		// usually this is the case if the group was added to the command after the arguments were added to the group.
 		this.arguments.stream()
 			.filter(arg -> arg.getParentCommand() == null)
 			.forEach(parentCommand::addArgument);

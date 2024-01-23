@@ -371,6 +371,11 @@ public class Command
 		this.from$invokeAfterInitMethod(cmdTemplate);
 	}
 
+	/**
+	 * Adds all the arguments from the given list of argument builders to this command.
+	 * The arguments with the same group name will be added to the same group.
+	 * @param argumentBuildersFieldPairs The list of argument builders to add the arguments from.
+	 */
 	private void from$addArguments(
 		List<Pair<Field, ArgumentBuilder<ArgumentType<Object>, Object>>> argumentBuildersFieldPairs
 	) {

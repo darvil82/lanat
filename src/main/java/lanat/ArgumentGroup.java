@@ -167,7 +167,7 @@ public class ArgumentGroup
 		// if the argument already has a parent command, it means that it was added to the command before this group was
 		// added to it, so we don't need to add it again (it would cause an exception)
 		this.arguments.stream()
-			.filter(a -> a.getParentCommand() == null)
+			.filter(arg -> arg.getParentCommand() == null)
 			.forEach(parentCommand::addArgument);
 
 		this.subGroups.forEach(g -> g.registerToCommand(parentCommand));

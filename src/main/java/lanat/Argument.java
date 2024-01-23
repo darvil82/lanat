@@ -688,13 +688,13 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	@Target(ElementType.FIELD)
 	public @interface Define {
 		/** @see Argument#addNames(String...) */
-		String[] names() default { };
+		@NotNull String[] names() default { };
 
 		/** @see Argument#setDescription(String) */
-		String description() default "";
+		@NotNull String description() default "";
 
 		/** @see ArgumentBuilder#withType(ArgumentType) */
-		Class<? extends ArgumentType<?>> type() default DummyArgumentType.class;
+		@NotNull Class<? extends ArgumentType<?>> type() default DummyArgumentType.class;
 
 		/**
 		 * Specifies the prefix character for this argument.
@@ -702,7 +702,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		 * By default, this is set to the value of {@link PrefixChar#defaultPrefix}.
 		 * @see Argument#setPrefix(PrefixChar)
 		 * */
-		PrefixChar prefix() default PrefixChar.DEFAULT; // Character.MAX_VALUE will be replaced with PrefixChar.defaultPrefix
+		@NotNull PrefixChar prefix() default PrefixChar.DEFAULT; // Character.MAX_VALUE will be replaced with PrefixChar.defaultPrefix
 
 		/** @see Argument#setRequired(boolean) */
 		boolean required() default false;
@@ -716,7 +716,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		/** @see Argument#setHidden(boolean) */
 		boolean hidden() default false;
 
-		String group() default "";
+		@NotNull String group() default "";
 	}
 
 

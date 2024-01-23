@@ -100,7 +100,7 @@ public class Command
 
 		// add the names and description from the annotation
 		this.addNames(CommandTemplate.getTemplateNames(templateClass));
-		if (annotation.description() != null) this.setDescription(annotation.description());
+		if (!annotation.description().isBlank()) this.setDescription(annotation.description());
 
 		this.from$recursive(templateClass);
 	}
@@ -633,10 +633,10 @@ public class Command
 	@Target(ElementType.TYPE)
 	public @interface Define {
 		/** @see Command#addNames(String...) */
-		String[] names() default {};
+		@NotNull String[] names() default {};
 
 		/** @see Command#setDescription(String) */
-		String description() default "";
+		@NotNull String description() default "";
 	}
 
 	/**

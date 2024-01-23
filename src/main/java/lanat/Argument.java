@@ -23,6 +23,7 @@ import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -471,7 +472,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	public boolean checkMatch(@NotNull String name) {
 		final char prefixChar = this.getPrefix().getCharacter();
 		return this.names.stream()
-			.anyMatch(a -> name.equals("" + prefixChar + a) || name.equals("" + prefixChar + prefixChar + a));
+			.anyMatch(a -> name.equals(prefixChar + a) || name.equals("" + prefixChar + prefixChar + a));
 	}
 
 	/**
@@ -738,15 +739,15 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		public static final @NotNull PrefixChar[] COMMON_PREFIXES = { MINUS, SLASH };
 
 
-		private PrefixChar(char character) {
+		PrefixChar(char character) {
 			this.character = character;
 		}
 
-		private PrefixChar() {
+		PrefixChar() {
 			this.character = null;
 		}
 
-		private PrefixChar(PrefixChar prefixChar) {
+		PrefixChar(PrefixChar prefixChar) {
 			this.character = prefixChar.character;
 		}
 
@@ -776,11 +777,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		 * @return the character that represents this prefix.
 		 */
 		public char getCharacter() {
-			if (this.character == null)
-				// this can never recurse because the default prefix is never DEFAULT
-				return PrefixChar.defaultPrefix.getCharacter();
-
-			return this.character;
+			// this can never recurse because the default prefix is never DEFAULT
+			return Objects.requireNonNullElseGet(this.character, () -> PrefixChar.defaultPrefix.getCharacter());
 		}
 
 		/**

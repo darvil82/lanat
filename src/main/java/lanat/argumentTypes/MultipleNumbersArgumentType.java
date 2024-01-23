@@ -7,9 +7,9 @@ import utils.Range;
 
 /**
  * An argument type that takes multiple numbers.
- * @param <Ti> The type of number that this argument type is.
+ * @param <TInner> The type of number that this argument type is.
  */
-public class MultipleNumbersArgumentType<Ti extends Number> extends TupleArgumentType<Ti> {
+public class MultipleNumbersArgumentType<TInner extends Number> extends TupleArgumentType<TInner> {
 	/**
 	 * Creates a new {@link TupleArgumentType} with the specified range of values that the argument will take.
 	 * @param range The range of values that the argument will take.
@@ -17,11 +17,11 @@ public class MultipleNumbersArgumentType<Ti extends Number> extends TupleArgumen
 	 * @throws lanat.exceptions.ArgumentTypeInferException If the type of the default value is not supported.
 	 */
 	@SuppressWarnings("unchecked")
-	public MultipleNumbersArgumentType(@NotNull Range range, @NotNull Ti[] defaultValue) {
+	public MultipleNumbersArgumentType(@NotNull Range range, @NotNull TInner[] defaultValue) {
 		super(
 			range,
 			// we can infer the type of the argument type from the default value
-			(ArgumentType<Ti>)ArgumentTypeInfer.get(defaultValue.getClass().getComponentType()),
+			(ArgumentType<TInner>)ArgumentTypeInfer.get(defaultValue.getClass().getComponentType()),
 			defaultValue
 		);
 	}

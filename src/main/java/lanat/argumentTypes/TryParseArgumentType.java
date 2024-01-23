@@ -73,7 +73,7 @@ public class TryParseArgumentType<T> extends ArgumentType<T> {
 	 * <li>One that is a valid executable (see {@link #isValidExecutable(Executable)})</li>
 	 * <li>Has a return type of the type given in the constructor</li>
 	 * </ul>
-	 * @param method
+	 * @param method The method to check
 	 * @return {@code true} if the given method is a valid method for this argument type
 	 */
 	private boolean isValidMethod(Method method) {

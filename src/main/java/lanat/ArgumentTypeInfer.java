@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.function.Supplier;
 
 /**
- * <h2>Argument Type Inferrring</h2>
+ * <h2>Argument Type Inferring</h2>
  * <p>
  * Handles inferring argument types for specified types. This is used mostly for defining {@link Argument}s in
  * {@link CommandTemplate}s.

@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import utils.UtlString;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * This contains methods that may be used in {@link LayoutItem}s to generate the content of the help message.
@@ -117,13 +118,15 @@ public final class LayoutGenerators {
 		buff.append(ArgumentRepr.getDescriptions(arguments, false));
 
 
-		final var groups = cmd.getGroups();
+		final var groups = cmd.getGroups().stream()
+			.map(ArgumentGroupRepr::getDescriptions)
+			.filter(Objects::nonNull)
+			.toList();
 
 		if (!groups.isEmpty())
 			buff.append(System.lineSeparator().repeat(1));
 
-		for (var group : groups)
-			buff.append(ArgumentGroupRepr.getDescriptions(group));
+		groups.forEach(buff::append);
 
 		return buff.toString();
 	}

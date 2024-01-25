@@ -90,7 +90,7 @@ public final class ArgumentRepr {
 	 * @param arguments the arguments
 	 * @return the descriptions of the arguments
 	 */
-	public static @NotNull String getDescriptions(@NotNull List<@NotNull Argument<?, ?>> arguments, boolean forceNames) {
+	public static @Nullable String getDescriptions(@NotNull List<@NotNull Argument<?, ?>> arguments, boolean forceNames) {
 		final var argDescriptions = arguments.stream()
 			.filter(arg -> !arg.isHidden())
 			.map(arg -> ArgumentRepr.getDescription(arg, forceNames))
@@ -98,7 +98,7 @@ public final class ArgumentRepr {
 			.toList();
 
 		if (argDescriptions.isEmpty())
-			return "";
+			return null;
 
 		final var buff = new StringBuilder();
 

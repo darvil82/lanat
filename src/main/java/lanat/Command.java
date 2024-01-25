@@ -416,13 +416,15 @@ public class Command
 			.toList();
 
 		// invoke the beforeInit method
-		this.from$invokeBeforeInitMethod(cmdTemplate, argumentBuildersFieldPairs.stream().map(Pair::second).toList());
+		this.from$invokeBeforeInitMethod(cmdTemplate, argumentBuildersFieldPairs.stream()
+			.map(Pair::second)
+			.toList());
 
 		// set the argument types from the fields (if they are not already set)
 		argumentBuildersFieldPairs.forEach(pair -> pair.second().setTypeFromField(pair.first()));
 
 		// add the arguments to the command and the groups
-		from$addArguments(argumentBuildersFieldPairs);
+		this.from$addArguments(argumentBuildersFieldPairs);
 
 		// invoke the afterInit method
 		this.from$invokeAfterInitMethod(cmdTemplate);

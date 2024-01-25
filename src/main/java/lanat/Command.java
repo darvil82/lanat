@@ -103,7 +103,7 @@ public class Command
 		this.addNames(CommandTemplate.getTemplateNames(templateClass));
 		if (!annotation.description().isBlank()) this.setDescription(annotation.description());
 
-		this.from$recursive(templateClass);
+		this.from(templateClass);
 	}
 
 	@Override
@@ -338,11 +338,68 @@ public class Command
 	}
 
 	/**
+	 * Passes certain properties to all the Sub-Commands of this command.
+	 * @see #inheritProperties(Command)
+	 */
+	void passPropertiesToChildren() {
+		this.subCommands.forEach(c -> c.inheritProperties(this));
+	}
+
+	/**
+	 * Returns {@code true} if the argument specified by the given name is equal to this argument.
+	 * <p>
+	 * Equality is determined by the argument's name and the command it belongs to.
+	 * </p>
+	 *
+	 * @param obj the argument to compare to
+	 * @return {@code true} if the argument specified by the given name is equal to this argument
+	 */
+	@Override
+	public boolean equals(@NotNull Object obj) {
+		if (obj == this) return true;
+		if (obj instanceof Command cmd)
+			return UtlMisc.equalsByNamesAndParentCmd(this, cmd);
+		return false;
+	}
+
+	/**
+	 * Checks that all the sub-commands in this container are unique.
+	 * @throws CommandAlreadyExistsException if there are two commands with the same name
+	 */
+	void checkUniqueSubCommands() {
+		UtlMisc.requireUniqueElements(this.subCommands, c -> new CommandAlreadyExistsException(c, this));
+	}
+
+	@Override
+	public void resetState() {
+		super.resetState();
+		this.tokenizer = new Tokenizer(this);
+		this.parser = new Parser(this);
+		this.arguments.forEach(Argument::resetState);
+		this.argumentGroups.forEach(ArgumentGroup::resetState);
+
+		this.subCommands.forEach(Command::resetState);
+	}
+
+	@Override
+	public @Nullable Command getParent() {
+		return this.parentCommand;
+	}
+
+	@Override
+	public @Nullable Command getParentCommand() {
+		return this.getParent();
+	}
+
+
+	// ----------------------------------------------- Command Templates -----------------------------------------------
+
+	/**
 	 * Adds all the arguments from the given command template class to this command.
-	 * This method is recursive, so it will add all the arguments from the parent class as well.
+	 * This method is recursive, so it will add all the arguments from the parent template classes as well.
 	 * @param cmdTemplate The command template class to add the arguments from.
 	 */
-	private void from$recursive(@NotNull Class<?> cmdTemplate) {
+	private void from(@NotNull Class<?> cmdTemplate) {
 		if (!CommandTemplate.class.isAssignableFrom(cmdTemplate)) return;
 
 		// don't allow classes without the @Command.Define annotation
@@ -350,7 +407,7 @@ public class Command
 			"Command Template class must be annotated with @Command.Define";
 
 		// get to the top of the hierarchy
-		Optional.ofNullable(cmdTemplate.getSuperclass()).ifPresent(this::from$recursive);
+		Optional.ofNullable(cmdTemplate.getSuperclass()).ifPresent(this::from);
 
 
 		var argumentBuildersFieldPairs = Stream.of(cmdTemplate.getDeclaredFields())
@@ -444,60 +501,6 @@ public class Command
 					throw new RuntimeException(e);
 				}
 			});
-	}
-
-	/**
-	 * Passes certain properties to all the Sub-Commands of this command.
-	 * @see #inheritProperties(Command)
-	 */
-	void passPropertiesToChildren() {
-		this.subCommands.forEach(c -> c.inheritProperties(this));
-	}
-
-	/**
-	 * Returns {@code true} if the argument specified by the given name is equal to this argument.
-	 * <p>
-	 * Equality is determined by the argument's name and the command it belongs to.
-	 * </p>
-	 *
-	 * @param obj the argument to compare to
-	 * @return {@code true} if the argument specified by the given name is equal to this argument
-	 */
-	@Override
-	public boolean equals(@NotNull Object obj) {
-		if (obj == this) return true;
-		if (obj instanceof Command cmd)
-			return UtlMisc.equalsByNamesAndParentCmd(this, cmd);
-		return false;
-	}
-
-	/**
-	 * Checks that all the sub-commands in this container are unique.
-	 * @throws CommandAlreadyExistsException if there are two commands with the same name
-	 */
-	void checkUniqueSubCommands() {
-		UtlMisc.requireUniqueElements(this.subCommands, c -> new CommandAlreadyExistsException(c, this));
-	}
-
-	@Override
-	public void resetState() {
-		super.resetState();
-		this.tokenizer = new Tokenizer(this);
-		this.parser = new Parser(this);
-		this.arguments.forEach(Argument::resetState);
-		this.argumentGroups.forEach(ArgumentGroup::resetState);
-
-		this.subCommands.forEach(Command::resetState);
-	}
-
-	@Override
-	public @Nullable Command getParent() {
-		return this.parentCommand;
-	}
-
-	@Override
-	public @Nullable Command getParentCommand() {
-		return this.getParent();
 	}
 
 

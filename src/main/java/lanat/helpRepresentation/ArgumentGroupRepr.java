@@ -4,7 +4,6 @@ import lanat.Argument;
 import lanat.ArgumentGroup;
 import lanat.helpRepresentation.descriptions.DescriptionFormatter;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import textFormatter.FormatOption;
 import textFormatter.TextFormatter;
 
@@ -26,18 +25,23 @@ public final class ArgumentGroupRepr {
 	 * @param group the group
 	 * @return the name and description of the group
 	 */
-	public static @Nullable String getDescription(@NotNull ArgumentGroup group) {
-		final var description = DescriptionFormatter.parse(group);
-		if (description == null)
-			return null;
+	public static @NotNull String getDescription(@NotNull ArgumentGroup group) {
+		final var buff = new StringBuilder();
 
 		final var name = new TextFormatter(group.getName() + ':').addFormat(FormatOption.BOLD);
 		if (group.isRestricted())
 			name.addFormat(FormatOption.UNDERLINE);
 
-		return name.toString()
-			+ System.lineSeparator()
-			+ HelpFormatter.indent(description, group);
+		buff.append(name);
+
+		final var description = DescriptionFormatter.parse(group);
+		if (description == null)
+			return buff.toString();
+
+		buff.append(System.lineSeparator());
+		buff.append(HelpFormatter.indent(description, group));
+
+		return buff.toString();
 	}
 
 	/**
@@ -55,8 +59,8 @@ public final class ArgumentGroupRepr {
 	 * @return the descriptions of the arguments and subgroups of the group
 	 */
 	public static @NotNull String getDescriptions(@NotNull ArgumentGroup group) {
-		final var arguments = Argument.sortByPriority(group.getArguments());
 		final var buff = new StringBuilder();
+		final var arguments = Argument.sortByPriority(group.getArguments());
 
 		buff.append(ArgumentRepr.getDescriptions(arguments, true));
 
@@ -64,8 +68,7 @@ public final class ArgumentGroupRepr {
 			buff.append(ArgumentGroupRepr.getDescriptions(subGroup));
 		}
 
-		return System.lineSeparator()
-			+ ArgumentGroupRepr.getDescription(group)
+		return ArgumentGroupRepr.getDescription(group)
 			+ System.lineSeparator().repeat(2)
 			+ HelpFormatter.indent(buff.toString(), group);
 	}

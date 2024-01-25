@@ -4,10 +4,12 @@ import lanat.Argument;
 import lanat.ArgumentGroup;
 import lanat.helpRepresentation.descriptions.DescriptionFormatter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import textFormatter.FormatOption;
 import textFormatter.TextFormatter;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Contains methods for generating the help representations of {@link ArgumentGroup}s.
@@ -58,15 +60,26 @@ public final class ArgumentGroupRepr {
 	 * @param group the group
 	 * @return the descriptions of the arguments and subgroups of the group
 	 */
-	public static @NotNull String getDescriptions(@NotNull ArgumentGroup group) {
+	public static @Nullable String getDescriptions(@NotNull ArgumentGroup group) {
 		final var buff = new StringBuilder();
-		final var arguments = Argument.sortByPriority(group.getArguments());
 
-		buff.append(ArgumentRepr.getDescriptions(arguments, true));
+		final var argDescriptions = ArgumentRepr.getDescriptions(
+			Argument.sortByPriority(group.getArguments()), true
+		);
 
-		for (final var subGroup : group.getGroups()) {
-			buff.append(ArgumentGroupRepr.getDescriptions(subGroup));
-		}
+		final var grpDescriptions = group.getGroups().stream()
+			.map(ArgumentGroupRepr::getDescriptions)
+			.filter(Objects::nonNull)
+			.toList();
+
+
+		if (grpDescriptions.isEmpty() && argDescriptions == null)
+			return null;
+
+		if (argDescriptions != null)
+			buff.append(argDescriptions);
+
+		grpDescriptions.forEach(buff::append);
 
 		return ArgumentGroupRepr.getDescription(group)
 			+ System.lineSeparator().repeat(2)
@@ -82,7 +95,7 @@ public final class ArgumentGroupRepr {
 	 * The arguments are sorted by priority.
 	 * @param group the group
 	 */
-	public static String getRepresentation(@NotNull ArgumentGroup group) {
+	public static @NotNull String getRepresentation(@NotNull ArgumentGroup group) {
 		final var buff = new StringBuilder();
 
 		// its empty, nothing to append

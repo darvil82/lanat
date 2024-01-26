@@ -14,7 +14,7 @@ public class InvalidRouteException extends LanatException {
 
 	public InvalidRouteException(@NotNull NamedWithDescription user, @Nullable String value, @Nullable String message) {
 		super(
-			"invalid route value '" + value + "' for "
+			"Invalid route value '" + value + "' for "
 				+ UtlReflection.getSimpleName(user.getClass()) + " '" + user.getName() + "'"
 				+ (message == null ? "" : ": " + message)
 		);

@@ -156,10 +156,6 @@ public class ArgumentGroup
 		}
 
 		this.parentGroup = parentGroup;
-		this.parentCommand = parentGroup.parentCommand;
-
-		// make sure that the arguments are added to the parent command here as well
-		this.attachArgumentsToParentCommand();
 	}
 
 	/**
@@ -172,22 +168,7 @@ public class ArgumentGroup
 		}
 
 		this.parentCommand = parentCommand;
-
-		// if the argument already has a parent command, it means that it was added to the command before this group was
-		// added to it, so we don't need to add it again (it would cause an exception).
-		// usually this is the case if the group was added to the command after the arguments were added to the group.
-		this.attachArgumentsToParentCommand();
-
 		this.subGroups.forEach(g -> g.registerToCommand(parentCommand));
-	}
-
-	/**
-	 * Adds the arguments of this group to the parent command if they do not have a parent command already.
-	 */
-	private void attachArgumentsToParentCommand() {
-		this.arguments.stream()
-			.filter(arg -> arg.getParentCommand() == null)
-			.forEach(this.parentCommand::addArgument);
 	}
 
 	@Override

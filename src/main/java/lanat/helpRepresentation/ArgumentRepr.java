@@ -109,7 +109,6 @@ public final class ArgumentRepr {
 				buff.append(System.lineSeparator());
 		}
 
-		buff.append(System.lineSeparator());
 		return buff.toString();
 	}
 }

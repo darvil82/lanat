@@ -114,7 +114,7 @@ public abstract class ParseErrors {
 			fmt
 				.withContent(
 					"Token '"
-						+ ctx.getTokenAt(this.index).contents()
+						+ ctx.getTokenAt(ctx.getAbsoluteIndex(this.index)).contents()
 						+ "' does not correspond with a valid argument, argument list, value, or command."
 				)
 				.highlight(this.index, 0, false);

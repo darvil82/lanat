@@ -9,12 +9,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class TestTerminalOutput extends UnitTests {
 	private void assertErrorOutput(String args, String expected) {
 		final var errors = this.parser.parseGetErrors(args);
-		System.out.printf("Test error output:%n%s%n", String.join(System.lineSeparator(), errors));
+		System.out.printf("Expected error output:%n%s%n%n", expected);
+
+		System.out.println("Test error output:");
 
 		// remove all the decorations to not make the tests a pain to write
 		assertTrue(
 			errors.stream()
 				.map(e -> e.replaceAll(" *[│─└┌\r] ?", "").strip())
+				.peek(System.out::println)
 				.toList()
 				.contains(expected)
 		);

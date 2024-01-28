@@ -198,6 +198,7 @@ public class ArgumentParser extends Command {
 
 		// pass the properties of this Sub-Command to its children recursively (most of the time this is what the user will want)
 		this.passPropertiesToChildren();
+		this.linkGroupHierarchy();
 
 		this.tokenize(input.args); // first. This will tokenize all Sub-Commands recursively
 

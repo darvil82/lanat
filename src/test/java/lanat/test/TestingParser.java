@@ -26,11 +26,14 @@ public class TestingParser extends ArgumentParser {
 
 	@Override
 	public @NotNull AfterParseOptions parse(@NotNull CLInput input) {
-		return super.parse(input).withActions(a -> a.printErrors());
+		return super.parse(input).withActions(AfterParseOptions.AfterParseActions::printErrors);
 	}
 
 	public @NotNull ParseResultRoot parseGetValues(@NotNull String args) {
-		var res = this.parse(CLInput.from(args)).withActions(act -> act.printErrors()).getResult();
+		var res = this.parse(CLInput.from(args))
+			.withActions(AfterParseOptions.AfterParseActions::printErrors)
+			.getResult();
+
 		assertNotNull(res, "The result of the parsing was null (Arguments have failed)");
 		return res;
 	}

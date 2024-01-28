@@ -117,13 +117,6 @@ public class ArgumentGroup
 	@Override
 	public <T extends ArgumentType<TInner>, TInner>
 	void addArgument(@NotNull Argument<T, TInner> argument) {
-		argument.registerToGroup(this);
-
-		// arguments are being added after the group was added to the command, so we need to add them to the command
-		// at this point as well
-		if (this.parentCommand != null)
-			this.parentCommand.addArgument(argument);
-
 		this.arguments.add(argument);
 		this.checkUniqueArguments();
 	}
@@ -168,7 +161,29 @@ public class ArgumentGroup
 		}
 
 		this.parentCommand = parentCommand;
-		this.subGroups.forEach(g -> g.registerToCommand(parentCommand));
+	}
+
+	/**
+	 * Links all the groups in this tree to their parent command.
+	 * <p>
+	 * This makes sure subgroups are properly linked if the user added them by using anonymous classes.
+	 * When executing the instance block of a group subclass, the parent command is not set yet.
+	 */
+	void linkHierarchyToCommand(@NotNull Command parentCommand) {
+		this.parentCommand = parentCommand;
+
+		// now register all arguments properly
+		this.arguments.stream()
+			.filter(arg -> arg.getParentGroup() == null) // only register arguments that have no parent group yet
+			.forEach(arg -> {
+				// make sure to attach it to the parent command if it has no parent command set yet
+				if (arg.getParentCommand() == null)
+					parentCommand.addArgument(arg);
+
+				arg.registerToGroup(this);
+			});
+
+		this.subGroups.forEach(group -> group.linkHierarchyToCommand(parentCommand));
 	}
 
 	@Override

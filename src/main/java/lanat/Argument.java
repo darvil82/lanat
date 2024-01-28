@@ -348,9 +348,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 */
 	@Override
 	public void registerToCommand(@NotNull Command parentCommand) {
-		if (this.parentCommand != null) {
+		if (this.parentCommand != null)
 			throw new ArgumentAlreadyExistsException(this, this.parentCommand);
-		}
 
 		this.parentCommand = parentCommand;
 		this.representationColor.setIfNotModified(parentCommand.colorsPool.next());
@@ -364,12 +363,12 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	/**
 	 * Sets the parent group of this argument. This is called when adding the Argument to a group at
 	 * {@link ArgumentGroup#addArgument(Argument)}
+	 * This will also call {@link Argument#registerToCommand(Command)} if the parent command has not been set yet.
 	 */
 	@Override
 	public void registerToGroup(@NotNull ArgumentGroup parentGroup) {
-		if (this.parentGroup != null) {
+		if (this.parentGroup != null)
 			throw new ArgumentAlreadyExistsException(this, this.parentGroup);
-		}
 
 		this.parentGroup = parentGroup;
 	}
@@ -585,13 +584,37 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		this.type.resetState();
 	}
 
+	/**
+	 * Returns {@code true} if this argument is not part of any command or group.
+	 * @return {@code true} if this argument is not part of any command or group.
+	 */
+	public boolean isOrphan() {
+		return this.parentCommand == null && this.parentGroup == null;
+	}
+
 	@Override
 	public @NotNull String toString() {
-		return "Argument<%s>[names=%s, prefix='%c', required=%b, positional=%b, allowUnique=%b, defaultValue=%s]"
-			.formatted(
-				this.type.getClass().getSimpleName(), this.names, this.getPrefix().getCharacter(), this.required,
-				this.positional, this.allowUnique, this.defaultValue
-			);
+		var buff = new StringBuilder();
+
+		buff.append("Argument<%s>[names=%s, prefix='%c', defaultValue=%s".formatted(
+			this.type.getClass().getSimpleName(), this.names, this.getPrefix().getCharacter(), this.defaultValue
+		));
+
+		var options = new ArrayList<String>(4);
+		if (this.required) options.add("required");
+		if (this.positional) options.add("positional");
+		if (this.allowUnique) options.add("allowUnique");
+		if (this.hidden) options.add("hidden");
+
+		if (!options.isEmpty()) {
+			buff.append(", (");
+			buff.append(String.join(", ", options));
+			buff.append(")");
+		}
+
+		buff.append(']');
+
+		return buff.toString();
 	}
 
 

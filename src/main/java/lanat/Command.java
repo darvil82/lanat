@@ -106,6 +106,19 @@ public class Command
 		this.from(templateClass);
 	}
 
+
+	/**
+	 * Initializes the Command hierarchy. This is done immediately after the parser structure has been established
+	 * by the user.
+	 */
+	private void initHierarchy() {
+		// pass the properties of this Sub-Command to its children recursively (most of the time this is what the user will want)
+		this.passPropertiesToChildren();
+		// finish initializing the group hierarchy
+		this.linkGroupHierarchy();
+	}
+
+
 	@Override
 	public <T extends ArgumentType<TInner>, TInner>
 	void addArgument(@NotNull Argument<T, TInner> argument) {
@@ -164,6 +177,17 @@ public class Command
 		}
 
 		this.parentCommand = parentCommand;
+	}
+
+	/**
+	 * Ensures that all groups in this command tree are properly linked to their parent groups.
+	 * @see ArgumentGroup#linkHierarchyToCommand(Command)
+	 */
+	protected void linkGroupHierarchy() {
+		this.argumentGroups.forEach(g -> g.linkHierarchyToCommand(this));
+
+		// for sub-commands as well
+		this.subCommands.forEach(Command::linkGroupHierarchy);
 	}
 
 	/**

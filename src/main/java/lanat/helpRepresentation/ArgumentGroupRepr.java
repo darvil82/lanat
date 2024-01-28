@@ -79,11 +79,15 @@ public final class ArgumentGroupRepr {
 		if (argDescriptions != null)
 			buff.append(argDescriptions);
 
+		if (argDescriptions != null && !grpDescriptions.isEmpty())
+			buff.append(System.lineSeparator());
+
 		grpDescriptions.forEach(buff::append);
 
 		return ArgumentGroupRepr.getDescription(group)
 			+ System.lineSeparator().repeat(2)
-			+ HelpFormatter.indent(buff.toString(), group);
+			+ HelpFormatter.indent(buff.toString(), group)
+			+ System.lineSeparator();
 	}
 
 

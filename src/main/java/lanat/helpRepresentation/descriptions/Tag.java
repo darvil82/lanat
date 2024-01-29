@@ -9,7 +9,6 @@ import lanat.utils.NamedWithDescription;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import utils.UtlReflection;
-import utils.UtlString;
 
 import java.util.Hashtable;
 import java.util.Map;
@@ -110,6 +109,6 @@ public abstract class Tag {
 		return !name.isBlank()
 			&& Character.isAlphabetic(name.charAt(0))
 			&& Character.isAlphabetic(name.charAt(name.length() - 1))
-			&& UtlString.allCharsMatch(name, c -> Character.isAlphabetic(c) || c == '-');
+			&& name.chars().allMatch(c -> Character.isAlphabetic(c) || c == '-');
 	}
 }

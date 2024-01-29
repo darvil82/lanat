@@ -120,8 +120,8 @@ public class Command
 
 
 	@Override
-	public <T extends ArgumentType<TInner>, TInner>
-	void addArgument(@NotNull Argument<T, TInner> argument) {
+	public <Type extends ArgumentType<TInner>, TInner>
+	void addArgument(@NotNull Argument<Type, TInner> argument) {
 		argument.registerToCommand(this);
 		this.arguments.add(argument);
 		this.checkUniqueArguments();

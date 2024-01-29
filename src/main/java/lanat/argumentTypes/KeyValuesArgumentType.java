@@ -16,18 +16,18 @@ import java.util.Objects;
  * <p>
  * The final value of this argument type is a {@link HashMap} of the key-value pairs.
  * </p>
- * @param <T> The type of the argument type used to parse the values.
- * @param <Ts> The type of the values.
+ * @param <Type> The type of the argument type used to parse the values.
+ * @param <TInner> The type of the values.
  * @see HashMap
  */
-public class KeyValuesArgumentType<T extends ArgumentType<Ts>, Ts> extends ArgumentType<HashMap<String, Ts>> {
-	private final @NotNull ArgumentType<Ts> valueArgumentType;
+public class KeyValuesArgumentType<Type extends ArgumentType<TInner>, TInner> extends ArgumentType<HashMap<String, TInner>> {
+	private final @NotNull ArgumentType<TInner> valueArgumentType;
 
 	/**
 	 * Creates a new key-values argument type.
 	 * @param argumentType The argument type used to parse the values.
 	 */
-	public KeyValuesArgumentType(@NotNull T argumentType) {
+	public KeyValuesArgumentType(@NotNull Type argumentType) {
 		if (argumentType.getRequiredArgValueCount().start() != 1)
 			throw new IllegalArgumentException("The argumentType must at least accept one value.");
 
@@ -41,8 +41,8 @@ public class KeyValuesArgumentType<T extends ArgumentType<Ts>, Ts> extends Argum
 	}
 
 	@Override
-	public HashMap<@NotNull String, @NotNull Ts> parseValues(String @NotNull [] args) {
-		HashMap<String, Ts> tempHashMap = new HashMap<>();
+	public HashMap<@NotNull String, @NotNull TInner> parseValues(String @NotNull [] args) {
+		HashMap<String, TInner> tempHashMap = new HashMap<>();
 
 		this.forEachArgValue(args, arg -> {
 			final var split = UtlString.split(arg, '=');

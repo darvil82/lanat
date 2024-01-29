@@ -115,8 +115,8 @@ public class ArgumentGroup
 
 
 	@Override
-	public <T extends ArgumentType<TInner>, TInner>
-	void addArgument(@NotNull Argument<T, TInner> argument) {
+	public <Type extends ArgumentType<TInner>, TInner>
+	void addArgument(@NotNull Argument<Type, TInner> argument) {
 		this.arguments.add(argument);
 		this.checkUniqueArguments();
 	}

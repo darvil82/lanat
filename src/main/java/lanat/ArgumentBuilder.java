@@ -217,6 +217,10 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
 
 	/**
 	 * Sets the argument type from the specified field. If the argument type is already set, this method does nothing.
+	 * If the argument type cannot be inferred from the field, an exception will be thrown.
+	 * @param field the field that will be used to infer the argument type
+	 * @see #setTypeFromField(Field)
+	 * @throws CommandTemplateException if the argument type cannot be inferred from the field
 	 */
 	@SuppressWarnings("unchecked")
 	void setTypeFromField(@NotNull Field field) {
@@ -224,7 +228,25 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
 		if (this.type != null) return;
 
 		var argType = ArgumentBuilder.getArgumentTypeFromField(field);
-		if (argType != null) this.withType((Type)argType);
+
+		if (argType != null) {
+			this.withType((Type)argType);
+			return;
+		}
+
+		var fieldType = field.getType();
+		boolean isPrimitiveArray = fieldType.isArray() && fieldType.getComponentType().isPrimitive();
+
+		throw new CommandTemplateException(
+			"Could not infer the argument type from the field '" + field.getName()
+				+ "' with type '" + fieldType.getSimpleName() + "'."
+				+ (
+					isPrimitiveArray
+						? " Primitive arrays are not supported. Use their wrapper class instead. "
+							+ "(e.g. int[] -> Integer[])"
+						: ""
+				)
+		);
 	}
 
 	/**

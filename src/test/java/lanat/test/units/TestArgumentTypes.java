@@ -20,7 +20,7 @@ public class TestArgumentTypes extends UnitTests {
 	@Override
 	protected TestingParser setParser() {
 		return new TestingParser("TestArgumentTypes") {{
-			this.addArgument(Argument.createOfBoolType("boolean"));
+			this.addArgument(Argument.create(new BooleanArgumentType(), "boolean"));
 			this.addArgument(Argument.create(new CounterArgumentType(), "counter", "c"));
 			this.addArgument(Argument.create(new IntegerArgumentType(), "integer"));
 			this.addArgument(Argument.create(new FloatArgumentType(), "float"));
@@ -40,7 +40,9 @@ public class TestArgumentTypes extends UnitTests {
 	@Test
 	public void testBoolean() {
 		assertEquals(Boolean.TRUE, this.parser.parseGetValues("--boolean").<Boolean>get("boolean").orElse(null));
+		assertEquals(Boolean.TRUE, this.parser.parseGetValues("--boolean true").<Boolean>get("boolean").orElse(null));
 		assertEquals(Boolean.FALSE, this.parser.parseGetValues("").<Boolean>get("boolean").orElse(null));
+		assertEquals(Boolean.FALSE, this.parser.parseGetValues("--boolean no").<Boolean>get("boolean").orElse(null));
 	}
 
 	@Test

@@ -289,7 +289,7 @@ public class ArgumentParser extends Command {
 	 * @param returnCode The return code to exit the program with.
 	 */
 	public void addVersionArgument(int returnCode) {
-		this.addArgument(Argument.createOfBoolType("version")
+		this.addArgument(Argument.createOfActionType("version")
 			.onOk(t -> {
 				System.out.println("Version: " + Objects.requireNonNullElse(this.getVersion(), "unknown"));
 				System.exit(returnCode);

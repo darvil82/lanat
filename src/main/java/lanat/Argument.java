@@ -1,6 +1,6 @@
 package lanat;
 
-import lanat.argumentTypes.BooleanArgumentType;
+import lanat.argumentTypes.ActionArgumentType;
 import lanat.argumentTypes.DummyArgumentType;
 import lanat.exceptions.ArgumentAlreadyExistsException;
 import lanat.parsing.errors.Error;
@@ -37,14 +37,14 @@ import java.util.stream.Stream;
  * {@link ArgumentParser#parse(CLInput)}.
  *
  * <p>
- * An Argument can be created using the factory methods available, like {@link Argument#createOfBoolType(String...)}.
+ * An Argument can be created using the factory methods available, like {@link Argument#createOfActionType(String...)}.
  * </p>
  * <br><br>
  * <h3>Example:</h3>
  *
  * <p>
  * An Argument with the names "name" and 'n' that will parse an integer value. In order to create an Argument, you need
- * to call any of the static factory methods available, like {@link Argument#createOfBoolType(String...)}. These methods
+ * to call any of the static factory methods available, like {@link Argument#createOfActionType(String...)}. These methods
  * will return an {@link ArgumentBuilder} object, which can be used to specify the Argument's properties easily.
  * </p>
  * <pre>
@@ -170,12 +170,11 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	/**
-	 * Creates an argument builder with a {@link BooleanArgumentType} type.
-	 *
+	 * Creates an argument builder with an {@link ActionArgumentType} type.
 	 * @param names the names of the argument. See {@link Argument#addNames(String...)} for more information.
 	 */
-	public static ArgumentBuilder<BooleanArgumentType, Boolean> createOfBoolType(@NotNull String... names) {
-		return Argument.create(new BooleanArgumentType()).withNames(names);
+	public static ArgumentBuilder<ActionArgumentType, Boolean> createOfActionType(@NotNull String... names) {
+		return Argument.create(new ActionArgumentType()).withNames(names);
 	}
 
 

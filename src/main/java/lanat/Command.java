@@ -453,7 +453,16 @@ public class Command
 		final var groupsMap = new Hashtable<String, ArgumentGroup>();
 
 		argumentBuildersFieldPairs.forEach(pair -> {
-			var builtArgument = pair.second().build();
+			Argument<?, ?> builtArgument;
+
+			try {
+				builtArgument = pair.second().build();
+			} catch (IllegalStateException e) {
+				throw new CommandTemplateException(
+					"Could not build argument from field '" + pair.first().getName() + "': " + e.getMessage()
+				);
+			}
+
 			var groupName = pair.first().getAnnotation(Argument.Define.class).group();
 			if (groupName.isBlank()) {
 				this.addArgument(builtArgument);

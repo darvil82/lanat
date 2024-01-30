@@ -48,7 +48,7 @@ public class ArgumentTypeInfer {
 
 		for (Class<?> clazz : infer) {
 			if (clazz.isArray() && clazz.getComponentType().isPrimitive())
-				throw new IllegalArgumentException("Cannot infer argument type for primitive array type: " + clazz.getName());
+				throw new IllegalArgumentException("Cannot register argument type infer for primitive array type: " + clazz.getName());
 
 			if (ArgumentTypeInfer.INFER_ARGUMENT_TYPES_MAP.containsKey(clazz))
 				throw new IllegalArgumentException("Argument type already registered for type: " + clazz.getName());

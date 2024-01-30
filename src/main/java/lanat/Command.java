@@ -121,7 +121,7 @@ public class Command
 	 * @param returnCode The return code to exit the program with.
 	 */
 	public void addHelpArgument(int returnCode) {
-		this.addArgument(Argument.createOfBoolType("help", "h")
+		this.addArgument(Argument.createOfActionType("help", "h")
 			.onOk(t -> {
 				System.out.println(this.getHelp());
 				System.exit(returnCode);

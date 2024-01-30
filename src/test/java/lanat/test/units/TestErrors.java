@@ -55,7 +55,7 @@ public class TestErrors extends UnitTests {
 		return this.addCallbacks(new TestingParser("TestCallbacks") {{
 			this.setErrorCode(5);
 
-			this.addArgument(TestErrors.this.addCallbacks(Argument.createOfBoolType("bool-arg").build()));
+			this.addArgument(TestErrors.this.addCallbacks(Argument.createOfActionType("bool-arg").build()));
 			this.addArgument(TestErrors.this.addCallbacks(Argument.create(new IntegerArgumentType(), "int-arg").build()));
 			this.addArgument(TestErrors.this.addCallbacks(Argument.create(new CounterArgumentType(), "counter").build()));
 			this.addArgument(TestErrors.this.addCallbacks(Argument.create(new FloatArgumentType(), "float").build()));

@@ -84,7 +84,7 @@ public class UnitTests {
 
 				this.addGroup(new ArgumentGroup("restricted-group") {{
 					this.setRestricted(true);
-					this.addArgument(Argument.createOfBoolType("extra"));
+					this.addArgument(Argument.createOfActionType("extra"));
 					this.addArgument(Argument.create(new IntegerArgumentType(), 'c').positional());
 				}});
 			}});

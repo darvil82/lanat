@@ -16,8 +16,8 @@ public class TestArgumentGroups extends UnitTests {
 
 		parser.addGroup(new ArgumentGroup("group") {{
 			this.setRestricted(true);
-			this.addArgument(Argument.createOfBoolType("group-arg"));
-			this.addArgument(Argument.createOfBoolType("group-arg2"));
+			this.addArgument(Argument.createOfActionType("group-arg"));
+			this.addArgument(Argument.createOfActionType("group-arg2"));
 		}});
 
 		return parser;

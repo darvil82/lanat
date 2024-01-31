@@ -1,7 +1,6 @@
 package lanat.helpRepresentation;
 
 import lanat.Command;
-import lanat.helpRepresentation.descriptions.Tag;
 import lanat.utils.CommandUser;
 import org.jetbrains.annotations.NotNull;
 import textFormatter.Color;
@@ -40,12 +39,6 @@ public class HelpFormatter {
 
 	/** Whether to print debug information about the layout when generating the help message. */
 	public static boolean debugLayout = false;
-
-
-	static {
-		// register the default tags before we start parsing descriptions
-		Tag.initTags();
-	}
 
 	/**
 	 * Creates a new {@link HelpFormatter}, initializing the layout.

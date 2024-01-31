@@ -36,8 +36,8 @@ public abstract class Tag {
 	protected abstract @NotNull String parse(@NotNull NamedWithDescription user, @Nullable String value);
 
 
-	/** Initialize the tags. This method will register the default tags that are used in descriptions. */
-	public static void initTags() {
+	// Initialize the default tags.
+	static {
 		Tag.register("link", LinkTag.class);
 		Tag.register("desc", DescTag.class);
 		Tag.register("color", ColorTag.class);

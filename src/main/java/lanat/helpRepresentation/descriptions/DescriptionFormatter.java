@@ -99,7 +99,7 @@ public final class DescriptionFormatter {
 	private static @NotNull String parseTag(@NotNull String tagContents, @NotNull NamedWithDescription user) {
 		if (tagContents.contains("=")) {
 			final var split = UtlString.split(tagContents, '=', 2);
-			return Tag.parseTagValue(user, split[0], split[1]);
+			return Tag.parseTagValue(user, split[0], split[1].isBlank() ? null : split[1]);
 		}
 
 		return Tag.parseTagValue(user, tagContents, null);

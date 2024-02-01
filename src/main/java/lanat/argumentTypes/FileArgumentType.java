@@ -87,8 +87,9 @@ public class FileArgumentType extends ArgumentType<File> {
 
 	@Override
 	public @Nullable String getDescription() {
-		return "A file path of"
-			+ (this.mustExist ? " an existing " : " a ")
+		return "A path to "
+			+ (this.mustExist ? "an existing" : "a")
+			+ " "
 			+ this.fileType.toString(false)
 			+ ".";
 	}

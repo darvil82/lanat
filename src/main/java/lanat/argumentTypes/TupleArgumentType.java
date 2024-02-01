@@ -13,18 +13,18 @@ import utils.Range;
  * @param <T> the type of the value that the argument will take
  */
 public abstract class TupleArgumentType<T> extends ArgumentType<T[]> {
-	private final @NotNull Range argCount;
+	private final @NotNull Range valueCount;
 	private final @NotNull ArgumentType<T> argumentType;
 
 	/**
 	 * Creates a new {@link TupleArgumentType} with the specified range and argument type.
-	 * @param range The range of values that the argument will take.
+	 * @param valueCount The range of values that the argument will take.
 	 * @param argumentType The argument type that will be used to parse the values.
 	 * @param defaultValue The default value of the argument. This will be used if no values are provided.
 	 */
-	public TupleArgumentType(@NotNull Range range, @NotNull ArgumentType<T> argumentType, @NotNull T[] defaultValue) {
+	public TupleArgumentType(@NotNull Range valueCount, @NotNull ArgumentType<T> argumentType, @NotNull T[] defaultValue) {
 		super(defaultValue);
-		this.argCount = range;
+		this.valueCount = valueCount;
 		this.registerSubType(this.argumentType = argumentType);
 	}
 
@@ -42,7 +42,7 @@ public abstract class TupleArgumentType<T> extends ArgumentType<T[]> {
 
 	@Override
 	public @NotNull Range getRequiredArgValueCount() {
-		return this.argCount;
+		return this.valueCount;
 	}
 
 	@Override
@@ -52,12 +52,12 @@ public abstract class TupleArgumentType<T> extends ArgumentType<T[]> {
 			return null;
 
 		return argTypeRepr
-			.concat(new TextFormatter(this.argCount.getRepresentation()).withForegroundColor(Color.BRIGHT_YELLOW));
+			.concat(new TextFormatter(this.valueCount.getRepresentation()).withForegroundColor(Color.BRIGHT_YELLOW));
 	}
 
 	@Override
 	public @Nullable String getDescription() {
-		return "Takes " + this.argCount.getMessage("value")
+		return "Takes " + this.valueCount.getMessage("value")
 			+ " of type " + this.argumentType.getRepresentation() + ".";
 	}
 }

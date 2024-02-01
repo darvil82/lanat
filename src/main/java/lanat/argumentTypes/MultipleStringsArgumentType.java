@@ -9,10 +9,10 @@ import utils.Range;
 public class MultipleStringsArgumentType extends TupleArgumentType<String> {
 	/**
 	 * Creates a new {@link TupleArgumentType} with the specified range of values that the argument will take.
-	 * @param range The range of values that the argument will take.
+	 * @param valueCount The range of values that the argument will take.
 	 */
-	public MultipleStringsArgumentType(@NotNull Range range) {
-		super(range, new StringArgumentType(), new String[0]);
+	public MultipleStringsArgumentType(@NotNull Range valueCount) {
+		super(valueCount, new StringArgumentType(), new String[0]);
 	}
 
 	// no need for anything fancy here, simply return the args

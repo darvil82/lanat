@@ -8,6 +8,7 @@ import utils.Range;
 import utils.UtlString;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -20,7 +21,7 @@ import java.util.Objects;
  * @param <TInner> The type of the values.
  * @see HashMap
  */
-public class KeyValuesArgumentType<Type extends ArgumentType<TInner>, TInner> extends ArgumentType<HashMap<String, TInner>> {
+public class KeyValuesArgumentType<Type extends ArgumentType<TInner>, TInner> extends ArgumentType<Map<String, TInner>> {
 	private final @NotNull ArgumentType<TInner> valueArgumentType;
 
 	/**
@@ -41,8 +42,8 @@ public class KeyValuesArgumentType<Type extends ArgumentType<TInner>, TInner> ex
 	}
 
 	@Override
-	public HashMap<@NotNull String, @NotNull TInner> parseValues(String @NotNull [] args) {
-		HashMap<String, TInner> tempHashMap = new HashMap<>();
+	public Map<@NotNull String, @NotNull TInner> parseValues(String @NotNull [] args) {
+		var tempHashMap = new HashMap<String, TInner>();
 
 		this.forEachArgValue(args, arg -> {
 			final var split = UtlString.split(arg, '=');

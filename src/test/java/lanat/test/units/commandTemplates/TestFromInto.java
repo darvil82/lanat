@@ -64,7 +64,7 @@ public class TestFromInto {
 		assertInstanceOf(StringArgumentType.class, result.getArgument("text").type);
 		assertInstanceOf(BooleanArgumentType.class, result.getArgument("flag").type);
 		assertInstanceOf(DoubleArgumentType.class, result.getArgument("number2").type);
-		assertInstanceOf(MultipleNumbersArgumentType.class, result.getArgument("bytes").type);
+		assertInstanceOf(TupleArgumentType.class, result.getArgument("bytes").type);
 	}
 
 	@Test

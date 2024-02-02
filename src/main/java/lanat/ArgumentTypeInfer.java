@@ -24,8 +24,8 @@ import java.util.function.Supplier;
  * }</pre>
  * <p>
  * In this case, {@link ArgumentTypeInfer#get(Class)} is called with the type {@code Double[]}, which will return a
- * {@link MultipleNumbersArgumentType} instance ready to be used for that value type:
- * <pre>{@code new MultipleNumbersArgumentType(Range.AT_LEAST_ONE, new Double[] {})}.</pre>
+ * {@link TupleArgumentType} instance ready to be used for that value type:
+ * <pre>{@code new TupleArgumentType(Range.AT_LEAST_ONE, new DoubleArgumentType()}.</pre>
  */
 public class ArgumentTypeInfer {
 	/**
@@ -76,7 +76,6 @@ public class ArgumentTypeInfer {
 	 * Registers a numeric argument type with the specified tuple type as well.
 	 * Note that for arrays, only the non-primitive types are inferred.
 	 * @param type The type of the numeric argument type.
-	 * @param array The default value of the numeric argument type.
 	 * @param inferPrimitive The <strong>non-array</strong> types to infer the argument type for.
 	 * @param <Ti> The type of the numeric type.
 	 * @param <T> The type of the tuple argument type.
@@ -84,7 +83,6 @@ public class ArgumentTypeInfer {
 	private static <Ti extends Number, T extends NumberArgumentType<Ti>>
 	void registerNumericWithTuple(
 		@NotNull Supplier<T> type,
-		@NotNull Ti[] array,
 		@NotNull Class<?> inferPrimitive,
 		@NotNull Class<?> infer
 	) {
@@ -95,7 +93,7 @@ public class ArgumentTypeInfer {
 		ArgumentTypeInfer.register(type, inferPrimitive, infer);
 
 		// register the array type (only the non-primitive type)
-		ArgumentTypeInfer.register(() -> new MultipleNumbersArgumentType<>(DEFAULT_TYPE_RANGE, array), infer.arrayType());
+		ArgumentTypeInfer.register(() -> new TupleArgumentType<>(DEFAULT_TYPE_RANGE, type.get()), infer.arrayType());
 	}
 
 	// add some default argument types.
@@ -108,11 +106,11 @@ public class ArgumentTypeInfer {
 		register(() -> new FileArgumentType(false), File.class);
 
 		// we need to specify the primitives as well... wish there was a better way to do this.
-		registerNumericWithTuple(IntegerArgumentType::new, new Integer[] {}, int.class, Integer.class);
-		registerNumericWithTuple(FloatArgumentType::new, new Float[] {}, float.class, Float.class);
-		registerNumericWithTuple(DoubleArgumentType::new, new Double[] {}, double.class, Double.class);
-		registerNumericWithTuple(LongArgumentType::new, new Long[] {}, long.class, Long.class);
-		registerNumericWithTuple(ShortArgumentType::new, new Short[] {}, short.class, Short.class);
-		registerNumericWithTuple(ByteArgumentType::new, new Byte[] {}, byte.class, Byte.class);
+		registerNumericWithTuple(IntegerArgumentType::new, int.class, Integer.class);
+		registerNumericWithTuple(FloatArgumentType::new, float.class, Float.class);
+		registerNumericWithTuple(DoubleArgumentType::new, double.class, Double.class);
+		registerNumericWithTuple(LongArgumentType::new, long.class, Long.class);
+		registerNumericWithTuple(ShortArgumentType::new, short.class, Short.class);
+		registerNumericWithTuple(ByteArgumentType::new, byte.class, Byte.class);
 	}
 }

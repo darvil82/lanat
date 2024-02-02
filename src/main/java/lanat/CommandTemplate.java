@@ -61,7 +61,7 @@ import java.util.List;
  *   @Argument.Define(names = {"name", "n"}, type = StringArgumentType.class)
  *   public String name;
  *
- *   @Argument.Define // name: "numbers". type: MultipleNumbersArgumentType<Integer>
+ *   @Argument.Define // name: "numbers". type: TupleArgumentType<Integer>
  *   public Integer[] numbers;
  *
  *   @Argument.Define(required = true) // name: "file". type: NumberRangeArgumentType<Integer>
@@ -120,7 +120,7 @@ public abstract class CommandTemplate {
 	 * the hierarchy, and then by the parent Commands.
 	 * @param parseResult The parsed arguments of the command.
 	 */
-	void afterInstantiation(@NotNull ParseResult parseResult) {
+	final void afterInstantiation(@NotNull ParseResult parseResult) {
 		this.parseResult = parseResult;
 		if (this.wasUsed()) this.onValuesReceived();
 	}

@@ -2,6 +2,7 @@ package lanat.test.units;
 
 import lanat.Argument;
 import lanat.ArgumentGroup;
+import lanat.argumentTypes.IntegerArgumentType;
 import lanat.test.TestingParser;
 import lanat.test.UnitTests;
 import org.junit.jupiter.api.DisplayName;
@@ -16,8 +17,8 @@ public class TestArgumentGroups extends UnitTests {
 
 		parser.addGroup(new ArgumentGroup("group") {{
 			this.setRestricted(true);
-			this.addArgument(Argument.createOfActionType("group-arg"));
-			this.addArgument(Argument.createOfActionType("group-arg2"));
+			this.addArgument(Argument.create(new IntegerArgumentType(), "group-arg"));
+			this.addArgument(Argument.create(new IntegerArgumentType(), "group-arg2"));
 		}});
 
 		return parser;
@@ -26,8 +27,8 @@ public class TestArgumentGroups extends UnitTests {
 	@Test
 	@DisplayName("Test restricted group")
 	public void testRestrictedGroup() {
-		var parsedArgs = this.parser.parseGetValues("--group-arg --group-arg2");
-		assertEquals(Boolean.TRUE, parsedArgs.<Boolean>get("group-arg").orElse(null));
-		assertEquals(Boolean.FALSE, parsedArgs.<Boolean>get("group-arg2").orElse(null)); // group-arg2 should not be present
+		var parsedArgs = this.parser.parseGetValues("--group-arg 5 --group-arg2 5");
+		assertEquals(5, parsedArgs.<Integer>get("group-arg").orElse(null));
+		this.assertNotPresent("group-arg2"); // group-arg2 should not be present
 	}
 }

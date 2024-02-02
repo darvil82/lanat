@@ -15,6 +15,7 @@ import utils.Pair;
 import utils.Range;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 /**
@@ -313,7 +314,8 @@ public abstract class ArgumentType<T>
 	 * @return A stream of the values that this argument received when being parsed.
 	 */
 	protected final Stream<String> getArgValuesStream(@NotNull String @NotNull [] args) {
-		return Stream.of(args).peek(arg -> this.currentArgValueIndex++);
+		var index = new AtomicInteger(0);
+		return Stream.of(args).peek(arg -> this.currentArgValueIndex = index.getAndIncrement());
 	}
 
 	@Override

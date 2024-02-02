@@ -44,7 +44,7 @@ public class KeyValuesArgumentType<Type extends ArgumentType<TInner>, TInner> ex
 
 	@Override
 	public Map<@NotNull String, @NotNull TInner> parseValues(String @NotNull [] args) {
-		var tempHashMap = new Hashtable<String, TInner>();
+		var map = new Hashtable<String, TInner>();
 
 		this.getArgValuesStream(args)
 			.forEach(arg -> {
@@ -63,7 +63,7 @@ public class KeyValuesArgumentType<Type extends ArgumentType<TInner>, TInner> ex
 					return;
 				}
 
-				if (tempHashMap.containsKey(key)) {
+				if (map.containsKey(key)) {
 					this.addError("Duplicate key: '" + key + "'.");
 					return;
 				}
@@ -73,13 +73,13 @@ public class KeyValuesArgumentType<Type extends ArgumentType<TInner>, TInner> ex
 				if (valueResult == null)
 					return;
 
-				tempHashMap.put(key, valueResult);
+				map.put(key, valueResult);
 			});
 
-		if (tempHashMap.isEmpty())
+		if (map.isEmpty())
 			return null;
 
-		return tempHashMap;
+		return map;
 	}
 
 	@Override

@@ -99,7 +99,7 @@ public class ArgumentTypeInfer {
 	// add some default argument types.
 	static {
 		register(StringArgumentType::new, String.class);
-		register(() -> new MultipleStringsArgumentType(DEFAULT_TYPE_RANGE), String[].class);
+		register(() -> new TupleArgumentType<>(DEFAULT_TYPE_RANGE, new StringArgumentType()), String[].class);
 
 		register(BooleanArgumentType::new, boolean.class, Boolean.class);
 

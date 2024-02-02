@@ -25,7 +25,7 @@ public class TestArgumentTypes extends UnitTests {
 			this.addArgument(Argument.create(new IntegerArgumentType(), "integer"));
 			this.addArgument(Argument.create(new FloatArgumentType(), "float"));
 			this.addArgument(Argument.create(new StringArgumentType(), "string"));
-			this.addArgument(Argument.create(new MultipleStringsArgumentType(Range.AT_LEAST_ONE), "multiple-strings"));
+			this.addArgument(Argument.create(new TupleArgumentType<>(Range.AT_LEAST_ONE, new StringArgumentType()), "multiple-strings"));
 			this.addArgument(Argument.create(new TupleArgumentType<>(Range.AT_LEAST_ONE, new IntegerArgumentType()), "multiple-ints")
 				.withDefaultValue(new Integer[] { 10101 })
 			);

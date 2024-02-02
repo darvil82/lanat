@@ -34,7 +34,7 @@ public class TestErrors extends UnitTests {
 		return obj;
 	}
 
-	private void assertOk(@NotNull String name, @NotNull Object correct) {
+	private void assertOk(@NotNull String name, Object correct) {
 		assertEquals(this.correct.get(name), correct);
 		assertNull(this.invalid.get(name));
 	}

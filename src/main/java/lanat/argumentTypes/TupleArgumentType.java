@@ -12,7 +12,7 @@ import utils.Range;
  * Shows a properly formatted description and representation.
  * @param <T> the type of the value that the argument will take
  */
-public abstract class TupleArgumentType<T> extends ArgumentType<T[]> {
+public class TupleArgumentType<T> extends ArgumentType<T[]> {
 	private final @NotNull Range valueCount;
 	private final @NotNull ArgumentType<T> argumentType;
 
@@ -20,10 +20,8 @@ public abstract class TupleArgumentType<T> extends ArgumentType<T[]> {
 	 * Creates a new {@link TupleArgumentType} with the specified range and argument type.
 	 * @param valueCount The range of values that the argument will take.
 	 * @param argumentType The argument type that will be used to parse the values.
-	 * @param defaultValue The default value of the argument. This will be used if no values are provided.
 	 */
-	public TupleArgumentType(@NotNull Range valueCount, @NotNull ArgumentType<T> argumentType, @NotNull T[] defaultValue) {
-		super(defaultValue);
+	public TupleArgumentType(@NotNull Range valueCount, @NotNull ArgumentType<T> argumentType) {
 		this.valueCount = valueCount;
 		this.registerSubType(this.argumentType = argumentType);
 	}

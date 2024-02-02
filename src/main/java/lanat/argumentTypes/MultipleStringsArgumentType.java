@@ -12,7 +12,7 @@ public class MultipleStringsArgumentType extends TupleArgumentType<String> {
 	 * @param valueCount The range of values that the argument will take.
 	 */
 	public MultipleStringsArgumentType(@NotNull Range valueCount) {
-		super(valueCount, new StringArgumentType(), new String[0]);
+		super(valueCount, new StringArgumentType());
 	}
 
 	// no need for anything fancy here, simply return the args

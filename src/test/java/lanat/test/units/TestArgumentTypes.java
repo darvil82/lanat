@@ -26,8 +26,8 @@ public class TestArgumentTypes extends UnitTests {
 			this.addArgument(Argument.create(new FloatArgumentType(), "float"));
 			this.addArgument(Argument.create(new StringArgumentType(), "string"));
 			this.addArgument(Argument.create(new MultipleStringsArgumentType(Range.AT_LEAST_ONE), "multiple-strings"));
-			this.addArgument(Argument.create(new MultipleNumbersArgumentType<>(
-				Range.AT_LEAST_ONE, new Integer[] { 10101 }), "multiple-ints")
+			this.addArgument(Argument.create(new TupleArgumentType<>(Range.AT_LEAST_ONE, new IntegerArgumentType()), "multiple-ints")
+				.withDefaultValue(new Integer[] { 10101 })
 			);
 			this.addArgument(Argument.create(new FileArgumentType(true), "file"));
 			this.addArgument(Argument.create(new EnumArgumentType<>(TestEnum.TWO), "enum"));
@@ -85,7 +85,7 @@ public class TestArgumentTypes extends UnitTests {
 	public void testNumbers() {
 		assertArrayEquals(new Integer[] { 4 }, this.parseArg("multiple-ints", "4"));
 		assertArrayEquals(new Integer[] { 4, 5, 6 }, this.parseArg("multiple-ints", "4 5 6"));
-		assertArrayEquals(new Integer[] { 10101 }, this.parseArg("multiple-ints", ""));
+		assertArrayEquals(new Integer[] { 10101 }, this.parser.parseGetValues("").<Integer[]>get("multiple-ints").orElse(null));
 	}
 
 	@Test

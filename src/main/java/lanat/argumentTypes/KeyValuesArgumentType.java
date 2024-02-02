@@ -8,6 +8,7 @@ import utils.Range;
 import utils.UtlString;
 
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
 import java.util.Objects;
 
@@ -43,36 +44,37 @@ public class KeyValuesArgumentType<Type extends ArgumentType<TInner>, TInner> ex
 
 	@Override
 	public Map<@NotNull String, @NotNull TInner> parseValues(String @NotNull [] args) {
-		var tempHashMap = new HashMap<String, TInner>();
+		var tempHashMap = new Hashtable<String, TInner>();
 
-		this.forEachArgValue(args, arg -> {
-			final var split = UtlString.split(arg, '=');
+		this.getArgValuesStream(args)
+			.forEach(arg -> {
+				final var split = UtlString.split(arg, '=');
 
-			if (split.length != 2) {
-				this.addError("Invalid key-value pair: '" + arg + "'.");
-				return;
-			}
+				if (split.length != 2) {
+					this.addError("Invalid key-value pair: '" + arg + "'.");
+					return;
+				}
 
-			final var key = split[0];
-			final var value = split[1];
+				final var key = split[0];
+				final var value = split[1];
 
-			if (key.isEmpty()) {
-				this.addError("Key cannot be empty.");
-				return;
-			}
+				if (key.isBlank()) {
+					this.addError("Key cannot be empty.");
+					return;
+				}
 
-			if (tempHashMap.containsKey(key)) {
-				this.addError("Duplicate key: '" + key + "'.");
-				return;
-			}
+				if (tempHashMap.containsKey(key)) {
+					this.addError("Duplicate key: '" + key + "'.");
+					return;
+				}
 
-			var valueResult = this.valueArgumentType.parseValues(value);
+				var valueResult = this.valueArgumentType.parseValues(value);
 
-			if (valueResult == null)
-				return;
+				if (valueResult == null)
+					return;
 
-			tempHashMap.put(key, valueResult);
-		});
+				tempHashMap.put(key, valueResult);
+			});
 
 		if (tempHashMap.isEmpty())
 			return null;

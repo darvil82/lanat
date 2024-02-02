@@ -66,7 +66,12 @@ public class KeyValuesArgumentType<Type extends ArgumentType<TInner>, TInner> ex
 				return;
 			}
 
-			tempHashMap.put(key, this.valueArgumentType.parseValues(value));
+			var valueResult = this.valueArgumentType.parseValues(value);
+
+			if (valueResult == null)
+				return;
+
+			tempHashMap.put(key, valueResult);
 		});
 
 		if (tempHashMap.isEmpty())

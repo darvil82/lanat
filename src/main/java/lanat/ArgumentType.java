@@ -15,7 +15,7 @@ import utils.Pair;
 import utils.Range;
 
 import java.util.ArrayList;
-import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 /**
  * <h2>Argument Type</h2>
@@ -307,17 +307,13 @@ public abstract class ArgumentType<T>
 	}
 
 	/**
-	 * Iterates over the values that this argument received when being parsed. This also sets
-	 * {@code this.currentArgValueIndex} to the current index of the value.
-	 *
+	 * Returns a stream of the values that this argument received when being parsed. This also sets
+	 * {@code this.currentArgValueIndex} to the current index of the value when the stream is consumed.
 	 * @param args The values that this argument received when being parsed.
-	 * @param consumer The consumer that will be called for each value.
+	 * @return A stream of the values that this argument received when being parsed.
 	 */
-	protected final void forEachArgValue(@NotNull String @NotNull [] args, @NotNull Consumer<@NotNull String> consumer) {
-		for (int i = 0; i < args.length; i++) {
-			this.currentArgValueIndex = i;
-			consumer.accept(args[i]);
-		}
+	protected final Stream<String> getArgValuesStream(@NotNull String @NotNull [] args) {
+		return Stream.of(args).peek(arg -> this.currentArgValueIndex++);
 	}
 
 	@Override

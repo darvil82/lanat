@@ -12,7 +12,6 @@ import lanat.utils.errors.ErrorsContainerImpl;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import utils.Pair;
-import utils.Range;
 
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -201,22 +200,6 @@ public abstract class ArgumentType<T>
 		return this.initialValue;
 	}
 
-	@Override
-	public @NotNull Range getRequiredArgValueCount() {
-		return Range.ONE;
-	}
-
-	/**
-	 * Specifies the number of times this argument type can be used during parsing.
-	 * By default, this is 1. ({@link Range#ONE}).
-	 * <p>
-	 * <strong>Note: </strong> The minimum value must be at least 1.
-	 * </p>
-	 */
-	public @NotNull Range getRequiredUsageCount() {
-		return Range.ONE;
-	}
-
 	/**
 	 * Adds an error to the list of errors that occurred during parsing at the current token index.
 	 * @param message The message to display related to the error.
@@ -267,21 +250,18 @@ public abstract class ArgumentType<T>
 			throw new IndexOutOfBoundsException("Index " + error.getIndex() + " is out of range for " + this.getClass().getName());
 		}
 
-		// the index of the error should be relative to the last token index.
-		// if this is a subtype, lastTokenIndex will be 0, so nothing will be done here.
-		// proper offsetting will be done when the error is dispatched to the parent.
-		error.offsetIndex(this.lastTokenIndex);
-
 		if (this.dispatchErrorToParent(error))
 			return; // if the error was dispatched to the parent, we don't need to add it to the list of errors.
 
+		// the index of the error should be relative to the last token index.
+		error.offsetIndex(this.lastTokenIndex);
 		super.addError(error);
 	}
 
 	/**
 	 * Returns the index of the last token that was parsed.
 	 */
-	protected int getLastTokenIndex() {
+	int getLastTokenIndex() {
 		return this.lastTokenIndex;
 	}
 

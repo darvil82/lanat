@@ -13,9 +13,6 @@ import utils.Range;
  * @see FromParseableArgumentType
  */
 public interface Parseable<T> extends NamedWithDescription {
-	/** Specifies the number of values that this parser should receive when calling {@link #parseValues(String[])}. */
-	@NotNull Range getRequiredArgValueCount();
-
 	/**
 	 * Parses the received values and returns the result. If the values are invalid, this method shall return {@code null}.
 	 *
@@ -23,6 +20,26 @@ public interface Parseable<T> extends NamedWithDescription {
 	 * @return The parsed value.
 	 */
 	@Nullable T parseValues(@NotNull String... args);
+
+
+	/**
+	 * Specifies the number of times this argument type can be used during parsing.
+	 * By default, this is 1. ({@link Range#ONE}).
+	 * <p>
+	 * <strong>Note: </strong> The minimum value must be at least 1.
+	 * </p>
+	 */
+	default @NotNull Range getRequiredUsageCount() {
+		return Range.ONE;
+	}
+
+	/**
+	 * Specifies the number of values that this parser should receive when calling {@link #parseValues(String[])}.
+	 * By default, this is 1. ({@link Range#ONE}).
+	 * */
+	default @NotNull Range getRequiredArgValueCount() {
+		return Range.ONE;
+	}
 
 	/** Returns the representation of this parseable type. This may appear in places like the help message. */
 	default @Nullable TextFormatter getRepresentation() {

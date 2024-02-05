@@ -171,7 +171,7 @@ public class Command
 	 * Ensures that all groups in this command tree are properly linked to their parent groups.
 	 * @see ArgumentGroup#linkHierarchyToCommand(Command)
 	 */
-	protected void linkGroupHierarchy() {
+	void linkGroupHierarchy() {
 		this.argumentGroups.forEach(g -> g.linkHierarchyToCommand(this));
 
 		// for sub-commands as well

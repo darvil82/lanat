@@ -52,6 +52,11 @@ public class FromParseableArgumentType<T extends Parseable<TInner>, TInner> exte
 	}
 
 	@Override
+	public @NotNull Range getRequiredUsageCount() {
+		return this.parseable.getRequiredUsageCount();
+	}
+
+	@Override
 	public @Nullable TextFormatter getRepresentation() {
 		return this.parseable.getRepresentation();
 	}

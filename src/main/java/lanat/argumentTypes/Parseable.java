@@ -43,7 +43,7 @@ public interface Parseable<T> extends NamedWithDescription {
 
 	/** Returns the representation of this parseable type. This may appear in places like the help message. */
 	default @Nullable TextFormatter getRepresentation() {
-		return new TextFormatter(this.getName());
+		return TextFormatter.of(this.getName());
 	}
 
 	@Override

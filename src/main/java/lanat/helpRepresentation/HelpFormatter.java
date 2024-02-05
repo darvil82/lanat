@@ -170,7 +170,7 @@ public class HelpFormatter {
 				continue;
 
 			if (HelpFormatter.debugLayout)
-				buffer.append(new TextFormatter("LayoutItem " + i + ":" + System.lineSeparator())
+				buffer.append(TextFormatter.of("LayoutItem " + i + ":" + System.lineSeparator())
 					.addFormat(FormatOption.UNDERLINE)
 					.withForegroundColor(Color.GREEN)
 				);

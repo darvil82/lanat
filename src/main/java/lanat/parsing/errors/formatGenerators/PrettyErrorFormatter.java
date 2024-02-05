@@ -88,7 +88,7 @@ public class PrettyErrorFormatter extends ErrorFormatter {
 			tokensFormatters.get(i).addFormat(FormatOption.DIM);
 		}
 
-		return new TextFormatter().concat(tokensFormatters.toArray(TextFormatter[]::new));
+		return TextFormatter.create().concat(tokensFormatters.toArray(TextFormatter[]::new));
 	}
 
 	@Override
@@ -96,7 +96,7 @@ public class PrettyErrorFormatter extends ErrorFormatter {
 		var cmdName = ctx.getCommand().getRoot().getName();
 		var in = cmdName + " " + ctx.getInputString(false);
 
-		return new TextFormatter(
+		return TextFormatter.of(
 			this.getHighlightOptions()
 				.map(opts -> {
 					var range = ctx.applyAbsoluteOffset(opts.range()).offset(cmdName.length() + 2);
@@ -123,7 +123,7 @@ public class PrettyErrorFormatter extends ErrorFormatter {
 	private @NotNull String highlightText(@NotNull String in, @NotNull Range range) {
 		return Color.BRIGHT_WHITE
 			+ in.substring(0, range.start() - 1)
-			+ this.applyErrorLevelFormat(new TextFormatter(in.substring(range.start() - 1, range.end())))
+			+ this.applyErrorLevelFormat(TextFormatter.of(in.substring(range.start() - 1, range.end())))
 			+ in.substring(range.end());
 	}
 
@@ -145,7 +145,7 @@ public class PrettyErrorFormatter extends ErrorFormatter {
 			+ this.getArrow(true)
 			+ (
 				TextFormatter.enableSequences
-					? this.applyErrorLevelFormat(new TextFormatter(in.substring(range.start() - 1, range.end())))
+					? this.applyErrorLevelFormat(TextFormatter.of(in.substring(range.start() - 1, range.end())))
 					: in.substring(range.start() - 1, range.end())
 			)
 			+ this.getArrow(false)
@@ -161,7 +161,7 @@ public class PrettyErrorFormatter extends ErrorFormatter {
 	}
 
 	private @NotNull TextFormatter getArrow(boolean isLeft) {
-		return this.applyErrorLevelFormat(new TextFormatter(isLeft ? "->" : "<-"));
+		return this.applyErrorLevelFormat(TextFormatter.of(isLeft ? "->" : "<-"));
 	}
 
 	private @NotNull TextFormatter applyErrorLevelFormat(@NotNull TextFormatter formatter) {

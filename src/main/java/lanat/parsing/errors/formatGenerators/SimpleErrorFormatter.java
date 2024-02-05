@@ -62,7 +62,7 @@ public class SimpleErrorFormatter extends ErrorFormatter {
 			.map(opts -> {
 				final var range = ctx.applyAbsoluteOffset(opts.range());
 
-				var nearContents = new TextFormatter().addFormat(FormatOption.ITALIC);
+				var nearContents = TextFormatter.create().addFormat(FormatOption.ITALIC);
 
 				if (ctx instanceof TokenizeErrorContext tokenizeCtx) {
 					nearContents.concat(UtlString.escapeQuotes(tokenizeCtx.getInputNear(range.start(), 5)));
@@ -70,7 +70,7 @@ public class SimpleErrorFormatter extends ErrorFormatter {
 					nearContents.concat(parseCtx.getTokenAt(range.start()).getFormatter());
 				}
 
-				return new TextFormatter(" (" + (indicator + " " + (range.start() + 1)) + ", '")
+				return TextFormatter.of(" (" + (indicator + " " + (range.start() + 1)) + ", '")
 					.concat(nearContents)
 					.concat("')");
 			})

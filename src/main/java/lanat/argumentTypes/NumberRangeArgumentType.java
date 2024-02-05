@@ -53,7 +53,7 @@ public class NumberRangeArgumentType<T extends Number & Comparable<T>> extends A
 	@Override
 	public @NotNull TextFormatter getRepresentation() {
 		return Objects.requireNonNull(this.argumentType.getRepresentation())
-			.concat(new TextFormatter("[%s-%s]".formatted(this.min, this.max)).withForegroundColor(Color.YELLOW));
+			.concat(TextFormatter.of("[%s-%s]".formatted(this.min, this.max)).withForegroundColor(Color.YELLOW));
 	}
 
 	@Override

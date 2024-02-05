@@ -54,7 +54,7 @@ public class TupleArgumentType<T> extends ArgumentType<T[]> {
 			return null;
 
 		return argTypeRepr
-			.concat(new TextFormatter(this.valueCount.getRepresentation()).withForegroundColor(Color.BRIGHT_YELLOW));
+			.concat(TextFormatter.of(this.valueCount.getRepresentation()).withForegroundColor(Color.BRIGHT_YELLOW));
 	}
 
 	@Override

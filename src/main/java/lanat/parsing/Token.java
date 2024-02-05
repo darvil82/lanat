@@ -17,6 +17,6 @@ public record Token(@NotNull TokenType type, @NotNull String contents) {
 		if (contents.contains(" ") && this.type == TokenType.ARGUMENT_VALUE) {
 			contents = '"' + UtlString.escapeQuotes(contents) + '"';
 		}
-		return new TextFormatter(contents, this.type.color);
+		return TextFormatter.of(contents, this.type.color);
 	}
 }

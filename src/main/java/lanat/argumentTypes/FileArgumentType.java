@@ -96,7 +96,7 @@ public class FileArgumentType extends ArgumentType<File> {
 
 	@Override
 	public @Nullable TextFormatter getRepresentation() {
-		return new TextFormatter(
+		return TextFormatter.of(
 			"path" + File.separator + "to" + File.separator + this.fileType.toString(true)
 		);
 	}

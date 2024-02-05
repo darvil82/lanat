@@ -16,7 +16,7 @@ public final class StringArgumentType extends ArgumentType<String> {
 
 	@Override
 	public @NotNull TextFormatter getRepresentation() {
-		return new TextFormatter("string");
+		return TextFormatter.of("string");
 	}
 
 	@Override

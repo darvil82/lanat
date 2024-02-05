@@ -31,7 +31,7 @@ public final class ArgumentRepr {
 	public static @NotNull String getRepresentation(@NotNull Argument<?, ?> arg) {
 		final var repr = arg.type.getRepresentation();
 
-		final var outText = new TextFormatter();
+		final var outText = TextFormatter.create();
 		final String names = String.join("/", arg.getNames());
 
 		if (arg.isRequired()) {
@@ -41,7 +41,7 @@ public final class ArgumentRepr {
 		outText.withForegroundColor(arg.getRepresentationColor());
 
 		if (arg.isPositional() && repr != null) {
-			outText.concat(repr, new TextFormatter("(" + names + ")"));
+			outText.concat(repr, TextFormatter.of("(" + names + ")"));
 		} else {
 			outText.withContents(arg.getPrefix() + names + (repr == null ? "" : " "));
 

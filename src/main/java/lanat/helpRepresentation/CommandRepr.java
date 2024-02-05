@@ -42,7 +42,7 @@ public final class CommandRepr {
 	public static @NotNull String getRepresentation(@NotNull Command cmd) {
 		return String.join(
 			"/",
-			cmd.getNames().stream().map(n -> new TextFormatter(n).addFormat(FormatOption.BOLD).toString()).toList()
+			cmd.getNames().stream().map(n -> TextFormatter.of(n).addFormat(FormatOption.BOLD).toString()).toList()
 		);
 	}
 

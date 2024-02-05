@@ -84,7 +84,7 @@ public class KeyValuesArgumentType<Type extends ArgumentType<TInner>, TInner> ex
 
 	@Override
 	public @NotNull TextFormatter getRepresentation() {
-		return new TextFormatter("(key=")
+		return TextFormatter.of("(key=")
 			.concat(Objects.requireNonNull(this.valueArgumentType.getRepresentation()))
 			.concat(", ...)");
 	}

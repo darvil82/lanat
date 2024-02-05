@@ -43,7 +43,7 @@ public class BooleanArgumentType extends ArgumentType<Boolean> {
 
 	@Override
 	public @Nullable TextFormatter getRepresentation() {
-		return new TextFormatter("boolean|empty");
+		return TextFormatter.of("boolean|empty");
 	}
 
 	@Override

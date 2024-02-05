@@ -43,13 +43,13 @@ public class EnumArgumentType<T extends Enum<T>> extends ArgumentType<T> {
 
 	@Override
 	public @NotNull TextFormatter getRepresentation() {
-		final var fmt = new TextFormatter("(");
+		final var fmt = TextFormatter.of("(");
 		for (var i = 0; i < this.values.length; i++) {
 			final var value = this.values[i];
 
 			// if value is the default value, make it bold and yellow
 			if (value == this.getInitialValue())
-				fmt.concat(new TextFormatter(value.name())
+				fmt.concat(TextFormatter.of(value.name())
 					.withForegroundColor(Color.YELLOW)
 					.addFormat(FormatOption.BOLD)
 				);

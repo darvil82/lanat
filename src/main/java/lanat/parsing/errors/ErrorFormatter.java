@@ -97,7 +97,7 @@ public abstract class ErrorFormatter implements ErrorLevelProvider {
 		else if (this.currentErrorContext instanceof TokenizeErrorContext tokenizeContext)
 			result = this.generateInputView(tokenizeContext);
 
-		return Objects.requireNonNullElse(result, new TextFormatter());
+		return Objects.requireNonNullElse(result, TextFormatter.create());
 	}
 
 	@Override
@@ -110,7 +110,7 @@ public abstract class ErrorFormatter implements ErrorLevelProvider {
 	 * @return the error level formatter
 	 */
 	protected @NotNull TextFormatter getErrorLevelFormatter() {
-		return new TextFormatter(this.errorLevel.name())
+		return TextFormatter.of(this.errorLevel.name())
 			.withForegroundColor(this.errorLevel.color)
 			.addFormat(FormatOption.BOLD);
 	}

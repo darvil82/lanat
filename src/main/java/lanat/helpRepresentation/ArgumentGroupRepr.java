@@ -30,7 +30,7 @@ public final class ArgumentGroupRepr {
 	public static @NotNull String getDescription(@NotNull ArgumentGroup group) {
 		final var buff = new StringBuilder();
 
-		final var name = new TextFormatter(group.getName() + ':').addFormat(FormatOption.BOLD);
+		final var name = TextFormatter.of(group.getName() + ':').addFormat(FormatOption.BOLD);
 		if (group.isRestricted())
 			name.addFormat(FormatOption.UNDERLINE);
 

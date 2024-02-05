@@ -90,8 +90,7 @@ public class AfterParseOptions {
 	 * </li>
 	 * <li>Exit the program with a code of {@code 0} if no arguments were passed to the program.</li>
 	 * </ul>
-	 * @param actions The options to be executed after parsing is done.
-	 * @return This instance.
+	 * @param actions The actions to be executed after parsing is done.
 	 */
 	public AfterParseOptions withActions(@NotNull Consumer<@NotNull AfterParseActions> actions) {
 		this.actions = actions;

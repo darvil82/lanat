@@ -93,6 +93,7 @@ public class ArgumentParser extends Command {
 	 * <pre>{@code
 	 * ArgumentParser.from(MyTemplate.class)
 	 *     .parse(input)
+	 *     .withActions(AfterParseOptions.DEFAULT_ACTIONS)
 	 *     .into(MyTemplate.class);
 	 * }</pre>
 	 * <p>
@@ -101,13 +102,13 @@ public class ArgumentParser extends Command {
 	 * MyTemplate parsed = ArgumentParser.parseFromInto(MyTemplate.class, input);
 	 * }
 	 * </pre>
-	 * The example above uses the {@link #parseFromInto(Class, CLInput)} overload, which sets the default options for
+	 * The example above uses the {@link #parseFromInto(Class, CLInput)} overload, which sets the default actions for
 	 * the {@link AfterParseOptions} object.
 	 * <p>
 	 * This method uses {@link #from(Class)}. See that method for more info.
 	 * @param templateClass The class to use as a template.
 	 * @param input The input to parse.
-	 * @param options A consumer that can be used for configuring the parsing process.
+	 * @param actions A consumer that can be used for configuring the parsing process.
 	 * @param <T> The type of the template.
 	 * @return The parsed template.
 	 * @see #parseFromInto(Class, CLInput)
@@ -118,17 +119,18 @@ public class ArgumentParser extends Command {
 	public static <T extends CommandTemplate> @NotNull T parseFromInto(
 		@NotNull Class<T> templateClass,
 		@NotNull CLInput input,
-		@NotNull Consumer<AfterParseOptions.@NotNull AfterParseActions> options
+		@NotNull Consumer<AfterParseOptions.@NotNull AfterParseActions> actions
 	) {
 		return ArgumentParser.from(templateClass)
 			.parse(input)
-			.withActions(options)
+			.withActions(actions)
 			.into(templateClass);
 	}
 
 	/**
 	 * Constructs a new {@link ArgumentParser} based on the given {@link CommandTemplate}, parses the given input, and
-	 * populates the template with the parsed values.
+	 * populates the template with the parsed values. Uses the default options for the {@link AfterParseOptions} object
+	 * ({@link AfterParseOptions#DEFAULT_ACTIONS}).
 	 * <p>
 	 * See {@link #parseFromInto(Class, CLInput, Consumer)} for more info.
 	 * @param templateClass The class to use as a template.
@@ -156,7 +158,7 @@ public class ArgumentParser extends Command {
 	 * @see #parseFromInto(Class, CLInput, Consumer)
 	 */
 	public static <T extends CommandTemplate>
-	@NotNull T parseFromInto(@NotNull Class<T> templateClass, @NotNull String[] input) {
+	@NotNull T parseFromInto(@NotNull Class<T> templateClass, @NotNull String @NotNull [] input) {
 		return ArgumentParser.parseFromInto(templateClass, CLInput.from(input));
 	}
 

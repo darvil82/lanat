@@ -14,7 +14,6 @@ public class ErrorFormattingContext {
 	/**
 	 * Sets the content of the error message.
 	 * @param content The content of the error message.
-	 * @return This instance.
 	 */
 	public ErrorFormattingContext withContent(@NotNull String content) {
 		this.content = content;

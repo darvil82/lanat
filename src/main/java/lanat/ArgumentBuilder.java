@@ -121,7 +121,7 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
 	 * @param field the field that will be used to get the names. It must have an {@link Argument.Define} annotation.
 	 * @return the names of the argument
 	 */
-	static @NotNull String[] getTemplateFieldNames(@NotNull Field field) {
+	static @NotNull String @NotNull [] getTemplateFieldNames(@NotNull Field field) {
 		final var annotation = field.getAnnotation(Argument.Define.class);
 		assert annotation != null : "The field must have an @Argument.Define annotation.";
 

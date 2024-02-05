@@ -79,17 +79,18 @@ public class HelpFormatter {
 		this.setLayout(
 			LayoutItem.of(LayoutGenerators::titleAndDescription),
 			LayoutItem.of(LayoutGenerators::synopsis)
-				.indent(1)
-				.margin(1),
+				.withIndent(1)
+				.withMargin(1),
 			LayoutItem.of(LayoutGenerators::argumentsDescriptions)
-				.title("Description:")
-				.indent(1),
+				.withTitle("Description:")
+				.withIndent(1),
 			LayoutItem.of(LayoutGenerators::subCommandsDescriptions)
-				.title("Sub-Commands:")
-				.indent(1)
-				.marginTop(1),
-			LayoutItem.of(LayoutGenerators::programLicense)
-				.marginTop(2)
+				.withTitle("Sub-Commands:")
+				.withIndent(1)
+				.withMarginTop(1),
+			LayoutItem.of(LayoutGenerators::programDetails)
+				.withTitle("Program Details:")
+				.withMarginTop(2)
 		);
 	}
 

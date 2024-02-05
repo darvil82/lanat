@@ -142,19 +142,17 @@ public final class LayoutGenerators {
 	}
 
 	/**
-	 * Shows the license of the command, if any.
+	 * Shows the details of the command, if any.
 	 * <p>
 	 * Note that this is a program-only property, so it will only be shown if the command is an instance of
 	 * {@link ArgumentParser}, that is, if it is the root command.
-	 * </p>
-	 *
-	 * @param cmd The command to generate the license for.
-	 * @return the generated license.
-	 * @see ArgumentParser#setLicense(String)
+	 * @param cmd The command to generate the details message for.
+	 * @return the generated details message.
+	 * @see ArgumentParser#setDetails(String)
 	 */
-	public static @Nullable String programLicense(@NotNull Command cmd) {
-		/* This is a bit of a special case. getLicense() is only present in ArgumentParser... It doesn't make much sense
+	public static @Nullable String programDetails(@NotNull Command cmd) {
+		/* This is a bit of a special case. getDetails() is only present in ArgumentParser... It makes little sense
 		 * to have it in Command, since it's a program-only property. So we have to do this check here. */
-		return cmd instanceof ArgumentParser ap ? ap.getLicense() : null;
+		return cmd instanceof ArgumentParser ap ? ap.getDetails() : null;
 	}
 }

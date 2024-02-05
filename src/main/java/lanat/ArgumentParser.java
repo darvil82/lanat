@@ -21,7 +21,7 @@ import java.util.stream.Stream;
 public class ArgumentParser extends Command {
 	/** This is used to be able to tell if we should reset the state of all the commands before parsing */
 	private boolean isParsed = false;
-	private @Nullable String license;
+	private @Nullable String details;
 	private @Nullable String version;
 
 	/**
@@ -259,19 +259,19 @@ public class ArgumentParser extends Command {
 	}
 
 	/**
-	 * Sets the license of this program. By default, this is shown in the help message.
-	 * @param license The license information to set.
+	 * Sets the details of this program. By default, this is shown in the help message.
+	 * @param details The details text content to set.
 	 */
-	public void setLicense(@NotNull String license) {
-		this.license = license;
+	public void setDetails(@NotNull String details) {
+		this.details = details;
 	}
 
 	/**
-	 * Returns the license of this program.
-	 * @see #setLicense(String)
+	 * Returns the details of this program.
+	 * @see #setDetails(String)
 	 */
-	public @Nullable String getLicense() {
-		return this.license;
+	public @Nullable String getDetails() {
+		return this.details;
 	}
 
 	/**

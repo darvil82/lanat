@@ -63,7 +63,7 @@ public class LayoutItem {
 	 *
 	 * @param indent the indent of the layout item
 	 */
-	public LayoutItem indent(int indent) {
+	public LayoutItem withIndent(int indent) {
 		this.indentCount = (byte)Math.max(indent, 0);
 		return this;
 	}
@@ -74,7 +74,7 @@ public class LayoutItem {
 	 *
 	 * @param marginTop the size of the margin at the top of the layout item
 	 */
-	public LayoutItem marginTop(int marginTop) {
+	public LayoutItem withMarginTop(int marginTop) {
 		this.marginTop = Math.max(marginTop, 0);
 		return this;
 	}
@@ -85,7 +85,7 @@ public class LayoutItem {
 	 *
 	 * @param marginBottom the size of the margin at the bottom of the layout item
 	 */
-	public LayoutItem marginBottom(int marginBottom) {
+	public LayoutItem withMarginBottom(int marginBottom) {
 		this.marginBottom = Math.max(marginBottom, 0);
 		return this;
 	}
@@ -96,9 +96,9 @@ public class LayoutItem {
 	 *
 	 * @param margin the size of the margin at the top and bottom of the layout item
 	 */
-	public LayoutItem margin(int margin) {
-		this.marginTop(margin);
-		return this.marginBottom(margin);
+	public LayoutItem withMargin(int margin) {
+		this.withMarginTop(margin);
+		return this.withMarginBottom(margin);
 	}
 
 	/**
@@ -114,7 +114,7 @@ public class LayoutItem {
 	 *
 	 * @param title the title of the layout item
 	 */
-	public LayoutItem title(String title) {
+	public LayoutItem withTitle(String title) {
 		this.title = title;
 		return this;
 	}

@@ -22,8 +22,11 @@ public class AfterParseOptions {
 	private final @NotNull ErrorsCollector errorsCollector;
 	private @Nullable List<@NotNull String> errors;
 	private final int errorCode;
-	private final boolean receivedArguments;
+	/** Whether any input was received during parsing. */
+	private final boolean receivedInput;
 	private @NotNull Consumer<@NotNull AfterParseActions> actions = DEFAULT_ACTIONS;
+	/** Whether the actions have been run already. */
+	private boolean ranActions = false;
 
 	public static final Consumer<@NotNull AfterParseActions> DEFAULT_ACTIONS = a -> a
 		.printErrors()
@@ -35,20 +38,27 @@ public class AfterParseOptions {
 	AfterParseOptions(
 		@NotNull ArgumentParser argumentParser,
 		@NotNull ErrorsCollector errorsCollector,
-		boolean receivedArguments
+		boolean receivedInput
 	) {
 		this.argumentParser = argumentParser;
 		this.errorsCollector = errorsCollector;
 		this.errorCode = argumentParser.getErrorCode();
-		this.receivedArguments = receivedArguments;
+		this.receivedInput = receivedInput;
 	}
 
 	/**
-	 * Runs all the operations that need to be done before the parse result is returned.
+	 * Runs all the actions that need to be done before the parse result is returned.
+	 * <p>
+	 * This method will only run the actions once. If it's called again, it will be skipped.
 	 */
-	private void runOperations() {
+	private void runActions() {
+		// if the actions have already been run, skip this
+		if (this.ranActions)
+			return;
+
 		this.actions.accept(new AfterParseActions());
 		this.argumentParser.invokeCallbacks();
+		this.ranActions = true;
 	}
 
 	/**
@@ -104,7 +114,7 @@ public class AfterParseOptions {
 	 * result.
 	 */
 	public @NotNull ParseResultRoot getResult() {
-		this.runOperations();
+		this.runActions();
 		return this.argumentParser.getParseResult();
 	}
 
@@ -309,7 +319,7 @@ public class AfterParseOptions {
 
 		/** Prints the help message to {@link System#out} if no arguments were passed to the program. */
 		public AfterParseActions printHelpIfNoInput() {
-			if (!AfterParseOptions.this.receivedArguments)
+			if (!AfterParseOptions.this.receivedInput)
 				System.out.println(AfterParseOptions.this.argumentParser.getHelp());
 			return this;
 		}
@@ -325,7 +335,7 @@ public class AfterParseOptions {
 
 		/** Exits the program with a code of {@code 0} if no arguments were passed to the program. */
 		public AfterParseActions exitIfNoInput() {
-			if (!AfterParseOptions.this.receivedArguments)
+			if (!AfterParseOptions.this.receivedInput)
 				System.exit(0);
 			return this;
 		}

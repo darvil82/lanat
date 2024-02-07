@@ -13,8 +13,8 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * An argument type that takes key-value pairs. The key is a string and the value is of another type that is specified
- * in the constructor.
+ * An argument type that takes key-value pairs. The key is a string, and the value is of the argument type given in the
+ * constructor. The key-value pairs are separated by an equals sign (e.g. {@code key=value}).
  * <p>
  * The final value of this argument type is a {@link HashMap} of the key-value pairs.
  * </p>

@@ -8,7 +8,7 @@ import textFormatter.TextFormatter;
 import utils.Range;
 
 /**
- * Provides a base for argument types that take multiple values.
+ * Parses multiple values received from the user by using the argument type provided in the constructor.
  * Shows a properly formatted description and representation.
  * @param <T> the type of the value that the argument will take
  */

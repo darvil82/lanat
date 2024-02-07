@@ -63,7 +63,7 @@ public class ArgumentTypeInfer {
 	 * @return The argument type that should be inferred for the specified type.
 	 * @throws ArgumentTypeInferException If no argument type is found for the specified type.
 	 */
-	public static ArgumentType<?> get(@NotNull Class<?> clazz) {
+	public static @NotNull ArgumentType<?> get(@NotNull Class<?> clazz) {
 		var result = ArgumentTypeInfer.INFER_ARGUMENT_TYPES_MAP.get(clazz);
 
 		if (result == null)

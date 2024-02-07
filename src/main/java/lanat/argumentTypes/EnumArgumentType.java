@@ -56,7 +56,6 @@ public class EnumArgumentType<T extends Enum<T>> extends ArgumentType<T> {
 			else
 				fmt.concat(value.name());
 
-
 			if (i < this.values.length - 1)
 				fmt.concat(" | ");
 		}

@@ -1,7 +1,6 @@
 package lanat.utils;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.Function;
@@ -41,18 +40,6 @@ public final class UtlMisc {
 	public static <T extends MultipleNamesAndDescription & CommandUser>
 	boolean equalsByNamesAndParentCmd(@NotNull T a, @NotNull T b) {
 		return a.getParentCommand() == b.getParentCommand() && a.getNames().stream().anyMatch(b::hasName);
-	}
-
-	/**
-	 * Returns {@code null} if {@code obj} is {@code null}, otherwise returns the result of the given function.
-	 * @param obj The object to check
-	 * @param defaultObj The function to apply to {@code obj} if it is not {@code null}
-	 * @return {@code null} if {@code obj} is {@code null}, otherwise returns the result of the given function
-	 * @param <T> The type of the objects
-	 * @param <R> The type of the result of the function
-	 */
-	public static <T, R> R nullOrElseGet(@Nullable T obj, @NotNull Function<@NotNull T, @NotNull R> defaultObj) {
-		return obj == null ? null : defaultObj.apply(obj);
 	}
 
 	/**

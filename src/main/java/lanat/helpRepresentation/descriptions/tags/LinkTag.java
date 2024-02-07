@@ -27,7 +27,7 @@ public class LinkTag extends Tag {
 		if (obj instanceof Command cmd)
 			return CommandRepr.getRepresentation(cmd);
 		else if (obj instanceof Argument<?, ?> arg)
-			return ArgumentRepr.getRepresentation(arg);
+			return ArgumentRepr.getRepresentation(arg, false);
 		else if (obj instanceof ArgumentGroup group)
 			return ArgumentGroupRepr.getRepresentation(group);
 

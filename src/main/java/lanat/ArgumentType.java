@@ -91,7 +91,7 @@ public abstract class ArgumentType<T>
 	 * Constructs a new argument type with the specified initial value.
 	 * @param initialValue The initial value of this argument type.
 	 */
-	public ArgumentType(@NotNull T initialValue) {
+	protected ArgumentType(@NotNull T initialValue) {
 		this();
 		this.setValue(this.initialValue = initialValue);
 	}
@@ -99,8 +99,17 @@ public abstract class ArgumentType<T>
 	/**
 	 * Constructs a new argument type.
 	 */
-	public ArgumentType() {
+	protected ArgumentType() {
 		if (this.getRequiredUsageCount().start() == 0) {
+			throw new IllegalArgumentException("The required usage count must be at least 1.");
+		}
+	}
+
+	/**
+	 * Constructs a new argument type with the specified parseable.
+	 */
+	protected ArgumentType(@NotNull Parseable<T> parseable) {
+		if (parseable.getRequiredUsageCount().start() == 0) {
 			throw new IllegalArgumentException("The required usage count must be at least 1.");
 		}
 	}

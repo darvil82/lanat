@@ -12,6 +12,7 @@ import utils.Range;
  * @param <T> The type that this argument type parses.
  * @see FromParseableArgumentType
  */
+@FunctionalInterface
 public interface Parseable<T> extends NamedWithDescription {
 	/**
 	 * Parses the received values and returns the result. If the values are invalid, this method shall return {@code null}.

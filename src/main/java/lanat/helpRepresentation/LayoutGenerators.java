@@ -68,7 +68,7 @@ public final class LayoutGenerators {
 		if (args.isEmpty() && cmd.getGroups().isEmpty()) return null;
 		final var buffer = new StringBuilder();
 
-		args.forEach(arg -> buffer.append(ArgumentRepr.getRepresentation(arg)).append(' '));
+		args.forEach(arg -> buffer.append(ArgumentRepr.getRepresentation(arg, false)).append(' '));
 		cmd.getGroups().forEach(group -> buffer.append(ArgumentGroupRepr.getRepresentation(group)).append(' '));
 
 		if (!cmd.getCommands().isEmpty())

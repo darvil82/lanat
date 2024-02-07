@@ -44,7 +44,7 @@ public class TestHelpFormatting extends UnitTests {
 	@DisplayName("Test help formatting")
 	public void testHelpFormatting() {
 		assertEquals(
-			"description of -arg1/a1: (description of arg2: (description of my type: "
+			"description of -arg1: (description of arg2: (description of my type: "
 				+ "(Counts the number of times this argument is used.) i am in the command TestHelpFormatting))",
 			this.helpFormatter.generate(this.parser)
 		);

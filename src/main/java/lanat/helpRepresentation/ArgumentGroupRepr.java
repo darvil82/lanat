@@ -116,7 +116,7 @@ public final class ArgumentGroupRepr {
 		for (int i = 0; i < arguments.size(); i++) {
 			Argument<?, ?> arg = arguments.get(i);
 
-			buff.append(ArgumentRepr.getRepresentation(arg));
+			buff.append(ArgumentRepr.getRepresentation(arg, false));
 			if (i < arguments.size() - 1) {
 				buff.append(' ');
 				if (group.isRestricted())

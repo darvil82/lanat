@@ -24,6 +24,7 @@ public class FromParseableArgumentType<T extends Parseable<TInner>, TInner> exte
 	 *  returns {@code null}.
 	 */
 	public FromParseableArgumentType(@NotNull T parseable, @NotNull String errorMessage) {
+		super(parseable);
 		this.parseable = parseable;
 		this.errorMessage = errorMessage;
 	}
@@ -38,11 +39,12 @@ public class FromParseableArgumentType<T extends Parseable<TInner>, TInner> exte
 	}
 
 	@Override
-	public @Nullable TInner parseValues(@NotNull String @NotNull [] args) {
-		TInner result = this.parseable.parseValues(args);
-		if (result == null) {
+	public @Nullable TInner parseValues(@NotNull String @NotNull [] values) {
+		TInner result = this.parseable.parseValues(values);
+
+		if (result == null)
 			this.addError(this.errorMessage);
-		}
+
 		return result;
 	}
 

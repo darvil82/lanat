@@ -145,28 +145,14 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	/**
-	 * Creates an argument builder with the specified single character name and type.
-	 *
-	 * @param name the name of the argument. See {@link Argument#addNames(String...)} for more information.
+	 * Creates an argument builder with the specified type and names.
 	 * @param type the type of the argument. This is the subParser that will be used to parse the value/s this
+	 * 	argument should receive.
+	 * @param names the names of the argument. See {@link Argument#addNames(String...)} for more information.
 	 */
 	public static <Type extends ArgumentType<TInner>, TInner>
-	ArgumentBuilder<Type, TInner> create(@NotNull Type type, char name) {
-		return Argument.create(type, String.valueOf(name));
-	}
-
-	/**
-	 * Creates an argument builder with the specified single character name, full name and type.
-	 * <p>
-	 * This is equivalent to calling <pre>{@code Argument.create(charName, type).addNames(fullName)}</pre>
-	 *
-	 * @param charName the single character name of the argument.
-	 * @param fullName the full name of the argument.
-	 * @param type the type of the argument. This is the subParser that will be used to parse the value/s this
-	 */
-	public static <Type extends ArgumentType<TInner>, TInner>
-	ArgumentBuilder<Type, TInner> create(@NotNull Type type, char charName, @NotNull String fullName) {
-		return Argument.create(type).withNames(fullName, String.valueOf(charName));
+	ArgumentBuilder<Type, TInner> create(@NotNull Builder<Type> type, @NotNull String... names) {
+		return Argument.create(type.build(), names);
 	}
 
 	/**

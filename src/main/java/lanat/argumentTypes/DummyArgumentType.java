@@ -12,7 +12,7 @@ public final class DummyArgumentType extends ArgumentType<Void> {
 	private DummyArgumentType() {}
 
 	@Override
-	public @Nullable Void parseValues(@NotNull String @NotNull [] args) {
+	public @Nullable Void parseValues(@NotNull String @NotNull [] values) {
 		return null;
 	}
 }

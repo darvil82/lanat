@@ -3,6 +3,7 @@ package lanat;
 import lanat.argumentTypes.DummyArgumentType;
 import lanat.exceptions.ArgumentTypeInferException;
 import lanat.exceptions.CommandTemplateException;
+import lanat.utils.Builder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import utils.UtlReflection;
@@ -17,7 +18,7 @@ import java.util.stream.Stream;
  * @param <Type> the {@link ArgumentType} subclass that will parse the value passed to the argument
  * @param <TInner> the actual type of the value passed to the argument
  */
-public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
+public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> implements Builder<Argument<Type, TInner>> {
 	private @NotNull String @Nullable [] names;
 	private @Nullable String description;
 	private @Nullable Type type;
@@ -206,12 +207,24 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
 	/**
 	 * The Argument Type is the class that will be used to parse the argument value. It handles the conversion from the
 	 * input string to the desired type.
-	 *
+	 * @param argType the argument type that will be used to parse the argument value
 	 * @see ArgumentType
 	 * @see Argument#type
 	 */
 	public ArgumentBuilder<Type, TInner> withType(@NotNull Type argType) {
 		this.type = argType;
+		return this;
+	}
+
+	/**
+	 * The Argument Type is the class that will be used to parse the argument value. It handles the conversion from the
+	 * input string to the desired type.
+	 * @param argType the builder that will be used to build the argument type
+	 * @see ArgumentType
+	 * @see Argument#type
+	 */
+	public ArgumentBuilder<Type, TInner> withType(@NotNull Builder<Type> argType) {
+		this.type = argType.build();
 		return this;
 	}
 
@@ -254,13 +267,15 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> {
 	 *
 	 * @return the built argument
 	 */
-	public Argument<Type, TInner> build() {
+	@Override
+	public @NotNull Argument<Type, TInner> build() {
 		if (this.names == null || this.names.length == 0)
 			throw new IllegalStateException("The argument must have at least one name.");
 
 		if (this.type == null)
 			throw new IllegalStateException("The argument must have a type defined.");
 
+		// TODO: do not use anonymous classes for things that do not net subclassing
 		return new Argument<>(this.type, this.names) {{
 			this.setDescription(ArgumentBuilder.this.description);
 			this.setRequired(ArgumentBuilder.this.required);

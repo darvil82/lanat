@@ -26,10 +26,10 @@ public class BooleanArgumentType extends ArgumentType<Boolean> {
 	}
 
 	@Override
-	public Boolean parseValues(String @NotNull [] args) {
-		if (args.length == 0) return true;
+	public Boolean parseValues(String @NotNull [] values) {
+		if (values.length == 0) return true;
 
-		var arg = args[0];
+		var arg = values[0];
 
 		if (arg.equalsIgnoreCase("false") || arg.equalsIgnoreCase("no") || arg.equals("0"))
 			return false;

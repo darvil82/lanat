@@ -31,13 +31,13 @@ public class EnumArgumentType<T extends Enum<T>> extends ArgumentType<T> {
 	}
 
 	@Override
-	public T parseValues(@NotNull String @NotNull [] args) {
+	public T parseValues(@NotNull String @NotNull [] values) {
 		for (var enumValue : this.values) {
-			if (enumValue.name().equalsIgnoreCase(args[0])) {
+			if (enumValue.name().equalsIgnoreCase(values[0])) {
 				return enumValue;
 			}
 		}
-		this.addError("Invalid enum value: '" + args[0] + "'.");
+		this.addError("Invalid enum value: '" + values[0] + "'.");
 		return null;
 	}
 

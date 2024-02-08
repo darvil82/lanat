@@ -30,7 +30,7 @@ public class CounterArgumentType extends ArgumentType<Integer> {
 	}
 
 	@Override
-	public Integer parseValues(String @NotNull [] args) {
+	public Integer parseValues(String @NotNull [] values) {
 		return this.getValue() + 1;
 	}
 

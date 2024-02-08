@@ -10,7 +10,7 @@ import utils.Range;
 /**
  * Parses multiple values received from the user by using the argument type provided in the constructor.
  * Shows a properly formatted description and representation.
- * @param <T> the type of the value that the argument will take
+ * @param <T> the type of the value that the argument type will parse into.
  */
 public class TupleArgumentType<T> extends ArgumentType<T[]> {
 	private final @NotNull Range valueCount;
@@ -28,15 +28,15 @@ public class TupleArgumentType<T> extends ArgumentType<T[]> {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public T @Nullable [] parseValues(@NotNull String... args) {
+	public T @Nullable [] parseValues(@NotNull String @NotNull... values) {
 		// quick dirty optimization for string argument types. no need to parse them.
 		if (this.argumentType instanceof StringArgumentType)
-			return (T[])args;
+			return (T[])values;
 
-		var result = new Object[args.length];
+		var result = new Object[values.length];
 
-		for (int i = 0; i < args.length; i++) {
-			result[i] = this.argumentType.parseValues(args[i]);
+		for (int i = 0; i < values.length; i++) {
+			result[i] = this.argumentType.parseValues(values[i]);
 		}
 
 		return (T[])result;

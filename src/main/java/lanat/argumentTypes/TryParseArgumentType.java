@@ -135,11 +135,11 @@ public class TryParseArgumentType<T> extends ArgumentType<T> {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public @Nullable T parseValues(@NotNull String @NotNull [] args) {
+	public @Nullable T parseValues(@NotNull String @NotNull [] values) {
 		try {
-			return (T)this.parseMethod.apply(args[0]);
+			return (T)this.parseMethod.apply(values[0]);
 		} catch (ClassCastException e) {
-			throw new ArgumentTypeException("Unable to cast value '" + args[0] + "' to type " + this.type.getSimpleName() + ".", e);
+			throw new ArgumentTypeException("Unable to cast value '" + values[0] + "' to type " + this.type.getSimpleName() + ".", e);
 		}
 	}
 

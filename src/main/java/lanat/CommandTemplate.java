@@ -1,6 +1,7 @@
 package lanat;
 
 import lanat.exceptions.ArgumentNotFoundException;
+import lanat.utils.Builder;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.ElementType;
@@ -222,6 +223,23 @@ public abstract class CommandTemplate {
 		public <Type extends ArgumentType<TInner>, TInner>
 		ArgumentBuilder<Type, TInner> argWithType(@NotNull String name, Type argumentType) {
 			return this.<Type, TInner>arg(name).withType(argumentType);
+		}
+
+		/**
+		 * Sets the type of the argument builder with the given name to the given type, and returns it.
+		 * This is the equivalent of calling {@link #arg(String)} and then setting the type of the
+		 * argument builder by calling {@link ArgumentBuilder#withType(ArgumentType)}.
+		 * @param name The name of the argument.
+		 * @param argumentType The type of the argument.
+		 * @return The argument builder corresponding to the argument with the given name.
+		 * @param <Type> The type of the argument.
+		 * @param <TInner> The type of the value passed to the argument.
+		 * @throws ArgumentNotFoundException If there is no argument with the given name.
+		 * @see ArgumentBuilder#withType(Builder)
+		 */
+		public <Type extends ArgumentType<TInner>, TInner>
+		ArgumentBuilder<Type, TInner> argWithType(@NotNull String name, Builder<Type> argumentType) {
+			return this.argWithType(name, argumentType.build());
 		}
 	}
 

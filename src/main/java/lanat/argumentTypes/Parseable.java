@@ -16,11 +16,10 @@ import utils.Range;
 public interface Parseable<T> extends NamedWithDescription {
 	/**
 	 * Parses the received values and returns the result. If the values are invalid, this method shall return {@code null}.
-	 *
-	 * @param args The values that were received.
+	 * @param values The values that were received.
 	 * @return The parsed value.
 	 */
-	@Nullable T parseValues(@NotNull String... args);
+	@Nullable T parseValues(@NotNull String @NotNull... values);
 
 
 	/**

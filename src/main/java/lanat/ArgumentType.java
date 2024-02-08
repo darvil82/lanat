@@ -42,7 +42,7 @@ import java.util.stream.Stream;
  * use that implementation, you need to wrap it in a {@link FromParseableArgumentType} instance (which provides the
  * necessary internal functionality).
  * </p>
- * @param <T> The type of the value that this argument type parses.
+ * @param <T> The type of the value that this argument type will parse into.
  */
 public abstract class ArgumentType<T>
 	extends ErrorsContainerImpl<Error.CustomError>

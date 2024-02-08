@@ -10,8 +10,8 @@ import textFormatter.TextFormatter;
  */
 public final class StringArgumentType extends ArgumentType<String> {
 	@Override
-	public String parseValues(@NotNull String @NotNull [] args) {
-		return args[0];
+	public String parseValues(@NotNull String @NotNull [] values) {
+		return values[0];
 	}
 
 	@Override

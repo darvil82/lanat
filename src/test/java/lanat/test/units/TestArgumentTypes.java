@@ -34,6 +34,7 @@ public class TestArgumentTypes extends UnitTests {
 			this.addArgument(Argument.create(new KeyValuesArgumentType<>(new IntegerArgumentType()), "key-value"));
 			this.addArgument(Argument.create(new NumberRangeArgumentType<>(3, 10), "int-range"));
 			this.addArgument(Argument.create(new TryParseArgumentType<>(Double.class), "try-parse"));
+			this.addArgument(Argument.create(SimpleArgumentType.of((values, errorProxy) -> "hello " + values[0]), "simple"));
 		}};
 	}
 
@@ -127,5 +128,11 @@ public class TestArgumentTypes extends UnitTests {
 		assertEquals(4.67, this.<Double>parseArg("try-parse", "4.67"));
 		this.assertNotPresent("try-parse");
 		assertNull(this.parseArg("try-parse", "invalid"));
+	}
+
+	@Test
+	public void testSimple() {
+		assertEquals("hello world", this.parseArg("simple", "world"));
+		this.assertNotPresent("simple");
 	}
 }

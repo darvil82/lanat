@@ -80,8 +80,8 @@ public class FileArgumentType extends ArgumentType<File> {
 	}
 
 	@Override
-	public File parseValues(@NotNull String @NotNull [] args) {
-		File file = new File(args[0]);
+	public File parseValues(@NotNull String @NotNull [] values) {
+		File file = new File(values[0]);
 		return this.checkFile(file) ? file : null;
 	}
 

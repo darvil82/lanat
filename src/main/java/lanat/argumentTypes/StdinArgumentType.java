@@ -24,7 +24,7 @@ public class StdinArgumentType extends ArgumentType<String> {
 	}
 
 	@Override
-	public String parseValues(@NotNull String @NotNull [] args) {
+	public String parseValues(@NotNull String @NotNull [] values) {
 		final var input = new StringBuilder();
 
 		try (var scanner = new Scanner(System.in)) {

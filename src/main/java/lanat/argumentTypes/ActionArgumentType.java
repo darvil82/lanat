@@ -16,7 +16,7 @@ public class ActionArgumentType extends ArgumentType<Boolean> {
 	}
 
 	@Override
-	public Boolean parseValues(String @NotNull [] args) {
+	public Boolean parseValues(String @NotNull [] values) {
 		return true;
 	}
 

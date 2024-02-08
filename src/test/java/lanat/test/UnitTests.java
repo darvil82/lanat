@@ -24,8 +24,8 @@ class StringJoiner extends ArgumentType<String> {
 	}
 
 	@Override
-	public String parseValues(String @NotNull [] args) {
-		return "(" + String.join("), (", args) + ")";
+	public String parseValues(String @NotNull [] values) {
+		return "(" + String.join("), (", values) + ")";
 	}
 }
 
@@ -35,8 +35,8 @@ class RestrictedDoubleAdder extends ArgumentType<Double> {
 	}
 
 	@Override
-	public @Nullable Double parseValues(@NotNull String @NotNull [] args) {
-		return Double.parseDouble(args[0]) + this.getValue();
+	public @Nullable Double parseValues(@NotNull String @NotNull [] values) {
+		return Double.parseDouble(values[0]) + this.getValue();
 	}
 
 	@Override
@@ -70,7 +70,7 @@ public class UnitTests {
 			this.addCommand(new Command("subCommand") {{
 				this.setErrorCode(0b0010);
 				this.addArgument(Argument.create(new CounterArgumentType(), "c"));
-				this.addArgument(Argument.create(new StringJoiner(), 's', "more-strings"));
+				this.addArgument(Argument.create(new StringJoiner(), "s", "more-strings"));
 
 				this.addCommand(new Command("another") {{
 					this.setErrorCode(0b0001);
@@ -85,7 +85,7 @@ public class UnitTests {
 				this.addGroup(new ArgumentGroup("restricted-group") {{
 					this.setRestricted(true);
 					this.addArgument(Argument.createOfActionType("extra"));
-					this.addArgument(Argument.create(new IntegerArgumentType(), 'c').positional());
+					this.addArgument(Argument.create(new IntegerArgumentType(), "c").positional());
 				}});
 			}});
 		}};

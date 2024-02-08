@@ -37,8 +37,8 @@ public class NumberRangeArgumentType<T extends Number & Comparable<T>> extends A
 	}
 
 	@Override
-	public @Nullable T parseValues(@NotNull String... args) {
-		var result = this.argumentType.parseValues(args);
+	public @Nullable T parseValues(@NotNull String @NotNull... values) {
+		var result = this.argumentType.parseValues(values);
 
 		if (result == null) return null;
 

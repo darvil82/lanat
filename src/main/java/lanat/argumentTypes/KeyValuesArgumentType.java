@@ -43,10 +43,10 @@ public class KeyValuesArgumentType<Type extends ArgumentType<TInner>, TInner> ex
 	}
 
 	@Override
-	public Map<@NotNull String, @NotNull TInner> parseValues(String @NotNull [] args) {
+	public Map<@NotNull String, @NotNull TInner> parseValues(String @NotNull [] values) {
 		var map = new Hashtable<String, TInner>();
 
-		this.getArgValuesStream(args)
+		this.getArgValuesStream(values)
 			.forEach(arg -> {
 				final var split = UtlString.split(arg, '=');
 

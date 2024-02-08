@@ -25,9 +25,11 @@ import java.util.function.Supplier;
  * <p>
  * In this case, {@link ArgumentTypeInfer#get(Class)} is called with the type {@code Double[]}, which will return a
  * {@link TupleArgumentType} instance ready to be used for that value type:
- * <pre>{@code new TupleArgumentType(Range.AT_LEAST_ONE, new DoubleArgumentType()}.</pre>
+ * <pre>{@code new TupleArgumentType(Range.AT_LEAST_ONE, new DoubleArgumentType())}.</pre>
  */
-public class ArgumentTypeInfer {
+public final class ArgumentTypeInfer {
+	private ArgumentTypeInfer() {}
+
 	/**
 	 * Mapping of types to their corresponding argument types. Used for inferring.
 	 * Argument types are stored as suppliers so that we have no shared references.

@@ -53,12 +53,14 @@ public class ErrorsCollector {
 	 * @param command the command to collect the errors from
 	 */
 	public void collect(@NotNull Command command) {
-		this.errors.put(command, new ArrayList<>() {{
-			this.addAll(command.getTokenizer().getErrorsUnderDisplayLevel());
-			this.addAll(command.getParser().getErrorsUnderDisplayLevel());
-			command.getArguments().forEach(arg -> this.addAll(arg.getErrorsUnderDisplayLevel()));
-			this.addAll(command.getErrorsUnderDisplayLevel());
-		}});
+		var errors = new ArrayList<Error<?>>();
+
+		errors.addAll(command.getTokenizer().getErrorsUnderDisplayLevel());
+		errors.addAll(command.getParser().getErrorsUnderDisplayLevel());
+		command.getArguments().forEach(arg -> errors.addAll(arg.getErrorsUnderDisplayLevel()));
+		errors.addAll(command.getErrorsUnderDisplayLevel());
+
+		this.errors.put(command, errors);
 	}
 
 

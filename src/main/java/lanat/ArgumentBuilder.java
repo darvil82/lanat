@@ -275,17 +275,16 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> implemen
 		if (this.type == null)
 			throw new IllegalStateException("The argument must have a type defined.");
 
-		// TODO: do not use anonymous classes for things that do not net subclassing
-		return new Argument<>(this.type, this.names) {{
-			this.setDescription(ArgumentBuilder.this.description);
-			this.setRequired(ArgumentBuilder.this.required);
-			this.setPositional(ArgumentBuilder.this.positional);
-			this.setAllowUnique(ArgumentBuilder.this.allowUnique);
-			this.setHidden(ArgumentBuilder.this.hidden);
-			this.setDefaultValue(ArgumentBuilder.this.defaultValue);
-			this.setPrefix(ArgumentBuilder.this.prefixChar);
-			this.setOnErrorCallback(ArgumentBuilder.this.onErrorCallback);
-			this.setOnOkCallback(ArgumentBuilder.this.onCorrectCallback);
-		}};
+		var newArg = new Argument<>(this.type, this.names);
+		newArg.setDescription(this.description);
+		newArg.setRequired(this.required);
+		newArg.setPositional(this.positional);
+		newArg.setAllowUnique(this.allowUnique);
+		newArg.setHidden(this.hidden);
+		newArg.setDefaultValue(this.defaultValue);
+		newArg.setPrefix(this.prefixChar);
+		newArg.setOnErrorCallback(this.onErrorCallback);
+		newArg.setOnOkCallback(this.onCorrectCallback);
+		return newArg;
 	}
 }

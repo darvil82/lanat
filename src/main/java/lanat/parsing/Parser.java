@@ -318,9 +318,8 @@ public final class Parser extends ParsingStateBase<Error.ParseError> {
 	 * */
 	public @NotNull HashMap<@NotNull Argument<?, ?>, @Nullable Object> getParsedArgsMap() {
 		if (this.parsedArgumentValues == null) {
-			this.parsedArgumentValues = new HashMap<>() {{
-				Parser.this.command.getArguments().forEach(arg -> this.put(arg, arg.finishParsing()));
-			}};
+			this.parsedArgumentValues = new HashMap<@NotNull Argument<?, ?>, @Nullable Object>();
+			this.command.getArguments().forEach(arg -> this.parsedArgumentValues.put(arg, arg.finishParsing()));
 		}
 		return this.parsedArgumentValues;
 	}

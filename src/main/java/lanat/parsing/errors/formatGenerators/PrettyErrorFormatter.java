@@ -65,10 +65,9 @@ public class PrettyErrorFormatter extends ErrorFormatter {
 
 	@Override
 	protected @Nullable TextFormatter generateTokensView(@NotNull ParseErrorContext ctx) {
-		final var tokensFormatters = new ArrayList<TextFormatter>() {{
-			this.add(ctx.getRootCommandToken().getFormatter());
-			this.addAll(ctx.getTokens(false).stream().map(Token::getFormatter).toList());
-		}};
+		final var tokensFormatters = new ArrayList<TextFormatter>();
+		tokensFormatters.add(ctx.getRootCommandToken().getFormatter());
+		tokensFormatters.addAll(ctx.getTokens(false).stream().map(Token::getFormatter).toList());
 
 		this.getHighlightOptions().ifPresent(opts -> {
 			BiConsumer<List<TextFormatter>, Range> highlighter;

@@ -46,6 +46,10 @@ public interface Parseable<T> extends NamedWithDescription {
 		return TextFormatter.of(this.getName());
 	}
 
+	/**
+	 * Returns the name of this argument type. By default, this is the name of the class without the "ArgumentType" suffix.
+	 * @return The name of this argument type.
+	 */
 	@Override
 	default @NotNull String getName() {
 		// Remove the "ArgumentType" suffix from the class name

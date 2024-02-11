@@ -256,7 +256,9 @@ public abstract class ArgumentType<T>
 	public void addError(@NotNull Error.CustomError error) {
 		// the index of the error should never be less than 0 or greater than the max value count
 		if (error.getIndex() < 0 || error.getIndex() >= this.getRequiredArgValueCount().end()) {
-			throw new IndexOutOfBoundsException("Index " + error.getIndex() + " is out of range for " + this.getClass().getName());
+			throw new IndexOutOfBoundsException(
+				"Error index " + error.getIndex() + " is out of range for argument type '" + this.getName() + "'."
+			);
 		}
 
 		if (this.dispatchErrorToParent(error))

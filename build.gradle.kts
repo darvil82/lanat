@@ -1,6 +1,6 @@
 plugins {
-	java
 	`maven-publish`
+	`java-library`
 }
 
 group = "com.darvil"
@@ -8,8 +8,8 @@ version = "1.0.0"
 description = "Command line argument parser"
 
 dependencies {
-	implementation("com.darvil:utils:0.4.0")
-	implementation("com.darvil:terminal-text-formatter:2.0.0")
+	api("com.darvil:utils:0.4.0")
+	api("com.darvil:terminal-text-formatter:2.0.0")
 
 	implementation("org.jetbrains:annotations:24.0.1")
 	testImplementation(platform("org.junit:junit-bom:5.9.1"))

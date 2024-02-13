@@ -88,12 +88,13 @@ public abstract class ArgumentType<T>
 
 
 	/**
-	 * Constructs a new argument type with the specified initial value.
+	 * Constructs a new argument type with the specified initial value. Also sets the current value.
 	 * @param initialValue The initial value of this argument type.
 	 */
 	protected ArgumentType(@NotNull T initialValue) {
 		this();
-		this.setValue(this.initialValue = initialValue);
+		this.initialValue = initialValue;
+		this.currentValue = initialValue;
 	}
 
 	/**
@@ -192,13 +193,6 @@ public abstract class ArgumentType<T>
 	 */
 	public T getFinalValue() {
 		return this.getValue(); // by default, the final value is just the current value. subclasses can override this.
-	}
-
-	/**
-	 * Sets the current value of this argument type.
-	 */
-	protected void setValue(@NotNull T value) {
-		this.currentValue = value;
 	}
 
 	/**

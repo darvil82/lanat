@@ -28,7 +28,7 @@ public class TupleArgumentType<T> extends ArgumentType<T[]> {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public T @Nullable [] parseValues(@NotNull String @NotNull... values) {
+	public T[] parseValues(@NotNull String @NotNull... values) {
 		// quick dirty optimization for string argument types. no need to parse them.
 		if (this.argumentType instanceof StringArgumentType)
 			return (T[])values;

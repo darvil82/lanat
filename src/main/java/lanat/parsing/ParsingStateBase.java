@@ -2,8 +2,8 @@ package lanat.parsing;
 
 import lanat.Argument;
 import lanat.Command;
+import lanat.utils.errors.ErrorContainerImpl;
 import lanat.utils.errors.ErrorLevelProvider;
-import lanat.utils.errors.ErrorsContainerImpl;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -14,7 +14,7 @@ import java.util.function.Consumer;
  * by both.
  * @param <T> The type of the errors to store.
  */
-public sealed abstract class ParsingStateBase<T extends ErrorLevelProvider> extends ErrorsContainerImpl<T>
+public sealed abstract class ParsingStateBase<T extends ErrorLevelProvider> extends ErrorContainerImpl<T>
 	permits Tokenizer, Parser
 {
 	/** The command that is being parsed. */

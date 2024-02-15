@@ -7,8 +7,8 @@ import lanat.parsing.errors.Error;
 import lanat.parsing.errors.handlers.ParseErrors;
 import lanat.utils.*;
 import lanat.utils.errors.ErrorCallbacks;
+import lanat.utils.errors.ErrorContainer;
 import lanat.utils.errors.ErrorLevel;
-import lanat.utils.errors.ErrorsContainer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import textFormatter.Color;
@@ -75,7 +75,7 @@ import java.util.stream.Stream;
  * @see ArgumentParser
  */
 public class Argument<Type extends ArgumentType<TInner>, TInner>
-	implements ErrorsContainer<Error.CustomError>,
+	implements ErrorContainer<Error.CustomError>,
 		ErrorCallbacks<TInner, Argument<Type, TInner>>,
 		Resettable,
 		CommandUser,

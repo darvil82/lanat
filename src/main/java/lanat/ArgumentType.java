@@ -7,8 +7,8 @@ import lanat.parsing.errors.Error;
 import lanat.parsing.errors.handlers.CustomErrorImpl;
 import lanat.utils.ParentElementGetter;
 import lanat.utils.Resettable;
+import lanat.utils.errors.ErrorContainerImpl;
 import lanat.utils.errors.ErrorLevel;
-import lanat.utils.errors.ErrorsContainerImpl;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import utils.Pair;
@@ -45,7 +45,7 @@ import java.util.stream.Stream;
  * @param <T> The type of the value that this argument type will parse into.
  */
 public abstract class ArgumentType<T>
-	extends ErrorsContainerImpl<Error.CustomError>
+	extends ErrorContainerImpl<Error.CustomError>
 	implements Resettable, Parseable<T>, ParentElementGetter<ArgumentType<?>>
 {
 	/** This is the value that this argument type current has while being parsed. */

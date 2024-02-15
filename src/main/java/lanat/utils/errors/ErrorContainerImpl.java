@@ -13,26 +13,26 @@ import java.util.List;
  *
  * @param <T> The type of the errors to store.
  */
-public abstract class ErrorsContainerImpl<T extends ErrorLevelProvider> implements ErrorsContainer<T>, Resettable {
+public abstract class ErrorContainerImpl<T extends ErrorLevelProvider> implements ErrorContainer<T>, Resettable {
 	private final @NotNull ModifyRecord<ErrorLevel> minimumExitErrorLevel;
 	private final @NotNull ModifyRecord<ErrorLevel> minimumDisplayErrorLevel;
 	private final @NotNull List<T> errors = new ArrayList<>(5);
 
 	/**
-	 * Creates a new {@link ErrorsContainerImpl} with the default values, those being {@link ErrorLevel#ERROR} for
+	 * Creates a new {@link ErrorContainerImpl} with the default values, those being {@link ErrorLevel#ERROR} for
 	 * {@link #minimumExitErrorLevel} and {@link ErrorLevel#INFO} for {@link #minimumDisplayErrorLevel}.
 	 */
-	public ErrorsContainerImpl() {
+	public ErrorContainerImpl() {
 		// default values
 		this(ModifyRecord.of(ErrorLevel.ERROR), ModifyRecord.of(ErrorLevel.INFO));
 	}
 
 	/**
-	 * Creates a new {@link ErrorsContainerImpl} with the given values.
+	 * Creates a new {@link ErrorContainerImpl} with the given values.
 	 * @param minimumExitErrorLevelRecord    The minimum error level that will cause the program to exit.
 	 * @param minimumDisplayErrorLevelRecord The minimum error level that will be displayed to the user.
 	 */
-	public ErrorsContainerImpl(
+	public ErrorContainerImpl(
 		@NotNull ModifyRecord<ErrorLevel> minimumExitErrorLevelRecord,
 		@NotNull ModifyRecord<ErrorLevel> minimumDisplayErrorLevelRecord
 	)

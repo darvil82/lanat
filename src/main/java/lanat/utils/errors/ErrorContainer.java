@@ -10,7 +10,7 @@ import java.util.List;
  * there are errors under a certain level.
  * @param <T> the type of error level provider
  */
-public interface ErrorsContainer<T extends ErrorLevelProvider> {
+public interface ErrorContainer<T extends ErrorLevelProvider> {
 	/**
 	 * Returns a list of all the errors under the exit level defined in this error container.
 	 * These are errors that would cause the program to exit.

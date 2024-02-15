@@ -1,7 +1,7 @@
 package lanat;
 
 import lanat.parsing.Tokenizer;
-import lanat.parsing.errors.ErrorsCollector;
+import lanat.parsing.errors.ErrorCollector;
 import lanat.utils.UtlMisc;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -204,7 +204,7 @@ public class ArgumentParser extends Command {
 
 		this.tokenize(input.args); // first. This will tokenize all Sub-Commands recursively
 
-		var errorsCollector = new ErrorsCollector(this.getFullTokenList(), input.args);
+		var errorCollector = new ErrorCollector(this.getFullTokenList(), input.args);
 
 		// do not parse anything if there are any errors in the tokenizer
 		if (this.tokenizationSucceeded()) {
@@ -215,10 +215,10 @@ public class ArgumentParser extends Command {
 			this.generateParsedArgsMap();
 		}
 
-		this.getTokenizer().getTokenizedCommands().forEach(errorsCollector::collect);
+		this.getTokenizer().getTokenizedCommands().forEach(errorCollector::collect);
 		this.isParsed = true;
 
-		return new AfterParseOptions(this, errorsCollector, !input.isEmpty());
+		return new AfterParseOptions(this, errorCollector, !input.isEmpty());
 	}
 
 	private boolean tokenizationSucceeded() {

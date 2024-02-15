@@ -26,7 +26,7 @@ import java.util.Optional;
  * <strong>NOTE:</strong> the
  * custom error formatter class must <i>always</i> have a constructor that takes a {@link ErrorContext}.
  * <p>
- * An error formatter is instantiated by the {@link ErrorsCollector}, only one per Command at most, to switch to the
+ * An error formatter is instantiated by the {@link ErrorCollector}, only one per Command at most, to switch to the
  * next context. Note that it will only be instantiated if there are errors to display.
  */
 public abstract class ErrorFormatter implements ErrorLevelProvider {

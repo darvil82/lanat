@@ -2,7 +2,7 @@ package lanat;
 
 import lanat.exceptions.CommandTemplateException;
 import lanat.exceptions.IncompatibleCommandTemplateType;
-import lanat.parsing.errors.ErrorsCollector;
+import lanat.parsing.errors.ErrorCollector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import utils.UtlReflection;
@@ -19,7 +19,7 @@ import java.util.stream.Stream;
  */
 public class AfterParseOptions {
 	private final @NotNull ArgumentParser argumentParser;
-	private final @NotNull ErrorsCollector errorsCollector;
+	private final @NotNull ErrorCollector errorCollector;
 	private @Nullable List<@NotNull String> errors;
 	private final int errorCode;
 	/** Whether any input was received during parsing. */
@@ -37,11 +37,11 @@ public class AfterParseOptions {
 
 	AfterParseOptions(
 		@NotNull ArgumentParser argumentParser,
-		@NotNull ErrorsCollector errorsCollector,
+		@NotNull ErrorCollector errorCollector,
 		boolean receivedInput
 	) {
 		this.argumentParser = argumentParser;
-		this.errorsCollector = errorsCollector;
+		this.errorCollector = errorCollector;
 		this.errorCode = argumentParser.getErrorCode();
 		this.receivedInput = receivedInput;
 	}
@@ -66,7 +66,7 @@ public class AfterParseOptions {
 	 */
 	public @NotNull List<@NotNull String> getErrors() {
 		if (this.errors == null)
-			this.errors = this.errorsCollector.handleErrors();
+			this.errors = this.errorCollector.handleErrors();
 		return this.errors;
 	}
 

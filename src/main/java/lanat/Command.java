@@ -57,6 +57,9 @@ public class Command
 	private @Nullable Consumer<Command> onErrorCallback;
 	private @Nullable Consumer<ParseResult> onCorrectCallback;
 
+	private @Nullable ParseResult cachedParseResult;
+	private @Nullable Consumer<@NotNull ParseResult> onUsedCallback;
+
 	private final @NotNull ModifyRecord<HelpFormatter> helpFormatter = ModifyRecord.of(new HelpFormatter());
 	private final @NotNull ModifyRecord<@NotNull CallbacksInvocationOption> callbackInvocationOption =
 		ModifyRecord.of(CallbacksInvocationOption.NO_ERROR_IN_ALL_COMMANDS);
@@ -267,6 +270,14 @@ public class Command
 	}
 
 	/**
+	 * Sets the callback that will be invoked when this command is used by the user.
+	 * @param onUsedCallback The callback to set.
+	 */
+	public void setOnUsedCallback(@NotNull Consumer<@NotNull ParseResult> onUsedCallback) {
+		this.onUsedCallback = onUsedCallback;
+	}
+
+	/**
 	 * Generates and returns the help message of this command.
 	 * @return The help message of this command.
 	 */
@@ -312,11 +323,21 @@ public class Command
 	 * Sub-Commands.
 	 */
 	@NotNull ParseResult getParseResult() {
-		return new ParseResult(
-			this,
-			this.parser.getParsedArgsMap(),
-			this.subCommands.stream().map(Command::getParseResult).toList()
-		);
+		if (this.cachedParseResult == null) {
+			this.cachedParseResult = new ParseResult(
+				this,
+				this.parser.getParsedArgsMap(),
+				this.subCommands.stream().map(Command::getParseResult).toList()
+			);
+		}
+
+		return this.cachedParseResult;
+	}
+
+	/** Generates the parsed arguments map of this command and all its Sub-Commands. */
+	void generateParsedArgsMap() {
+		this.parser.getParsedArgsMap(); // caches it
+		this.subCommands.forEach(Command::generateParsedArgsMap);
 	}
 
 	/**
@@ -385,6 +406,7 @@ public class Command
 	@Override
 	public void resetState() {
 		super.resetState();
+		this.cachedParseResult = null;
 		this.tokenizer = new Tokenizer(this);
 		this.parser = new Parser(this);
 		this.arguments.forEach(Argument::resetState);
@@ -526,7 +548,6 @@ public class Command
 			});
 	}
 
-
 	// ------------------------------------------------ Error Handling ------------------------------------------------
 
 	@Override
@@ -554,6 +575,9 @@ public class Command
 			if (this.onErrorCallback != null) this.onErrorCallback.accept(this);
 		}
 
+		if (this.onUsedCallback != null && this.getParseResult().wasUsed())
+			this.onUsedCallback.accept(this.getParseResult());
+
 		this.parser.getParsedArgsMap()
 			.entrySet()
 			.stream()
@@ -562,12 +586,6 @@ public class Command
 
 		// invoke the callbacks of the Sub-Commands recursively
 		this.subCommands.forEach(Command::invokeCallbacks);
-	}
-
-	/** Generates the parsed arguments map of this command and all its Sub-Commands. */
-	void generateParsedArgsMap() {
-		this.parser.getParsedArgsMap();
-		this.subCommands.forEach(Command::generateParsedArgsMap);
 	}
 
 	/**

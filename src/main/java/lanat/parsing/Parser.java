@@ -44,7 +44,7 @@ public final class Parser extends ParsingStateBase<Error.ParseError> {
 	 * we don't want to run {@link Parser#getParsedArgsMap()} multiple times because that can break stuff badly
 	 * in relation to error handling.
 	 */
-	private HashMap<@NotNull Argument<?, ?>, @Nullable Object> parsedArgumentValues;
+	private HashMap<@NotNull Argument<?, ?>, @Nullable Object> cachedParsedArgumentValues;
 
 	/** Contains the forward value if one was found. */
 	private @Nullable String forwardValue;
@@ -317,11 +317,11 @@ public final class Parser extends ParsingStateBase<Error.ParseError> {
 	 * After that, it will return the same hashmap.
 	 * */
 	public @NotNull HashMap<@NotNull Argument<?, ?>, @Nullable Object> getParsedArgsMap() {
-		if (this.parsedArgumentValues == null) {
-			this.parsedArgumentValues = new HashMap<@NotNull Argument<?, ?>, @Nullable Object>();
-			this.command.getArguments().forEach(arg -> this.parsedArgumentValues.put(arg, arg.finishParsing()));
+		if (this.cachedParsedArgumentValues == null) {
+			this.cachedParsedArgumentValues = new HashMap<@NotNull Argument<?, ?>, @Nullable Object>();
+			this.command.getArguments().forEach(arg -> this.cachedParsedArgumentValues.put(arg, arg.finishParsing()));
 		}
-		return this.parsedArgumentValues;
+		return this.cachedParsedArgumentValues;
 	}
 
 	private void argumentTypeParseValues(@NotNull Argument<?, ?> argument, @NotNull String... values) {

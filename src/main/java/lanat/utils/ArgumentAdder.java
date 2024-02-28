@@ -1,7 +1,6 @@
 package lanat.utils;
 
 import lanat.Argument;
-import lanat.ArgumentBuilder;
 import lanat.ArgumentType;
 import lanat.exceptions.ArgumentAlreadyExistsException;
 import lanat.exceptions.ArgumentNotFoundException;
@@ -30,7 +29,7 @@ public interface ArgumentAdder extends NamedWithDescription {
 	 * @param <TInner> the type of the inner value of the argument
 	 */
 	default <Type extends ArgumentType<TInner>, TInner>
-	void addArgument(@NotNull ArgumentBuilder<Type, TInner> argument) {
+	void addArgument(@NotNull Builder<Argument<Type, TInner>> argument) {
 		this.addArgument(argument.build());
 	}
 

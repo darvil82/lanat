@@ -131,7 +131,9 @@ public class AfterParseOptions {
 	 * @see CommandTemplate
 	 */
 	public <T extends CommandTemplate> T into(@NotNull Class<T> clazz) {
-		return AfterParseOptions.into(clazz, this.getResult()); // runOperations() is called at getResult()
+		var ret = AfterParseOptions.into(clazz, this.argumentParser.getParseResult());
+		this.runActions(); // make sure to run the actions after instantiating the template
+		return ret;
 	}
 
 	/**

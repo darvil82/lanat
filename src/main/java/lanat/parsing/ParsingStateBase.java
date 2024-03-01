@@ -55,12 +55,6 @@ public sealed abstract class ParsingStateBase<T extends ErrorLevelProvider> exte
 	 *
 	 * @return {@code true} if an argument was found
 	 */
-	/* This method right here looks like it could be replaced by just changing it to
-	 *    return this.runForArgument(String.valueOf(argName), f);
-	 *
-	 * It can't. "checkMatch" has also a char overload. The former would always return false.
-	 * I don't really want to make "checkMatch" have different behavior depending on the length of the string, so
-	 * an overload seems better. */
 	protected boolean runForMatchingArgument(char argName, @NotNull Consumer<@NotNull Argument<?, ?>> f) {
 		var arg = this.getMatchingArgument(argName);
 		if (arg != null) {
@@ -75,6 +69,12 @@ public sealed abstract class ParsingStateBase<T extends ErrorLevelProvider> exte
 	 * @param argName the name of the argument to find
 	 * @return the argument found, or {@code null} if no argument was found
 	 */
+	/* This method right here looks like it could be replaced by just changing it to
+	 *    return this.runForArgument(String.valueOf(argName), f);
+	 *
+	 * It can't. "checkMatch" has also a char overload. The former would always return false.
+	 * I don't really want to make "checkMatch" have different behavior depending on the length of the string, so
+	 * an overload seems better. */
 	protected @Nullable Argument<?, ?> getMatchingArgument(char argName) {
 		for (final var argument : this.command.getArguments()) {
 			if (argument.checkMatch(argName)) {
@@ -89,7 +89,7 @@ public sealed abstract class ParsingStateBase<T extends ErrorLevelProvider> exte
 	 * @param argName the name of the argument to find
 	 * @return the argument found, or {@code null} if no argument was found
 	 */
-	protected @Nullable Argument<?, ?> getMatchingArgument(String argName) {
+	protected @Nullable Argument<?, ?> getMatchingArgument(@NotNull String argName) {
 		for (final var argument : this.command.getArguments()) {
 			if (argument.checkMatch(argName)) {
 				return argument;

@@ -476,7 +476,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	public boolean checkMatch(@NotNull String name) {
 		final char prefixChar = this.getPrefix().getCharacter();
 		return this.names.stream()
-			.anyMatch(a -> name.equals(prefixChar + a) || name.equals("" + prefixChar + prefixChar + a));
+			.anyMatch(n -> name.equals(prefixChar + n) || name.equals("" + prefixChar + prefixChar + n));
 	}
 
 	/**

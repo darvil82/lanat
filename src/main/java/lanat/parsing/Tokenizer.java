@@ -283,7 +283,7 @@ public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 	private boolean isArgNameList(@NotNull String str) {
 		if (str.length() < 2 || !Character.isAlphabetic(str.charAt(1))) return false;
 
-		// store the possible prefixes. Start with the common ones (single and double dash)
+		// store the possible prefixes. Start with the common ones
 		// We add the common prefixes because it can be confusing for the user to have to put a specific prefix
 		// used by any argument in the name list
 		final var possiblePrefixes = new HashSet<>(Arrays.asList(Argument.PrefixChar.COMMON_PREFIXES));

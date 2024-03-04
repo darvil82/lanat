@@ -232,17 +232,16 @@ public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 	private @NotNull Token tokenizeWord(@NotNull String str) {
 		final TokenType type;
 
-		if (this.tupleOpen || this.stringOpen) {
+		if (this.tupleOpen || this.stringOpen)
 			type = TokenType.ARGUMENT_VALUE;
-		} else if (this.isArgName(str)) {
+		else if (this.isArgName(str))
 			type = TokenType.ARGUMENT_NAME;
-		} else if (this.isArgNameList(str)) {
+		else if (this.isArgNameList(str))
 			type = TokenType.ARGUMENT_NAME_LIST;
-		} else if (this.isSubCommand(str)) {
+		else if (this.isSubCommand(str))
 			type = TokenType.COMMAND;
-		} else {
+		else
 			type = TokenType.ARGUMENT_VALUE;
-		}
 
 		return new Token(type, str);
 	}

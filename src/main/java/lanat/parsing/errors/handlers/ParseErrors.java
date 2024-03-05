@@ -179,18 +179,22 @@ public abstract class ParseErrors {
 	 */
 	public record SimilarArgumentError(
 		int index,
-		@NotNull Argument<?, ?> argument
+		@NotNull Argument<?, ?> argument,
+		boolean isSamePrefix
 	) implements Error.ParseError
 	{
 		@Override
 		public void handle(@NotNull ErrorFormattingContext fmt, @NotNull ParseErrorContext ctx) {
-			fmt
-				.withContent(
+			if (this.isSamePrefix)
+				fmt.withContent("Found argument with name and prefix given, but token was wrapped in quotes.");
+			else
+				fmt.withContent(
 					"Found argument with name given, but with a different prefix ("
-						+ this.argument.getPrefix().getCharacter()
-						+ ")."
-				)
-				.highlight(this.index, 0, false);
+						+ this.argument.getPrefix().getCharacter() + ")."
+				);
+
+
+			fmt.highlight(this.index, 0, false);
 		}
 
 		@Override

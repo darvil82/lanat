@@ -283,20 +283,26 @@ public final class Parser extends ParsingStateBase<Error.ParseError> {
 		// if the string is too short, don't bother checking
 		if (str.length() < 2) return;
 
+		char prefix = str.charAt(0);
+
 		// check for the common prefixes
 		Stream.of(Argument.PrefixChar.COMMON_PREFIXES)
 			.map(Argument.PrefixChar::getCharacter)
 			.forEach(checkPrefix -> {
 				// if not present, don't bother checking
-				if (str.charAt(0) != checkPrefix) return;
+				if (prefix != checkPrefix) return;
 
 				// get rid of the prefix (single or double)
 				final var nameToCheck = str.substring(str.charAt(1) == checkPrefix ? 2 : 1);
 
 				for (var arg : this.command.getArguments()) {
-					if (!arg.hasName(nameToCheck)) continue;
+					if (!arg.hasName(nameToCheck)) continue; // does not have the name
 
-					this.addError(new ParseErrors.SimilarArgumentError(this.currentTokenIndex, arg));
+					/* if the prefix is the same, then we know that the token was wrapped in quotes, since
+					 * this token is somehow of type value */
+					this.addError(new ParseErrors.SimilarArgumentError(
+						this.currentTokenIndex, arg, arg.getPrefix().getCharacter() == prefix
+					));
 				}
 			});
 	}

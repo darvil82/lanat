@@ -312,7 +312,7 @@ public class Command
 
 	@Override
 	public @NotNull String toString() {
-		return "Command[name='%s', description='%s', arguments=%s, Sub-Commands=%s]"
+		return "Command{name='%s', description='%s', arguments=%s, sub-commands=%s}"
 			.formatted(
 				this.getName(), this.description, this.arguments, this.subCommands
 			);

@@ -582,7 +582,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	public @NotNull String toString() {
 		var buff = new StringBuilder();
 
-		buff.append("Argument<%s>[names=%s, prefix='%c', defaultValue=%s".formatted(
+		buff.append("Argument<%s>{names=%s, prefix='%c', defaultValue=%s".formatted(
 			this.type.getClass().getSimpleName(), this.names, this.getPrefix().getCharacter(), this.defaultValue
 		));
 
@@ -598,7 +598,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 			buff.append(")");
 		}
 
-		buff.append(']');
+		buff.append('}');
 
 		return buff.toString();
 	}

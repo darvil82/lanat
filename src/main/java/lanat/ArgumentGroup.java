@@ -296,4 +296,10 @@ public class ArgumentGroup
 			return this.parentCommand == group.parentCommand && this.name.equals(group.name);
 		return false;
 	}
+
+	@Override
+	public String toString() {
+		return "ArgumentGroup{name='%s', description='%s', arguments=%s, sub-groups=%s}"
+			.formatted(this.name, this.description, this.arguments, this.subGroups);
+	}
 }

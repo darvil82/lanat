@@ -163,7 +163,6 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		return Argument.create(new ActionArgumentType()).withNames(names);
 	}
 
-
 	/**
 	 * Marks the argument as required. This means that this argument should <b>always</b> be used by the user.
 	 */

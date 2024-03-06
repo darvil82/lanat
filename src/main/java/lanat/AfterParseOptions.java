@@ -292,7 +292,7 @@ public class AfterParseOptions {
 
 		try {
 			// create a new array of the same type as the field.
-			var newArray = (Object[])Array.newInstance(fieldType, Array.getLength(originalArray));
+			var newArray = (Object[])Array.newInstance(fieldType, originalArray.length);
 
 			// copy the values from the original array to the new array
 			System.arraycopy(originalArray, 0, newArray, 0, originalArray.length);

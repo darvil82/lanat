@@ -129,8 +129,8 @@ public class Command
 				System.out.println(this.getHelp());
 				System.exit(returnCode);
 			})
-			.withDescription("Shows this message.")
-			.allowsUnique()
+			.description("Shows this message.")
+			.allowUnique(true)
 		);
 	}
 

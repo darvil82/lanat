@@ -61,11 +61,12 @@ public class UnitTests {
 		return new TestingParser("Testing") {{
 			this.setErrorCode(0b0100);
 			this.addArgument(Argument.create(new StringJoiner(), "what")
-				.positional()
-				.required()
+				.positional(true)
+				.required(true)
 			);
 			this.addArgument(Argument.create(new RestrictedDoubleAdder(), "double-adder"));
 			this.addArgument(Argument.create(new StringArgumentType(), "a"));
+			this.addArgument(Argument.create(new IntegerArgumentType(), "integer").defaultValue(34));
 
 			this.addCommand(new Command("subCommand") {{
 				this.setErrorCode(0b0010);
@@ -75,7 +76,7 @@ public class UnitTests {
 				this.addCommand(new Command("another") {{
 					this.setErrorCode(0b0001);
 					this.addArgument(Argument.create(new StringJoiner(), "ball"));
-					this.addArgument(Argument.create(new IntegerArgumentType(), "number").positional().required());
+					this.addArgument(Argument.create(new IntegerArgumentType(), "number").positional(true).required(true));
 				}});
 			}});
 
@@ -85,7 +86,7 @@ public class UnitTests {
 				this.addGroup(new ArgumentGroup("restricted-group") {{
 					this.setRestricted(true);
 					this.addArgument(Argument.createOfActionType("extra"));
-					this.addArgument(Argument.create(new IntegerArgumentType(), "c").positional());
+					this.addArgument(Argument.create(new IntegerArgumentType(), "c").positional(true));
 				}});
 			}});
 		}};

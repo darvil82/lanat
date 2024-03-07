@@ -1,5 +1,6 @@
 package lanat;
 
+import lanat.argumentTypes.CounterArgumentType;
 import lanat.exceptions.ArgumentNotFoundException;
 import lanat.utils.Builder;
 import org.jetbrains.annotations.NotNull;
@@ -46,7 +47,7 @@ import java.util.List;
  * {@link Argument.Define#type()} parameter. Note that any type specified in the annotation must have a public,
  * no-argument constructor. If the Argument Type to use has a constructor with arguments, the type must be then
  * specified in {@link CommandTemplate#beforeInit(CommandBuildHelper)} instead, by setting
- * {@link ArgumentBuilder#withType(ArgumentType)} to the argument builder corresponding to the argument
+ * {@link ArgumentBuilder#type(ArgumentType)} to the argument builder corresponding to the argument
  * being defined.
  * </p>
  * <p>
@@ -211,31 +212,31 @@ public abstract class CommandTemplate {
 		/**
 		 * Sets the type of the argument builder with the given name to the given type, and returns it.
 		 * This is the equivalent of calling {@link #arg(String)} and then setting the type of the
-		 * argument builder by calling {@link ArgumentBuilder#withType(ArgumentType)}.
+		 * argument builder by calling {@link ArgumentBuilder#type(ArgumentType)}.
 		 * @param name The name of the argument.
 		 * @param argumentType The type of the argument.
 		 * @return The argument builder corresponding to the argument with the given name.
 		 * @param <Type> The type of the argument.
 		 * @param <TInner> The type of the value passed to the argument.
 		 * @throws ArgumentNotFoundException If there is no argument with the given name.
-		 * @see ArgumentBuilder#withType(ArgumentType)
+		 * @see ArgumentBuilder#type(ArgumentType)
 		 */
 		public <Type extends ArgumentType<TInner>, TInner>
 		ArgumentBuilder<Type, TInner> argWithType(@NotNull String name, Type argumentType) {
-			return this.<Type, TInner>arg(name).withType(argumentType);
+			return this.<Type, TInner>arg(name).type(argumentType);
 		}
 
 		/**
 		 * Sets the type of the argument builder with the given name to the given type, and returns it.
 		 * This is the equivalent of calling {@link #arg(String)} and then setting the type of the
-		 * argument builder by calling {@link ArgumentBuilder#withType(ArgumentType)}.
+		 * argument builder by calling {@link ArgumentBuilder#type(ArgumentType)}.
 		 * @param name The name of the argument.
 		 * @param argumentType The type of the argument.
 		 * @return The argument builder corresponding to the argument with the given name.
 		 * @param <Type> The type of the argument.
 		 * @param <TInner> The type of the value passed to the argument.
 		 * @throws ArgumentNotFoundException If there is no argument with the given name.
-		 * @see ArgumentBuilder#withType(Builder)
+		 * @see ArgumentBuilder#type(Builder)
 		 */
 		public <Type extends ArgumentType<TInner>, TInner>
 		ArgumentBuilder<Type, TInner> argWithType(@NotNull String name, Builder<Type> argumentType) {
@@ -299,7 +300,7 @@ public abstract class CommandTemplate {
 	}
 
 	/**
-	 * A default command template that adds the 'help' and 'version' arguments to the command.
+	 * A command template that adds the 'help' and 'version' arguments to the command.
 	 * @see Command#addHelpArgument(int)
 	 * @see ArgumentParser#addVersionArgument(int)
 	 */
@@ -316,6 +317,20 @@ public abstract class CommandTemplate {
 
 			if (cmd instanceof ArgumentParser ap)
 				ap.addVersionArgument(0);
+		}
+
+		/**
+		 * A command template that adds the 'verbose' argument, as well as the 'help' and 'version'
+		 * arguments defined in {@link Default}.
+		 */
+		@Command.Define
+		public static class WithVerbose extends Default {
+			@Argument.Define(
+				type = CounterArgumentType.class,
+				names = { "v", "verbose" },
+				description = "Increase the verbosity of the output. Use multiple times to increase verbosity."
+			)
+			public int verbose;
 		}
 	}
 }

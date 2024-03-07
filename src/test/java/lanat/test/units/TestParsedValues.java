@@ -82,4 +82,11 @@ public class TestParsedValues extends UnitTests {
 		assertEquals("subCommand", usedResults.get(1).getCommand().getName());
 		assertEquals("another", usedResults.get(2).getCommand().getName());
 	}
+
+	@Test
+	@DisplayName("Test the default value")
+	public void testDefaultValue() {
+		assertEquals(34, this.<Integer>parseArg("integer", ""));
+		assertEquals(10, this.<Integer>parseArg("integer", "10"));
+	}
 }

@@ -76,14 +76,14 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> implemen
 			throw new IllegalArgumentException("The field must have an @Argument.Define annotation.");
 
 		final var argumentBuilder = new ArgumentBuilder<Type, TInner>()
-			.withNames(ArgumentBuilder.getTemplateFieldNames(field));
+			.names(ArgumentBuilder.getTemplateFieldNames(field));
 
-		argumentBuilder.withPrefix(annotation.prefix());
-		if (!annotation.description().isEmpty()) argumentBuilder.withDescription(annotation.description());
-		if (annotation.required()) argumentBuilder.required();
-		if (annotation.positional()) argumentBuilder.positional();
-		if (annotation.allowsUnique()) argumentBuilder.allowsUnique();
-		if (annotation.hidden()) argumentBuilder.hidden();
+		argumentBuilder.prefix(annotation.prefix());
+		if (!annotation.description().isEmpty()) argumentBuilder.description(annotation.description());
+		argumentBuilder.required(annotation.required());
+		argumentBuilder.positional(annotation.positional());
+		argumentBuilder.allowUnique(annotation.allowUnique());
+		argumentBuilder.hidden(annotation.hidden());
 
 		return argumentBuilder;
 	}
@@ -145,61 +145,61 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> implemen
 	}
 
 	/** @see Argument#setDescription(String) */
-	public ArgumentBuilder<Type, TInner> withDescription(@NotNull String description) {
+	public ArgumentBuilder<Type, TInner> description(@Nullable String description) {
 		this.description = description;
 		return this;
 	}
 
 	/** @see Argument#setRequired(boolean) */
-	public ArgumentBuilder<Type, TInner> required() {
-		this.required = true;
+	public ArgumentBuilder<Type, TInner> required(boolean required) {
+		this.required = required;
 		return this;
 	}
 
 	/** @see Argument#setPositional(boolean) */
-	public ArgumentBuilder<Type, TInner> positional() {
-		this.positional = true;
+	public ArgumentBuilder<Type, TInner> positional(boolean positional) {
+		this.positional = positional;
 		return this;
 	}
 
 	/** @see Argument#setAllowUnique(boolean) */
-	public ArgumentBuilder<Type, TInner> allowsUnique() {
-		this.allowUnique = true;
+	public ArgumentBuilder<Type, TInner> allowUnique(boolean allowUnique) {
+		this.allowUnique = allowUnique;
 		return this;
 	}
 
 	/** @see Argument#setHidden(boolean) */
-	public ArgumentBuilder<Type, TInner> hidden() {
-		this.hidden = true;
+	public ArgumentBuilder<Type, TInner> hidden(boolean hidden) {
+		this.hidden = hidden;
 		return this;
 	}
 
 	/** @see Argument#setDefaultValue(Object) */
-	public ArgumentBuilder<Type, TInner> withDefaultValue(@NotNull TInner defaultValue) {
+	public ArgumentBuilder<Type, TInner> defaultValue(@Nullable TInner defaultValue) {
 		this.defaultValue = defaultValue;
 		return this;
 	}
 
 	/** @see Argument#setOnOkCallback(Consumer) */
-	public ArgumentBuilder<Type, TInner> onOk(@NotNull Consumer<TInner> callback) {
+	public ArgumentBuilder<Type, TInner> onOk(@Nullable Consumer<TInner> callback) {
 		this.onCorrectCallback = callback;
 		return this;
 	}
 
 	/** @see Argument#setOnErrorCallback(Consumer) */
-	public ArgumentBuilder<Type, TInner> onErr(@NotNull Consumer<Argument<Type, TInner>> callback) {
+	public ArgumentBuilder<Type, TInner> onErr(@Nullable Consumer<Argument<Type, TInner>> callback) {
 		this.onErrorCallback = callback;
 		return this;
 	}
 
 	/** @see Argument#setPrefix(Argument.PrefixChar) */
-	public ArgumentBuilder<Type, TInner> withPrefix(@NotNull Argument.PrefixChar prefixChar) {
+	public ArgumentBuilder<Type, TInner> prefix(@NotNull Argument.PrefixChar prefixChar) {
 		this.prefixChar = prefixChar;
 		return this;
 	}
 
 	/** @see Argument#addNames(String...) */
-	public ArgumentBuilder<Type, TInner> withNames(@NotNull String... names) {
+	public ArgumentBuilder<Type, TInner> names(@NotNull String... names) {
 		this.names = names;
 		return this;
 	}
@@ -211,7 +211,7 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> implemen
 	 * @see ArgumentType
 	 * @see Argument#type
 	 */
-	public ArgumentBuilder<Type, TInner> withType(@NotNull Type argType) {
+	public ArgumentBuilder<Type, TInner> type(@NotNull Type argType) {
 		this.type = argType;
 		return this;
 	}
@@ -223,7 +223,7 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> implemen
 	 * @see ArgumentType
 	 * @see Argument#type
 	 */
-	public ArgumentBuilder<Type, TInner> withType(@NotNull Builder<Type> argType) {
+	public ArgumentBuilder<Type, TInner> type(@NotNull Builder<Type> argType) {
 		this.type = argType.build();
 		return this;
 	}
@@ -243,7 +243,7 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> implemen
 		var argType = ArgumentBuilder.getArgumentTypeFromField(field);
 
 		if (argType != null) {
-			this.withType((Type)argType);
+			this.type((Type)argType);
 			return;
 		}
 
@@ -282,7 +282,8 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> implemen
 		newArg.setAllowUnique(this.allowUnique);
 		newArg.setHidden(this.hidden);
 		newArg.setDefaultValue(this.defaultValue);
-		newArg.setPrefix(this.prefixChar);
+		if (this.prefixChar != null)
+			newArg.setPrefix(this.prefixChar);
 		newArg.setOnErrorCallback(this.onErrorCallback);
 		newArg.setOnOkCallback(this.onCorrectCallback);
 		return newArg;

@@ -306,7 +306,13 @@ public class AfterParseOptions {
 		}
 	}
 
-	public class AfterParseActions {
+	/**
+	 * Provides actions to be executed after parsing is done.
+	 * <p>
+	 * This class cannot be instantiated directly. Use {@link AfterParseOptions#withActions(Consumer)} to set
+	 * the actions to be executed after parsing is done.
+	 */
+	public final class AfterParseActions {
 		private AfterParseActions() {}
 
 		/**

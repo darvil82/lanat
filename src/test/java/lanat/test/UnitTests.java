@@ -99,7 +99,7 @@ public class UnitTests {
 	/**
 	 * Shorthand for parsing arguments and getting the value of an argument. Same as
 	 * <pre>
-	 * {@code this.parser.parseArgs("--%s %s".formatted(arg, values)).<T>get(arg).get();}
+	 * {@code this.parser.parseGetValues("--%s %s".formatted(arg, values)).<T>get(arg).get();}
 	 * </pre>
 	 */
 	protected <T> T parseArg(@NotNull String arg, @NotNull String values) {

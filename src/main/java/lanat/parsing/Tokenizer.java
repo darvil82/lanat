@@ -20,10 +20,10 @@ import java.util.function.Predicate;
  */
 public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 	/** Are we currently within a tuple? */
-	private boolean tupleOpen = false;
+	private boolean isTupleOpen = false;
 
 	/** Are we currently within a string? */
-	private boolean stringOpen = false;
+	private boolean isStringOpen = false;
 
 	/** The index of the current character in the {@link Tokenizer#inputString} */
 	private int currentCharIndex = 0;
@@ -96,20 +96,25 @@ public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 			} else if (cChar == '"' || cChar == '\'') {
 				// if we are already in an open string, push the current value and close the string. Make sure
 				// that the current char is the same as the one that opened the string
-				if (this.stringOpen && currentStringChar == cChar) {
+				if (this.isStringOpen && currentStringChar == cChar) {
 					// strings require a space after them
-					if (!this.isCharAtRelativeIndex(1, Character::isWhitespace) && !this.isLastChar()) {
+					if (
+						!this.isCharAtRelativeIndex(1, Character::isWhitespace)
+							&& !this.isLastChar()
+							// its fine if the next character is a tuple close char, but only if we are in a tuple
+							&& !(this.isCharAtRelativeIndex(1, TupleChar.current.close) && this.isTupleOpen)
+					) {
 						this.addError(new TokenizeErrors.SpaceRequiredError(this.currentCharIndex));
 						continue;
 					}
 
 					this.addToken(TokenType.ARGUMENT_VALUE, this.currentValue.toString());
 					this.currentValue.setLength(0);
-					this.stringOpen = false;
+					this.isStringOpen = false;
 
 					// the string is open, but the character does not match, or there's something already in the current value.
 					// Push it as a normal character
-				} else if (this.stringOpen) {
+				} else if (this.isStringOpen) {
 					this.currentValue.append(cChar);
 
 					// strings require a space behind them.
@@ -118,19 +123,19 @@ public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 
 					// the string is not open, so open it and set the current string char to the current char
 				} else {
-					this.stringOpen = true;
+					this.isStringOpen = true;
 					currentStringChar = cChar;
 					lastStringCharIndex = this.currentCharIndex;
 				}
 
 				// append characters to the current value as long as we are in a string
-			} else if (this.stringOpen) {
+			} else if (this.isStringOpen) {
 				this.currentValue.append(cChar);
 
 				// reached a possible tuple start character
 			} else if (cChar == TupleChar.current.open) {
 				// if we are already in a tuple, add error
-				if (this.tupleOpen) {
+				if (this.isTupleOpen) {
 					// push tuple start token so the user can see the incorrect tuple char
 					this.addError(new TokenizeErrors.TupleAlreadyOpenError(this.currentCharIndex));
 					continue;
@@ -140,7 +145,7 @@ public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 
 				// set the state to tuple open
 				this.addToken(TokenType.ARGUMENT_VALUE_TUPLE_START, TupleChar.current.open);
-				this.tupleOpen = true;
+				this.isTupleOpen = true;
 				lastTupleCharIndex = this.currentCharIndex;
 
 				// reached a possible tuple end character
@@ -153,7 +158,7 @@ public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 					}
 
 					// if we are not in a tuple, set error and stop tokenizing
-					if (!this.tupleOpen) {
+					if (!this.isTupleOpen) {
 						// push tuple start token so the user can see the incorrect tuple char
 						this.addError(new TokenizeErrors.UnexpectedTupleCloseError(this.currentCharIndex));
 						continue;
@@ -167,7 +172,7 @@ public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 					// set the state to tuple closed
 					this.addToken(TokenType.ARGUMENT_VALUE_TUPLE_END, TupleChar.current.close);
 					this.currentValue.setLength(0);
-					this.tupleOpen = false;
+					this.isTupleOpen = false;
 
 					// reached a "--". Push all the rest as a FORWARD_VALUE.
 				} else if (
@@ -182,7 +187,7 @@ public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 				} else if (
 					(Character.isWhitespace(cChar) && !this.currentValue.isEmpty()) // there's a space and some value to tokenize
 						// also check if this is defining the value of an argument, or we are in a tuple. If so, don't tokenize
-						|| (cChar == '=' && !this.tupleOpen && this.isArgumentSpecifier(this.currentValue.toString()))
+						|| (cChar == '=' && !this.isTupleOpen && this.isArgumentSpecifier(this.currentValue.toString()))
 				) {
 					this.tokenizeCurrentValue();
 
@@ -193,9 +198,9 @@ public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 			}
 		}
 
-		if (this.tupleOpen)
+		if (this.isTupleOpen)
 			this.addError(new TokenizeErrors.TupleNotClosedError(lastTupleCharIndex));
-		if (this.stringOpen)
+		if (this.isStringOpen)
 			this.addError(new TokenizeErrors.StringNotClosedError(lastStringCharIndex));
 
 		// we left something in the current value, tokenize it
@@ -232,7 +237,7 @@ public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 	private @NotNull Token tokenizeWord(@NotNull String str) {
 		final TokenType type;
 
-		if (this.tupleOpen || this.stringOpen)
+		if (this.isTupleOpen || this.isStringOpen)
 			type = TokenType.ARGUMENT_VALUE;
 		else if (this.isArgName(str))
 			type = TokenType.ARGUMENT_NAME;

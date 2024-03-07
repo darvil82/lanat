@@ -118,7 +118,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 	Argument(@NotNull Type type, @NotNull String... names) {
 		this.type = type;
-		this.addNames(names);
+		this.setNames(List.of(names));
 	}
 
 	/**
@@ -135,7 +135,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * Creates an argument builder with the specified type and names.
 	 * @param type the type of the argument. This is the subParser that will be used to parse the value/s this
 	 * 	argument should receive.
-	 * @param names the names of the argument. See {@link Argument#addNames(String...)} for more information.
+	 * @param names the names of the argument. See {@link Argument#setNames(List)} for more information.
 	 */
 	public static <Type extends ArgumentType<TInner>, TInner>
 	ArgumentBuilder<Type, TInner> create(@NotNull Type type, @NotNull String... names) {
@@ -146,7 +146,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * Creates an argument builder with the specified type and names.
 	 * @param type the type of the argument. This is the subParser that will be used to parse the value/s this
 	 * 	argument should receive.
-	 * @param names the names of the argument. See {@link Argument#addNames(String...)} for more information.
+	 * @param names the names of the argument. See {@link Argument#setNames(List)} for more information.
 	 */
 	public static <Type extends ArgumentType<TInner>, TInner>
 	ArgumentBuilder<Type, TInner> create(@NotNull Builder<Type> type, @NotNull String... names) {
@@ -155,7 +155,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 	/**
 	 * Creates an argument builder with an {@link ActionArgumentType} type.
-	 * @param names the names of the argument. See {@link Argument#addNames(String...)} for more information.
+	 * @param names the names of the argument. See {@link Argument#setNames(List)} for more information.
 	 */
 	public static ArgumentBuilder<ActionArgumentType, Boolean> createOfActionType(@NotNull String... names) {
 		return Argument.create(new ActionArgumentType()).names(names);
@@ -695,7 +695,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.FIELD)
 	public @interface Define {
-		/** @see Argument#addNames(String...) */
+		/** @see Argument#setNames(List)  */
 		@NotNull String[] names() default { };
 
 		/** @see Argument#setDescription(String) */

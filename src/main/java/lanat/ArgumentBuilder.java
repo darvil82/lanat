@@ -10,6 +10,7 @@ import utils.UtlReflection;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -198,7 +199,7 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> implemen
 		return this;
 	}
 
-	/** @see Argument#addNames(String...) */
+	/** @see Argument#setNames(List)  */
 	public ArgumentBuilder<Type, TInner> names(@NotNull String... names) {
 		this.names = names;
 		return this;

@@ -48,14 +48,14 @@ public class ParseResultRoot extends ParseResult {
 		ParseResult current = this;
 		var list = new ArrayList<ParseResult>(1);
 
-		while (current != null) {
+		do {
 			list.add(current);
 
 			current = current.subResults.stream()
 				.filter(ParseResult::wasUsed)
 				.findFirst()
 				.orElse(null);
-		}
+		} while (current != null);
 
 		return list;
 	}

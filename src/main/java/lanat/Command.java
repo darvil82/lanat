@@ -76,7 +76,7 @@ public class Command
 	 * @see #setDescription(String)
 	 */
 	public Command(@NotNull String name, @Nullable String description) {
-		this.addNames(name);
+		this.setNames(List.of(name));
 		this.description = description;
 	}
 
@@ -103,7 +103,7 @@ public class Command
 		}
 
 		// add the names and description from the annotation
-		this.addNames(CommandTemplate.getTemplateNames(templateClass));
+		this.setNames(List.of(CommandTemplate.getTemplateNames(templateClass)));
 		if (!annotation.description().isBlank()) this.setDescription(annotation.description());
 
 		this.from(templateClass);
@@ -682,7 +682,7 @@ public class Command
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.TYPE)
 	public @interface Define {
-		/** @see Command#addNames(String...) */
+		/** @see Command#setNames(List)  */
 		@NotNull String[] names() default {};
 
 		/** @see Command#setDescription(String) */

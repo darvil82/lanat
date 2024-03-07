@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 
 /**
@@ -49,9 +48,8 @@ import java.util.stream.Stream;
  * </p>
  * <pre>
  * {@code
- *     Argument.create('n', "name", new IntegerArgumentType());
- *     Argument.create("name", new IntegerArgumentType())
- *         .addNames("n");
+ *     Argument.create(new IntegerArgumentType(), "name", "n");
+ *     Argument.create(new IntegerArgumentType()).names("name", "n");
  * }
  * </pre>
  *
@@ -88,7 +86,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 */
 	public final @NotNull Type type;
 	private @NotNull PrefixChar prefixChar = PrefixChar.DEFAULT;
-	private final @NotNull List<@NotNull String> names = new ArrayList<>(1);
+	private @NotNull List<@NotNull String> names = new ArrayList<>(1);
 	private @Nullable String description;
 	private boolean required = false,
 		positional = false,
@@ -284,17 +282,18 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * @param names the names that should be added to this argument.
 	 */
 	@Override
-	public void addNames(@NotNull String... names) {
-		if (names.length == 0)
+	public void setNames(@NotNull List<@NotNull String> names) {
+		if (names.isEmpty())
 			throw new IllegalArgumentException("at least one name must be specified");
 
-		Stream.of(names)
-			.map(UtlString::requireValidName)
-			.peek(n -> {
-				if (this.names.contains(n))
-					throw new IllegalArgumentException("Name '" + n + "' is already used by this argument.");
-			})
-			.forEach(this.names::add);
+		for (var name : names)
+			UtlString.requireValidName(name);
+
+		UtlMisc.requireUniqueElements(
+			names, n -> new IllegalArgumentException("Name '" + n + "' is already used by this argument"
+		));
+
+		this.names = Collections.unmodifiableList(names);
 
 		// now let the parent command and group know that this argument has been modified. This is necessary to check
 		// for duplicate names

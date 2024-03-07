@@ -45,7 +45,7 @@ public class Command
 		MultipleNamesAndDescription,
 		ParentElementGetter<Command>
 {
-	private final @NotNull List<@NotNull String> names = new ArrayList<>(1);
+	private @NotNull List<@NotNull String> names = new ArrayList<>(1);
 	private @Nullable String description;
 	private final @NotNull ArrayList<@NotNull Argument<?, ?>> arguments = new ArrayList<>();
 	private final @NotNull ArrayList<@NotNull Command> subCommands = new ArrayList<>(0);
@@ -209,17 +209,18 @@ public class Command
 	}
 
 	@Override
-	public void addNames(@NotNull String... names) {
-		if (names.length == 0)
+	public void setNames(@NotNull List<@NotNull String> names) {
+		if (names.isEmpty())
 			throw new IllegalArgumentException("at least one name must be specified");
 
-		Stream.of(names)
-			.map(UtlString::requireValidName)
-			.peek(newName -> {
-				if (this.hasName(newName))
-					throw new IllegalArgumentException("Name '" + newName + "' is already used by this command.");
-			})
-			.forEach(this.names::add);
+		for (var name : names)
+			UtlString.requireValidName(name);
+
+		UtlMisc.requireUniqueElements(
+			names, n -> new IllegalArgumentException("Name '" + n + "' is already used by this command"
+		));
+
+		this.names = Collections.unmodifiableList(names);
 
 		// now let the parent command know that this command has been modified. This is necessary to check
 		// for duplicate names

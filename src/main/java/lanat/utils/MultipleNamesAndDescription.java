@@ -3,6 +3,7 @@ package lanat.utils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
@@ -11,11 +12,20 @@ import java.util.List;
  */
 public interface MultipleNamesAndDescription extends NamedWithDescription {
 	/**
+	 * Set the names of this object.
+	 * @param names The names to set
+	 */
+	void setNames(@NotNull List<@NotNull String> names);
+
+	/**
 	 * Add one or more names to this object.
-	 *
 	 * @param names The names to add
 	 */
-	void addNames(@NotNull String... names);
+	default void addNames(@NotNull String... names) {
+		var list = new ArrayList<>(this.getNames());
+		list.addAll(Arrays.asList(names));
+		this.setNames(list);
+	}
 
 	/**
 	 * Returns all the names of this object. Will always return at least one.

@@ -87,7 +87,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * receive.
 	 */
 	public final @NotNull Type type;
-	private PrefixChar prefixChar = PrefixChar.DEFAULT;
+	private @NotNull PrefixChar prefixChar = PrefixChar.DEFAULT;
 	private final @NotNull List<@NotNull String> names = new ArrayList<>(1);
 	private @Nullable String description;
 	private boolean required = false,
@@ -141,7 +141,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 */
 	public static <Type extends ArgumentType<TInner>, TInner>
 	ArgumentBuilder<Type, TInner> create(@NotNull Type type, @NotNull String... names) {
-		return Argument.<Type, TInner>create().withNames(names).withType(type);
+		return Argument.<Type, TInner>create().names(names).type(type);
 	}
 
 	/**
@@ -160,7 +160,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * @param names the names of the argument. See {@link Argument#addNames(String...)} for more information.
 	 */
 	public static ArgumentBuilder<ActionArgumentType, Boolean> createOfActionType(@NotNull String... names) {
-		return Argument.create(new ActionArgumentType()).withNames(names);
+		return Argument.create(new ActionArgumentType()).names(names);
 	}
 
 	/**
@@ -213,7 +213,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * @param prefixChar the prefix that should be used for this argument.
 	 * @see PrefixChar
 	 */
-	public void setPrefix(PrefixChar prefixChar) {
+	public void setPrefix(@NotNull PrefixChar prefixChar) {
 		this.prefixChar = prefixChar;
 	}
 
@@ -222,7 +222,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 *
 	 * @return the prefix of this argument.
 	 */
-	public PrefixChar getPrefix() {
+	public @NotNull PrefixChar getPrefix() {
 		return this.prefixChar;
 	}
 
@@ -702,7 +702,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		/** @see Argument#setDescription(String) */
 		@NotNull String description() default "";
 
-		/** @see ArgumentBuilder#withType(ArgumentType) */
+		/** @see ArgumentBuilder#type(ArgumentType) */
 		@NotNull Class<? extends ArgumentType<?>> type() default DummyArgumentType.class;
 
 		/**
@@ -720,7 +720,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		boolean positional() default false;
 
 		/** @see Argument#setAllowUnique(boolean) */
-		boolean allowsUnique() default false;
+		boolean allowUnique() default false;
 
 		/** @see Argument#setHidden(boolean) */
 		boolean hidden() default false;

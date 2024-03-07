@@ -296,8 +296,8 @@ public class ArgumentParser extends Command {
 				System.out.println("Version: " + Objects.requireNonNullElse(this.getVersion(), "unknown"));
 				System.exit(returnCode);
 			})
-			.withDescription("Shows the version of this program.")
-			.allowsUnique()
+			.description("Shows the version of this program.")
+			.allowUnique(true)
 		);
 	}
 

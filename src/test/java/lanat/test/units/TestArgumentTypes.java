@@ -27,7 +27,7 @@ public class TestArgumentTypes extends UnitTests {
 			this.addArgument(Argument.create(new StringArgumentType(), "string"));
 			this.addArgument(Argument.create(new TupleArgumentType<>(Range.AT_LEAST_ONE, new StringArgumentType()), "multiple-strings"));
 			this.addArgument(Argument.create(new TupleArgumentType<>(Range.AT_LEAST_ONE, new IntegerArgumentType()), "multiple-ints")
-				.withDefaultValue(new Integer[] { 10101 })
+				.defaultValue(new Integer[] { 10101 })
 			);
 			this.addArgument(Argument.create(new FileArgumentType(true), "file"));
 			this.addArgument(Argument.create(new EnumArgumentType<>(TestEnum.TWO), "enum"));

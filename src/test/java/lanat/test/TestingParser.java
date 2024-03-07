@@ -29,6 +29,10 @@ public class TestingParser extends ArgumentParser {
 		return super.parse(input).withActions(AfterParseOptions.AfterParseActions::printErrors);
 	}
 
+	public @NotNull AfterParseOptions parse(@NotNull String input) {
+		return this.parse(CLInput.from(input));
+	}
+
 	public @NotNull ParseResultRoot parseGetValues(@NotNull String args) {
 		var res = this.parse(CLInput.from(args))
 			.withActions(AfterParseOptions.AfterParseActions::printErrors)

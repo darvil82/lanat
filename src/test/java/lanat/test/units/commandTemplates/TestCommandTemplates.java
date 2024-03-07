@@ -1,6 +1,5 @@
 package lanat.test.units.commandTemplates;
 
-import lanat.CLInput;
 import lanat.Command;
 import lanat.exceptions.ArgumentNotFoundException;
 import lanat.test.TestingParser;
@@ -34,7 +33,7 @@ public class TestCommandTemplates extends UnitTests {
 	@Test
 	@DisplayName("test into method")
 	public void testInto() {
-		final var result = this.parser.parse(CLInput.from("--number 56 --text hello -f"))
+		final var result = this.parser.parse("--number 56 --text hello -f")
 			.into(CmdTemplates.CmdTemplate1.class);
 
 		assertTrue(result.flag);
@@ -46,14 +45,14 @@ public class TestCommandTemplates extends UnitTests {
 	@Test
 	@DisplayName("test ParsedArgumentValue wrapper")
 	public void testParsedArgumentValue() {
-		final var result = this.parser.parse(CLInput.from("cmd1-1 --number2 14"))
+		final var result = this.parser.parse("cmd1-1 --number2 14")
 			.into(CmdTemplates.CmdTemplate1.class);
 
 		assertTrue(result.cmd2.number2.isPresent());
 		assertEquals(14, result.cmd2.number2.get());
 
 		assertTrue(
-			this.parser.parse(CLInput.from(""))
+			this.parser.parse("")
 				.into(CmdTemplates.CmdTemplate1.class).cmd2.number2.isEmpty()
 		);
 	}
@@ -62,7 +61,7 @@ public class TestCommandTemplates extends UnitTests {
 	@DisplayName("test default values for arguments")
 	public void testDefaultValues() {
 		{
-			final var result = this.parser.parse(CLInput.from(""))
+			final var result = this.parser.parse("")
 				.into(CmdTemplates.CmdTemplate1.class);
 
 			assertTrue(result.numberParsedArgValue.isPresent());
@@ -70,7 +69,7 @@ public class TestCommandTemplates extends UnitTests {
 		}
 
 		{
-			final var result = this.parser.parse(CLInput.from("--numberParsedArgValue 56"))
+			final var result = this.parser.parse("--numberParsedArgValue 56")
 				.into(CmdTemplates.CmdTemplate1.class);
 
 			assertTrue(result.numberParsedArgValue.isPresent());

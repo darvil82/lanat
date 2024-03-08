@@ -8,9 +8,11 @@ import textFormatter.TextFormatter;
  * An argument type that takes a string of characters.
  * @see String
  */
+// do not allow extending this type because it has some specific behavior defined in TupleArgumentType
 public final class StringArgumentType extends ArgumentType<String> {
 	@Override
 	public String parseValues(@NotNull String @NotNull [] values) {
+		// when used in a TupleArgumentType, this is never called. (see TupleArgumentType)
 		return values[0];
 	}
 

@@ -3,7 +3,7 @@ package lanat.helpRepresentation;
 import lanat.Argument;
 import lanat.ArgumentParser;
 import lanat.Command;
-import lanat.helpRepresentation.descriptions.DescriptionFormatter;
+import lanat.helpRepresentation.descriptions.DescriptionParser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import utils.UtlString;
@@ -26,7 +26,7 @@ public final class LayoutGenerators {
 	 * @return the generated title and description.
 	 */
 	public static @NotNull String titleAndDescription(@NotNull Command cmd) {
-		final var description = DescriptionFormatter.parse(cmd);
+		final var description = DescriptionParser.parse(cmd);
 		final var buff = new StringBuilder(CommandRepr.getRepresentation(cmd));
 
 		if (cmd instanceof ArgumentParser ap) {

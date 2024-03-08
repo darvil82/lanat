@@ -2,7 +2,7 @@ package lanat.helpRepresentation;
 
 import lanat.Argument;
 import lanat.ArgumentGroup;
-import lanat.helpRepresentation.descriptions.DescriptionFormatter;
+import lanat.helpRepresentation.descriptions.DescriptionParser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import textFormatter.FormatOption;
@@ -36,7 +36,7 @@ public final class ArgumentGroupRepr {
 
 		buff.append(name);
 
-		final var description = DescriptionFormatter.parse(group);
+		final var description = DescriptionParser.parse(group);
 		if (description == null)
 			return buff.toString();
 

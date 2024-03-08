@@ -70,7 +70,26 @@ public abstract class Tag {
 	public static void register(@NotNull String name, @NotNull Class<? extends Tag> tag) {
 		if (!Tag.isValidTagName(name))
 			throw new IllegalArgumentException("Tag name must only contain lowercase letters and dashes");
-		Tag.REGISTERED_TAGS.put(name.toLowerCase(), tag);
+
+		var lowerName = name.toLowerCase();
+
+		if (Tag.REGISTERED_TAGS.containsKey(lowerName))
+			throw new IllegalArgumentException("Tag '" + name + "' is already registered");
+
+		Tag.REGISTERED_TAGS.put(lowerName, tag);
+	}
+
+	/**
+	 * Unregister a tag. This method will unregister the tag with the given name.
+	 * @param name name of the tag to unregister
+	 */
+	public static void unregister(@NotNull String name) {
+		var lowerName = name.toLowerCase();
+
+		if (!Tag.REGISTERED_TAGS.containsKey(lowerName))
+			throw new IllegalArgumentException("Tag '" + name + "' is not registered");
+
+		Tag.REGISTERED_TAGS.remove(lowerName);
 	}
 
 	/**

@@ -1,7 +1,7 @@
 package lanat.helpRepresentation;
 
 import lanat.Argument;
-import lanat.helpRepresentation.descriptions.DescriptionFormatter;
+import lanat.helpRepresentation.descriptions.DescriptionParser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import textFormatter.FormatOption;
@@ -83,7 +83,7 @@ public final class ArgumentRepr {
 	 * @return the representation and description of the argument
 	 */
 	public static @Nullable String getDescription(@NotNull Argument<?, ?> arg, boolean forceName) {
-		var description = DescriptionFormatter.parse(arg);
+		var description = DescriptionParser.parse(arg);
 
 		if (description == null) {
 			if (forceName)

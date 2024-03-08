@@ -293,7 +293,7 @@ public final class Parser extends ParsingStateBase<Error.ParseError> {
 				if (prefix != checkPrefix) return;
 
 				// get rid of the prefix (single or double)
-				final var nameToCheck = str.substring(str.charAt(1) == checkPrefix ? 2 : 1);
+				final var nameToCheck = Argument.removePrefix(str, checkPrefix);
 
 				for (var arg : this.command.getArguments()) {
 					if (!arg.hasName(nameToCheck)) continue; // does not have the name

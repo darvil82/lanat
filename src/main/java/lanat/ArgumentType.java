@@ -101,14 +101,14 @@ public abstract class ArgumentType<T>
 	 * Constructs a new argument type.
 	 */
 	protected ArgumentType() {
-		checkValidState(this);
+		ArgumentType.checkValidState(this);
 	}
 
 	/**
 	 * Constructs a new argument type with the specified parseable.
 	 */
 	protected ArgumentType(@NotNull Parseable<T> parseable) {
-		checkValidState(parseable);
+		ArgumentType.checkValidState(parseable);
 	}
 
 	/**

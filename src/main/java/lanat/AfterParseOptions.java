@@ -87,6 +87,14 @@ public class AfterParseOptions {
 	}
 
 	/**
+	 * Returns whether any input was received during parsing.
+	 * @return {@code true} if any input was received, {@code false} otherwise.
+	 */
+	public boolean hasReceivedInput() {
+		return this.receivedInput;
+	}
+
+	/**
 	 * Sets the actions to be executed after parsing is done. The actions will be executed in the order they are
 	 * specified in the method chain.
 	 * <p>

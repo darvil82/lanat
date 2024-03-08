@@ -5,9 +5,13 @@ import lanat.argumentTypes.CounterArgumentType;
 import lanat.helpRepresentation.HelpFormatter;
 import lanat.helpRepresentation.LayoutItem;
 import lanat.helpRepresentation.descriptions.DescriptionFormatter;
+import lanat.helpRepresentation.descriptions.Tag;
 import lanat.helpRepresentation.descriptions.exceptions.InvalidRouteException;
 import lanat.test.TestingParser;
 import lanat.test.UnitTests;
+import lanat.utils.NamedWithDescription;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -66,5 +70,35 @@ public class TestHelpFormatting extends UnitTests {
 			InvalidRouteException.class,
 			() -> DescriptionFormatter.parse(this.parser, "<link=args>")
 		);
+	}
+
+	@Test
+	@DisplayName("Test escape sequences")
+	public void testEscapeSequences() {
+		assertEquals("<link=args.arg1>", DescriptionFormatter.parse(this.parser, "\\<link=args.arg1\\>"));
+		assertEquals("<link=args.arg1", DescriptionFormatter.parse(this.parser, "\\<link=args.arg1"));
+		assertEquals("link=args.arg1>", DescriptionFormatter.parse(this.parser, "link=args.arg1\\>"));
+		assertEquals("\\", DescriptionFormatter.parse(this.parser, "\\"));
+		assertEquals("test\\", DescriptionFormatter.parse(this.parser, "test\\"));
+	}
+
+
+	public static class TestTag extends Tag {
+		@Override
+		protected @NotNull String parse(@NotNull NamedWithDescription user, @Nullable String value) {
+			if (value == null)
+				return "No value!";
+			return user.getName() + ": " + value;
+		}
+	}
+
+	@Test
+	@DisplayName("Test custom tag")
+	public void testCustomTag() {
+		Tag.register("test", TestTag.class);
+
+		assertEquals("TestHelpFormatting: hello", DescriptionFormatter.parse(this.parser, "<test=hello>"));
+		assertEquals("No value!", DescriptionFormatter.parse(this.parser, "<test>"));
+		assertEquals("No value!", DescriptionFormatter.parse(this.parser, "<test=>"));
 	}
 }

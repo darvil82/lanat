@@ -1,7 +1,7 @@
 package lanat.helpRepresentation;
 
 import lanat.Command;
-import lanat.helpRepresentation.descriptions.DescriptionFormatter;
+import lanat.helpRepresentation.descriptions.DescriptionParser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import textFormatter.FormatOption;
@@ -54,7 +54,7 @@ public final class CommandRepr {
 	 * @return the parsed description of the command
 	 */
 	public static @Nullable String getDescription(@NotNull Command cmd) {
-		return Optional.ofNullable(DescriptionFormatter.parse(cmd))
+		return Optional.ofNullable(DescriptionParser.parse(cmd))
 			.map(desc -> CommandRepr.getRepresentation(cmd) + ":" + System.lineSeparator() + HelpFormatter.indent(desc, cmd))
 			.orElse(null);
 	}

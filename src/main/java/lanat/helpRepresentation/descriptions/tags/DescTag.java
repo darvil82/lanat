@@ -1,6 +1,6 @@
 package lanat.helpRepresentation.descriptions.tags;
 
-import lanat.helpRepresentation.descriptions.DescriptionFormatter;
+import lanat.helpRepresentation.descriptions.DescriptionParser;
 import lanat.helpRepresentation.descriptions.RouteParser;
 import lanat.helpRepresentation.descriptions.Tag;
 import lanat.helpRepresentation.descriptions.exceptions.InvalidRouteException;
@@ -31,6 +31,6 @@ public class DescTag extends Tag {
 		if (description == null)
 			throw new NoDescriptionDefinedException(target);
 
-		return DescriptionFormatter.parse(target, description);
+		return DescriptionParser.parse(target, description);
 	}
 }

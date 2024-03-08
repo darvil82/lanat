@@ -170,8 +170,8 @@ public class RouteParser {
 		final Optional<E> res = list.stream().filter(x -> predicate.apply(x, name)).findFirst();
 
 		this.currentTarget = res.orElseThrow(() -> new RuntimeException(
-			"Element " + name + " is not present in "
-				+ UtlReflection.getSimpleName(this.currentTarget.getClass()) + ' ' + this.currentTarget.getName())
-		);
+			"Element '" + name + "' is not present in "
+				+ UtlReflection.getSimpleName(this.currentTarget.getClass()) + " '" + this.currentTarget.getName() + "'"
+		));
 	}
 }

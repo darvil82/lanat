@@ -4,7 +4,8 @@ import lanat.Argument;
 import lanat.argumentTypes.CounterArgumentType;
 import lanat.helpRepresentation.HelpFormatter;
 import lanat.helpRepresentation.LayoutItem;
-import lanat.helpRepresentation.descriptions.DescriptionFormatter;
+import lanat.helpRepresentation.descriptions.DescriptionParser;
+import lanat.helpRepresentation.descriptions.RouteParser;
 import lanat.helpRepresentation.descriptions.Tag;
 import lanat.helpRepresentation.descriptions.exceptions.InvalidRouteException;
 import lanat.test.TestingParser;
@@ -14,6 +15,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -27,21 +30,21 @@ public class TestHelpFormatting extends UnitTests {
 			@Override
 			protected void initLayout() {
 				this.setLayout(
-					LayoutItem.of(DescriptionFormatter::parse)
+					LayoutItem.of(DescriptionParser::parse)
 				);
 			}
 		};
 
-		return new TestingParser(
-			"TestHelpFormatting",
-			"description of <link=args.arg1>: (<desc=args.arg1>)"
-		)
-		{{
-			this.addArgument(Argument.createOfActionType("arg1", "a1")
-				.description("description of arg2: (<desc=args.arg2>)"));
-			this.addArgument(Argument.create(new CounterArgumentType(), "arg2")
-				.description("description of my type: (<desc=!.type>) i am in the command <link>"));
-		}};
+		var parser = super.setParser();
+		parser.setNames(List.of("TestHelpFormatting"));
+		parser.setDescription("description of <link=args.arg1>: (<desc=args.arg1>)");
+
+		parser.addArgument(Argument.createOfActionType("arg1", "a1")
+			.description("description of arg2: (<desc=args.arg2>)"));
+		parser.addArgument(Argument.create(new CounterArgumentType(), "arg2")
+			.description("description of my type: (<desc=!.type>) i am in the command <link>"));
+
+		return parser;
 	}
 
 	@Test
@@ -59,7 +62,7 @@ public class TestHelpFormatting extends UnitTests {
 	public void testInvalidTagRoute() {
 		assertThrows(
 			InvalidRouteException.class,
-			() -> DescriptionFormatter.parse(this.parser, "<link=!.type>")
+			() -> DescriptionParser.parse(this.parser, "<link=!.type>")
 		);
 	}
 
@@ -68,18 +71,18 @@ public class TestHelpFormatting extends UnitTests {
 	public void testUnfinishedTagRoute() {
 		assertThrows(
 			InvalidRouteException.class,
-			() -> DescriptionFormatter.parse(this.parser, "<link=args>")
+			() -> DescriptionParser.parse(this.parser, "<link=args>")
 		);
 	}
 
 	@Test
 	@DisplayName("Test escape sequences")
 	public void testEscapeSequences() {
-		assertEquals("<link=args.arg1>", DescriptionFormatter.parse(this.parser, "\\<link=args.arg1\\>"));
-		assertEquals("<link=args.arg1", DescriptionFormatter.parse(this.parser, "\\<link=args.arg1"));
-		assertEquals("link=args.arg1>", DescriptionFormatter.parse(this.parser, "link=args.arg1\\>"));
-		assertEquals("\\", DescriptionFormatter.parse(this.parser, "\\"));
-		assertEquals("test\\", DescriptionFormatter.parse(this.parser, "test\\"));
+		assertEquals("<link=args.arg1>", DescriptionParser.parse(this.parser, "\\<link=args.arg1\\>"));
+		assertEquals("<link=args.arg1", DescriptionParser.parse(this.parser, "\\<link=args.arg1"));
+		assertEquals("link=args.arg1>", DescriptionParser.parse(this.parser, "link=args.arg1\\>"));
+		assertEquals("\\", DescriptionParser.parse(this.parser, "\\"));
+		assertEquals("test\\", DescriptionParser.parse(this.parser, "test\\"));
 	}
 
 
@@ -97,8 +100,23 @@ public class TestHelpFormatting extends UnitTests {
 	public void testCustomTag() {
 		Tag.register("test", TestTag.class);
 
-		assertEquals("TestHelpFormatting: hello", DescriptionFormatter.parse(this.parser, "<test=hello>"));
-		assertEquals("No value!", DescriptionFormatter.parse(this.parser, "<test>"));
-		assertEquals("No value!", DescriptionFormatter.parse(this.parser, "<test=>"));
+		assertEquals("TestHelpFormatting: hello", DescriptionParser.parse(this.parser, "<test=hello>"));
+		assertEquals("No value!", DescriptionParser.parse(this.parser, "<test>"));
+		assertEquals("No value!", DescriptionParser.parse(this.parser, "<test=>"));
+	}
+
+	@Test
+	@DisplayName("Test route parser")
+	public void testRouteParser() {
+		var whatArg = this.parser.getArgument("what");
+		var innerArg = this.parser.getCommand("subCommand")
+			.getCommand("another")
+			.getArgument("ball");
+
+		assertEquals(whatArg, RouteParser.parse(whatArg, "!"));
+		assertEquals(whatArg.getParentCommand(), RouteParser.parse(whatArg, ""));
+		assertEquals(whatArg, RouteParser.parse(whatArg, "args.what"));
+		assertEquals(whatArg.type, RouteParser.parse(whatArg, "args.what.type"));
+		assertEquals(innerArg, RouteParser.parse(whatArg, "cmds.subCommand.cmds.another.args.ball"));
 	}
 }

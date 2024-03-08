@@ -34,4 +34,12 @@ public class TestMisc extends UnitTests {
 		// test sub-command2 failing (its error code is 0b1000)
 		assertEquals(0b1100, this.parser.parse("subCommand2 hello").getErrorCode());
 	}
+
+	@Test
+	@DisplayName("check escape characters")
+	public void testEscapeChars() {
+		assertEquals("([hello]), ('world')", this.parseArg("what", "\\[hello\\] \\'world\\'"));
+		assertEquals("(\\)", this.parseArg("what", "\\"));
+		assertEquals("(test\\)", this.parseArg("what", "test\\"));
+	}
 }

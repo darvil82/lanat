@@ -472,9 +472,11 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * @return {@code true} if the name matches, {@code false} otherwise.
 	 */
 	public boolean checkMatch(@NotNull String name) {
-		final char prefixChar = this.getPrefix().getCharacter();
-		return this.names.stream()
-			.anyMatch(n -> name.equals(prefixChar + n) || name.equals("" + prefixChar + prefixChar + n));
+		var argPrefix = this.getPrefix().getCharacter();
+
+		if (name.charAt(0) != argPrefix) return false;
+
+		return this.hasName(Argument.removePrefix(name, argPrefix));
 	}
 
 	/**
@@ -687,6 +689,26 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 	// -----------------------------------------------------------------------------------------------------------------
 
+	/**
+	 * Removes the prefix from the given name. If the name does not have the prefix, then it will be returned as is.
+	 * <p>
+	 * Example: {@code removePrefix("--name", '-')} or {@code removePrefix("-name", '-')} will return {@code "name"}.
+	 * @param name the name to remove the prefix from
+	 * @param character the prefix character to remove
+	 * @return the name without the prefix
+	 */
+	public static @NotNull String removePrefix(@NotNull String name, char character) {
+		if (name.length() == 1) return name; // if the name is a single character, then it can't have a prefix
+
+		// if the first character is not the prefix, then it can't have a prefix
+		if (name.charAt(0) != character) return name;
+
+		// here we know that the first character is the prefix, so we remove it
+		if (name.charAt(1) != character) return name.substring(1);
+
+		// if the second character is also the prefix, then we remove both
+		return name.substring(2);
+	}
 
 	/**
 	 * Used in {@link CommandTemplate}s to specify the properties of an argument belonging to the command.

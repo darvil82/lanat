@@ -71,7 +71,7 @@ public class RouteParser {
 	private int index;
 
 	private static final char SEPARATOR = '.';
-	private static final String SELF_SELECTOR = "!";
+	private static final @NotNull String SELF_SELECTOR = "!";
 
 
 	private RouteParser(@NotNull NamedWithDescription user, @Nullable String route) {
@@ -109,7 +109,7 @@ public class RouteParser {
 	 * @return the object the route points to
 	 * @see RouteParser
 	 */
-	public static NamedWithDescription parse(@NotNull NamedWithDescription user, @Nullable String route) {
+	public static @NotNull NamedWithDescription parse(@NotNull NamedWithDescription user, @Nullable String route) {
 		return new RouteParser(user, route).parse();
 	}
 
@@ -122,7 +122,7 @@ public class RouteParser {
 	 * @return the command the object belongs to
 	 * @throws InvalidRouteException if the object is not a {@link Command} or a {@link CommandUser}
 	 */
-	public static Command getCommandOf(NamedWithDescription obj) {
+	public static @NotNull Command getCommandOf(@NotNull NamedWithDescription obj) {
 		if (obj instanceof Command cmd) {
 			return cmd;
 		} else if (obj instanceof CommandUser cmdUser) {
@@ -138,7 +138,7 @@ public class RouteParser {
 	 *
 	 * @return the object the route points to
 	 */
-	private NamedWithDescription parse() {
+	private @NotNull NamedWithDescription parse() {
 		for (this.index = 0; this.index < this.route.length; this.index++) {
 			final String token = this.route[this.index];
 
@@ -166,7 +166,7 @@ public class RouteParser {
 	 * @param <E> the type of the elements in the list
 	 */
 	private <E extends NamedWithDescription>
-	void setCurrentTarget(List<E> list, BiFunction<E, String, Boolean> predicate) {
+	void setCurrentTarget(@NotNull List<E> list, @NotNull BiFunction<E, String, Boolean> predicate) {
 		if (this.index + 1 >= this.route.length)
 			throw new InvalidRouteException(this.currentTarget, "", "Expected a name");
 

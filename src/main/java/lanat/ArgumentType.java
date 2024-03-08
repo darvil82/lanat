@@ -101,15 +101,21 @@ public abstract class ArgumentType<T>
 	 * Constructs a new argument type.
 	 */
 	protected ArgumentType() {
-		if (this.getRequiredUsageCount().start() == 0) {
-			throw new IllegalArgumentException("The required usage count must be at least 1.");
-		}
+		checkValidState(this);
 	}
 
 	/**
 	 * Constructs a new argument type with the specified parseable.
 	 */
 	protected ArgumentType(@NotNull Parseable<T> parseable) {
+		checkValidState(parseable);
+	}
+
+	/**
+	 * Checks if the specified parseable is in a valid state.
+	 * @param parseable The parseable to check.
+	 */
+	private static void checkValidState(@NotNull Parseable<?> parseable) {
 		if (parseable.getRequiredUsageCount().start() == 0) {
 			throw new IllegalArgumentException("The required usage count must be at least 1.");
 		}

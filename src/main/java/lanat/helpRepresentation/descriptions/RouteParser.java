@@ -66,9 +66,13 @@ import java.util.function.BiFunction;
  */
 public class RouteParser {
 	/** The current object being handled in the route */
-	private NamedWithDescription currentTarget;
-	private final String[] route;
+	private @NotNull NamedWithDescription currentTarget;
+	private final @NotNull String[] route;
 	private int index;
+
+	private static final char SEPARATOR = '.';
+	private static final String SELF_SELECTOR = "!";
+
 
 	private RouteParser(@NotNull NamedWithDescription user, @Nullable String route) {
 		// if route is empty, the command the user belongs to is the target
@@ -78,12 +82,12 @@ public class RouteParser {
 			return;
 		}
 
-		final String[] splitRoute = UtlString.split(route, '.');
+		final String[] splitRoute = UtlString.split(route, SEPARATOR);
 
-		// if route starts with !, the user itself is the target
-		if (splitRoute[0].equals("!")) {
+		// if route starts with the user selector, the user itself is the target
+		if (splitRoute[0].equals(SELF_SELECTOR)) {
 			this.currentTarget = user;
-			// slice the array to remove the first element (the !)
+			// slice the array to remove the first element (the user selector string)
 			this.route = Arrays.copyOfRange(splitRoute, 1, splitRoute.length);
 			return;
 		}

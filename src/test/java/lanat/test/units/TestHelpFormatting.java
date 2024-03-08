@@ -76,8 +76,8 @@ public class TestHelpFormatting extends UnitTests {
 	}
 
 	@Test
-	@DisplayName("Test escape sequences")
-	public void testEscapeSequences() {
+	@DisplayName("Test backslash escapes")
+	public void testBackslashEscaping() {
 		assertEquals("<link=args.arg1>", DescriptionParser.parse(this.parser, "\\<link=args.arg1\\>"));
 		assertEquals("<link=args.arg1", DescriptionParser.parse(this.parser, "\\<link=args.arg1"));
 		assertEquals("link=args.arg1>", DescriptionParser.parse(this.parser, "link=args.arg1\\>"));

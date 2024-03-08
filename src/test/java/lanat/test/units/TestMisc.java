@@ -36,8 +36,8 @@ public class TestMisc extends UnitTests {
 	}
 
 	@Test
-	@DisplayName("check escape characters")
-	public void testEscapeChars() {
+	@DisplayName("Test backslash escapes")
+	public void testBackslashEscaping() {
 		assertEquals("([hello]), ('world')", this.parseArg("what", "\\[hello\\] \\'world\\'"));
 		assertEquals("(\\)", this.parseArg("what", "\\"));
 		assertEquals("(test\\)", this.parseArg("what", "test\\"));

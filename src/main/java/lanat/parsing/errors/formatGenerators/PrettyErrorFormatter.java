@@ -127,7 +127,7 @@ public class PrettyErrorFormatter extends ErrorFormatter {
 	}
 
 	private void placeArrows(@NotNull List<@NotNull TextFormatter> tokensFormatters, @NotNull Range range, int singleOffset) {
-		if (!range.isRange()) {
+		if (range.isSimple()) {
 			if (range.start() >= tokensFormatters.size())
 				tokensFormatters.add(this.getArrow(false));
 			else

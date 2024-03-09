@@ -78,7 +78,10 @@ public class LayoutItem {
 	 * @param marginTop the size of the margin at the top of the layout item
 	 */
 	public LayoutItem withMarginTop(int marginTop) {
-		this.marginTop = Math.max(marginTop, 0);
+		if (marginTop < 0)
+			throw new IllegalArgumentException("marginTop cannot be negative");
+
+		this.marginTop = marginTop;
 		return this;
 	}
 
@@ -89,7 +92,10 @@ public class LayoutItem {
 	 * @param marginBottom the size of the margin at the bottom of the layout item
 	 */
 	public LayoutItem withMarginBottom(int marginBottom) {
-		this.marginBottom = Math.max(marginBottom, 0);
+		if (marginBottom < 0)
+			throw new IllegalArgumentException("marginBottom cannot be negative");
+
+		this.marginBottom = marginBottom;
 		return this;
 	}
 

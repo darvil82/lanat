@@ -132,8 +132,8 @@ public abstract class ErrorFormatter implements ErrorLevelProvider {
 	}
 
 	/**
-	 * Returns the contents of the error, wrapped to fit {@link HelpFormatter#lineWrapMax}.
-	 * @return the contents of the error, wrapped to fit {@link HelpFormatter#lineWrapMax}
+	 * Returns the contents of the error, wrapped to fit {@link HelpFormatter#getLineWrapMax()}.
+	 * @return the contents of the error, wrapped to fit {@link HelpFormatter#getLineWrapMax()}
 	 * @see UtlString#wrap(String, int)
 	 */
 	protected @NotNull String getContentWrapped() {

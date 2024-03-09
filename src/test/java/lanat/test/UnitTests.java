@@ -50,7 +50,7 @@ public class UnitTests {
 	protected TestingParser parser;
 
 	static {
-		HelpFormatter.lineWrapMax = 1000; // just so we don't have to worry about line wrapping
+		HelpFormatter.setLineWrapMax((short)1000); // just so we don't have to worry about line wrapping
 		TextFormatter.enableSequences = false; // just so we don't have to worry about color codes
 
 		// prefix char is set to auto by default (make sure tests run in windows too)

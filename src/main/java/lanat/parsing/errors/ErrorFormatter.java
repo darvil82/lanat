@@ -137,7 +137,7 @@ public abstract class ErrorFormatter implements ErrorLevelProvider {
 	 * @see UtlString#wrap(String, int)
 	 */
 	protected @NotNull String getContentWrapped() {
-		return UtlString.wrap(this.formattingContext.getContent(), HelpFormatter.lineWrapMax);
+		return UtlString.wrap(this.formattingContext.getContent(), HelpFormatter.getLineWrapMax());
 	}
 
 	/**

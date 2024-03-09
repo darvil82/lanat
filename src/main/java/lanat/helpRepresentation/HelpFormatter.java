@@ -26,12 +26,11 @@ import java.util.*;
  */
 public class HelpFormatter {
 	/** The default maximum length of a line in the help message. */
-	public static final short LINE_WRAP_DEFAULT = 110;
+	public static final byte LINE_WRAP_DEFAULT = 110;
 	private static final int LINE_WRAP_MIN = 25;
 
-	/** The maximum length of a line in the help message. */
-	private static short lineWrapMax = LINE_WRAP_DEFAULT;
-	private static byte indentSize = 3;
+	private static int lineWrapMax = LINE_WRAP_DEFAULT;
+	private static int indentSize = 3;
 
 	/** The layout that defines the structure of the help message. */
 	private @NotNull List<@NotNull LayoutItem> layout = new LinkedList<>();
@@ -53,9 +52,9 @@ public class HelpFormatter {
 	 * The indent size must be between 0 and 10.
 	 * @param indentSize the new indent size
 	 */
-	public void setIndentSize(byte indentSize) {
-		if (indentSize < 0 || indentSize > 10)
-			throw new IllegalArgumentException("indentSize must be between 0 and 10");
+	public void setIndentSize(int indentSize) {
+		if (indentSize < 0)
+			throw new IllegalArgumentException("indentSize must be at least 0");
 
 		HelpFormatter.indentSize = indentSize;
 	}
@@ -64,7 +63,7 @@ public class HelpFormatter {
 	 * Returns the indent size.
 	 * @return the indent size
 	 */
-	public byte getIndentSize() {
+	public int getIndentSize() {
 		return HelpFormatter.indentSize;
 	}
 
@@ -73,7 +72,7 @@ public class HelpFormatter {
 	 * When a line exceeds this length, it is wrapped to the next line.
 	 * @param lineWrapMax the new maximum length of a line
 	 */
-	public static void setLineWrapMax(short lineWrapMax) {
+	public static void setLineWrapMax(int lineWrapMax) {
 		if (lineWrapMax < LINE_WRAP_MIN)
 			throw new IllegalArgumentException("lineWrapMax must be at least " + LINE_WRAP_MIN);
 
@@ -84,7 +83,7 @@ public class HelpFormatter {
 	 * Returns the maximum length of a line in the help message.
 	 * @return the maximum length of a line in the help message
 	 */
-	public static short getLineWrapMax() {
+	public static int getLineWrapMax() {
 		return HelpFormatter.lineWrapMax;
 	}
 

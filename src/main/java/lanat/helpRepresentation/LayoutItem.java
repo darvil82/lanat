@@ -16,7 +16,7 @@ import java.util.function.Supplier;
  * @see HelpFormatter
  */
 public class LayoutItem {
-	private byte indentCount = 0;
+	private int indentCount = 0;
 	private @Nullable String title;
 	private int marginTop, marginBottom;
 	private final @NotNull Function<@NotNull Command, @Nullable String> layoutGenerator;
@@ -64,7 +64,10 @@ public class LayoutItem {
 	 * @param indent the indent of the layout item
 	 */
 	public LayoutItem withIndent(int indent) {
-		this.indentCount = (byte)Math.max(indent, 0);
+		if (indent < 0)
+			throw new IllegalArgumentException("indent cannot be negative");
+
+		this.indentCount = indent;
 		return this;
 	}
 

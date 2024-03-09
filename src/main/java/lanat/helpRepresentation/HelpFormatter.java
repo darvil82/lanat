@@ -25,14 +25,13 @@ import java.util.*;
  * @see LayoutItem
  */
 public class HelpFormatter {
-	/** The size of the indent in the help message. */
-	private byte indentSize = 3;
-
 	/** The default maximum length of a line in the help message. */
-	public static final short DEFAULT_LINE_WRAP_MAX = 110;
+	public static final short LINE_WRAP_DEFAULT = 110;
+	private static final int LINE_WRAP_MIN = 25;
 
 	/** The maximum length of a line in the help message. */
-	public static short lineWrapMax = DEFAULT_LINE_WRAP_MAX;
+	private static short lineWrapMax = LINE_WRAP_DEFAULT;
+	private static byte indentSize = 3;
 
 	/** The layout that defines the structure of the help message. */
 	private @NotNull List<@NotNull LayoutItem> layout = new LinkedList<>();
@@ -50,10 +49,15 @@ public class HelpFormatter {
 	/**
 	 * Sets the indent size to the specified value. The indent size is the number of spaces that are used to indent
 	 * lines in the help message. The default value is 3.
+	 * <p>
+	 * The indent size must be between 0 and 10.
 	 * @param indentSize the new indent size
 	 */
-	public void setIndentSize(int indentSize) {
-		this.indentSize = (byte)Math.max(indentSize, 0);
+	public void setIndentSize(byte indentSize) {
+		if (indentSize < 0 || indentSize > 10)
+			throw new IllegalArgumentException("indentSize must be between 0 and 10");
+
+		HelpFormatter.indentSize = indentSize;
 	}
 
 	/**
@@ -61,7 +65,27 @@ public class HelpFormatter {
 	 * @return the indent size
 	 */
 	public byte getIndentSize() {
-		return this.indentSize;
+		return HelpFormatter.indentSize;
+	}
+
+	/**
+	 * Sets the maximum length of a line in the help message to the specified value.
+	 * When a line exceeds this length, it is wrapped to the next line.
+	 * @param lineWrapMax the new maximum length of a line
+	 */
+	public static void setLineWrapMax(short lineWrapMax) {
+		if (lineWrapMax < LINE_WRAP_MIN)
+			throw new IllegalArgumentException("lineWrapMax must be at least " + LINE_WRAP_MIN);
+
+		HelpFormatter.lineWrapMax = lineWrapMax;
+	}
+
+	/**
+	 * Returns the maximum length of a line in the help message.
+	 * @return the maximum length of a line in the help message
+	 */
+	public static short getLineWrapMax() {
+		return HelpFormatter.lineWrapMax;
 	}
 
 	/**

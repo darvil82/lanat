@@ -326,6 +326,7 @@ public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 		return this.isArgName(str) || this.isArgNameList(str);
 	}
 
+	/**  Returns {@code true} if the given string is a Sub-Command. */
 	private boolean isSubCommand(@NotNull String str) {
 		return this.command.hasCommand(str);
 	}

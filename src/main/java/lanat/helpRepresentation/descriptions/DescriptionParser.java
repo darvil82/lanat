@@ -50,10 +50,12 @@ public final class DescriptionParser {
 			if (chr == '\\') {
 				(inTag ? currentTag : out).append(chars[i == chars.length - 1 ? i : ++i]);
 			} else if (chr == TAG_END && inTag) {
-				if (currentTag.isEmpty())
+				var tagStr = currentTag.toString();
+
+				if (tagStr.isBlank())
 					throw new MalformedTagException("empty tag at index " + lastTagOpenIndex);
 
-				out.append(DescriptionParser.parseTag(currentTag.toString(), user));
+				out.append(DescriptionParser.parseTag(tagStr, user));
 				currentTag.setLength(0);
 				inTag = false;
 			} else if (chr == TAG_START && !inTag) {

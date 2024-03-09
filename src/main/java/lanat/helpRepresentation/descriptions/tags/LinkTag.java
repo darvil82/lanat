@@ -23,7 +23,6 @@ public class LinkTag extends Tag {
 	protected @NotNull String parse(@NotNull NamedWithDescription user, @Nullable String value) {
 		final var obj = RouteParser.parse(user, value);
 
-		// replace with switch expression when it's out of preview
 		if (obj instanceof Command cmd)
 			return CommandRepr.getRepresentation(cmd);
 		else if (obj instanceof Argument<?, ?> arg)

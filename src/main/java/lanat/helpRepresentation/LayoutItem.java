@@ -59,7 +59,7 @@ public class LayoutItem {
 
 	/**
 	 * Sets the indent of the layout item. The indent is the number of indents that are added to the content of the
-	 * layout item. The indent size is defined by {@link HelpFormatter#setIndentSize(byte)}.
+	 * layout item. The indent size is defined by {@link HelpFormatter#setIndentSize(int)}.
 	 *
 	 * @param indent the indent of the layout item
 	 */

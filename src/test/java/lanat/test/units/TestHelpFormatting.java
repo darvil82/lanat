@@ -8,6 +8,7 @@ import lanat.helpRepresentation.descriptions.DescriptionParser;
 import lanat.helpRepresentation.descriptions.RouteParser;
 import lanat.helpRepresentation.descriptions.Tag;
 import lanat.helpRepresentation.descriptions.exceptions.InvalidRouteException;
+import lanat.helpRepresentation.descriptions.exceptions.MalformedTagException;
 import lanat.test.TestingParser;
 import lanat.test.UnitTests;
 import lanat.utils.NamedWithDescription;
@@ -72,6 +73,25 @@ public class TestHelpFormatting extends UnitTests {
 		assertThrows(
 			InvalidRouteException.class,
 			() -> DescriptionParser.parse(this.parser, "<link=args>")
+		);
+	}
+
+	@Test
+	@DisplayName("Test malformed tag")
+	public void testMalformedTag() {
+		assertThrows(
+			MalformedTagException.class,
+			() -> DescriptionParser.parse(this.parser, "<link=args.arg1")
+		);
+
+		assertThrows(
+			MalformedTagException.class,
+			() -> DescriptionParser.parse(this.parser, "<>")
+		);
+
+		assertThrows(
+			MalformedTagException.class,
+			() -> DescriptionParser.parse(this.parser, "< >")
 		);
 	}
 

@@ -115,8 +115,10 @@ public final class LayoutGenerators {
 
 		if (arguments.isEmpty() && cmd.getGroups().isEmpty()) return null;
 
-		buff.append(ArgumentRepr.getDescriptions(arguments, false));
-
+		var descriptions = ArgumentRepr.getDescriptions(arguments, false);
+		if (descriptions != null) {
+			buff.append(descriptions);
+		}
 
 		final var groups = cmd.getGroups().stream()
 			.map(ArgumentGroupRepr::getDescriptions)

@@ -7,6 +7,8 @@ import textFormatter.Color;
 import textFormatter.TextFormatter;
 import utils.Range;
 
+import java.util.Optional;
+
 /**
  * Parses multiple values received from the user by using the argument type provided in the constructor.
  * Shows a properly formatted description and representation.
@@ -49,12 +51,11 @@ public class TupleArgumentType<T> extends ArgumentType<T[]> {
 
 	@Override
 	public @Nullable TextFormatter getRepresentation() {
-		var argTypeRepr = this.argumentType.getRepresentation();
-		if (argTypeRepr == null)
-			return null;
-
-		return argTypeRepr
-			.concat(TextFormatter.of(this.valueCount.getRepresentation()).withForegroundColor(Color.BRIGHT_YELLOW));
+		return Optional.ofNullable(this.argumentType.getRepresentation())
+			.map(repr -> repr.concat(TextFormatter.of(this.valueCount.getRepresentation())
+				.withForegroundColor(Color.BRIGHT_YELLOW))
+			)
+			.orElse(null);
 	}
 
 	@Override

@@ -609,6 +609,11 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	// just act as a proxy to the type error handling
 
 	@Override
+	public void addError(Error.@NotNull CustomError error) {
+		this.type.addError(error);
+	}
+
+	@Override
 	public @NotNull List<Error.@NotNull CustomError> getErrorsUnderExitLevel() {
 		return this.type.getErrorsUnderExitLevel();
 	}
@@ -668,7 +673,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * Specify a function that will be called with the value introduced by the user.
 	 * <p>
 	 * By default this callback is called only if all commands succeed, but you can change this behavior with
-	 * {@link Command#setCallbackInvocationOption(Command.CallbacksInvocationOption)}
+	 * {@link Command#setCallbackInvocationOption(Command.CallbackInvocationOption)}
 	 * </p>
 	 *
 	 * @param callback the function that will be called with the value introduced by the user.

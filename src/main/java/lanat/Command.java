@@ -61,8 +61,8 @@ public class Command
 	private @Nullable Consumer<@NotNull ParseResult> onUsedCallback;
 
 	private final @NotNull ModifyRecord<HelpFormatter> helpFormatter = ModifyRecord.of(new HelpFormatter());
-	private final @NotNull ModifyRecord<@NotNull CallbacksInvocationOption> callbackInvocationOption =
-		ModifyRecord.of(CallbacksInvocationOption.NO_ERROR_IN_ALL_COMMANDS);
+	private final @NotNull ModifyRecord<@NotNull CallbackInvocationOption> callbackInvocationOption =
+		ModifyRecord.of(CallbackInvocationOption.NO_ERROR_IN_ALL_COMMANDS);
 
 	/** A pool of the colors that an argument may have when being represented on the help. */
 	final @NotNull LoopPool<@NotNull Color> colorsPool = LoopPool.atRandomIndex(Color.BRIGHT_COLORS);
@@ -257,16 +257,16 @@ public class Command
 
 	/**
 	 * Specifies in which cases the {@link Argument#setOnOkCallback(Consumer)} should be invoked.
-	 * <p>By default, this is set to {@link CallbacksInvocationOption#NO_ERROR_IN_ALL_COMMANDS}.</p>
+	 * <p>By default, this is set to {@link CallbackInvocationOption#NO_ERROR_IN_ALL_COMMANDS}.</p>
 	 *
 	 * @param option The option to set.
-	 * @see CallbacksInvocationOption
+	 * @see CallbackInvocationOption
 	 */
-	public void setCallbackInvocationOption(@NotNull CallbacksInvocationOption option) {
+	public void setCallbackInvocationOption(@NotNull Command.CallbackInvocationOption option) {
 		this.callbackInvocationOption.set(option);
 	}
 
-	public @NotNull CallbacksInvocationOption getCallbackInvocationOption() {
+	public @NotNull Command.CallbackInvocationOption getCallbackInvocationOption() {
 		return this.callbackInvocationOption.get();
 	}
 
@@ -557,7 +557,7 @@ public class Command
 	 * {@inheritDoc}
 	 * <p>
 	 * By default this callback is called only if all commands succeed, but you can change this behavior with
-	 * {@link Command#setCallbackInvocationOption(CallbacksInvocationOption)}
+	 * {@link Command#setCallbackInvocationOption(CallbackInvocationOption)}
 	 * </p>
 	 */
 	@Override
@@ -687,9 +687,9 @@ public class Command
 	}
 
 	/**
-	 * @see Command#setCallbackInvocationOption(CallbacksInvocationOption)
+	 * @see Command#setCallbackInvocationOption(CallbackInvocationOption)
 	 */
-	public enum CallbacksInvocationOption {
+	public enum CallbackInvocationOption {
 		/** The callback will only be invoked when there are no errors in the argument. */
 		NO_ERROR_IN_ARGUMENT,
 

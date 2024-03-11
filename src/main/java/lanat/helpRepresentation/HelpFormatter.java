@@ -3,9 +3,9 @@ package lanat.helpRepresentation;
 import lanat.Command;
 import lanat.utils.CommandUser;
 import org.jetbrains.annotations.NotNull;
-import textFormatter.Color;
 import textFormatter.FormatOption;
 import textFormatter.TextFormatter;
+import textFormatter.color.SimpleColor;
 import utils.UtlString;
 
 import java.util.*;
@@ -195,7 +195,7 @@ public class HelpFormatter {
 			if (HelpFormatter.debugLayout)
 				buffer.append(TextFormatter.of("LayoutItem " + i + ":" + System.lineSeparator())
 					.addFormat(FormatOption.UNDERLINE)
-					.withForegroundColor(Color.GREEN)
+					.withForegroundColor(SimpleColor.GREEN)
 				);
 
 			buffer.append(UtlString.wrap(generatedContent, lineWrapMax)).append(System.lineSeparator());

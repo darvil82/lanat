@@ -13,7 +13,8 @@ import lanat.utils.errors.ErrorCallbacks;
 import lanat.utils.errors.ErrorContainerImpl;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import textFormatter.Color;
+import textFormatter.color.Color;
+import textFormatter.color.SimpleColor;
 import utils.*;
 
 import java.lang.annotation.ElementType;
@@ -65,7 +66,7 @@ public class Command
 		ModifyRecord.of(CallbackInvocationOption.NO_ERROR_IN_ALL_COMMANDS);
 
 	/** A pool of the colors that an argument may have when being represented on the help. */
-	final @NotNull LoopPool<@NotNull Color> colorsPool = LoopPool.atRandomIndex(Color.BRIGHT_COLORS);
+	final @NotNull LoopPool<@NotNull Color> colorsPool = LoopPool.atRandomIndex(SimpleColor.BRIGHT_COLORS);
 
 
 	/**

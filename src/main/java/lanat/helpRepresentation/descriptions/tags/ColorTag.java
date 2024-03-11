@@ -5,8 +5,9 @@ import lanat.helpRepresentation.descriptions.exceptions.MalformedTagException;
 import lanat.utils.NamedWithDescription;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import textFormatter.Color;
 import textFormatter.TextFormatter;
+import textFormatter.color.Color;
+import textFormatter.color.SimpleColor;
 import utils.UtlString;
 
 /**
@@ -63,22 +64,22 @@ public class ColorTag extends Tag {
 
 	private static Color getColor(@NotNull String colorName) {
 		return switch (colorName.toLowerCase().strip()) {
-			case "black" -> Color.BLACK;
-			case "red" -> Color.BRIGHT_RED;
-			case "green" -> Color.BRIGHT_GREEN;
-			case "yellow" -> Color.BRIGHT_YELLOW;
-			case "blue" -> Color.BRIGHT_BLUE;
-			case "magenta" -> Color.BRIGHT_MAGENTA;
-			case "cyan" -> Color.BRIGHT_CYAN;
-			case "white" -> Color.BRIGHT_WHITE;
-			case "gray", "grey" -> Color.GRAY;
-			case "dark red" -> Color.RED;
-			case "dark green" -> Color.GREEN;
-			case "dark yellow" -> Color.YELLOW;
-			case "dark blue" -> Color.BLUE;
-			case "dark magenta" -> Color.MAGENTA;
-			case "dark cyan" -> Color.CYAN;
-			case "dark white" -> Color.WHITE;
+			case "black" -> SimpleColor.BLACK;
+			case "red" -> SimpleColor.BRIGHT_RED;
+			case "green" -> SimpleColor.BRIGHT_GREEN;
+			case "yellow" -> SimpleColor.BRIGHT_YELLOW;
+			case "blue" -> SimpleColor.BRIGHT_BLUE;
+			case "magenta" -> SimpleColor.BRIGHT_MAGENTA;
+			case "cyan" -> SimpleColor.BRIGHT_CYAN;
+			case "white" -> SimpleColor.BRIGHT_WHITE;
+			case "gray", "grey" -> SimpleColor.GRAY;
+			case "dark red" -> SimpleColor.RED;
+			case "dark green" -> SimpleColor.GREEN;
+			case "dark yellow" -> SimpleColor.YELLOW;
+			case "dark blue" -> SimpleColor.BLUE;
+			case "dark magenta" -> SimpleColor.MAGENTA;
+			case "dark cyan" -> SimpleColor.CYAN;
+			case "dark white" -> SimpleColor.WHITE;
 			default -> throw new MalformedTagException(ColorTag.class, "unknown color name '" + colorName + "'");
 		};
 	}

@@ -57,7 +57,7 @@ public class FormatTag extends Tag {
 			case "bold", "b" -> FormatOption.BOLD;
 			case "italic", "i" -> FormatOption.ITALIC;
 			case "underline", "u" -> FormatOption.UNDERLINE;
-			case "strikethrough", "s" -> FormatOption.STRIKE_THROUGH;
+			case "strikethrough", "s" -> FormatOption.STRIKETHROUGH;
 			case "dim" -> FormatOption.DIM;
 			case "blink"  -> FormatOption.BLINK;
 			case "reverse" -> FormatOption.REVERSE;

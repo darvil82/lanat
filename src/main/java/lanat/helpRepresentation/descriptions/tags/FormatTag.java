@@ -39,9 +39,11 @@ import utils.UtlString;
 public class FormatTag extends Tag {
 	@Override
 	protected @NotNull String parse(@NotNull NamedWithDescription user, @Nullable String value) {
-		if (!TextFormatter.enableSequences) return "";
 		if (value == null)
 			throw new MalformedTagException(FormatTag.class, "no format specified");
+
+		// if color sequences are disabled, nothing to do
+		if (!TextFormatter.enableSequences) return "";
 
 		final var buff = new StringBuilder();
 

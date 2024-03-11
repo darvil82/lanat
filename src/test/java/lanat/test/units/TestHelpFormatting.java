@@ -122,7 +122,7 @@ public class TestHelpFormatting extends UnitTests {
 
 		assertEquals("TestHelpFormatting: hello", DescriptionParser.parse(this.parser, "<test=hello>"));
 		assertEquals("No value!", DescriptionParser.parse(this.parser, "<test>"));
-		assertEquals("No value!", DescriptionParser.parse(this.parser, "<test=>"));
+		assertThrows(MalformedTagException.class, () -> DescriptionParser.parse(this.parser, "<test=>"));
 	}
 
 	@Test

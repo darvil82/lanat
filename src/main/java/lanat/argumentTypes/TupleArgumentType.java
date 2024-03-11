@@ -3,8 +3,8 @@ package lanat.argumentTypes;
 import lanat.ArgumentType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import textFormatter.Color;
 import textFormatter.TextFormatter;
+import textFormatter.color.SimpleColor;
 import utils.Range;
 
 import java.util.Optional;
@@ -53,7 +53,7 @@ public class TupleArgumentType<T> extends ArgumentType<T[]> {
 	public @Nullable TextFormatter getRepresentation() {
 		return Optional.ofNullable(this.argumentType.getRepresentation())
 			.map(repr -> repr.concat(TextFormatter.of(this.valueCount.getRepresentation())
-				.withForegroundColor(Color.BRIGHT_YELLOW))
+				.withForegroundColor(SimpleColor.BRIGHT_YELLOW))
 			)
 			.orElse(null);
 	}

@@ -3,9 +3,9 @@ package lanat.argumentTypes;
 import lanat.ArgumentType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import textFormatter.Color;
 import textFormatter.FormatOption;
 import textFormatter.TextFormatter;
+import textFormatter.color.SimpleColor;
 
 import java.util.stream.Stream;
 
@@ -50,7 +50,7 @@ public class EnumArgumentType<T extends Enum<T>> extends ArgumentType<T> {
 			// if value is the default value, make it bold and yellow
 			if (value == this.getInitialValue())
 				fmt.concat(TextFormatter.of(value.name())
-					.withForegroundColor(Color.YELLOW)
+					.withForegroundColor(SimpleColor.YELLOW)
 					.addFormat(FormatOption.BOLD)
 				);
 			else

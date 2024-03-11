@@ -11,7 +11,7 @@ import lanat.utils.errors.ErrorContainer;
 import lanat.utils.errors.ErrorLevel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import textFormatter.Color;
+import textFormatter.color.Color;
 import utils.ModifyRecord;
 import utils.MultiComparator;
 import utils.UtlString;

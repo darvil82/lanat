@@ -9,7 +9,7 @@ description = "Command line argument parser"
 
 dependencies {
 	api("com.darvil:utils:0.5.0")
-	api("com.darvil:terminal-text-formatter:2.0.0")
+	api("com.darvil:terminal-text-formatter:2.1.0")
 
 	implementation("org.jetbrains:annotations:24.0.1")
 	testImplementation(platform("org.junit:junit-bom:5.9.1"))

@@ -5,7 +5,6 @@ import lanat.utils.CommandUser;
 import lanat.utils.NamedWithDescription;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import utils.UtlString;
 
 import java.util.Optional;
 
@@ -97,11 +96,11 @@ public final class DescriptionParser {
 	 */
 	private static @NotNull String parseTag(@NotNull String tagContents, @NotNull NamedWithDescription user) {
 		if (tagContents.contains("=")) {
-			final var split = UtlString.split(tagContents, '=', 2);
-			return Tag.parseTagValue(user, split[0], split[1].isBlank() ? null : split[1]);
+			final var split = tagContents.split("=", 2);
+			return Tag.parseTagValue(user, split[0].trim(), split[1].trim());
 		}
 
-		return Tag.parseTagValue(user, tagContents, null);
+		return Tag.parseTagValue(user, tagContents.trim(), null);
 	}
 
 }

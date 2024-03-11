@@ -1,5 +1,6 @@
 package lanat.helpRepresentation.descriptions;
 
+import lanat.helpRepresentation.descriptions.exceptions.MalformedTagException;
 import lanat.helpRepresentation.descriptions.exceptions.UnknownTagException;
 import lanat.helpRepresentation.descriptions.tags.ColorTag;
 import lanat.helpRepresentation.descriptions.tags.DescTag;
@@ -110,6 +111,9 @@ public abstract class Tag {
 
 		if (tagClass == null)
 			throw new UnknownTagException(tagName);
+
+		if (value != null && value.isBlank())
+			throw new MalformedTagException("empty tag value for tag '" + value + "'");
 
 		return UtlReflection.instantiate(tagClass).parse(user, value);
 	}

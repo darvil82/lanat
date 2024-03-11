@@ -7,6 +7,7 @@ import utils.Range;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
@@ -78,12 +79,9 @@ public final class ArgumentTypeInfer {
 	 * @throws ArgumentTypeInferException If no argument type is found for the specified type.
 	 */
 	public static @NotNull ArgumentType<?> get(@NotNull Class<?> clazz) {
-		var result = ArgumentTypeInfer.INFER_ARGUMENT_TYPES_MAP.get(clazz);
-
-		if (result == null)
-			throw new ArgumentTypeInferException(clazz);
-
-		return result.get();
+		return Optional.ofNullable(ArgumentTypeInfer.INFER_ARGUMENT_TYPES_MAP.get(clazz))
+			.map(Supplier::get)
+			.orElseThrow(() -> new ArgumentTypeInferException(clazz));
 	}
 
 	/**

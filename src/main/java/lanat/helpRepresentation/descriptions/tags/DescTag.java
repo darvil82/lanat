@@ -9,6 +9,8 @@ import lanat.utils.NamedWithDescription;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
+
 /**
  * Gets the description of the target object specified by the route.
  * <p>
@@ -27,10 +29,8 @@ public class DescTag extends Tag {
 		if (target == user)
 			throw new InvalidRouteException("Cannot use desc tag to describe itself");
 
-		final var description = target.getDescription();
-		if (description == null)
-			throw new NoDescriptionDefinedException(target);
-
-		return DescriptionParser.parse(target, description);
+		return Optional.ofNullable(target.getDescription())
+			.map(desc -> DescriptionParser.parse(target, desc))
+			.orElseThrow(() -> new NoDescriptionDefinedException(target));
 	}
 }

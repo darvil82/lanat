@@ -349,11 +349,8 @@ public class Command
 	public @NotNull List<@NotNull Token> getFullTokenList() {
 		final List<Token> list = Command.this.getTokenizer().getFinalTokens();
 
-		final Command subCmd = this.getTokenizer().getTokenizedSubCommand();
-
-		if (subCmd != null) {
-			list.addAll(subCmd.getFullTokenList());
-		}
+		Optional.ofNullable(this.getTokenizer().getTokenizedSubCommand())
+			.ifPresent(c -> list.addAll(c.getFullTokenList()));
 
 		return Collections.unmodifiableList(list);
 	}

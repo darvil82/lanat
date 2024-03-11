@@ -10,6 +10,7 @@ import utils.UtlString;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This contains methods that may be used in {@link LayoutItem}s to generate the content of the help message.
@@ -26,20 +27,18 @@ public final class LayoutGenerators {
 	 * @return the generated title and description.
 	 */
 	public static @NotNull String titleAndDescription(@NotNull Command cmd) {
-		final var description = DescriptionParser.parse(cmd);
 		final var buff = new StringBuilder(CommandRepr.getRepresentation(cmd));
 
 		if (cmd instanceof ArgumentParser ap) {
-			final var version = ap.getVersion();
-			if (version != null) {
-				buff.append(" (").append(version).append(')');
-			}
+			Optional.ofNullable(ap.getVersion())
+				.ifPresent(version -> buff.append(" (").append(version).append(')'));
 		}
 
-		if (description != null) {
-			buff.append(":").append(System.lineSeparator().repeat(2));
-			buff.append(HelpFormatter.indent(description, cmd));
-		}
+		Optional.ofNullable(DescriptionParser.parse(cmd))
+			.ifPresent(desc ->
+				buff.append(":").append(System.lineSeparator().repeat(2))
+					.append(HelpFormatter.indent(desc, cmd))
+			);
 
 		return buff.toString();
 	}
@@ -115,10 +114,8 @@ public final class LayoutGenerators {
 
 		if (arguments.isEmpty() && cmd.getGroups().isEmpty()) return null;
 
-		var descriptions = ArgumentRepr.getDescriptions(arguments, false);
-		if (descriptions != null) {
-			buff.append(descriptions);
-		}
+		Optional.ofNullable(ArgumentRepr.getDescriptions(arguments, false))
+			.ifPresent(buff::append);
 
 		final var groups = cmd.getGroups().stream()
 			.map(ArgumentGroupRepr::getDescriptions)

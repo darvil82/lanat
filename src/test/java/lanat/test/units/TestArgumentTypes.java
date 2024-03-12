@@ -9,6 +9,7 @@ import utils.Range;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -31,6 +32,9 @@ public class TestArgumentTypes extends UnitTests {
 			);
 			this.addArgument(Argument.create(new FileArgumentType(true), "file"));
 			this.addArgument(Argument.create(new EnumArgumentType<>(TestEnum.TWO), "enum"));
+			this.addArgument(Argument.create(new EnumArgumentType<>(TestEnum.class), "enum2"));
+			this.addArgument(Argument.create(new OptListArgumentType(List.of("foo", "bar", "qux"), "qux"), "optlist"));
+			this.addArgument(Argument.create(new OptListArgumentType("foo", "bar", "qux"), "optlist2"));
 			this.addArgument(Argument.create(new KeyValuesArgumentType<>(new IntegerArgumentType()), "key-value"));
 			this.addArgument(Argument.create(new NumberRangeArgumentType<>(3, 10), "int-range"));
 			this.addArgument(Argument.create(new TryParseArgumentType<>(Double.class), "try-parse"));
@@ -96,10 +100,30 @@ public class TestArgumentTypes extends UnitTests {
 
 	@Test
 	public void testEnum() {
+		// test with default value
 		assertEquals(TestEnum.ONE, this.parseArg("enum", "ONE"));
 		assertEquals(TestEnum.TWO, this.parseArg("enum", "TWO"));
 		assertEquals(TestEnum.THREE, this.parseArg("enum", "THREE"));
-		assertEquals(TestEnum.TWO, this.parser.parseGetValues("").get("enum").orElse(null));
+		assertEquals(TestEnum.TWO, this.parser.parseGetValues("").get("enum").orElse(null)); // default value
+
+		// test without default value
+		assertEquals(TestEnum.ONE, this.parseArg("enum2", "ONE"));
+		assertEquals(TestEnum.TWO, this.parseArg("enum2", "TWO"));
+		this.assertNotPresent("enum2");
+	}
+
+	@Test
+	public void testOptList() {
+		// test with default value
+		assertEquals("foo", this.parseArg("optlist", "foo"));
+		assertEquals("bar", this.parseArg("optlist", "bar"));
+		assertEquals("qux", this.parseArg("optlist", "qux"));
+		assertEquals("qux", this.parser.parseGetValues("").get("optlist").orElse(null)); // default value
+
+		// test without default value
+		assertEquals("foo", this.parseArg("optlist2", "foo"));
+		assertEquals("bar", this.parseArg("optlist2", "bar"));
+		this.assertNotPresent("optlist2");
 	}
 
 	@Test

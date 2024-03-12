@@ -35,9 +35,4 @@ public class OptListArgumentType extends SingleValueListArgumentType<String> {
 	public OptListArgumentType(@NotNull String... values) {
 		super(values);
 	}
-
-	@Override
-	protected boolean predicate(@NotNull String value, @NotNull String strValue) {
-		return value.equalsIgnoreCase(strValue);
-	}
 }

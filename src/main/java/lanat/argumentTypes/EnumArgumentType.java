@@ -27,10 +27,6 @@ public class EnumArgumentType<T extends Enum<T>> extends SingleValueListArgument
 		super(clazz.getEnumConstants());
 	}
 
-	@Override
-	protected boolean predicate(@NotNull T value, @NotNull String strValue) {
-		return value.name().equalsIgnoreCase(strValue);
-	}
 
 	@Override
 	protected @NotNull String valueToString(@NotNull T value) {

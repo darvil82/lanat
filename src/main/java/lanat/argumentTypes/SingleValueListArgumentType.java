@@ -14,7 +14,10 @@ import java.util.stream.Stream;
  * @param <T> The type of the value that this argument type holds.
  */
 public abstract class SingleValueListArgumentType<T> extends ArgumentType<T> {
+	/** The list of values that the argument type will accept. */
 	private final @NotNull T @NotNull [] listValues;
+	/** The list of string representations for the values. */
+	private final @NotNull String @NotNull [] listValuesStr;
 
 	/**
 	 * Creates a new single value list argument type.
@@ -24,6 +27,7 @@ public abstract class SingleValueListArgumentType<T> extends ArgumentType<T> {
 	protected SingleValueListArgumentType(@NotNull T @NotNull [] listValues, @NotNull T initialValue) {
 		super(initialValue);
 		this.listValues = listValues;
+		this.listValuesStr = this.checkValidValues();
 	}
 
 	/**
@@ -32,15 +36,26 @@ public abstract class SingleValueListArgumentType<T> extends ArgumentType<T> {
 	 */
 	protected SingleValueListArgumentType(@NotNull T @NotNull [] listValues) {
 		this.listValues = listValues;
+		this.listValuesStr = this.checkValidValues();
 	}
 
 	/**
-	 * Predicate which checks if the given value is equal to the given string value.
-	 * @param value The value to check.
-	 * @param strValue The string value to check.
-	 * @return {@code true} if the value is equal to the string value, {@code false} otherwise.
+	 * Checks if the list of values is valid.
+	 * @return The list of string representations for the values.
 	 */
-	protected abstract boolean predicate(@NotNull T value, @NotNull String strValue);
+	private @NotNull String @NotNull [] checkValidValues() {
+		if (this.listValues.length == 0)
+			throw new IllegalArgumentException("The list of values cannot be empty.");
+
+		return Stream.of(this.listValues)
+			.map(this::valueToString)
+			.map(String::trim)
+			.peek(v -> {
+				if (v.chars().anyMatch(Character::isWhitespace))
+					throw new IllegalArgumentException("Value cannot contain spaces: '" + v + "'.");
+			})
+			.toArray(String[]::new);
+	}
 
 	/**
 	 * Converts the given value to a string.
@@ -55,12 +70,11 @@ public abstract class SingleValueListArgumentType<T> extends ArgumentType<T> {
 
 	@Override
 	public T parseValues(@NotNull String @NotNull [] values) {
-		for (var value : this.listValues) {
-			for (var strValue : values) {
-				if (this.predicate(value, strValue))
-					return value;
-			}
+		for (int i = 0; i < this.listValuesStr.length; i++) {
+			if (values[0].equalsIgnoreCase(this.listValuesStr[i]))
+				return this.listValues[i];
 		}
+
 		this.addError("Invalid value: '" + values[0] + "'.");
 		return null;
 	}
@@ -70,8 +84,8 @@ public abstract class SingleValueListArgumentType<T> extends ArgumentType<T> {
 		final var fmt = TextFormatter.of("(");
 		var initialValue = this.getInitialValue();
 
-		for (var i = 0; i < this.listValues.length; i++) {
-			final var valueStr = this.valueToString(this.listValues[i]);
+		for (var i = 0; i < this.listValuesStr.length; i++) {
+			final var valueStr = this.listValuesStr[i];
 
 			// if value is the default value, make it bold and yellow
 			if (initialValue != null && valueStr.equalsIgnoreCase(this.valueToString(initialValue)))
@@ -82,7 +96,7 @@ public abstract class SingleValueListArgumentType<T> extends ArgumentType<T> {
 			else
 				fmt.concat(valueStr);
 
-			if (i < this.listValues.length - 1)
+			if (i < this.listValuesStr.length - 1)
 				fmt.concat(" | ");
 		}
 
@@ -91,8 +105,8 @@ public abstract class SingleValueListArgumentType<T> extends ArgumentType<T> {
 
 	@Override
 	public @Nullable String getDescription() {
-		return "Specify one of the following values (case is ignored): "
-			+ String.join(", ", Stream.of(this.listValues).map(this::valueToString).toList())
+		return "Specify one of the following values: "
+			+ String.join(", ", Stream.of(this.listValuesStr).toList())
 			+ (this.getInitialValue() == null ? "" : (". Default is " + this.getInitialValue()))
 			+ ".";
 	}

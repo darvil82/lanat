@@ -10,7 +10,7 @@ import textFormatter.color.SimpleColor;
 import java.util.stream.Stream;
 
 /**
- * An argument type that is a single value from a list of values.
+ * An argument type that takes a single value out of a list of values.
  * @param <T> The type of the value that this argument type holds.
  */
 public abstract class SingleValueListArgumentType<T> extends ArgumentType<T> {

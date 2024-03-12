@@ -18,7 +18,9 @@ import java.util.Optional;
  * @see LayoutItem
  */
 public final class LayoutGenerators {
-	private LayoutGenerators() {}
+	private LayoutGenerators() {
+		throw new AssertionError("This class should not be instantiated");
+	}
 
 	/**
 	 * Shows the title of the command, followed by a description, if any.

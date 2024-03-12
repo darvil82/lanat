@@ -14,7 +14,9 @@ import java.util.Objects;
  * Contains methods for generating the help representations of {@link Argument}s.
  */
 public final class ArgumentRepr {
-	private ArgumentRepr() {}
+	private ArgumentRepr() {
+		throw new AssertionError("This class should not be instantiated");
+	}
 
 	/**
 	 * Returns the representation of the given argument like shown below:

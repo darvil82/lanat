@@ -13,7 +13,9 @@ import java.util.Optional;
  * Contains methods for generating the help representations of {@link Command}s.
  */
 public final class CommandRepr {
-	private CommandRepr() {}
+	private CommandRepr() {
+		throw new AssertionError("This class should not be instantiated");
+	}
 
 	/**
 	 * Returns the {@link #getRepresentation(Command)} of the Sub-Commands of the given command like shown below:

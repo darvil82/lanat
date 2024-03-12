@@ -13,7 +13,9 @@ import utils.UtlString;
 
 /** Contains all the errors definitions for errors that occur during parsing. */
 public abstract class ParseErrors {
-	private ParseErrors() {}
+	private ParseErrors() {
+		throw new AssertionError("This class should not be instantiated");
+	}
 
 	/**
 	 * Error that occurs when an argument receives an incorrect number of values.

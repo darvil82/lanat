@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.function.Function;
 
 public final class UtlMisc {
-	private UtlMisc() {}
+	private UtlMisc() {
+		throw new AssertionError("This class should not be instantiated");
+	}
 
 	/**
 	 * Checks if the elements in the given list are unique.
@@ -19,12 +21,10 @@ public final class UtlMisc {
 		@NotNull Function<T, RuntimeException> exceptionSupplier
 	) {
 		for (int i = 0; i < list.size(); i++) {
-			final var el = list.get(i);
-
 			for (int j = i + 1; j < list.size(); j++) {
 				final var other = list.get(j);
 
-				if (el.equals(other))
+				if (list.get(i).equals(other))
 					throw exceptionSupplier.apply(other);
 			}
 		}

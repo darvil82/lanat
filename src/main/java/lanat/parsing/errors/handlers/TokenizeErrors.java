@@ -7,7 +7,9 @@ import org.jetbrains.annotations.NotNull;
 
 /** Contains all the errors definitions for errors that occur during tokenization. */
 public abstract class TokenizeErrors {
-	private TokenizeErrors() {}
+	private TokenizeErrors() {
+		throw new AssertionError("This class should not be instantiated");
+	}
 
 	/**
 	 * Error that occurs when a tuple is already open.

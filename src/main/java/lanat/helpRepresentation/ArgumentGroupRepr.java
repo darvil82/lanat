@@ -15,7 +15,9 @@ import java.util.Objects;
  * Contains methods for generating the help representations of {@link ArgumentGroup}s.
  */
 public final class ArgumentGroupRepr {
-	private ArgumentGroupRepr() {}
+	private ArgumentGroupRepr() {
+		throw new AssertionError("This class should not be instantiated");
+	}
 
 	/**
 	 * Returns the name and description of the given group like shown below:

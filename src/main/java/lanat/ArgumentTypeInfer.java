@@ -29,7 +29,9 @@ import java.util.function.Supplier;
  * <pre>{@code new TupleArgumentType(Range.AT_LEAST_ONE, new DoubleArgumentType())}.</pre>
  */
 public final class ArgumentTypeInfer {
-	private ArgumentTypeInfer() {}
+	private ArgumentTypeInfer() {
+		throw new AssertionError("This class should not be instantiated");
+	}
 
 	/**
 	 * Mapping of types to their corresponding argument types. Used for inferring.

@@ -9,7 +9,9 @@ import org.jetbrains.annotations.Nullable;
  * be used as a default value for the {@link lanat.Argument.Define} annotation.
  */
 public final class DummyArgumentType extends ArgumentType<Void> {
-	private DummyArgumentType() {}
+	private DummyArgumentType() {
+		throw new AssertionError("This class should not be instantiated");
+	}
 
 	@Override
 	public @Nullable Void parseValues(@NotNull String @NotNull [] values) {

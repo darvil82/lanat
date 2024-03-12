@@ -321,7 +321,9 @@ public class AfterParseOptions {
 	 * the actions to be executed after parsing is done.
 	 */
 	public final class AfterParseActions {
-		private AfterParseActions() {}
+		private AfterParseActions() {
+			throw new AssertionError("This class should not be instantiated");
+		}
 
 		/**
 		 * Prints all errors that occurred during parsing to {@link System#err}.

@@ -205,7 +205,7 @@ public abstract class ArgumentType<T>
 	 * Returns the initial value of this argument type, if specified.
 	 * @return The initial value of this argument type, {@code null} if not specified.
 	 */
-	public T getInitialValue() {
+	public final T getInitialValue() {
 		return this.initialValue;
 	}
 

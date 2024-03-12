@@ -1,71 +1,39 @@
 package lanat.argumentTypes;
 
-import lanat.ArgumentType;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import textFormatter.FormatOption;
-import textFormatter.TextFormatter;
-import textFormatter.color.SimpleColor;
-
-import java.util.stream.Stream;
 
 /**
- * An argument type that takes an enum value.
- * By supplying a default value in the constructor, the enum type is inferred.
+ * An argument type that takes a valid enum value.
  * <p>
  * The user can specify any of the enum values by their names.
  * The names are case-insensitive.
  * </p>
  * @param <T> The enum type.
  */
-public class EnumArgumentType<T extends Enum<T>> extends ArgumentType<T> {
-	private final @NotNull T @NotNull [] values;
-
+public class EnumArgumentType<T extends Enum<T>> extends SingleValueListArgumentType<T> {
 	/**
 	 * Creates a new enum argument type.
 	 * @param defaultValue The default value of the enum type. This is also used to infer the type of the enum.
 	 */
 	public EnumArgumentType(@NotNull T defaultValue) {
-		super(defaultValue);
-		this.values = defaultValue.getDeclaringClass().getEnumConstants();
+		super(defaultValue.getDeclaringClass().getEnumConstants(), defaultValue);
+	}
+
+	/**
+	 * Creates a new enum argument type.
+	 * @param clazz The class of the enum type to use.
+	 */
+	public EnumArgumentType(@NotNull Class<T> clazz) {
+		super(clazz.getEnumConstants());
 	}
 
 	@Override
-	public T parseValues(@NotNull String @NotNull [] values) {
-		for (var enumValue : this.values) {
-			if (enumValue.name().equalsIgnoreCase(values[0])) {
-				return enumValue;
-			}
-		}
-		this.addError("Invalid enum value: '" + values[0] + "'.");
-		return null;
+	protected boolean predicate(@NotNull T value, @NotNull String strValue) {
+		return value.name().equalsIgnoreCase(strValue);
 	}
 
 	@Override
-	public @NotNull TextFormatter getRepresentation() {
-		final var fmt = TextFormatter.of("(");
-		for (var i = 0; i < this.values.length; i++) {
-			final var value = this.values[i];
-
-			// if value is the default value, make it bold and yellow
-			if (value == this.getInitialValue())
-				fmt.concat(TextFormatter.of(value.name())
-					.withForegroundColor(SimpleColor.YELLOW)
-					.addFormat(FormatOption.BOLD)
-				);
-			else
-				fmt.concat(value.name());
-
-			if (i < this.values.length - 1)
-				fmt.concat(" | ");
-		}
-		return fmt.concat(")");
-	}
-
-	@Override
-	public @Nullable String getDescription() {
-		return "Specify one of the following values (case is ignored): "
-			+ String.join(", ", Stream.of(this.values).map(Enum::name).toList())
-			+ ". Default is " + this.getInitialValue().name() + ".";
+	protected @NotNull String valueToString(@NotNull T value) {
+		return value.name();
 	}
 }

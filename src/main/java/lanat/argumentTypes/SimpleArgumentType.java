@@ -73,9 +73,7 @@ public final class SimpleArgumentType<T> extends ArgumentType<T> {
 	 * A proxy class that allows to add errors to the argument type.
 	 */
 	public final class ErrorProxy {
-		private ErrorProxy() {
-			throw new AssertionError("This class should not be instantiated");
-		}
+		private ErrorProxy() {}
 
 
 		/** @see ArgumentType#addError(String) */

@@ -5,6 +5,7 @@ import lanat.utils.CommandUser;
 import lanat.utils.NamedWithDescription;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import utils.exceptions.DisallowedInstantiationException;
 
 import java.util.Optional;
 
@@ -25,7 +26,7 @@ public final class DescriptionParser {
 	private static final char TAG_END = '>';
 
 	private DescriptionParser() {
-		throw new AssertionError("This class should not be instantiated");
+		throw new DisallowedInstantiationException(DescriptionParser.class);
 	}
 
 	/**

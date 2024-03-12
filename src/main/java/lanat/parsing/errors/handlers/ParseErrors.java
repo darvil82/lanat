@@ -10,11 +10,12 @@ import lanat.utils.errors.ErrorLevel;
 import org.jetbrains.annotations.NotNull;
 import utils.Pair;
 import utils.UtlString;
+import utils.exceptions.DisallowedInstantiationException;
 
 /** Contains all the errors definitions for errors that occur during parsing. */
 public abstract class ParseErrors {
 	private ParseErrors() {
-		throw new AssertionError("This class should not be instantiated");
+		throw new DisallowedInstantiationException(ParseErrors.class);
 	}
 
 	/**

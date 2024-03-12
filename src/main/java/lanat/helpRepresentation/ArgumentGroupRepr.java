@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import textFormatter.FormatOption;
 import textFormatter.TextFormatter;
+import utils.exceptions.DisallowedInstantiationException;
 
 import java.util.List;
 import java.util.Objects;
@@ -16,7 +17,7 @@ import java.util.Objects;
  */
 public final class ArgumentGroupRepr {
 	private ArgumentGroupRepr() {
-		throw new AssertionError("This class should not be instantiated");
+		throw new DisallowedInstantiationException(ArgumentGroupRepr.class);
 	}
 
 	/**

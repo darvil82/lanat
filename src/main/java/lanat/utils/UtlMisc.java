@@ -1,13 +1,14 @@
 package lanat.utils;
 
 import org.jetbrains.annotations.NotNull;
+import utils.exceptions.DisallowedInstantiationException;
 
 import java.util.List;
 import java.util.function.Function;
 
 public final class UtlMisc {
 	private UtlMisc() {
-		throw new AssertionError("This class should not be instantiated");
+		throw new DisallowedInstantiationException(UtlMisc.class);
 	}
 
 	/**

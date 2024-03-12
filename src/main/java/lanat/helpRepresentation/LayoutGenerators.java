@@ -7,6 +7,7 @@ import lanat.helpRepresentation.descriptions.DescriptionParser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import utils.UtlString;
+import utils.exceptions.DisallowedInstantiationException;
 
 import java.util.List;
 import java.util.Objects;
@@ -19,7 +20,7 @@ import java.util.Optional;
  */
 public final class LayoutGenerators {
 	private LayoutGenerators() {
-		throw new AssertionError("This class should not be instantiated");
+		throw new DisallowedInstantiationException(LayoutGenerators.class);
 	}
 
 	/**

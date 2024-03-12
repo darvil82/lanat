@@ -4,6 +4,7 @@ import lanat.argumentTypes.*;
 import lanat.exceptions.ArgumentTypeInferException;
 import org.jetbrains.annotations.NotNull;
 import utils.Range;
+import utils.exceptions.DisallowedInstantiationException;
 
 import java.io.File;
 import java.util.HashMap;
@@ -30,7 +31,7 @@ import java.util.function.Supplier;
  */
 public final class ArgumentTypeInfer {
 	private ArgumentTypeInfer() {
-		throw new AssertionError("This class should not be instantiated");
+		throw new DisallowedInstantiationException(ArgumentTypeInfer.class);
 	}
 
 	/**

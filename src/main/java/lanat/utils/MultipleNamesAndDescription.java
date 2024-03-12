@@ -56,7 +56,7 @@ public interface MultipleNamesAndDescription extends NamedWithDescription {
 	 * @param name The name to check
 	 * @return {@code true} if this object has the given name, {@code false} otherwise
 	 */
-	default boolean hasName(String name) {
+	default boolean hasName(@NotNull String name) {
 		return this.getNames().contains(name);
 	}
 

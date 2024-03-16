@@ -62,6 +62,12 @@ public abstract class ParseErrors {
 				this.receivedValueCount == 0
 			);
 		}
+
+		@Override
+		public boolean shouldRemoveOther(@NotNull Error<?> other) {
+			return other instanceof RequiredArgumentNotUsedError requiredArgError
+				&& requiredArgError.argument == this.argument;
+		}
 	}
 
 	/**
@@ -203,6 +209,12 @@ public abstract class ParseErrors {
 		@Override
 		public @NotNull ErrorLevel getErrorLevel() {
 			return ErrorLevel.WARNING;
+		}
+
+		@Override
+		public boolean shouldRemoveOther(@NotNull Error<?> other) {
+			return other instanceof UnmatchedTokenError unmatchedTokenError
+				&& unmatchedTokenError.index == this.index;
 		}
 	}
 }

@@ -79,6 +79,9 @@ public class ErrorCollector {
 			final var command = pair.getKey();
 			final var errors = pair.getValue();
 
+			// remove the errors that are marked for removal by the other errors
+			ErrorCollector.invokeErrorRemovalPredicates(errors);
+
 			// iterate for each error in each command
 			for (var error : errors) {
 				// create a new error formatting context for each error
@@ -150,5 +153,34 @@ public class ErrorCollector {
 			List.of(ErrorContext.class),
 			List.of(ctx.get())
 		);
+	}
+
+	/**
+	 * Invokes the {@link Error#shouldRemoveOther(Error)} method for each error in the list.
+	 * <p>
+	 * This method will remove the errors that are marked for removal by the other errors.
+	 * @param errors the list of errors to remove the errors from
+	 */
+	private static void invokeErrorRemovalPredicates(@NotNull List<Error<?>> errors) {
+		// first store the indices of the errors to remove
+		var indicesToRemove = new ArrayList<Integer>();
+
+		for (var error : errors) {
+			for (int i = 0; i < errors.size(); i++) {
+				var other = errors.get(i);
+
+				// ignore the same error and the errors that are already marked for removal
+				if (error == other || indicesToRemove.contains(i))
+					continue;
+
+				if (error.shouldRemoveOther(other))
+					indicesToRemove.add(i);
+			}
+		}
+
+		// sort the indices in reverse order and remove the errors
+		// not removing in reverse order would cause the indices to be shifted
+		indicesToRemove.sort(Comparator.reverseOrder());
+		indicesToRemove.forEach(i -> errors.remove((int)i));
 	}
 }

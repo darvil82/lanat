@@ -2,10 +2,7 @@ package lanat.helpRepresentation.descriptions;
 
 import lanat.helpRepresentation.descriptions.exceptions.MalformedTagException;
 import lanat.helpRepresentation.descriptions.exceptions.UnknownTagException;
-import lanat.helpRepresentation.descriptions.tags.ColorTag;
-import lanat.helpRepresentation.descriptions.tags.DescTag;
-import lanat.helpRepresentation.descriptions.tags.FormatTag;
-import lanat.helpRepresentation.descriptions.tags.LinkTag;
+import lanat.helpRepresentation.descriptions.tags.*;
 import lanat.utils.NamedWithDescription;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -43,6 +40,7 @@ public abstract class Tag {
 		Tag.register("desc", DescTag.class);
 		Tag.register("color", ColorTag.class);
 		Tag.register("format", FormatTag.class);
+		Tag.register("default", DefaultValueTag.class);
 	}
 
 	/**

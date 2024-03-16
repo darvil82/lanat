@@ -254,6 +254,15 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	/**
+	 * Returns the default value of this argument.
+	 * @return the default value of this argument.
+	 * @see #setDefaultValue(Object)
+	 */
+	public @Nullable TInner getDefaultValue() {
+		return this.defaultValue;
+	}
+
+	/**
 	 * Marks the argument as hidden to not be shown in the help message.
 	 * @param hidden {@code true} if the argument should be hidden.
 	 */

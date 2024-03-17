@@ -37,9 +37,6 @@ public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 	/** The input string that is being tokenized */
 	private String inputString;
 
-	/** The input string that is being tokenized, split into characters */
-	private char[] inputChars;
-
 
 	public Tokenizer(@NotNull Command command) {
 		super(command);
@@ -49,7 +46,6 @@ public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 	private void setInputString(@NotNull String inputString, int nestingOffset, int lastCharIndex) {
 		this.nestingOffset = lastCharIndex + nestingOffset;
 		this.inputString = inputString.substring(lastCharIndex);
-		this.inputChars = this.inputString.toCharArray();
 	}
 
 	/**
@@ -79,17 +75,17 @@ public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 		int lastTupleCharIndex = 0; // the index of the last character that opened the tuple
 
 		for (;
-			this.currentCharIndex < this.inputChars.length && !this.hasFinished;
+			this.currentCharIndex < this.inputString.length() && !this.hasFinished;
 			this.currentCharIndex++
 		) {
-			char cChar = this.inputChars[this.currentCharIndex];
+			char cChar = this.getCharAt(this.currentCharIndex);
 
 			// user is trying to escape a character
 			if (cChar == '\\') {
 				// skip the \ character and append the next character if it's not the last one
 				// if it is the last one, just append it
 				this.currentValue.append(
-					this.inputChars[this.isLastChar() ? this.currentCharIndex : ++this.currentCharIndex]
+					this.getCharAt(this.isLastChar() ? this.currentCharIndex : ++this.currentCharIndex)
 				);
 
 				// reached a possible value wrapped in quotes
@@ -226,7 +222,7 @@ public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 	 * @return {@code true} if the current char index is the last one in the input chars
 	 */
 	private boolean isLastChar() {
-		return this.currentCharIndex == this.inputChars.length - 1;
+		return this.currentCharIndex == this.inputString.length() - 1;
 	}
 
 
@@ -332,11 +328,10 @@ public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 	}
 
 	/**
-	 * Returns {@code true} if the character of {@link Tokenizer#inputChars} at a relative index from
+	 * Returns {@code true} if the character of {@link Tokenizer#inputString} at a relative index from
 	 * {@link Tokenizer#currentCharIndex} is equal to the specified character.
 	 * <p>
 	 * If the index is out of bounds, returns {@code false}.
-	 * </p>
 	 */
 	private boolean isCharAtRelativeIndex(int index, char character) {
 		return this.isCharAtRelativeIndex(index, cChar -> cChar == character);
@@ -344,8 +339,13 @@ public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 
 	private boolean isCharAtRelativeIndex(int index, @NotNull Predicate<@NotNull Character> predicate) {
 		index += this.currentCharIndex;
-		if (index >= this.inputChars.length || index < 0) return false;
-		return predicate.test(this.inputChars[index]);
+		if (index >= this.inputString.length() || index < 0) return false;
+		return predicate.test(this.getCharAt(index));
+	}
+
+	/** Returns the character at the given index in the {@link Tokenizer#inputString}. */
+	private char getCharAt(int index) {
+		return this.inputString.charAt(index);
 	}
 
 	/**

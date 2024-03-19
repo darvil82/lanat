@@ -2,6 +2,7 @@ package lanat.argumentTypes;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -16,7 +17,7 @@ public class OptListArgumentType extends SingleValueListArgumentType<String> {
 	public OptListArgumentType(@NotNull List<String> values, @NotNull String initialValue) {
 		super(values.toArray(String[]::new), initialValue);
 
-		if (!values.contains(initialValue))
+		if (Arrays.stream(this.listValues).noneMatch(initialValue::equalsIgnoreCase))
 			throw new IllegalArgumentException("Initial value must be one of the values.");
 	}
 

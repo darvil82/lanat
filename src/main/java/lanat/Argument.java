@@ -746,7 +746,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		 * By default, this is set to the value of {@link PrefixChar#defaultPrefix}.
 		 * @see Argument#setPrefix(PrefixChar)
 		 * */
-		@NotNull PrefixChar prefix() default PrefixChar.DEFAULT; // Character.MAX_VALUE will be replaced with PrefixChar.defaultPrefix
+		@NotNull PrefixChar prefix() default PrefixChar.DEFAULT;
 
 		/** @see Argument#setRequired(boolean) */
 		boolean required() default false;

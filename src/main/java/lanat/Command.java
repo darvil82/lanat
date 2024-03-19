@@ -503,7 +503,7 @@ public class Command
 	}
 
 	/**
-	 * Invokes the {@link CommandTemplate#beforeInit(CommandTemplate.CommandBuildHelper)} method of the given command
+	 * Invokes the {@link CommandTemplate#beforeInit(CommandTemplate.CommandBuildContext)} method of the given command
 	 * template class, if it exists.
 	 * @param cmdTemplate The command template class to invoke the method from.
 	 * @param argumentBuilders The argument builders that will be passed to the method.
@@ -513,13 +513,13 @@ public class Command
 		@NotNull List<? extends ArgumentBuilder<?, ?>> argumentBuilders
 	) {
 		Stream.of(cmdTemplate.getDeclaredMethods())
-			.filter(m -> UtlReflection.hasParameters(m, CommandTemplate.CommandBuildHelper.class))
+			.filter(m -> UtlReflection.hasParameters(m, CommandTemplate.CommandBuildContext.class))
 			.filter(m -> m.isAnnotationPresent(CommandTemplate.InitDef.class))
 			.filter(m -> m.getName().equals("beforeInit"))
 			.findFirst()
 			.ifPresent(m -> {
 				try {
-					m.invoke(null, new CommandTemplate.CommandBuildHelper(
+					m.invoke(null, new CommandTemplate.CommandBuildContext(
 						this, Collections.unmodifiableList(argumentBuilders)
 					));
 				} catch (IllegalAccessException | InvocationTargetException e) {

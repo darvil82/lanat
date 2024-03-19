@@ -15,9 +15,9 @@ import java.util.stream.Stream;
  */
 public abstract class SingleValueListArgumentType<T> extends ArgumentType<T> {
 	/** The list of values that the argument type will accept. */
-	private final @NotNull T @NotNull [] listValues;
+	protected final @NotNull T @NotNull [] listValues;
 	/** The list of string representations for the values. */
-	private final @NotNull String @NotNull [] listValuesStr;
+	protected final @NotNull String @NotNull [] listValuesStr;
 
 	/**
 	 * Creates a new single value list argument type.

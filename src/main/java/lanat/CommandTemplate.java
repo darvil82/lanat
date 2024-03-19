@@ -46,7 +46,7 @@ import java.util.List;
  * The type of the argument (that extends {@link ArgumentType}) may be specified in the annotation with the
  * {@link Argument.Define#type()} parameter. Note that any type specified in the annotation must have a public,
  * no-argument constructor. If the Argument Type to use has a constructor with arguments, the type must be then
- * specified in {@link CommandTemplate#beforeInit(CommandBuildHelper)} instead, by setting
+ * specified in {@link CommandTemplate#beforeInit(CommandBuildContext)} instead, by setting
  * {@link ArgumentBuilder#type(ArgumentType)} to the argument builder corresponding to the argument
  * being defined.
  * </p>
@@ -70,9 +70,9 @@ import java.util.List;
  *   public Integer number;
  *
  *   @InitDef
- *   public static void beforeInit(CommandBuildHelper helper) {
+ *   public static void beforeInit(CommandBuildContext ctx) {
  *      // set the argument type to NumberRangeArgumentType
- *      helper.argWithType("number", new NumberRangeArgumentType<>(0, 10));
+ *      ctx.argWithType("number", new NumberRangeArgumentType<>(0, 10));
  *   }
  * }}</pre>
  *
@@ -103,7 +103,7 @@ import java.util.List;
  * may be defined in the Command Template class:
  * </p>
  * <ul>
- *     <li>{@link CommandTemplate#beforeInit(CommandBuildHelper)}: Called before adding the Arguments to the Command.</li>
+ *     <li>{@link CommandTemplate#beforeInit(CommandBuildContext)}: Called before adding the Arguments to the Command.</li>
  *     <li>{@link CommandTemplate#afterInit(Command)}: Called after the Command is initialized.</li>
  * </ul>
  * @see CommandTemplate.Default
@@ -169,7 +169,7 @@ public abstract class CommandTemplate {
 
 	/**
 	 * Annotation used to define an init method for a Command Template.
-	 * @see CommandTemplate#beforeInit(CommandBuildHelper)
+	 * @see CommandTemplate#beforeInit(CommandBuildContext)
 	 * @see CommandTemplate#afterInit(Command)
 	 */
 	@Retention(RetentionPolicy.RUNTIME)
@@ -187,10 +187,10 @@ public abstract class CommandTemplate {
 	/**
 	 * Helper class that contains the command being initialized and the list of argument builders that may be altered.
 	 * @param cmd The command being initialized.
-	 * @param args The list of argument builders that may be altered. Use {@link CommandBuildHelper#arg(String)}
+	 * @param args The list of argument builders that may be altered. Use {@link CommandBuildContext#arg(String)}
 	 * 		   to get the argument builder corresponding to an argument with a given name.
 	 */
-	public record CommandBuildHelper(@NotNull Command cmd, @NotNull List<ArgumentBuilder<?, ?>> args) {
+	public record CommandBuildContext(@NotNull Command cmd, @NotNull List<ArgumentBuilder<?, ?>> args) {
 		/**
 		 * Returns the argument builder corresponding to the argument with the given name.
 		 * This is a helper method to get the argument builder from the list of argument builders ({@link #args}).
@@ -258,18 +258,18 @@ public abstract class CommandTemplate {
 	 *   public Integer numberRange;
 	 *
 	 *   @InitDef
-	 *   public static void beforeInit(CommandBuildHelper helper) {
+	 *   public static void beforeInit(CommandBuildContext ctx) {
 	 *      // set the argument type to NumberRangeArgumentType
-	 *      helper.argWithType("numberRange", new NumberRangeArgumentType<>(0, 10));
+	 *      ctx.argWithType("numberRange", new NumberRangeArgumentType<>(0, 10));
 	 *   }
 	 * }
 	 * }</pre>
 
-	 * @param helper A helper object that contains the command being initialized and the list of argument builders that may
+	 * @param ctx A helper object that contains the command being initialized and the list of argument builders that may
 	 * 		  be altered.
 	 */
 	@InitDef
-	public static void beforeInit(@NotNull CommandBuildHelper helper) {}
+	public static void beforeInit(@NotNull CommandTemplate.CommandBuildContext ctx) {}
 
 	/**
 	 * This method is called after the Command is initialized. This is after the Arguments are instantiated and added

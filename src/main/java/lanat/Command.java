@@ -484,21 +484,23 @@ public class Command
 				);
 			}
 
-			var groupName = pair.first().getAnnotation(Argument.Define.class).group();
-			if (groupName.isBlank()) {
+			var annotationGroupName = pair.first().getAnnotation(Argument.Define.class).group();
+			if (annotationGroupName.isBlank()) {
+				// the argument does not belong to a group, so add it directly.
 				this.addArgument(builtArgument);
 				return;
 			}
 
-			var matchingGroup = groupsMap.get(groupName);
-
-			if (matchingGroup == null) {
-				matchingGroup = new ArgumentGroup(groupName);
-				groupsMap.put(groupName, matchingGroup);
-				this.addGroup(matchingGroup);
+			// the argument belongs to a group, so add it to it
+			var groupToAddInto = groupsMap.get(annotationGroupName);
+			if (groupToAddInto == null) {
+				// the group does not exist, so create it and add it to the command
+				groupToAddInto = new ArgumentGroup(annotationGroupName);
+				groupsMap.put(annotationGroupName, groupToAddInto);
+				this.addGroup(groupToAddInto);
 			}
 
-			matchingGroup.addArgument(builtArgument);
+			groupToAddInto.addArgument(builtArgument);
 		});
 	}
 

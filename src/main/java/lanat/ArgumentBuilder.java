@@ -265,8 +265,8 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> implemen
 
 	/**
 	 * Builds the argument.
-	 *
 	 * @return the built argument
+	 * @throws IllegalStateException if the argument doesn't have at least one name or if the type is not defined
 	 */
 	@Override
 	public @NotNull Argument<Type, TInner> build() {

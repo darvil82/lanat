@@ -44,40 +44,62 @@ public final class ArgumentTypeInfer {
 	public static final Range DEFAULT_TYPE_RANGE = Range.AT_LEAST_ONE;
 
 	/**
-	 * Registers an argument type to be inferred for the specified type/s.
+	 * Registers an argument type to be inferred for the specified type.
 	 * @param type The argument type to infer.
-	 * @param infer The types to infer the argument type for.
+	 * @param clazz The type to infer the argument type for.
 	 */
-	public static void register(@NotNull Supplier<? extends ArgumentType<?>> type, @NotNull Class<?>... infer) {
-		if (infer.length == 0)
-			throw new IllegalArgumentException("Must specify at least one type to infer the argument type for.");
+	public static void register(@NotNull Supplier<? extends ArgumentType<?>> type, @NotNull Class<?> clazz) {
+		if (clazz.isArray() && clazz.getComponentType().isPrimitive())
+			throw new IllegalArgumentException("Cannot register argument type infer for primitive array type: " + clazz.getName());
 
-		for (Class<?> clazz : infer) {
-			if (clazz.isArray() && clazz.getComponentType().isPrimitive())
-				throw new IllegalArgumentException("Cannot register argument type infer for primitive array type: " + clazz.getName());
+		if (ArgumentTypeInfer.INFER_ARGUMENT_TYPES_MAP.containsKey(clazz))
+			throw new IllegalArgumentException("Argument type already registered for type: " + clazz.getName());
 
-			if (ArgumentTypeInfer.INFER_ARGUMENT_TYPES_MAP.containsKey(clazz))
-				throw new IllegalArgumentException("Argument type already registered for type: " + clazz.getName());
-
-			ArgumentTypeInfer.INFER_ARGUMENT_TYPES_MAP.put(clazz, type);
-		}
+		ArgumentTypeInfer.INFER_ARGUMENT_TYPES_MAP.put(clazz, type);
 	}
 
 	/**
-	 * Removes the argument type inference for the specified type/s.
-	 * @param classes The types to unregister the argument type from.
+	 * Registers an argument type to be inferred for the specified type, including the primitive form.
+	 * @param type The argument type to infer.
+	 * @param boxed The boxed type to infer the argument type for.
+	 * @param primitive The primitive type to infer the argument type for.
+	 */
+	public static void registerWithPrimitive(
+		@NotNull Supplier<? extends ArgumentType<?>> type,
+		@NotNull Class<?> boxed,
+		@NotNull Class<?> primitive
+	) {
+		checkBoxedAndPrimitive(boxed, primitive);
+
+		ArgumentTypeInfer.register(type, boxed);
+		ArgumentTypeInfer.register(type, primitive);
+	}
+
+	/**
+	 * Removes the argument type inference for the specified type.
+	 * @param clazz The type to unregister the argument type from.
 	 * @throws IllegalArgumentException If no argument type is found for the specified type.
 	 */
-	public static void unregister(@NotNull Class<?>... classes) {
-		if (classes.length == 0)
-			throw new IllegalArgumentException("Must specify at least one type to unregister the argument type for.");
+	public static void unregister(@NotNull Class<?> clazz) {
+		if (!ArgumentTypeInfer.INFER_ARGUMENT_TYPES_MAP.containsKey(clazz))
+			throw new IllegalArgumentException("No argument type registered for type: " + clazz.getName());
 
-		for (Class<?> clazz : classes) {
-			if (!ArgumentTypeInfer.INFER_ARGUMENT_TYPES_MAP.containsKey(clazz))
-				throw new IllegalArgumentException("No argument type registered for type: " + clazz.getName());
+		ArgumentTypeInfer.INFER_ARGUMENT_TYPES_MAP.remove(clazz);
+	}
 
-			ArgumentTypeInfer.INFER_ARGUMENT_TYPES_MAP.remove(clazz);
-		}
+	/**
+	 * Removes the argument type inference for the specified type, including the primitive form.
+	 * @param boxed The boxed type to unregister the argument type from.
+	 * @param primitive The primitive type to unregister the argument type from.
+	 */
+	public static void unregisterWithPrimitive(
+		@NotNull Class<?> boxed,
+		@NotNull Class<?> primitive
+	) {
+		checkBoxedAndPrimitive(boxed, primitive);
+
+		ArgumentTypeInfer.unregister(boxed);
+		ArgumentTypeInfer.unregister(primitive);
 	}
 
 	/**
@@ -92,28 +114,42 @@ public final class ArgumentTypeInfer {
 			.orElseThrow(() -> new ArgumentTypeInferException(clazz));
 	}
 
+
+	/**
+	 * Checks that {@code boxed} is a non-primitive type and {@code primitive} is a primitive type.
+	 * @param boxed The boxed type.
+	 * @param primitive The primitive type.
+	 * @throws IllegalArgumentException If the types are not as expected.
+	 */
+	private static void checkBoxedAndPrimitive(
+		@NotNull Class<?> boxed,
+		@NotNull Class<?> primitive
+	) {
+		if (!(!boxed.isPrimitive() && primitive.isPrimitive()))
+			throw new IllegalArgumentException("Boxed type must be non-primitive and primitive type must be a primitive.");
+	}
+
+
 	/**
 	 * Registers a numeric argument type with the specified tuple type as well.
 	 * Note that for arrays, only the non-primitive types are inferred.
-	 * @param type The type of the numeric argument type.
-	 * @param inferPrimitive The <strong>non-array</strong> types to infer the argument type for.
+	 *
 	 * @param <Ti> The type of the numeric type.
 	 * @param <T> The type of the tuple argument type.
+	 * @param type The type of the numeric argument type.
+	 * @param primitive The <strong>non-array</strong> types to infer the argument type for.
 	 */
 	private static <Ti extends Number, T extends NumberArgumentType<Ti>>
 	void registerNumericWithTuple(
 		@NotNull Supplier<T> type,
-		@NotNull Class<?> inferPrimitive,
-		@NotNull Class<?> infer
+		@NotNull Class<?> boxed,
+		@NotNull Class<?> primitive
 	) {
-		assert !infer.isPrimitive() && inferPrimitive.isPrimitive()
-			: "Infer must be a non-primitive type and inferPrimitive must be a primitive type.";
-
 		// register both the primitive and non-primitive types
-		ArgumentTypeInfer.register(type, inferPrimitive, infer);
+		ArgumentTypeInfer.registerWithPrimitive(type, boxed, primitive);
 
 		// register the array type (only the non-primitive type)
-		ArgumentTypeInfer.register(() -> new TupleArgumentType<>(DEFAULT_TYPE_RANGE, type.get()), infer.arrayType());
+		ArgumentTypeInfer.register(() -> new TupleArgumentType<>(DEFAULT_TYPE_RANGE, type.get()), boxed.arrayType());
 	}
 
 	// add some default argument types.
@@ -121,16 +157,15 @@ public final class ArgumentTypeInfer {
 		register(StringArgumentType::new, String.class);
 		register(() -> new TupleArgumentType<>(DEFAULT_TYPE_RANGE, new StringArgumentType()), String[].class);
 
-		register(BooleanArgumentType::new, boolean.class, Boolean.class);
+		registerWithPrimitive(BooleanArgumentType::new, Boolean.class, boolean.class);
 
 		register(() -> new FileArgumentType(false), File.class);
 
-		// we need to specify the primitives as well... wish there was a better way to do this.
-		registerNumericWithTuple(IntegerArgumentType::new, int.class, Integer.class);
-		registerNumericWithTuple(FloatArgumentType::new, float.class, Float.class);
-		registerNumericWithTuple(DoubleArgumentType::new, double.class, Double.class);
-		registerNumericWithTuple(LongArgumentType::new, long.class, Long.class);
-		registerNumericWithTuple(ShortArgumentType::new, short.class, Short.class);
-		registerNumericWithTuple(ByteArgumentType::new, byte.class, Byte.class);
+		registerNumericWithTuple(IntegerArgumentType::new, Integer.class, int.class);
+		registerNumericWithTuple(FloatArgumentType::new, Float.class, float.class);
+		registerNumericWithTuple(DoubleArgumentType::new, Double.class, double.class);
+		registerNumericWithTuple(LongArgumentType::new, Long.class, long.class);
+		registerNumericWithTuple(ShortArgumentType::new, Short.class, short.class);
+		registerNumericWithTuple(ByteArgumentType::new, Byte.class, byte.class);
 	}
 }

@@ -131,17 +131,17 @@ public final class ArgumentTypeInfer {
 
 
 	/**
-	 * Registers a numeric argument type with the specified tuple type as well.
+	 * Registers an argument type with the specified tuple type as well.
 	 * Note that for arrays, only the non-primitive types are inferred.
 	 *
-	 * @param <Ti> The type of the numeric type.
-	 * @param <T> The type of the tuple argument type.
+	 * @param <TInner> The type of the numeric type.
+	 * @param <Type> The type of the tuple argument type.
 	 * @param type The type of the numeric argument type.
 	 * @param primitive The <strong>non-array</strong> types to infer the argument type for.
 	 */
-	private static <Ti extends Number, T extends NumberArgumentType<Ti>>
-	void registerNumericWithTuple(
-		@NotNull Supplier<T> type,
+	private static <TInner, Type extends ArgumentType<TInner>>
+	void registerWithTuple(
+		@NotNull Supplier<Type> type,
 		@NotNull Class<?> boxed,
 		@NotNull Class<?> primitive
 	) {
@@ -161,11 +161,11 @@ public final class ArgumentTypeInfer {
 
 		register(() -> new FileArgumentType(false), File.class);
 
-		registerNumericWithTuple(IntegerArgumentType::new, Integer.class, int.class);
-		registerNumericWithTuple(FloatArgumentType::new, Float.class, float.class);
-		registerNumericWithTuple(DoubleArgumentType::new, Double.class, double.class);
-		registerNumericWithTuple(LongArgumentType::new, Long.class, long.class);
-		registerNumericWithTuple(ShortArgumentType::new, Short.class, short.class);
-		registerNumericWithTuple(ByteArgumentType::new, Byte.class, byte.class);
+		registerWithTuple(IntegerArgumentType::new, Integer.class, int.class);
+		registerWithTuple(FloatArgumentType::new, Float.class, float.class);
+		registerWithTuple(DoubleArgumentType::new, Double.class, double.class);
+		registerWithTuple(LongArgumentType::new, Long.class, long.class);
+		registerWithTuple(ShortArgumentType::new, Short.class, short.class);
+		registerWithTuple(ByteArgumentType::new, Byte.class, byte.class);
 	}
 }

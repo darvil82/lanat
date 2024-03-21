@@ -64,15 +64,20 @@ public final class ArgumentTypeInfer {
 	}
 
 	/**
-	 * Unregisters the argument type to be inferred for the specified type.
-	 * @param clazz The type to unregister the argument type for.
+	 * Removes the argument type inference for the specified type/s.
+	 * @param classes The types to unregister the argument type from.
 	 * @throws IllegalArgumentException If no argument type is found for the specified type.
 	 */
-	public static void unregister(@NotNull Class<?> clazz) {
-		if (!ArgumentTypeInfer.INFER_ARGUMENT_TYPES_MAP.containsKey(clazz))
-			throw new IllegalArgumentException("No argument type registered for type: " + clazz.getName());
+	public static void unregister(@NotNull Class<?>... classes) {
+		if (classes.length == 0)
+			throw new IllegalArgumentException("Must specify at least one type to unregister the argument type for.");
 
-		ArgumentTypeInfer.INFER_ARGUMENT_TYPES_MAP.remove(clazz);
+		for (Class<?> clazz : classes) {
+			if (!ArgumentTypeInfer.INFER_ARGUMENT_TYPES_MAP.containsKey(clazz))
+				throw new IllegalArgumentException("No argument type registered for type: " + clazz.getName());
+
+			ArgumentTypeInfer.INFER_ARGUMENT_TYPES_MAP.remove(clazz);
+		}
 	}
 
 	/**

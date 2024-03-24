@@ -202,7 +202,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	/**
-	 * Specify the prefix of this argument. By default, this is {@link PrefixChar#MINUS}. If this argument is used in an
+	 * Specify the prefix of this argument. By default, this is {@link PrefixChar#DEFAULT}. If this argument is used in an
 	 * argument name list (-abc), the prefix that will be valid is any against all the arguments specified in that name
 	 * list.
 	 * <p>
@@ -434,18 +434,31 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 */
 	private boolean finishParsing$checkUsageCount() {
 		final var usageCount = this.getUsageCount();
+		final var uniqueArgReceivedValue = this.parentCommand.uniqueArgumentReceivedValue(this);
 
 		if (usageCount == 0) {
-			if (this.required && !this.parentCommand.uniqueArgumentReceivedValue(this)) {
+			// is required so throw error
+			// if its required but some unique argument was used, then we don't need to throw an error
+			if (this.required && !uniqueArgReceivedValue) {
 				this.parentCommand.getParser().addError(new ParseErrors.RequiredArgumentNotUsedError(this));
 			}
+
+			// here if the argument is optional and was not used, so we can just return
+			return false;
+		}
+
+		final var lastTokensIndicesPair = this.type.getLastTokensIndicesPair();
+
+		// some unique argument was used, so throw an error
+		if (uniqueArgReceivedValue) {
+			this.parentCommand.getParser().addError(new ParseErrors.AllowsUniqueArgumentUsedError(lastTokensIndicesPair, this));
 			return false;
 		}
 
 		// make sure that the argument was used the minimum number of times specified
 		if (!this.type.getRequiredUsageCount().containsInclusive(usageCount)) {
 			this.parentCommand.getParser()
-				.addError(new ParseErrors.IncorrectUsagesCountError(this.type.getLastTokensIndicesPair(), this));
+				.addError(new ParseErrors.IncorrectUsagesCountError(lastTokensIndicesPair, this));
 			return false;
 		}
 

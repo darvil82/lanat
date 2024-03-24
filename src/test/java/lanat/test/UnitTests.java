@@ -43,6 +43,11 @@ class RestrictedDoubleAdder extends ArgumentType<Double> {
 	public @NotNull Range getRequiredUsageCount() {
 		return Range.from(2).to(4);
 	}
+
+	@Override
+	public @NotNull String getName() {
+		return "doubleSum";
+	}
 }
 
 

@@ -302,6 +302,7 @@ public class Command
 
 	/**
 	 * Returns {@code true} if an argument with allowsUnique set in the command was used.
+	 * @param exclude The argument to exclude from the check.
 	 * @return {@code true} if an argument with {@link Argument#setAllowUnique(boolean)} in the command was used.
 	 */
 	boolean uniqueArgumentReceivedValue(@Nullable Argument<?, ?> exclude) {

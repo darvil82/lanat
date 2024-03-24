@@ -8,7 +8,7 @@ version = "1.0.0"
 description = "Command line argument parser"
 
 dependencies {
-	api("com.darvil:utils:0.6.0b")
+	api("com.darvil:utils:0.6.1")
 	api("com.darvil:terminal-text-formatter:2.1.0")
 
 	implementation("org.jetbrains:annotations:24.1.0")
@@ -25,6 +25,7 @@ java {
 
 repositories {
 	mavenCentral()
+	mavenLocal()
 	maven("https://repsy.io/mvn/darvil/java")
 }
 

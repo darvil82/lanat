@@ -1,7 +1,10 @@
 package lanat.helpRepresentation;
 
+import lanat.Argument;
+import lanat.ArgumentGroup;
 import lanat.Command;
 import lanat.utils.CommandUser;
+import lanat.utils.NamedWithDescription;
 import org.jetbrains.annotations.NotNull;
 import textFormatter.FormatOption;
 import textFormatter.TextFormatter;
@@ -229,5 +232,23 @@ public class HelpFormatter {
 			// if obj is a Command, use it, otherwise get the parent command
 			str, obj instanceof Command cmd ? cmd : Objects.requireNonNull(obj.getParentCommand())
 		);
+	}
+
+	/**
+	 * Gets the representation of the object specified.
+	 * This will call the appropriate method from the {@link CommandRepr}, {@link ArgumentRepr} or
+	 * {@link ArgumentGroupRepr} classes.
+	 * If the object is not a command, argument or argument group, the name of the
+	 * object will be returned.
+	 */
+	public static @NotNull String getRepresentation(@NotNull NamedWithDescription obj) {
+		if (obj instanceof Command cmd)
+			return CommandRepr.getRepresentation(cmd);
+		else if (obj instanceof Argument<?, ?> arg)
+			return ArgumentRepr.getRepresentation(arg, false);
+		else if (obj instanceof ArgumentGroup group)
+			return ArgumentGroupRepr.getName(group);
+
+		return obj.getName();
 	}
 }

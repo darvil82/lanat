@@ -45,9 +45,9 @@ public interface MultipleNamesAndDescription extends NamedWithDescription {
 		if (names.size() == 1)
 			return names.get(0);
 
-		var newList = new ArrayList<>(names);
-		newList.sort(Comparator.comparingInt(String::length).reversed());
-		return newList.get(0);
+		return names.stream()
+			.max(Comparator.comparingInt(String::length))
+			.orElseThrow();
 	}
 
 	/**

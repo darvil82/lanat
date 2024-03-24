@@ -570,9 +570,9 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * @see #compareByPriority(Argument, Argument)
 	 */
 	public static @NotNull List<Argument<?, ?>> sortByPriority(@NotNull List<@NotNull Argument<?, ?>> args) {
-		var newList = new ArrayList<>(args);
-		newList.sort(Argument::compareByPriority);
-		return newList;
+		return args.stream()
+			.sorted(Argument::compareByPriority)
+			.toList();
 	}
 
 	@Override

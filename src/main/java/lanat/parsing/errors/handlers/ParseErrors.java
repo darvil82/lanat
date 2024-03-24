@@ -220,11 +220,11 @@ public abstract class ParseErrors {
 	}
 
 	/**
-	 * Error that occurs when an argument is used while there's another argument with allowUnique that has been used.
+	 * Error that occurs when an argument is used while there's another unique argument that has been used.
 	 * @param indicesPair The indices of the tokens that caused the error. (start, end)
 	 * @param argument The argument that thrown the error.
 	 */
-	public record AllowsUniqueArgumentUsedError(
+	public record UniqueArgumentUsedError(
 		@NotNull Pair<Integer, Integer> indicesPair,
 		@NotNull Argument<?, ?> argument
 	) implements Error.ParseError

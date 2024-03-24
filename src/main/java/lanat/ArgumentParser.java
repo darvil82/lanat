@@ -297,7 +297,7 @@ public class ArgumentParser extends Command {
 				System.exit(returnCode);
 			})
 			.description("Shows the version of this program.")
-			.allowUnique(true)
+			.unique(true)
 		);
 	}
 

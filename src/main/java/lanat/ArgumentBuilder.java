@@ -25,7 +25,7 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> implemen
 	private @Nullable Type type;
 	private boolean required = false,
 		positional = false,
-		allowUnique = false,
+		unique = false,
 		hidden = false;
 	private @Nullable TInner defaultValue;
 	private @Nullable Consumer<@NotNull Argument<Type, TInner>> onErrorCallback;
@@ -83,7 +83,7 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> implemen
 		if (!annotation.description().isEmpty()) argumentBuilder.description(annotation.description());
 		argumentBuilder.required(annotation.required());
 		argumentBuilder.positional(annotation.positional());
-		argumentBuilder.allowUnique(annotation.allowUnique());
+		argumentBuilder.unique(annotation.unique());
 		argumentBuilder.hidden(annotation.hidden());
 
 		return argumentBuilder;
@@ -163,9 +163,9 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> implemen
 		return this;
 	}
 
-	/** @see Argument#setAllowUnique(boolean) */
-	public ArgumentBuilder<Type, TInner> allowUnique(boolean allowUnique) {
-		this.allowUnique = allowUnique;
+	/** @see Argument#setUnique(boolean) */
+	public ArgumentBuilder<Type, TInner> unique(boolean unique) {
+		this.unique = unique;
 		return this;
 	}
 
@@ -280,7 +280,7 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> implemen
 		newArg.setDescription(this.description);
 		newArg.setRequired(this.required);
 		newArg.setPositional(this.positional);
-		newArg.setAllowUnique(this.allowUnique);
+		newArg.setUnique(this.unique);
 		newArg.setHidden(this.hidden);
 		newArg.setDefaultValue(this.defaultValue);
 		if (this.prefixChar != null)

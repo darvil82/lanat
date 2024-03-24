@@ -31,13 +31,8 @@ public final class ArgumentGroupRepr {
 	 * @return the name and description of the group
 	 */
 	public static @NotNull String getDescription(@NotNull ArgumentGroup group) {
-		final var buff = new StringBuilder();
-
-		final var name = TextFormatter.of(group.getName() + ':').addFormat(FormatOption.BOLD);
-		if (group.isRestricted())
-			name.addFormat(FormatOption.UNDERLINE);
-
-		buff.append(name);
+		final var buff = new StringBuilder(ArgumentGroupRepr.getName(group))
+			.append(':');
 
 		final var description = DescriptionParser.parse(group);
 		if (description == null)
@@ -149,5 +144,21 @@ public final class ArgumentGroupRepr {
 			buff.append(')');
 
 		return buff.toString();
+	}
+
+
+	/**
+	 * Returns the name of the given group, formatted with bold and underline if restricted.
+	 * @param group the group
+	 * @return the name of the group
+	 */
+	public static @NotNull String getName(@NotNull ArgumentGroup group) {
+		final var name = TextFormatter.of(group.getName())
+			.addFormat(FormatOption.BOLD);
+
+		if (group.isRestricted())
+			name.addFormat(FormatOption.UNDERLINE);
+
+		return name.toString();
 	}
 }

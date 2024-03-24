@@ -2,7 +2,7 @@ package lanat.parsing.errors.handlers;
 
 import lanat.Argument;
 import lanat.ArgumentGroup;
-import lanat.ArgumentParser;
+import lanat.helpRepresentation.HelpFormatter;
 import lanat.parsing.errors.Error;
 import lanat.parsing.errors.contexts.ErrorFormattingContext;
 import lanat.parsing.errors.contexts.ParseErrorContext;
@@ -37,9 +37,9 @@ public abstract class ParseErrors {
 		@Override
 		public void handle(@NotNull ErrorFormattingContext fmt, @NotNull ParseErrorContext ctx) {
 			fmt
-				.withContent("Incorrect number of values for argument '%s'.%nExpected %s, but got %d."
+				.withContent("Incorrect number of values for argument %s.%nExpected %s, but got %d."
 					.formatted(
-						this.argument.getName(), this.argument.type.getRequiredArgValueCount().getMessage("value"),
+						HelpFormatter.getRepresentation(this.argument), this.argument.type.getRequiredArgValueCount().getMessage("value"),
 						this.receivedValueCount
 					)
 				);
@@ -83,13 +83,13 @@ public abstract class ParseErrors {
 		@Override
 		public void handle(@NotNull ErrorFormattingContext fmt, @NotNull ParseErrorContext ctx) {
 			fmt
-				.withContent("Argument '%s' was used an incorrect amount of times.%nExpected %s, but was used %s."
+				.withContent("Argument %s was used an incorrect amount of times.%nExpected %s, but was used %s."
 					.formatted(
-						this.argument.getName(), this.argument.type.getRequiredUsageCount().getMessage("usage"),
+						HelpFormatter.getRepresentation(this.argument), this.argument.type.getRequiredUsageCount().getMessage("usage"),
 						UtlString.plural("time", this.argument.getUsageCount())
 					)
 				)
-				.highlight(this.indicesPair.first(), this.indicesPair.second(), false);
+				.highlight(this.indicesPair, false);
 		}
 	}
 
@@ -101,12 +101,13 @@ public abstract class ParseErrors {
 		@Override
 		public void handle(@NotNull ErrorFormattingContext fmt, @NotNull ParseErrorContext ctx) {
 			final var argCmd = this.argument.getParentCommand();
+			final var argRepr = HelpFormatter.getRepresentation(this.argument);
 
 			fmt
 				.withContent(
-					argCmd instanceof ArgumentParser
-						? "Required argument '" + this.argument.getName() + "' not used."
-						: "Required argument '%s' for command '%s' not used.".formatted(this.argument.getName(), argCmd.getName())
+					argCmd.isRoot()
+						? "Required argument " + argRepr + " not used."
+						: "Required argument %s for command %s not used.".formatted(argRepr, HelpFormatter.getRepresentation(argCmd))
 				)
 				.highlight(0); // always just highlight at the position of the command token
 		}
@@ -151,7 +152,7 @@ public abstract class ParseErrors {
 		public void handle(@NotNull ErrorFormattingContext fmt, @NotNull ParseErrorContext ctx) {
 			fmt
 				.withContent(
-					"Argument '" + this.argument.getName() + "' does not take any values, but got '"
+					"Argument " + HelpFormatter.getRepresentation(this.argument) + " does not take any values, but got '"
 						+ this.errorValue + "'."
 				)
 				.highlight(this.index, 0, false);
@@ -176,8 +177,8 @@ public abstract class ParseErrors {
 		@Override
 		public void handle(@NotNull ErrorFormattingContext fmt, @NotNull ParseErrorContext ctx) {
 			fmt
-				.withContent("Multiple arguments in restricted group '" + this.group.getName() + "' used.")
-				.highlight(this.indicesPair.first(), this.indicesPair.second(), false);
+				.withContent("Multiple arguments in restricted group " + HelpFormatter.getRepresentation(this.group) + " used.")
+				.highlight(this.indicesPair, false);
 		}
 	}
 
@@ -215,6 +216,32 @@ public abstract class ParseErrors {
 		public boolean shouldRemoveOther(@NotNull Error<?> other) {
 			return other instanceof UnmatchedTokenError unmatchedTokenError
 				&& unmatchedTokenError.index == this.index;
+		}
+	}
+
+	/**
+	 * Error that occurs when an argument is used while there's another argument with allowUnique that has been used.
+	 * @param indicesPair The indices of the tokens that caused the error. (start, end)
+	 * @param argument The argument that thrown the error.
+	 */
+	public record AllowsUniqueArgumentUsedError(
+		@NotNull Pair<Integer, Integer> indicesPair,
+		@NotNull Argument<?, ?> argument
+	) implements Error.ParseError
+	{
+		@Override
+		public void handle(@NotNull ErrorFormattingContext fmt, @NotNull ParseErrorContext ctx) {
+			fmt
+				.withContent(
+					"Argument " + HelpFormatter.getRepresentation(this.argument)
+					+ " cannot be used while another unique argument is used."
+				)
+				.highlight(this.indicesPair, false);
+		}
+
+		@Override
+		public @NotNull ErrorLevel getErrorLevel() {
+			return ErrorLevel.WARNING;
 		}
 	}
 }

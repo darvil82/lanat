@@ -308,4 +308,9 @@ public class ArgumentParser extends Command {
 	public @Nullable String getVersion() {
 		return this.version;
 	}
+
+	@Override
+	public boolean isRoot() {
+		return true; // this is always the root command
+	}
 }

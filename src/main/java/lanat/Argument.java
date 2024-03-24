@@ -90,7 +90,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	private @Nullable String description;
 	private boolean required = false,
 		positional = false,
-		allowUnique = false,
+		unique = false,
 		hidden = false;
 
 	private @Nullable TInner defaultValue;
@@ -226,20 +226,22 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 	/**
 	 * Specifies that this argument has priority over other arguments, even if they are required. This means that if
-	 * an argument in a command is set as required, but one argument with {@link #allowUnique} was used, then the
+	 * an argument in a command is set as required, but one argument with {@link #unique} was used, then the
 	 * unused required argument will not throw an error.
+	 * <p>
+	 * Note that if a unique argument is used, no other argument will be allowed to be used.
 	 */
-	public void setAllowUnique(boolean allowUnique) {
-		this.allowUnique = allowUnique;
+	public void setUnique(boolean unique) {
+		this.unique = unique;
 	}
 
 	/**
 	 * Returns {@code true} if this argument has priority over other arguments, even if they are required.
 	 * @return {@code true} if this argument has priority over other arguments, even if they are required.
-	 * @see #setAllowUnique(boolean)
+	 * @see #setUnique(boolean)
 	 */
-	public boolean isUniqueAllowed() {
-		return this.allowUnique;
+	public boolean isUnique() {
+		return this.unique;
 	}
 
 	/**
@@ -451,7 +453,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 		// some unique argument was used, so throw an error
 		if (uniqueArgReceivedValue) {
-			this.parentCommand.getParser().addError(new ParseErrors.AllowsUniqueArgumentUsedError(lastTokensIndicesPair, this));
+			this.parentCommand.getParser().addError(new ParseErrors.UniqueArgumentUsedError(lastTokensIndicesPair, this));
 			return false;
 		}
 
@@ -570,7 +572,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	public static int compareByPriority(@NotNull Argument<?, ?> first, @NotNull Argument<?, ?> second) {
 		return new MultiComparator<Argument<?, ?>>()
 			.addPredicate(Argument::isPositional, 2)
-			.addPredicate(Argument::isUniqueAllowed, 1)
+			.addPredicate(Argument::isUnique, 1)
 			.addPredicate(Argument::isRequired)
 			.compare(first, second);
 	}
@@ -612,7 +614,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		var options = new ArrayList<String>(4);
 		if (this.required) options.add("required");
 		if (this.positional) options.add("positional");
-		if (this.allowUnique) options.add("allowUnique");
+		if (this.unique) options.add("unique");
 		if (this.hidden) options.add("hidden");
 
 		if (!options.isEmpty()) {
@@ -767,8 +769,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		/** @see Argument#setPositional(boolean) */
 		boolean positional() default false;
 
-		/** @see Argument#setAllowUnique(boolean) */
-		boolean allowUnique() default false;
+		/** @see Argument#setUnique(boolean) */
+		boolean unique() default false;
 
 		/** @see Argument#setHidden(boolean) */
 		boolean hidden() default false;

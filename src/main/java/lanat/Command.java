@@ -131,7 +131,7 @@ public class Command
 				System.exit(returnCode);
 			})
 			.description("Shows this message.")
-			.allowUnique(true)
+			.unique(true)
 		);
 	}
 
@@ -301,14 +301,14 @@ public class Command
 	}
 
 	/**
-	 * Returns {@code true} if an argument with allowsUnique set in the command was used.
+	 * Returns {@code true} if an argument with unique set in the command was used.
 	 * @param exclude The argument to exclude from the check.
-	 * @return {@code true} if an argument with {@link Argument#setAllowUnique(boolean)} in the command was used.
+	 * @return {@code true} if an argument with {@link Argument#setUnique(boolean)} in the command was used.
 	 */
 	boolean uniqueArgumentReceivedValue(@Nullable Argument<?, ?> exclude) {
 		return this.arguments.stream()
 			.filter(a -> a != exclude)
-			.anyMatch(a -> a.getUsageCount() >= 1 && a.isUniqueAllowed())
+			.anyMatch(a -> a.getUsageCount() >= 1 && a.isUnique())
 		|| this.subCommands.stream().anyMatch(cmd -> cmd.uniqueArgumentReceivedValue(exclude));
 	}
 

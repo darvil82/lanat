@@ -5,6 +5,7 @@ import lanat.utils.CommandUser;
 import lanat.utils.NamedWithDescription;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import textFormatter.FormatOption;
 import utils.exceptions.DisallowedInstantiationException;
 
 import java.util.Optional;
@@ -41,7 +42,7 @@ public final class DescriptionParser {
 
 		final var chars = desc.toCharArray();
 
-		final var out = new StringBuilder(); // the output string
+		final var buff = new StringBuilder(); // the output string
 		final var currentTag = new StringBuilder(); // the current tag being parsed
 		boolean inTag = false; // whether we are currently parsing a tag
 		int lastTagOpenIndex = -1; // the index of the last tag start character
@@ -50,28 +51,31 @@ public final class DescriptionParser {
 			final char chr = chars[i];
 
 			if (chr == '\\') {
-				(inTag ? currentTag : out).append(chars[i == chars.length - 1 ? i : ++i]);
+				(inTag ? currentTag : buff).append(chars[i == chars.length - 1 ? i : ++i]);
 			} else if (chr == TAG_END && inTag) {
 				var tagStr = currentTag.toString();
 
 				if (tagStr.isBlank())
 					throw new MalformedTagException("empty tag at index " + lastTagOpenIndex);
 
-				out.append(DescriptionParser.parseTag(tagStr, user));
+				buff.append(DescriptionParser.parseTag(tagStr, user));
 				currentTag.setLength(0);
 				inTag = false;
 			} else if (chr == TAG_START && !inTag) {
 				inTag = true;
 				lastTagOpenIndex = i;
 			} else {
-				(inTag ? currentTag : out).append(chr);
+				(inTag ? currentTag : buff).append(chr);
 			}
 		}
 
 		if (inTag)
 			throw new MalformedTagException("unclosed tag at index " + lastTagOpenIndex);
 
-		return out.toString();
+		// make sure we reset custom formatting
+		buff.append(FormatOption.RESET_ALL);
+
+		return buff.toString();
 	}
 
 	/**

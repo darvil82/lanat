@@ -87,7 +87,9 @@ public class PrettyErrorFormatter extends ErrorFormatter {
 			tokensFormatters.get(i).addFormat(FormatOption.DIM);
 		}
 
-		return TextFormatter.create().concat(tokensFormatters.toArray(TextFormatter[]::new));
+		var formatter = TextFormatter.create();
+		tokensFormatters.forEach(formatter::concat);
+		return formatter;
 	}
 
 	@Override

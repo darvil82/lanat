@@ -34,9 +34,7 @@ public class SimpleErrorFormatter extends ErrorFormatter {
 	protected @NotNull String generate() {
 		final var formatter = this.getErrorLevelFormatter()
 			.withContents("[")
-			.concat(this.getErrorLevel().name())
-			.concat(this.getGeneratedView())
-			.concat("]: ");
+			.concat(this.getErrorLevel().name(), this.getGeneratedView(), "]: ");
 
 		return formatter + this.getContentSingleLine();
 	}
@@ -71,8 +69,7 @@ public class SimpleErrorFormatter extends ErrorFormatter {
 				}
 
 				return TextFormatter.of(" (" + (indicator + " " + (range.start() + 1)) + ", '")
-					.concat(nearContents)
-					.concat("')");
+					.concat(nearContents, "')");
 			})
 			.orElse(null);
 	}

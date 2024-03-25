@@ -70,7 +70,7 @@ public final class ArgumentRepr {
 		}
 
 		if (repr != null)
-			outText.concat(" ").concat(repr);
+			outText.concat(" ", repr);
 
 		return outText.toString();
 	}

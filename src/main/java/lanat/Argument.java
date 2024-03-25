@@ -85,7 +85,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * receive.
 	 */
 	public final @NotNull Type type;
-	private @NotNull PrefixChar prefixChar = PrefixChar.DEFAULT;
+	private @NotNull Argument.Prefix prefix = Prefix.DEFAULT;
 	private @NotNull List<@NotNull String> names = new ArrayList<>(1);
 	private @Nullable String description;
 	private boolean required = false,
@@ -202,17 +202,17 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	/**
-	 * Specify the prefix of this argument. By default, this is {@link PrefixChar#DEFAULT}. If this argument is used in an
+	 * Specify the prefix of this argument. By default, this is {@link Prefix#DEFAULT}. If this argument is used in an
 	 * argument name list (-abc), the prefix that will be valid is any against all the arguments specified in that name
 	 * list.
 	 * <p>
-	 * Note that, for ease of use, the prefixes defined in {@link PrefixChar#COMMON_PREFIXES} are also valid.
+	 * Note that, for ease of use, the prefixes defined in {@link Prefix#COMMON_PREFIXES} are also valid.
 	 *
-	 * @param prefixChar the prefix that should be used for this argument.
-	 * @see PrefixChar
+	 * @param prefix the prefix that should be used for this argument.
+	 * @see Prefix
 	 */
-	public void setPrefix(@NotNull PrefixChar prefixChar) {
-		this.prefixChar = prefixChar;
+	public void setPrefix(@NotNull Argument.Prefix prefix) {
+		this.prefix = prefix;
 	}
 
 	/**
@@ -220,8 +220,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 *
 	 * @return the prefix of this argument.
 	 */
-	public @NotNull PrefixChar getPrefix() {
-		return this.prefixChar;
+	public @NotNull Argument.Prefix getPrefix() {
+		return this.prefix;
 	}
 
 	/**
@@ -756,10 +756,10 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		/**
 		 * Specifies the prefix character for this argument.
 		 * <p>
-		 * By default, this is set to the value of {@link PrefixChar#defaultPrefix}.
-		 * @see Argument#setPrefix(PrefixChar)
+		 * By default, this is set to the value of {@link Prefix#defaultPrefix}.
+		 * @see Argument#setPrefix(Prefix)
 		 * */
-		@NotNull PrefixChar prefix() default PrefixChar.DEFAULT;
+		@NotNull Argument.Prefix prefix() default Prefix.DEFAULT;
 
 		/** @see Argument#setRequired(boolean) */
 		boolean required() default false;
@@ -785,7 +785,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	/**
 	 * Specifies the prefix character for an {@link Argument}.
 	 */
-	public enum PrefixChar {
+	public enum Prefix {
 		/** The minus sign (-). */
 		MINUS('-'),
 		/** The plus sign (+). */
@@ -810,70 +810,70 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		COLON(':'),
 
 		/** Automatically set depending on the Operating System. On Linux, it will be
-		 * {@link PrefixChar#MINUS}, and on Windows, it will be {@link PrefixChar#SLASH}. */
+		 * {@link Prefix#MINUS}, and on Windows, it will be {@link Prefix#SLASH}. */
 		AUTO(System.getProperty("os.name").toLowerCase().contains("win") ? SLASH : MINUS),
 
-		/** Set to the value of {@link PrefixChar#getDefaultPrefix()}. */
+		/** Set to the value of {@link Prefix#getDefaultPrefix()}. */
 		DEFAULT;
 
 
 		private final @Nullable Character character;
-		private static @NotNull PrefixChar defaultPrefix = PrefixChar.AUTO;
+		private static @NotNull Argument.Prefix defaultPrefix = Prefix.AUTO;
 
 		/** Prefixes that a user may be familiar with. */
-		public static final @NotNull PrefixChar[] COMMON_PREFIXES = { MINUS, SLASH };
+		public static final @NotNull Prefix[] COMMON_PREFIXES = { MINUS, SLASH };
 
 
-		PrefixChar(char character) {
+		Prefix(char character) {
 			this.character = character;
 		}
 
-		PrefixChar() {
+		Prefix() {
 			this.character = null;
 		}
 
-		PrefixChar(PrefixChar prefixChar) {
-			this.character = prefixChar.character;
+		Prefix(Prefix prefix) {
+			this.character = prefix.character;
 		}
 
 		/**
-		 * Sets the default prefix character. This is used when the prefix is set to {@link PrefixChar#DEFAULT}.
-		 * @param prefixChar the new default prefix character
-		 * @throws IllegalArgumentException if the prefix character is {@link PrefixChar#DEFAULT}
+		 * Sets the default prefix character. This is used when the prefix is set to {@link Prefix#DEFAULT}.
+		 * @param prefix the new default prefix character
+		 * @throws IllegalArgumentException if the prefix character is {@link Prefix#DEFAULT}
 		 */
-		public static void setDefaultPrefix(@NotNull PrefixChar prefixChar) {
-			if (prefixChar == DEFAULT)
+		public static void setDefaultPrefix(@NotNull Argument.Prefix prefix) {
+			if (prefix == DEFAULT)
 				throw new IllegalArgumentException("Cannot set the default prefix to DEFAULT");
 
-			PrefixChar.defaultPrefix = prefixChar;
+			Prefix.defaultPrefix = prefix;
 		}
 
 		/**
-		 * Returns the default prefix character. This is used when the prefix is set to {@link PrefixChar#DEFAULT}.
+		 * Returns the default prefix character. This is used when the prefix is set to {@link Prefix#DEFAULT}.
 		 * @return the default prefix character
 		 */
-		public static @NotNull PrefixChar getDefaultPrefix() {
-			return PrefixChar.defaultPrefix;
+		public static @NotNull Argument.Prefix getDefaultPrefix() {
+			return Prefix.defaultPrefix;
 		}
 
 		/**
-		 * Returns the character that represents this prefix. If this prefix is {@link PrefixChar#DEFAULT}, then the
+		 * Returns the character that represents this prefix. If this prefix is {@link Prefix#DEFAULT}, then the
 		 * default prefix character will be returned.
 		 * @return the character that represents this prefix.
 		 */
 		public char getCharacter() {
 			// this can never recurse because the default prefix is never DEFAULT
-			return Objects.requireNonNullElseGet(this.character, () -> PrefixChar.defaultPrefix.getCharacter());
+			return Objects.requireNonNullElseGet(this.character, () -> Prefix.defaultPrefix.getCharacter());
 		}
 
 		/**
-		 * Returns a {@link PrefixChar} that can't be {@link PrefixChar#DEFAULT} from the given {@link PrefixChar}.
-		 * If the given prefix is {@link PrefixChar#DEFAULT}, then the default prefix will be returned.
-		 * @param prefixChar the prefix character
-		 * @return the given prefix character if it is not {@link PrefixChar#DEFAULT}, or the default prefix otherwise.
+		 * Returns a {@link Prefix} that can't be {@link Prefix#DEFAULT} from the given {@link Prefix}.
+		 * If the given prefix is {@link Prefix#DEFAULT}, then the default prefix will be returned.
+		 * @param prefix the prefix character
+		 * @return the given prefix character if it is not {@link Prefix#DEFAULT}, or the default prefix otherwise.
 		 */
-		public static @NotNull PrefixChar getFromMaybeDefault(@NotNull PrefixChar prefixChar) {
-			return prefixChar == DEFAULT ? PrefixChar.getDefaultPrefix() : prefixChar;
+		public static @NotNull Argument.Prefix getFromMaybeDefault(@NotNull Argument.Prefix prefix) {
+			return prefix == DEFAULT ? Prefix.getDefaultPrefix() : prefix;
 		}
 
 		@Override

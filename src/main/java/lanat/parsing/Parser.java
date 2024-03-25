@@ -288,8 +288,8 @@ public final class Parser extends ParsingStateBase<Error.ParseError> {
 		char prefix = str.charAt(0);
 
 		// check for the common prefixes
-		Stream.of(Argument.PrefixChar.COMMON_PREFIXES)
-			.map(Argument.PrefixChar::getCharacter)
+		Stream.of(Argument.Prefix.COMMON_PREFIXES)
+			.map(Argument.Prefix::getCharacter)
 			.forEach(checkPrefix -> {
 				// if not present, don't bother checking
 				if (prefix != checkPrefix) return;

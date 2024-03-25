@@ -59,7 +59,7 @@ public class UnitTests {
 		TextFormatter.enableSequences = false; // just so we don't have to worry about color codes
 
 		// prefix char is set to auto by default (make sure tests run in windows too)
-		Argument.PrefixChar.setDefaultPrefix(Argument.PrefixChar.MINUS);
+		Argument.Prefix.setDefaultPrefix(Argument.Prefix.MINUS);
 	}
 
 	protected TestingParser setParser() {

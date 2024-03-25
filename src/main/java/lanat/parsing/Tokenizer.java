@@ -286,7 +286,7 @@ public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 		// store the possible prefixes. Start with the common ones
 		// We add the common prefixes because it can be confusing for the user to have to put a specific prefix
 		// used by any argument in the name list
-		final var possiblePrefixes = new HashSet<>(Arrays.asList(Argument.PrefixChar.COMMON_PREFIXES));
+		final var possiblePrefixes = new HashSet<>(Arrays.asList(Argument.Prefix.COMMON_PREFIXES));
 		int foundArgs = 0; // how many characters in the string are valid arguments
 
 		// iterate over the characters in the string, starting from the second one (the first one is the prefix)

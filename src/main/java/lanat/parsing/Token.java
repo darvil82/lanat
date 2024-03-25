@@ -14,8 +14,11 @@ public record Token(@NotNull TokenType type, @NotNull String contents) {
 	 */
 	public @NotNull TextFormatter getFormatter() {
 		var contents = this.contents();
-		if (contents.contains(" ") && this.type == TokenType.ARGUMENT_VALUE) {
-			contents = '"' + UtlString.escapeQuotes(contents) + '"';
+		if (this.type == TokenType.ARGUMENT_VALUE) {
+			if (contents.contains(" "))
+				contents = '"' + UtlString.escapeQuotes(contents) + '"';
+			else if (contents.isEmpty())
+				contents = "\"\"";
 		}
 		return TextFormatter.of(contents, this.type.color);
 	}

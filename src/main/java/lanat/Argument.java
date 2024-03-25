@@ -382,7 +382,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 *
 	 * @return the number of times this argument has been used in a command.
 	 */
-	public short getUsageCount() {
+	public int getUsageCount() {
 		return this.type.usageCount;
 	}
 
@@ -449,22 +449,20 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 			return false;
 		}
 
-		final var lastTokensIndicesPair = this.type.getLastTokensIndicesPair();
+		var lastTokensIndicesPair = this.type.getLastTokensIndicesPair();
+		var usageCountIsInvalid = !this.type.getRequiredUsageCount().containsInclusive(usageCount);
 
 		// some unique argument was used, so throw an error
-		if (uniqueArgReceivedValue) {
-			this.parentCommand.getParser().addError(new ParseErrors.UniqueArgumentUsedError(lastTokensIndicesPair, this));
-			return false;
-		}
+		if (uniqueArgReceivedValue)
+			this.parentCommand.getParser()
+				.addError(new ParseErrors.UniqueArgumentUsedError(lastTokensIndicesPair, this));
 
 		// make sure that the argument was used the minimum number of times specified
-		if (!this.type.getRequiredUsageCount().containsInclusive(usageCount)) {
+		if (usageCountIsInvalid)
 			this.parentCommand.getParser()
 				.addError(new ParseErrors.IncorrectUsagesCountError(lastTokensIndicesPair, this));
-			return false;
-		}
 
-		return true;
+		return !usageCountIsInvalid && !uniqueArgReceivedValue;
 	}
 
 	/**

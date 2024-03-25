@@ -62,22 +62,13 @@ public abstract class ArgumentType<T>
 	 */
 	private int currentArgValueIndex = 0;
 
-	/**
-	 * This is used for storing errors that occur during parsing. We need to keep track of the index of the token that
-	 * caused the error.
-	 */
-	private int lastTokenIndex = 0;
+	/** A snapshot of the state of the argument type during parsing. */
+	public record ParseStateSnapshot(int tokenIndex, int receivedValues, boolean inTuple, boolean positional) {}
 
-	/**
-	 * This specifies the number of values that this argument received when being parsed.
-	 */
-	private int lastReceivedValuesNum = 0;
-
-	/** This specifies whether the last value that this argument received was in a tuple. */
-	private boolean lastInTuple = false;
+	private ParseStateSnapshot lastParseState;
 
 	/** This specifies the number of times this argument type has been used during parsing. */
-	short usageCount = 0;
+	int usageCount = 0;
 
 	/**
 	 * The parent argument type is the one that wants to listen for errors that occur in this argument type. This value
@@ -123,15 +114,12 @@ public abstract class ArgumentType<T>
 
 	/**
 	 * Saves the specified tokenIndex and the number of values received, and then parses the values.
-	 * @param tokenIndex The index of the token that caused the parsing of this argument type.
-	 * @param inTuple Whether the values were received in a tuple.
+	 * @param snapshot The snapshot of this parse operation.
 	 * @param values The values to parse.
 	 */
-	public final void parseAndUpdateValue(int tokenIndex, boolean inTuple, @NotNull String... values) {
+	public final void parseAndUpdateValue(@NotNull ArgumentType.ParseStateSnapshot snapshot, @NotNull String... values) {
 		this.usageCount++;
-		this.lastTokenIndex = tokenIndex;
-		this.lastInTuple = inTuple;
-		this.lastReceivedValuesNum = values.length;
+		this.lastParseState = snapshot;
 		this.currentValue = this.parseValues(values);
 	}
 
@@ -265,22 +253,8 @@ public abstract class ArgumentType<T>
 			return; // if the error was dispatched to the parent, we don't need to add it to the list of errors.
 
 		// the index of the error should be relative to the last token index.
-		error.offsetIndex(this.lastTokenIndex);
+		error.offsetIndex(this.lastParseState.tokenIndex);
 		super.addError(error);
-	}
-
-	/**
-	 * Returns the index of the last token that was parsed.
-	 */
-	int getLastTokenIndex() {
-		return this.lastTokenIndex;
-	}
-
-	/**
-	 * Returns the number of values that this argument received when being parsed the last time.
-	 */
-	int getLastReceivedValuesNum() {
-		return this.lastReceivedValuesNum;
 	}
 
 	/**
@@ -290,12 +264,20 @@ public abstract class ArgumentType<T>
 	 * @return The index of the last token that was parsed, and the number of values that this argument received.
 	 */
 	@NotNull Pair<@NotNull Integer, @NotNull Integer> getLastTokensIndicesPair() {
-		int inTupleOffset = this.lastInTuple ? 1 : 0;
+		int inTupleOffset = this.lastParseState.inTuple ? 1 : 0;
+		int positionalOffset = this.lastParseState.positional ? 1 : 0;
 
 		return new Pair<>(
-			this.lastTokenIndex - 1 - inTupleOffset,
-			this.lastReceivedValuesNum + inTupleOffset*2
+			this.lastParseState.tokenIndex - (1 - positionalOffset) - inTupleOffset,
+			this.lastParseState.receivedValues + inTupleOffset*2 - positionalOffset
 		);
+	}
+
+	/**
+	 * @return The parse state snapshot of the last parsing operation.
+	 */
+	public ParseStateSnapshot getLastParseState() {
+		return this.lastParseState;
 	}
 
 	/**
@@ -314,11 +296,8 @@ public abstract class ArgumentType<T>
 		super.resetState();
 
 		this.currentValue = this.initialValue;
-		this.lastTokenIndex = 0;
 		this.currentArgValueIndex = 0;
-		this.lastReceivedValuesNum = 0;
 		this.usageCount = 0;
-		this.lastInTuple = false;
 
 		// reset the state of the subtypes.
 		this.subTypes.forEach(ArgumentType::resetState);

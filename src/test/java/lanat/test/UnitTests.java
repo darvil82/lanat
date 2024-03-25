@@ -94,6 +94,13 @@ public class UnitTests {
 					this.addArgument(Argument.create(new IntegerArgumentType(), "c").positional(true));
 				}});
 			}});
+
+			this.addCommand(new Command("positionals") {{
+				this.addGroup(new ArgumentGroup("positionals") {{
+					this.addArgument(Argument.create(new IntegerArgumentType(), "a").positional(true));
+					this.addArgument(Argument.create(new IntegerArgumentType(), "b").positional(true));
+				}});
+			}});
 		}};
 	}
 

@@ -30,7 +30,7 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> implemen
 	private @Nullable TInner defaultValue;
 	private @Nullable Consumer<@NotNull Argument<Type, TInner>> onErrorCallback;
 	private @Nullable Consumer<@NotNull TInner> onCorrectCallback;
-	private @Nullable Argument.PrefixChar prefixChar = Argument.PrefixChar.DEFAULT;
+	private @Nullable Argument.Prefix prefix = Argument.Prefix.DEFAULT;
 
 	ArgumentBuilder() {}
 
@@ -193,9 +193,9 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> implemen
 		return this;
 	}
 
-	/** @see Argument#setPrefix(Argument.PrefixChar) */
-	public ArgumentBuilder<Type, TInner> prefix(@NotNull Argument.PrefixChar prefixChar) {
-		this.prefixChar = prefixChar;
+	/** @see Argument#setPrefix(Argument.Prefix) */
+	public ArgumentBuilder<Type, TInner> prefix(@NotNull Argument.Prefix prefix) {
+		this.prefix = prefix;
 		return this;
 	}
 
@@ -283,8 +283,8 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> implemen
 		newArg.setUnique(this.unique);
 		newArg.setHidden(this.hidden);
 		newArg.setDefaultValue(this.defaultValue);
-		if (this.prefixChar != null)
-			newArg.setPrefix(this.prefixChar);
+		if (this.prefix != null)
+			newArg.setPrefix(this.prefix);
 		newArg.setOnErrorCallback(this.onErrorCallback);
 		newArg.setOnOkCallback(this.onCorrectCallback);
 		return newArg;

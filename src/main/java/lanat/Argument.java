@@ -436,7 +436,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 */
 	private boolean finishParsing$checkUsageCount() {
 		final var usageCount = this.getUsageCount();
-		final var uniqueArgReceivedValue = this.parentCommand.uniqueArgumentReceivedValue(this);
+		final var uniqueArgReceivedValue = this.parentCommand.getRoot().uniqueArgumentWasUsed(this);
 
 		if (usageCount == 0) {
 			// is required so throw error

@@ -234,7 +234,9 @@ public abstract class ParseErrors {
 			fmt
 				.withContent(
 					"Argument " + HelpFormatter.getRepresentation(this.argument)
-					+ " may not be used while a unique argument is used."
+						+ " may not be used while "
+						+ (this.argument.isUnique() ? "another" : "a")
+						+ " unique argument is used."
 				)
 				.highlight(this.indicesPair, false);
 		}

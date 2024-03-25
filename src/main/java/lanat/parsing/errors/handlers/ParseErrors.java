@@ -220,7 +220,7 @@ public abstract class ParseErrors {
 	}
 
 	/**
-	 * Error that occurs when an argument is used while there's another unique argument that has been used.
+	 * Error that occurs when an argument is used while there's a unique argument that has been used.
 	 * @param indicesPair The indices of the tokens that caused the error. (start, end)
 	 * @param argument The argument that thrown the error.
 	 */
@@ -234,7 +234,7 @@ public abstract class ParseErrors {
 			fmt
 				.withContent(
 					"Argument " + HelpFormatter.getRepresentation(this.argument)
-					+ " cannot be used while another unique argument is used."
+					+ " may not be used while a unique argument is used."
 				)
 				.highlight(this.indicesPair, false);
 		}

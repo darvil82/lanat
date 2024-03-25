@@ -96,16 +96,17 @@ public final class Parser extends ParsingStateBase<Error.ParseError> {
 			final Token currentToken = this.getCurrentToken();
 
 			if (currentToken.type() == TokenType.ARGUMENT_NAME) {
+				// we encountered an argument name, so we know that we are no longer parsing positional arguments
+				this.positionalArgCount = -1;
 				// encountered an argument name. first skip the token of the name.
 				this.currentTokenIndex++;
 				// find the argument that matches that name and let it parse the values
 				this.runForMatchingArgument(currentToken.contents(), this::executeArgParse);
-				// we encountered an argument name, so we know that we are no longer parsing positional arguments
-				this.positionalArgCount = -1;
 			} else if (currentToken.type() == TokenType.ARGUMENT_NAME_LIST) {
+				// we encountered a name list, so we know that we are no longer parsing positional arguments
+				this.positionalArgCount = -1;
 				// in a name list, skip the first character because it is the indicator that it is a name list
 				this.parseArgNameList(currentToken.contents().substring(1));
-				this.positionalArgCount = -1;
 			} else if (
 				(currentToken.type() == TokenType.ARGUMENT_VALUE || currentToken.type() == TokenType.ARGUMENT_VALUE_TUPLE_START)
 					&& this.positionalArgCount != -1

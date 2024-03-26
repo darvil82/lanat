@@ -45,7 +45,7 @@ public class TupleArgumentType<T> extends ArgumentType<T[]> {
 	}
 
 	@Override
-	public @NotNull Range getRequiredArgValueCount() {
+	public @NotNull Range getValueCountBounds() {
 		return this.valueCount;
 	}
 

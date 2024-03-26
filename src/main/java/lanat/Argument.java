@@ -186,7 +186,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * </ul>
 	 */
 	public void setPositional(boolean positional) {
-		if (positional && this.type.getRequiredArgValueCount().end() == 0) {
+		if (positional && this.type.getValueCountBounds().end() == 0) {
 			throw new IllegalArgumentException("An argument that does not accept values cannot be positional");
 		}
 		this.positional = positional;
@@ -450,7 +450,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		}
 
 		var lastTokensIndicesPair = this.type.getLastTokensIndicesPair();
-		var usageCountIsInvalid = !this.type.getRequiredUsageCount().containsInclusive(usageCount);
+		var usageCountIsInvalid = !this.type.getUsageCountBounds().containsInclusive(usageCount);
 
 		// some unique argument was used, so throw an error
 		if (uniqueArgReceivedValue)

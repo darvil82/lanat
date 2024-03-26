@@ -27,7 +27,7 @@ public class ActionArgumentType extends ArgumentType<Boolean> {
 
 	@Override
 	// this is an action type. if the arg is present, that's enough.
-	public @NotNull Range getRequiredArgValueCount() {
+	public @NotNull Range getValueCountBounds() {
 		return Range.NONE;
 	}
 }

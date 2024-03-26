@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class StringJoiner extends ArgumentType<String> {
 	@Override
-	public @NotNull Range getRequiredArgValueCount() {
+	public @NotNull Range getValueCountBounds() {
 		return Range.from(1).to(3);
 	}
 
@@ -40,7 +40,7 @@ class RestrictedDoubleAdder extends ArgumentType<Double> {
 	}
 
 	@Override
-	public @NotNull Range getRequiredUsageCount() {
+	public @NotNull Range getUsageCountBounds() {
 		return Range.from(2).to(4);
 	}
 

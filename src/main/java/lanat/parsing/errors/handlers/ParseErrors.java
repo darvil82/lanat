@@ -39,7 +39,7 @@ public abstract class ParseErrors {
 			fmt
 				.withContent("Incorrect number of values for argument %s.%nExpected %s, but got %d."
 					.formatted(
-						HelpFormatter.getRepresentation(this.argument), this.argument.type.getRequiredArgValueCount().getMessage("value"),
+						HelpFormatter.getRepresentation(this.argument), this.argument.type.getValueCountBounds().getMessage("value"),
 						this.receivedValueCount
 					)
 				);
@@ -85,7 +85,7 @@ public abstract class ParseErrors {
 			fmt
 				.withContent("Argument %s was used an incorrect amount of times.%nExpected %s, but was used %s."
 					.formatted(
-						HelpFormatter.getRepresentation(this.argument), this.argument.type.getRequiredUsageCount().getMessage("usage"),
+						HelpFormatter.getRepresentation(this.argument), this.argument.type.getUsageCountBounds().getMessage("usage"),
 						UtlString.plural("time", this.argument.getUsageCount())
 					)
 				)

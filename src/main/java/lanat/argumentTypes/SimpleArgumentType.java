@@ -18,8 +18,8 @@ public final class SimpleArgumentType<T> extends ArgumentType<T> {
 	private final @NotNull ParseFunction<T> parseFunction;
 	private @Nullable String name;
 	private @Nullable String description;
-	private @Nullable Range requiredArgValueCount;
-	private @Nullable Range requiredUsageCount;
+	private @Nullable Range valueCountBounds;
+	private @Nullable Range usageCountBounds;
 
 	private SimpleArgumentType(@NotNull ParseFunction<T> parseFunction) {
 		this.parseFunction = parseFunction;
@@ -58,13 +58,13 @@ public final class SimpleArgumentType<T> extends ArgumentType<T> {
 	}
 
 	@Override
-	public @NotNull Range getRequiredArgValueCount() {
-		return Objects.requireNonNullElse(this.requiredArgValueCount, super.getRequiredArgValueCount());
+	public @NotNull Range getValueCountBounds() {
+		return Objects.requireNonNullElse(this.valueCountBounds, super.getValueCountBounds());
 	}
 
 	@Override
-	public @NotNull Range getRequiredUsageCount() {
-		return Objects.requireNonNullElse(this.requiredUsageCount, super.getRequiredUsageCount());
+	public @NotNull Range getUsageCountBounds() {
+		return Objects.requireNonNullElse(this.usageCountBounds, super.getUsageCountBounds());
 
 	}
 
@@ -118,8 +118,8 @@ public final class SimpleArgumentType<T> extends ArgumentType<T> {
 		private final @NotNull ParseFunction<T> parseFunction;
 		private @Nullable String name;
 		private @Nullable String description;
-		private @Nullable Range requiredArgValueCount;
-		private @Nullable Range requiredUsageCount;
+		private @Nullable Range valueCountBounds;
+		private @Nullable Range usageCountBounds;
 
 		private SimpleArgumentTypeBuilder(@NotNull ParseFunction<T> parseFunction) {
 			this.parseFunction = parseFunction;
@@ -140,15 +140,15 @@ public final class SimpleArgumentType<T> extends ArgumentType<T> {
 			return this;
 		}
 
-		/** @see Parseable#getRequiredArgValueCount() */
-		public @NotNull SimpleArgumentTypeBuilder<T> withRequiredArgValueCount(@NotNull Range requiredArgValueCount) {
-			this.requiredArgValueCount = requiredArgValueCount;
+		/** @see Parseable#getValueCountBounds() */
+		public @NotNull SimpleArgumentTypeBuilder<T> withValueCountBounds(@NotNull Range valueCount) {
+			this.valueCountBounds = valueCount;
 			return this;
 		}
 
-		/** @see Parseable#getRequiredUsageCount() */
-		public @NotNull SimpleArgumentTypeBuilder<T> withRequiredUsageCount(@NotNull Range requiredUsageCount) {
-			this.requiredUsageCount = requiredUsageCount;
+		/** @see Parseable#getUsageCountBounds() */
+		public @NotNull SimpleArgumentTypeBuilder<T> withUsageCountBounds(@NotNull Range usageCount) {
+			this.usageCountBounds = usageCount;
 			return this;
 		}
 
@@ -157,8 +157,8 @@ public final class SimpleArgumentType<T> extends ArgumentType<T> {
 			var result = new SimpleArgumentType<>(this.parseFunction);
 			result.name = this.name;
 			result.description = this.description;
-			result.requiredArgValueCount = this.requiredArgValueCount;
-			result.requiredUsageCount = this.requiredUsageCount;
+			result.valueCountBounds = this.valueCountBounds;
+			result.usageCountBounds = this.usageCountBounds;
 
 			return result;
 		}

@@ -30,7 +30,7 @@ public class KeyValuesArgumentType<Type extends ArgumentType<TInner>, TInner> ex
 	 * @param argumentType The argument type used to parse the values.
 	 */
 	public KeyValuesArgumentType(@NotNull Type argumentType) {
-		if (argumentType.getRequiredArgValueCount().start() != 1)
+		if (argumentType.getValueCountBounds().start() != 1)
 			throw new IllegalArgumentException("The argumentType must at least accept one value.");
 
 		this.valueArgumentType = argumentType;
@@ -38,7 +38,7 @@ public class KeyValuesArgumentType<Type extends ArgumentType<TInner>, TInner> ex
 	}
 
 	@Override
-	public @NotNull Range getRequiredArgValueCount() {
+	public @NotNull Range getValueCountBounds() {
 		return Range.AT_LEAST_ONE;
 	}
 

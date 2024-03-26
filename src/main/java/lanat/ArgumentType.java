@@ -63,7 +63,7 @@ public abstract class ArgumentType<T>
 	private int currentArgValueIndex = 0;
 
 	/** A snapshot of the state of the argument type during parsing. */
-	public record ParseStateSnapshot(int tokenIndex, int receivedValues, boolean inTuple, boolean positional) {}
+	public record ParseStateSnapshot(int tokenIndex, int receivedValuesCount, boolean inTuple, boolean positional) {}
 
 	private ParseStateSnapshot lastParseState;
 
@@ -269,7 +269,7 @@ public abstract class ArgumentType<T>
 
 		return new Pair<>(
 			this.lastParseState.tokenIndex - (1 - positionalOffset) - inTupleOffset,
-			this.lastParseState.receivedValues + inTupleOffset*2 - positionalOffset
+			this.lastParseState.receivedValuesCount + inTupleOffset*2 - positionalOffset
 		);
 	}
 

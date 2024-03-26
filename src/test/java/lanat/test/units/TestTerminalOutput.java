@@ -9,12 +9,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class TestTerminalOutput extends UnitTests {
 	private void assertErrorOutput(String args, String expected) {
 		final var errors = this.parser.parseGetErrors(args);
-		System.out.printf("Test error output:%n%s%n", String.join("\n", errors));
+		System.out.printf("Expected error output:%n%s%n%n", expected);
+
+		System.out.println("Test error output:");
 
 		// remove all the decorations to not make the tests a pain to write
 		assertTrue(
 			errors.stream()
 				.map(e -> e.replaceAll(" *[│─└┌\r] ?", "").strip())
+				.peek(System.out::println)
 				.toList()
 				.contains(expected)
 		);
@@ -22,7 +25,7 @@ public class TestTerminalOutput extends UnitTests {
 
 	private void assertNoErrorOutput(String args) {
 		final var errors = this.parser.parseGetErrors(args);
-		System.out.printf("Test error output:%n%s%n", String.join("\n", errors));
+		System.out.printf("Test error output:%n%s%n", String.join(System.lineSeparator(), errors));
 		assertTrue(errors.isEmpty());
 	}
 
@@ -32,7 +35,7 @@ public class TestTerminalOutput extends UnitTests {
 		this.assertErrorOutput("subCommand", """
 			ERROR
 			Testing <- subCommand
-			Required argument 'what' not used.""");
+			Required argument StringJoiner(what) not used.""");
 	}
 
 	@Test
@@ -41,7 +44,7 @@ public class TestTerminalOutput extends UnitTests {
 		this.assertErrorOutput("foo subCommand another", """
 			ERROR
 			Testing foo subCommand another <-
-			Required argument 'number' for command 'another' not used.""");
+			Required argument Integer(number) for command another not used.""");
 	}
 
 	@Test
@@ -50,7 +53,7 @@ public class TestTerminalOutput extends UnitTests {
 		this.assertErrorOutput("--what [1 2 3 4 5 6 7 8 9 10]", """
 			ERROR
 			Testing --what [ -> 1 2 3 4 5 6 7 8 9 10 <- ]
-			Incorrect number of values for argument 'what'.
+			Incorrect number of values for argument StringJoiner(what).
 			Expected from 1 to 3 values, but got 10.""");
 	}
 
@@ -60,7 +63,7 @@ public class TestTerminalOutput extends UnitTests {
 		this.assertErrorOutput("--what", """
 			ERROR
 			Testing --what <-
-			Incorrect number of values for argument 'what'.
+			Incorrect number of values for argument StringJoiner(what).
 			Expected from 1 to 3 values, but got 0.""");
 	}
 
@@ -70,7 +73,7 @@ public class TestTerminalOutput extends UnitTests {
 		this.assertErrorOutput("--what subCommand", """
 			ERROR
 			Testing --what <- subCommand
-			Incorrect number of values for argument 'what'.
+			Incorrect number of values for argument StringJoiner(what).
 			Expected from 1 to 3 values, but got 0.""");
 	}
 
@@ -80,7 +83,7 @@ public class TestTerminalOutput extends UnitTests {
 		this.assertErrorOutput("--what []", """
 			ERROR
 			Testing --what -> [ ] <-
-			Incorrect number of values for argument 'what'.
+			Incorrect number of values for argument StringJoiner(what).
 			Expected from 1 to 3 values, but got 0.""");
 	}
 
@@ -108,13 +111,13 @@ public class TestTerminalOutput extends UnitTests {
 		this.assertErrorOutput("foo --double-adder [5.0]", """
 			ERROR
 			Testing foo -> --double-adder [ 5.0 ] <-
-			Argument 'double-adder' was used an incorrect amount of times.
+			Argument -double-adder doubleSum was used an incorrect amount of times.
 			Expected from 2 to 4 usages, but was used 1 time.""");
 
 		this.assertErrorOutput("foo --double-adder 5.0 --double-adder 5.0 --double-adder 5.0 --double-adder 5.0 --double-adder 5.0", """
 			ERROR
 			Testing foo --double-adder 5.0 --double-adder 5.0 --double-adder 5.0 --double-adder 5.0 -> --double-adder 5.0 <-
-			Argument 'double-adder' was used an incorrect amount of times.
+			Argument -double-adder doubleSum was used an incorrect amount of times.
 			Expected from 2 to 4 usages, but was used 5 times.""");
 	}
 
@@ -124,7 +127,7 @@ public class TestTerminalOutput extends UnitTests {
 		this.assertErrorOutput("foo subCommand2 --extra --c 5", """
 			ERROR
 			Testing foo subCommand2 --extra -> --c 5 <-
-			Multiple arguments in restricted group 'restricted-group' used.""");
+			Multiple arguments in restricted group restricted-group used.""");
 	}
 
 	@Test

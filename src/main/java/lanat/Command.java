@@ -8,24 +8,22 @@ import lanat.parsing.Token;
 import lanat.parsing.TokenType;
 import lanat.parsing.Tokenizer;
 import lanat.parsing.errors.Error;
-import lanat.utils.ErrorCallbacks;
-import lanat.utils.ErrorsContainerImpl;
-import lanat.utils.Resettable;
-import lanat.utils.UtlMisc;
+import lanat.utils.*;
+import lanat.utils.errors.ErrorCallbacks;
+import lanat.utils.errors.ErrorContainerImpl;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import textFormatter.Color;
+import textFormatter.color.Color;
+import textFormatter.color.SimpleColor;
 import utils.*;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -38,35 +36,37 @@ import java.util.stream.Stream;
  * @see Argument
  */
 public class Command
-	extends ErrorsContainerImpl<Error.CustomError>
+	extends ErrorContainerImpl<Error.CustomError>
 	implements ErrorCallbacks<ParseResult, Command>,
-	ArgumentAdder,
-	ArgumentGroupAdder,
-	CommandAdder,
-	CommandUser,
-	Resettable,
-	MultipleNamesAndDescription,
-	ParentElementGetter<Command>
+		ArgumentAdder,
+		ArgumentGroupAdder,
+		CommandAdder,
+		CommandUser,
+		Resettable,
+		MultipleNamesAndDescription,
+		ParentElementGetter<Command>
 {
-	private final @NotNull List<@NotNull String> names = new ArrayList<>();
+	private @NotNull List<@NotNull String> names = new ArrayList<>(1);
 	private @Nullable String description;
 	private final @NotNull ArrayList<@NotNull Argument<?, ?>> arguments = new ArrayList<>();
-	private final @NotNull ArrayList<@NotNull Command> subCommands = new ArrayList<>();
-	private Command parentCommand;
-	private final @NotNull ArrayList<@NotNull ArgumentGroup> argumentGroups = new ArrayList<>();
-	private final @NotNull ModifyRecord<@NotNull TupleChar> tupleChars = ModifyRecord.of(TupleChar.SQUARE_BRACKETS);
+	private final @NotNull ArrayList<@NotNull Command> subCommands = new ArrayList<>(0);
+	private @Nullable Command parentCommand;
+	private final @NotNull ArrayList<@NotNull ArgumentGroup> argumentGroups = new ArrayList<>(0);
 	private final @NotNull ModifyRecord<@NotNull Integer> errorCode = ModifyRecord.of(1);
 
 	// error handling callbacks
 	private @Nullable Consumer<Command> onErrorCallback;
 	private @Nullable Consumer<ParseResult> onCorrectCallback;
 
+	private @Nullable ParseResult cachedParseResult;
+	private @Nullable Consumer<@NotNull ParseResult> onUsedCallback;
+
 	private final @NotNull ModifyRecord<HelpFormatter> helpFormatter = ModifyRecord.of(new HelpFormatter());
-	private final @NotNull ModifyRecord<@NotNull CallbacksInvocationOption> callbackInvocationOption =
-		ModifyRecord.of(CallbacksInvocationOption.NO_ERROR_IN_ALL_COMMANDS);
+	private final @NotNull ModifyRecord<@NotNull CallbackInvocationOption> callbackInvocationOption =
+		ModifyRecord.of(CallbackInvocationOption.NO_ERROR_IN_ALL_COMMANDS);
 
 	/** A pool of the colors that an argument may have when being represented on the help. */
-	final @NotNull LoopPool<@NotNull Color> colorsPool = LoopPool.atRandomIndex(Color.BRIGHT_COLORS);
+	final @NotNull LoopPool<@NotNull Color> colorsPool = LoopPool.atRandomIndex(SimpleColor.BRIGHT_COLORS);
 
 
 	/**
@@ -77,7 +77,7 @@ public class Command
 	 * @see #setDescription(String)
 	 */
 	public Command(@NotNull String name, @Nullable String description) {
-		this.addNames(name);
+		this.setNames(List.of(name));
 		this.description = description;
 	}
 
@@ -104,15 +104,16 @@ public class Command
 		}
 
 		// add the names and description from the annotation
-		this.addNames(CommandTemplate.getTemplateNames(templateClass));
-		if (annotation.description() != null) this.setDescription(annotation.description());
+		this.setNames(List.of(CommandTemplate.getTemplateNames(templateClass)));
+		if (!annotation.description().isBlank()) this.setDescription(annotation.description());
 
-		this.from$recursive(templateClass);
+		this.from(templateClass);
 	}
 
+
 	@Override
-	public <T extends ArgumentType<TInner>, TInner>
-	void addArgument(@NotNull Argument<T, TInner> argument) {
+	public <Type extends ArgumentType<TInner>, TInner>
+	void addArgument(@NotNull Argument<Type, TInner> argument) {
 		argument.registerToCommand(this);
 		this.arguments.add(argument);
 		this.checkUniqueArguments();
@@ -120,16 +121,17 @@ public class Command
 
 	/**
 	 * Adds a 'help' argument which shows the help message of the command
-	 * (provided by the {@link Command#getHelp()} method).
+	 * (provided by the {@link Command#getHelp()} method), and then exits the program with the given return code.
+	 * @param returnCode The return code to exit the program with.
 	 */
-	public void addHelpArgument() {
-		this.addArgument(Argument.createOfBoolType("help", "h")
+	public void addHelpArgument(int returnCode) {
+		this.addArgument(Argument.createOfActionType("help", "h")
 			.onOk(t -> {
 				System.out.println(this.getHelp());
-				System.exit(0);
+				System.exit(returnCode);
 			})
-			.withDescription("Shows this message.")
-			.allowsUnique()
+			.description("Shows this message.")
+			.unique(true)
 		);
 	}
 
@@ -170,6 +172,17 @@ public class Command
 	}
 
 	/**
+	 * Ensures that all groups in this command tree are properly linked to their parent groups.
+	 * @see ArgumentGroup#linkHierarchyToCommand(Command)
+	 */
+	void linkGroupHierarchy() {
+		this.argumentGroups.forEach(g -> g.linkHierarchyToCommand(this));
+
+		// for sub-commands as well
+		this.subCommands.forEach(Command::linkGroupHierarchy);
+	}
+
+	/**
 	 * Returns a list of all the Sub-Commands that belong to this command.
 	 *
 	 * @return a list of all the Sub-Commands in this command
@@ -196,30 +209,19 @@ public class Command
 		this.errorCode.set(errorCode);
 	}
 
-	/**
-	 * Sets the set of characters that the user should use to indicate a start/end of a tuple.
-	 * @param tupleChars The tuple characters to set.
-	 */
-	public void setTupleChars(@NotNull TupleChar tupleChars) {
-		this.tupleChars.set(tupleChars);
-	}
-
-	public @NotNull TupleChar getTupleChars() {
-		return this.tupleChars.get();
-	}
-
 	@Override
-	public void addNames(@NotNull String... names) {
-		if (names.length == 0)
+	public void setNames(@NotNull List<@NotNull String> names) {
+		if (names.isEmpty())
 			throw new IllegalArgumentException("at least one name must be specified");
 
-		Stream.of(names)
-			.map(UtlString::requireValidName)
-			.peek(newName -> {
-				if (this.hasName(newName))
-					throw new IllegalArgumentException("Name '" + newName + "' is already used by this command.");
-			})
-			.forEach(this.names::add);
+		for (var name : names)
+			UtlString.requireValidName(name);
+
+		UtlMisc.requireUniqueElements(
+			names, n -> new IllegalArgumentException("Name '" + n + "' is already used by this command"
+		));
+
+		this.names = Collections.unmodifiableList(names);
 
 		// now let the parent command know that this command has been modified. This is necessary to check
 		// for duplicate names
@@ -256,17 +258,25 @@ public class Command
 
 	/**
 	 * Specifies in which cases the {@link Argument#setOnOkCallback(Consumer)} should be invoked.
-	 * <p>By default, this is set to {@link CallbacksInvocationOption#NO_ERROR_IN_ALL_COMMANDS}.</p>
+	 * <p>By default, this is set to {@link CallbackInvocationOption#NO_ERROR_IN_ALL_COMMANDS}.</p>
 	 *
 	 * @param option The option to set.
-	 * @see CallbacksInvocationOption
+	 * @see CallbackInvocationOption
 	 */
-	public void setCallbackInvocationOption(@NotNull CallbacksInvocationOption option) {
+	public void setCallbackInvocationOption(@NotNull Command.CallbackInvocationOption option) {
 		this.callbackInvocationOption.set(option);
 	}
 
-	public @NotNull CallbacksInvocationOption getCallbackInvocationOption() {
+	public @NotNull Command.CallbackInvocationOption getCallbackInvocationOption() {
 		return this.callbackInvocationOption.get();
+	}
+
+	/**
+	 * Sets the callback that will be invoked when this command is used by the user.
+	 * @param onUsedCallback The callback to set.
+	 */
+	public void setOnUsedCallback(@NotNull Consumer<@NotNull ParseResult> onUsedCallback) {
+		this.onUsedCallback = onUsedCallback;
 	}
 
 	/**
@@ -274,7 +284,7 @@ public class Command
 	 * @return The help message of this command.
 	 */
 	public @NotNull String getHelp() {
-		return this.helpFormatter.get().generate(this);
+		return this.helpFormatter.get().generate(this) + System.lineSeparator();
 	}
 
 	@Override
@@ -291,20 +301,21 @@ public class Command
 	}
 
 	/**
-	 * Returns {@code true} if an argument with allowsUnique set in the command was used.
-	 * @return {@code true} if an argument with {@link Argument#setAllowUnique(boolean)} in the command was used.
+	 * Returns {@code true} if an argument with unique set in this command and its Sub-Commands was used.
+	 * @param exclude The argument to exclude from the check.
+	 * @return {@code true} if an argument with {@link Argument#setUnique(boolean)} in the command was used.
 	 */
-	boolean uniqueArgumentReceivedValue(@Nullable Argument<?, ?> exclude) {
+	boolean uniqueArgumentWasUsed(@Nullable Argument<?, ?> exclude) {
 		return this.arguments.stream()
 			.filter(a -> a != exclude)
-			.anyMatch(a -> a.getUsageCount() >= 1 && a.isUniqueAllowed())
-		|| this.subCommands.stream().anyMatch(cmd -> cmd.uniqueArgumentReceivedValue(exclude));
+			.anyMatch(a -> a.getUsageCount() >= 1 && a.isUnique())
+		|| this.subCommands.stream().anyMatch(cmd -> cmd.uniqueArgumentWasUsed(exclude));
 	}
 
 
 	@Override
 	public @NotNull String toString() {
-		return "Command[name='%s', description='%s', arguments=%s, Sub-Commands=%s]"
+		return "Command{name='%s', description='%s', arguments=%s, sub-commands=%s}"
 			.formatted(
 				this.getName(), this.description, this.arguments, this.subCommands
 			);
@@ -315,11 +326,21 @@ public class Command
 	 * Sub-Commands.
 	 */
 	@NotNull ParseResult getParseResult() {
-		return new ParseResult(
-			this,
-			this.parser.getParsedArgsMap(),
-			this.subCommands.stream().map(Command::getParseResult).toList()
-		);
+		if (this.cachedParseResult == null) {
+			this.cachedParseResult = new ParseResult(
+				this,
+				this.parser.getParsedArgsMap(),
+				this.subCommands.stream().map(Command::getParseResult).toList()
+			);
+		}
+
+		return this.cachedParseResult;
+	}
+
+	/** Generates the parsed arguments map of this command and all its Sub-Commands. */
+	void generateParsedArgsMap() {
+		this.parser.getParsedArgsMap(); // caches it
+		this.subCommands.forEach(Command::generateParsedArgsMap);
 	}
 
 	/**
@@ -330,11 +351,8 @@ public class Command
 	public @NotNull List<@NotNull Token> getFullTokenList() {
 		final List<Token> list = Command.this.getTokenizer().getFinalTokens();
 
-		final Command subCmd = this.getTokenizer().getTokenizedSubCommand();
-
-		if (subCmd != null) {
-			list.addAll(subCmd.getFullTokenList());
-		}
+		Optional.ofNullable(this.getTokenizer().getTokenizedSubCommand())
+			.ifPresent(c -> list.addAll(c.getFullTokenList()));
 
 		return Collections.unmodifiableList(list);
 	}
@@ -343,7 +361,6 @@ public class Command
 	 * Inherits certain properties from another command, only if they are not already set to something.
 	 */
 	private void inheritProperties(@NotNull Command parent) {
-		this.tupleChars.setIfNotModified(parent.tupleChars);
 		this.getMinimumExitErrorLevel().setIfNotModified(parent.getMinimumExitErrorLevel());
 		this.getMinimumDisplayErrorLevel().setIfNotModified(parent.getMinimumDisplayErrorLevel());
 		this.errorCode.setIfNotModified(parent.errorCode);
@@ -351,85 +368,6 @@ public class Command
 		this.callbackInvocationOption.setIfNotModified(parent.callbackInvocationOption);
 
 		this.passPropertiesToChildren();
-	}
-
-	/**
-	 * Adds all the arguments from the given command template class to this command.
-	 * This method is recursive, so it will add all the arguments from the parent class as well.
-	 * @param cmdTemplate The command template class to add the arguments from.
-	 */
-	private void from$recursive(@NotNull Class<?> cmdTemplate) {
-		if (!CommandTemplate.class.isAssignableFrom(cmdTemplate)) return;
-
-		// don't allow classes without the @Command.Define annotation
-		assert cmdTemplate.isAnnotationPresent(Command.Define.class) :
-			"Command Template class must be annotated with @Command.Define";
-
-		// get to the top of the hierarchy
-		Optional.ofNullable(cmdTemplate.getSuperclass()).ifPresent(this::from$recursive);
-
-
-		var argumentBuildersFieldPairs = Stream.of(cmdTemplate.getDeclaredFields())
-			.filter(f -> f.isAnnotationPresent(Argument.Define.class))
-			.map(f -> new Pair<>(f, ArgumentBuilder.fromField(f)))
-			.toList();
-
-		var argumentBuilders = argumentBuildersFieldPairs.stream().map(Pair::second).toList();
-
-		this.from$invokeBeforeInitMethod(cmdTemplate, argumentBuilders);
-
-		// set the argument types from the fields (if they are not already set)
-		argumentBuildersFieldPairs.forEach(pair -> pair.second().setArgTypeFromField(pair.first()));
-
-		// add the arguments to the command
-		argumentBuilders.forEach(this::addArgument);
-
-		this.from$invokeAfterInitMethod(cmdTemplate);
-	}
-
-	/**
-	 * Invokes the {@link CommandTemplate#beforeInit(CommandTemplate.CommandBuildHelper)} method of the given command
-	 * template class, if it exists.
-	 * @param cmdTemplate The command template class to invoke the method from.
-	 * @param argumentBuilders The argument builders that will be passed to the method.
-	 */
-	private void from$invokeBeforeInitMethod(
-		@NotNull Class<?> cmdTemplate,
-		@NotNull List<? extends ArgumentBuilder<?, ?>> argumentBuilders
-	) {
-		Stream.of(cmdTemplate.getDeclaredMethods())
-			.filter(m -> UtlReflection.hasParameters(m, CommandTemplate.CommandBuildHelper.class))
-			.filter(m -> m.isAnnotationPresent(CommandTemplate.InitDef.class))
-			.filter(m -> m.getName().equals("beforeInit"))
-			.findFirst()
-			.ifPresent(m -> {
-				try {
-					m.invoke(null, new CommandTemplate.CommandBuildHelper(
-						this, Collections.unmodifiableList(argumentBuilders)
-					));
-				} catch (IllegalAccessException | InvocationTargetException e) {
-					throw new RuntimeException(e);
-				}
-			});
-	}
-
-	/**
-	 * Invokes the {@link CommandTemplate#afterInit(Command)} method of the given command template class, if it exists.
-	 * @param cmdTemplate The command template class to invoke the method from.
-	 */
-	private void from$invokeAfterInitMethod(@NotNull Class<?> cmdTemplate) {
-		Stream.of(cmdTemplate.getDeclaredMethods())
-			.filter(m -> UtlReflection.hasParameters(m, Command.class))
-			.filter(m -> m.isAnnotationPresent(CommandTemplate.InitDef.class))
-			.filter(m -> m.getName().equals("afterInit"))
-			.findFirst()
-			.ifPresent(m -> {
-				try {
-					m.invoke(null, this);
-				} catch (IllegalAccessException | InvocationTargetException e) {
-					throw new RuntimeException(e);
-				}
-			});
 	}
 
 	/**
@@ -465,6 +403,152 @@ public class Command
 		UtlMisc.requireUniqueElements(this.subCommands, c -> new CommandAlreadyExistsException(c, this));
 	}
 
+	@Override
+	public void resetState() {
+		super.resetState();
+		this.cachedParseResult = null;
+		this.tokenizer = new Tokenizer(this);
+		this.parser = new Parser(this);
+		this.arguments.forEach(Argument::resetState);
+		this.argumentGroups.forEach(ArgumentGroup::resetState);
+
+		this.subCommands.forEach(Command::resetState);
+	}
+
+	@Override
+	public @Nullable Command getParent() {
+		return this.parentCommand;
+	}
+
+	@Override
+	public @Nullable Command getParentCommand() {
+		return this.getParent();
+	}
+
+
+	// ----------------------------------------------- Command Templates -----------------------------------------------
+
+	/**
+	 * Adds all the arguments from the given command template class to this command.
+	 * This method is recursive, so it will add all the arguments from the parent template classes as well.
+	 * @param cmdTemplate The command template class to add the arguments from.
+	 */
+	private void from(@NotNull Class<?> cmdTemplate) {
+		if (!CommandTemplate.class.isAssignableFrom(cmdTemplate)) return;
+
+		// don't allow classes without the @Command.Define annotation
+		assert cmdTemplate.isAnnotationPresent(Command.Define.class) :
+			"Command Template class must be annotated with @Command.Define";
+
+		// get to the top of the hierarchy
+		Optional.ofNullable(cmdTemplate.getSuperclass()).ifPresent(this::from);
+
+
+		var argumentBuildersFieldPairs = Stream.of(cmdTemplate.getDeclaredFields())
+			.filter(f -> f.isAnnotationPresent(Argument.Define.class))
+			.map(f -> new Pair<>(f, ArgumentBuilder.fromField(f)))
+			.toList();
+
+		// invoke the beforeInit method
+		this.from$invokeBeforeInitMethod(cmdTemplate, argumentBuildersFieldPairs.stream()
+			.map(Pair::second)
+			.toList());
+
+		// set the argument types from the fields (if they are not already set)
+		argumentBuildersFieldPairs.forEach(pair -> pair.second().setTypeFromField(pair.first()));
+
+		// add the arguments to the command and the groups
+		this.from$addArguments(argumentBuildersFieldPairs);
+
+		// invoke the afterInit method
+		this.from$invokeAfterInitMethod(cmdTemplate);
+	}
+
+	/**
+	 * Adds all the arguments from the given list of argument builders to this command.
+	 * The arguments with the same group name will be added to the same group.
+	 * @param argumentBuildersFieldPairs The list of argument builders to add the arguments from.
+	 */
+	private void from$addArguments(
+		List<Pair<Field, ArgumentBuilder<ArgumentType<Object>, Object>>> argumentBuildersFieldPairs
+	) {
+		final var groupsMap = new Hashtable<String, ArgumentGroup>();
+
+		argumentBuildersFieldPairs.forEach(pair -> {
+			Argument<?, ?> builtArgument;
+
+			try {
+				builtArgument = pair.second().build();
+			} catch (IllegalStateException e) {
+				throw new CommandTemplateException(
+					"Could not build argument from field '" + pair.first().getName() + "': " + e.getMessage()
+				);
+			}
+
+			var annotationGroupName = pair.first().getAnnotation(Argument.Define.class).group();
+			if (annotationGroupName.isBlank()) {
+				// the argument does not belong to a group, so add it directly.
+				this.addArgument(builtArgument);
+				return;
+			}
+
+			// the argument belongs to a group, so add it to it
+			var groupToAddInto = groupsMap.get(annotationGroupName);
+			if (groupToAddInto == null) {
+				// the group does not exist, so create it and add it to the command
+				groupToAddInto = new ArgumentGroup(annotationGroupName);
+				groupsMap.put(annotationGroupName, groupToAddInto);
+				this.addGroup(groupToAddInto);
+			}
+
+			groupToAddInto.addArgument(builtArgument);
+		});
+	}
+
+	/**
+	 * Invokes the {@link CommandTemplate#beforeInit(CommandTemplate.CommandBuildContext)} method of the given command
+	 * template class, if it exists.
+	 * @param cmdTemplate The command template class to invoke the method from.
+	 * @param argumentBuilders The argument builders that will be passed to the method.
+	 */
+	private void from$invokeBeforeInitMethod(
+		@NotNull Class<?> cmdTemplate,
+		@NotNull List<? extends ArgumentBuilder<?, ?>> argumentBuilders
+	) {
+		Stream.of(cmdTemplate.getDeclaredMethods())
+			.filter(m -> UtlReflection.hasParameters(m, CommandTemplate.CommandBuildContext.class))
+			.filter(m -> m.isAnnotationPresent(CommandTemplate.InitDef.class))
+			.filter(m -> m.getName().equals("beforeInit"))
+			.findFirst()
+			.ifPresent(m -> {
+				try {
+					m.invoke(null, new CommandTemplate.CommandBuildContext(
+						this, Collections.unmodifiableList(argumentBuilders)
+					));
+				} catch (IllegalAccessException | InvocationTargetException e) {
+					throw new RuntimeException(e);
+				}
+			});
+	}
+
+	/**
+	 * Invokes the {@link CommandTemplate#afterInit(Command)} method of the given command template class, if it exists.
+	 * @param cmdTemplate The command template class to invoke the method from.
+	 */
+	private void from$invokeAfterInitMethod(@NotNull Class<?> cmdTemplate) {
+		Stream.of(cmdTemplate.getDeclaredMethods())
+			.filter(m -> UtlReflection.hasParameters(m, Command.class))
+			.filter(m -> m.isAnnotationPresent(CommandTemplate.InitDef.class))
+			.filter(m -> m.getName().equals("afterInit"))
+			.findFirst()
+			.ifPresent(m -> {
+				try {
+					m.invoke(null, this);
+				} catch (IllegalAccessException | InvocationTargetException e) {
+					throw new RuntimeException(e);
+				}
+			});
+	}
 
 	// ------------------------------------------------ Error Handling ------------------------------------------------
 
@@ -477,7 +561,7 @@ public class Command
 	 * {@inheritDoc}
 	 * <p>
 	 * By default this callback is called only if all commands succeed, but you can change this behavior with
-	 * {@link Command#setCallbackInvocationOption(CallbacksInvocationOption)}
+	 * {@link Command#setCallbackInvocationOption(CallbackInvocationOption)}
 	 * </p>
 	 */
 	@Override
@@ -492,6 +576,9 @@ public class Command
 		} else {
 			if (this.onErrorCallback != null) this.onErrorCallback.accept(this);
 		}
+
+		if (this.onUsedCallback != null && this.getParseResult().wasUsed())
+			this.onUsedCallback.accept(this.getParseResult());
 
 		this.parser.getParsedArgsMap()
 			.entrySet()
@@ -571,9 +658,7 @@ public class Command
 	}
 
 
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//                                         Argument tokenization and parsing    							      //
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// --------------------------------------------------- Parsing ----------------------------------------------------
 
 	private @NotNull Tokenizer tokenizer = new Tokenizer(this);
 	private @NotNull Parser parser = new Parser(this);
@@ -588,27 +673,8 @@ public class Command
 		return this.parser;
 	}
 
+	// -----------------------------------------------------------------------------------------------------------------
 
-	@Override
-	public void resetState() {
-		super.resetState();
-		this.tokenizer = new Tokenizer(this);
-		this.parser = new Parser(this);
-		this.arguments.forEach(Argument::resetState);
-		this.argumentGroups.forEach(ArgumentGroup::resetState);
-
-		this.subCommands.forEach(Command::resetState);
-	}
-
-	@Override
-	public @Nullable Command getParent() {
-		return this.parentCommand;
-	}
-
-	@Override
-	public @Nullable Command getParentCommand() {
-		return this.getParent();
-	}
 
 	/**
 	 * Annotation used to define a command template.
@@ -617,10 +683,30 @@ public class Command
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.TYPE)
 	public @interface Define {
-		/** @see Command#addNames(String...) */
-		String[] names() default {};
+		/** @see Command#setNames(List)  */
+		@NotNull String[] names() default {};
 
 		/** @see Command#setDescription(String) */
-		String description() default "";
+		@NotNull String description() default "";
+	}
+
+	/**
+	 * @see Command#setCallbackInvocationOption(CallbackInvocationOption)
+	 */
+	public enum CallbackInvocationOption {
+		/** The callback will only be invoked when there are no errors in the argument. */
+		NO_ERROR_IN_ARGUMENT,
+
+		/** The callback will only be invoked when there are no errors in the command it belongs to. */
+		NO_ERROR_IN_COMMAND,
+
+		/**
+		 * The callback will only be invoked when there are no errors in the command it belongs to, and all its
+		 * Sub-Commands.
+		 */
+		NO_ERROR_IN_COMMAND_AND_SUBCOMMANDS,
+
+		/** The callback will only be invoked when there are no errors in the whole command tree. */
+		NO_ERROR_IN_ALL_COMMANDS,
 	}
 }

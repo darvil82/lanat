@@ -1,54 +1,61 @@
 package lanat.helpRepresentation.descriptions.tags;
 
-import lanat.NamedWithDescription;
 import lanat.helpRepresentation.descriptions.Tag;
 import lanat.helpRepresentation.descriptions.exceptions.MalformedTagException;
+import lanat.utils.NamedWithDescription;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import textFormatter.Color;
-import textFormatter.FormatOption;
 import textFormatter.TextFormatter;
+import textFormatter.color.Color;
+import textFormatter.color.SimpleColor;
+import textFormatter.color.TrueColor;
 import utils.UtlString;
 
 /**
- * Changes the color of the text. (e.g. {@code <color=red>}). The available colors are the ones defined in
- * {@link Color}. The color name is case-insensitive.
+ * Changes the color of the text.
  * <p>
- * The names that may be used are:
+ * The syntax for specifying colors is {@code foreground[:background]}, where {@code foreground} and {@code background}
+ * follow the syntax {@code color_name|#rrggbb|r,g,b}.
  * <ul>
- * <li>black / k</li>
- * <li>red / r</li>
- * <li>green / g</li>
- * <li>yellow / y</li>
- * <li>blue / b</li>
- * <li>magenta / m</li>
- * <li>cyan / c</li>
- * <li>white / w</li>
- * <li>gray / grey / gr</li>
- * <li>dark red / dr</li>
- * <li>dark green / dg</li>
- * <li>dark yellow / dy</li>
- * <li>dark blue / db</li>
- * <li>dark magenta / dm</li>
- * <li>dark cyan / dc</li>
- * <li>dark white / dw</li>
+ * <li>{@code #rrggbb} is the hexadecimal value of the color.</li>
+ * <li>{@code r,g,b} are the RGB values of the color.</li>
+ * <li>
+ * {@code color_name} is a case-insensitive color name.
+ * <p>
+ * The values that may be used are:
+ * <ul>
+ * <li>black</li>
+ * <li>red</li>
+ * <li>green</li>
+ * <li>yellow</li>
+ * <li>blue</li>
+ * <li>magenta</li>
+ * <li>cyan</li>
+ * <li>white</li>
+ * <li>gray / grey</li>
+ * <li>dark red</li>
+ * <li>dark green</li>
+ * <li>dark yellow</li>
+ * <li>dark blue</li>
+ * <li>dark magenta</li>
+ * <li>dark cyan</li>
+ * <li>dark white</li>
+ * </ul>
+ * </li>
  * </ul>
  *
- * <p>
- * The tag may receive a single color name, in which case the color will be applied to the foreground.
- * If the tag receives two color names, separated by a colon, the first color will be applied to the foreground and the
- * second color will be applied to the background. (e.g. {@code <color=red:blue>}).
- * </p>
- * <p>
- * If the color name is invalid, a {@link MalformedTagException} is thrown.
- * If no color is specified, the reset sequence is returned. (e.g. {@code <color>}).
- * </p>
+ * If the color value is invalid, a {@link MalformedTagException} is thrown.
+ * @see TrueColor
+ * @see SimpleColor
  */
 public class ColorTag extends Tag {
 	@Override
 	protected @NotNull String parse(@NotNull NamedWithDescription user, @Nullable String value) {
+		if (value == null)
+			throw new MalformedTagException(ColorTag.class, "no color specified");
+
+		// if color sequences are disabled, nothing to do
 		if (!TextFormatter.enableSequences) return "";
-		if (value == null) return FormatOption.RESET_ALL.seq();
 
 		if (!value.contains(":")) return ColorTag.getColor(value).fg();
 
@@ -61,25 +68,57 @@ public class ColorTag extends Tag {
 		return ColorTag.getColor(split[0]).fg() + ColorTag.getColor(split[1]).bg();
 	}
 
-	private static Color getColor(@NotNull String colorName) {
-		return switch (colorName.toLowerCase().strip().replaceAll("[_-]", " ")) {
-			case "black", "k" -> Color.BLACK;
-			case "red", "r" -> Color.BRIGHT_RED;
-			case "green", "g" -> Color.BRIGHT_GREEN;
-			case "yellow", "y" -> Color.BRIGHT_YELLOW;
-			case "blue", "b" -> Color.BRIGHT_BLUE;
-			case "magenta", "m" -> Color.BRIGHT_MAGENTA;
-			case "cyan", "c" -> Color.BRIGHT_CYAN;
-			case "white", "w" -> Color.BRIGHT_WHITE;
-			case "gray", "grey", "gr" -> Color.GRAY;
-			case "dark red", "dr" -> Color.RED;
-			case "dark green", "dg" -> Color.GREEN;
-			case "dark yellow", "dy" -> Color.YELLOW;
-			case "dark blue", "db" -> Color.BLUE;
-			case "dark magenta", "dm" -> Color.MAGENTA;
-			case "dark cyan", "dc" -> Color.CYAN;
-			case "dark white", "dw" -> Color.WHITE;
+	private static @NotNull Color getColor(@NotNull String colorName) {
+		if (colorName.contains(",") || colorName.startsWith("#"))
+			return ColorTag.getTrueColor(colorName);
+
+		return ColorTag.getSimpleColor(colorName);
+	}
+
+	private static @NotNull SimpleColor getSimpleColor(@NotNull String colorName) {
+		return switch (colorName.toLowerCase().strip()) {
+			case "black" -> SimpleColor.BLACK;
+			case "red" -> SimpleColor.BRIGHT_RED;
+			case "green" -> SimpleColor.BRIGHT_GREEN;
+			case "yellow" -> SimpleColor.BRIGHT_YELLOW;
+			case "blue" -> SimpleColor.BRIGHT_BLUE;
+			case "magenta" -> SimpleColor.BRIGHT_MAGENTA;
+			case "cyan" -> SimpleColor.BRIGHT_CYAN;
+			case "white" -> SimpleColor.BRIGHT_WHITE;
+			case "gray", "grey" -> SimpleColor.GRAY;
+			case "dark red" -> SimpleColor.RED;
+			case "dark green" -> SimpleColor.GREEN;
+			case "dark yellow" -> SimpleColor.YELLOW;
+			case "dark blue" -> SimpleColor.BLUE;
+			case "dark magenta" -> SimpleColor.MAGENTA;
+			case "dark cyan" -> SimpleColor.CYAN;
+			case "dark white" -> SimpleColor.WHITE;
 			default -> throw new MalformedTagException(ColorTag.class, "unknown color name '" + colorName + "'");
 		};
+	}
+
+	private static @NotNull TrueColor getTrueColor(@NotNull String color) {
+		// if the color starts with a '#', it's a hex color
+		if (color.startsWith("#")) {
+			var hex = color.substring(1);
+			if (hex.length() != 6)
+				throw new MalformedTagException(ColorTag.class, "invalid hex color '" + color + "'. Expected format: '#rrggbb'");
+			return TrueColor.of(Integer.parseInt(hex, 16));
+		}
+
+		// otherwise, just try splitting the string by commas
+		var split = UtlString.split(color, ',');
+		if (split.length != 3)
+			throw new MalformedTagException(ColorTag.class, "invalid RGB color '" + color + "'. Expected format: 'r,g,b'");
+
+		try {
+			return TrueColor.of(
+				Integer.parseInt(split[0]),
+				Integer.parseInt(split[1]),
+				Integer.parseInt(split[2])
+			);
+		} catch (NumberFormatException e) {
+			throw new MalformedTagException(ColorTag.class, "invalid color value. " + e.getMessage());
+		}
 	}
 }

@@ -1,16 +1,17 @@
 package lanat.parsing;
 
 import org.jetbrains.annotations.NotNull;
-import textFormatter.Color;
+import textFormatter.color.Color;
+import textFormatter.color.SimpleColor;
 
 public enum TokenType {
-	ARGUMENT_NAME(Color.BRIGHT_GREEN),
-	ARGUMENT_NAME_LIST(Color.BRIGHT_BLUE),
-	ARGUMENT_VALUE(Color.BRIGHT_YELLOW),
-	ARGUMENT_VALUE_TUPLE_START(Color.BRIGHT_MAGENTA),
-	ARGUMENT_VALUE_TUPLE_END(Color.BRIGHT_MAGENTA),
-	COMMAND(Color.BRIGHT_CYAN),
-	FORWARD_VALUE(Color.GRAY);
+	ARGUMENT_NAME(SimpleColor.BRIGHT_GREEN),
+	ARGUMENT_NAME_LIST(SimpleColor.BRIGHT_BLUE),
+	ARGUMENT_VALUE(SimpleColor.BRIGHT_YELLOW),
+	ARGUMENT_VALUE_TUPLE_START(SimpleColor.BRIGHT_MAGENTA),
+	ARGUMENT_VALUE_TUPLE_END(SimpleColor.BRIGHT_MAGENTA),
+	COMMAND(SimpleColor.BRIGHT_CYAN),
+	FORWARD_VALUE(SimpleColor.GRAY);
 
 	public final @NotNull Color color;
 

@@ -1,6 +1,6 @@
-package lanat.utils;
+package lanat.utils.errors;
 
-import lanat.ErrorLevel;
+import lanat.utils.Resettable;
 import org.jetbrains.annotations.NotNull;
 import utils.ModifyRecord;
 
@@ -13,26 +13,26 @@ import java.util.List;
  *
  * @param <T> The type of the errors to store.
  */
-public abstract class ErrorsContainerImpl<T extends ErrorLevelProvider> implements ErrorsContainer<T>, Resettable {
+public abstract class ErrorContainerImpl<T extends ErrorLevelProvider> implements ErrorContainer<T>, Resettable {
 	private final @NotNull ModifyRecord<ErrorLevel> minimumExitErrorLevel;
 	private final @NotNull ModifyRecord<ErrorLevel> minimumDisplayErrorLevel;
-	private final @NotNull List<T> errors = new ArrayList<>();
+	private final @NotNull List<T> errors = new ArrayList<>(5);
 
 	/**
-	 * Creates a new {@link ErrorsContainerImpl} with the default values, those being {@link ErrorLevel#ERROR} for
+	 * Creates a new {@link ErrorContainerImpl} with the default values, those being {@link ErrorLevel#ERROR} for
 	 * {@link #minimumExitErrorLevel} and {@link ErrorLevel#INFO} for {@link #minimumDisplayErrorLevel}.
 	 */
-	public ErrorsContainerImpl() {
+	public ErrorContainerImpl() {
 		// default values
 		this(ModifyRecord.of(ErrorLevel.ERROR), ModifyRecord.of(ErrorLevel.INFO));
 	}
 
 	/**
-	 * Creates a new {@link ErrorsContainerImpl} with the given values.
+	 * Creates a new {@link ErrorContainerImpl} with the given values.
 	 * @param minimumExitErrorLevelRecord    The minimum error level that will cause the program to exit.
 	 * @param minimumDisplayErrorLevelRecord The minimum error level that will be displayed to the user.
 	 */
-	public ErrorsContainerImpl(
+	public ErrorContainerImpl(
 		@NotNull ModifyRecord<ErrorLevel> minimumExitErrorLevelRecord,
 		@NotNull ModifyRecord<ErrorLevel> minimumDisplayErrorLevelRecord
 	)
@@ -41,11 +41,7 @@ public abstract class ErrorsContainerImpl<T extends ErrorLevelProvider> implemen
 		this.minimumDisplayErrorLevel = minimumDisplayErrorLevelRecord;
 	}
 
-	/**
-	 * Adds an error to the list of errors.
-	 *
-	 * @param error The error to add.
-	 */
+	@Override
 	public void addError(@NotNull T error) {
 		this.errors.add(error);
 	}
@@ -88,20 +84,9 @@ public abstract class ErrorsContainerImpl<T extends ErrorLevelProvider> implemen
 	}
 
 	@Override
-	public void resetState() {
-		this.errors.clear();
-	}
-
-	// --------------------------------------------- Getters and Setters -----------------------------------------------
-
-	/**
-	 * The minimum error level that will cause the program to exit. All errors with a level equal to or higher than this
-	 * will cause the program to exit. For example, if this is set to {@link ErrorLevel#WARNING}, then all errors with a
-	 * level of {@link ErrorLevel#WARNING} or {@link ErrorLevel#ERROR} will cause the program to exit.
-	 */
-	@Override
 	public void setMinimumExitErrorLevel(@NotNull ErrorLevel level) {
 		this.minimumExitErrorLevel.set(level);
+		this.checkValidMinimums();
 	}
 
 	@Override
@@ -109,19 +94,32 @@ public abstract class ErrorsContainerImpl<T extends ErrorLevelProvider> implemen
 		return this.minimumExitErrorLevel;
 	}
 
-	/**
-	 * The minimum error level that will be displayed to the user. All errors with a level lower than this will be
-	 * ignored. For example: If this is set to {@link ErrorLevel#INFO}, then all errors (including
-	 * {@link ErrorLevel#INFO}, {@link ErrorLevel#WARNING}, and {@link ErrorLevel#ERROR}) will be displayed, but
-	 * {@link ErrorLevel#DEBUG} will not.
-	 */
+
 	@Override
 	public void setMinimumDisplayErrorLevel(@NotNull ErrorLevel level) {
 		this.minimumDisplayErrorLevel.set(level);
+		this.checkValidMinimums();
 	}
 
 	@Override
 	public @NotNull ModifyRecord<ErrorLevel> getMinimumDisplayErrorLevel() {
 		return this.minimumDisplayErrorLevel;
+	}
+
+	/**
+	 * Checks if the minimum error levels are valid.
+	 * If the minimum exit error level is higher than the minimum display
+	 * error level, then an {@link IllegalStateException} is thrown.
+	 */
+	private void checkValidMinimums() {
+		if (!this.minimumExitErrorLevel.get().isInMinimum(this.minimumDisplayErrorLevel.get())) {
+			throw new IllegalStateException("Minimum exit error level must be less than or equal to minimum display error level.");
+		}
+	}
+
+
+	@Override
+	public void resetState() {
+		this.errors.clear();
 	}
 }

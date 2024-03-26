@@ -1,20 +1,13 @@
 package lanat;
 
-import lanat.exceptions.CommandTemplateException;
-import lanat.exceptions.IncompatibleCommandTemplateType;
 import lanat.parsing.Tokenizer;
-import lanat.parsing.errors.ErrorsCollector;
+import lanat.parsing.errors.ErrorCollector;
 import lanat.utils.UtlMisc;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import utils.UtlReflection;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -28,7 +21,7 @@ import java.util.stream.Stream;
 public class ArgumentParser extends Command {
 	/** This is used to be able to tell if we should reset the state of all the commands before parsing */
 	private boolean isParsed = false;
-	private @Nullable String license;
+	private @Nullable String details;
 	private @Nullable String version;
 
 	/**
@@ -100,8 +93,7 @@ public class ArgumentParser extends Command {
 	 * <pre>{@code
 	 * ArgumentParser.from(MyTemplate.class)
 	 *     .parse(input)
-	 *     .printErrors()
-	 *     .exitIfErrors()
+	 *     .withActions(AfterParseOptions.DEFAULT_ACTIONS)
 	 *     .into(MyTemplate.class);
 	 * }</pre>
 	 * <p>
@@ -110,13 +102,13 @@ public class ArgumentParser extends Command {
 	 * MyTemplate parsed = ArgumentParser.parseFromInto(MyTemplate.class, input);
 	 * }
 	 * </pre>
-	 * The example above uses the {@link #parseFromInto(Class, CLInput)} overload, which sets the default options for
+	 * The example above uses the {@link #parseFromInto(Class, CLInput)} overload, which sets the default actions for
 	 * the {@link AfterParseOptions} object.
 	 * <p>
 	 * This method uses {@link #from(Class)}. See that method for more info.
 	 * @param templateClass The class to use as a template.
 	 * @param input The input to parse.
-	 * @param options A consumer that can be used for configuring the parsing process.
+	 * @param actions A consumer that can be used for configuring the parsing process.
 	 * @param <T> The type of the template.
 	 * @return The parsed template.
 	 * @see #parseFromInto(Class, CLInput)
@@ -127,13 +119,30 @@ public class ArgumentParser extends Command {
 	public static <T extends CommandTemplate> @NotNull T parseFromInto(
 		@NotNull Class<T> templateClass,
 		@NotNull CLInput input,
-		@NotNull Consumer<@NotNull AfterParseOptions> options
-	)
-	{
-		final AfterParseOptions opts = ArgumentParser.from(templateClass).parse(input);
-		options.accept(opts);
+		@NotNull Consumer<AfterParseOptions.@NotNull AfterParseActions> actions
+	) {
+		return ArgumentParser.from(templateClass)
+			.parse(input)
+			.withActions(actions)
+			.into(templateClass);
+	}
 
-		return opts.into(templateClass);
+	/**
+	 * Constructs a new {@link ArgumentParser} based on the given {@link CommandTemplate}, parses the given input, and
+	 * populates the template with the parsed values. Uses the default options for the {@link AfterParseOptions} object
+	 * ({@link AfterParseOptions#DEFAULT_ACTIONS}).
+	 * <p>
+	 * See {@link #parseFromInto(Class, CLInput, Consumer)} for more info.
+	 * @param templateClass The class to use as a template.
+	 * @param input The input to parse.
+	 * @param <T> The type of the template.
+	 * @return The parsed template.
+	 * @see CommandTemplate
+	 * @see #parseFromInto(Class, CLInput, Consumer)
+	 */
+	public static <T extends CommandTemplate>
+	@NotNull T parseFromInto(@NotNull Class<T> templateClass, @NotNull CLInput input) {
+		return ArgumentParser.parseFromInto(templateClass, input, AfterParseOptions.DEFAULT_ACTIONS);
 	}
 
 	/**
@@ -149,12 +158,8 @@ public class ArgumentParser extends Command {
 	 * @see #parseFromInto(Class, CLInput, Consumer)
 	 */
 	public static <T extends CommandTemplate>
-	@NotNull T parseFromInto(@NotNull Class<T> templateClass, @NotNull CLInput input) {
-		return ArgumentParser.parseFromInto(
-			templateClass,
-			input,
-			opts -> opts.printErrors().exitIfErrors().printHelpIfNoInput().exitIfNoInput()
-		);
+	@NotNull T parseFromInto(@NotNull Class<T> templateClass, @NotNull String @NotNull [] input) {
+		return ArgumentParser.parseFromInto(templateClass, CLInput.from(input));
 	}
 
 	/**
@@ -195,21 +200,25 @@ public class ArgumentParser extends Command {
 
 		// pass the properties of this Sub-Command to its children recursively (most of the time this is what the user will want)
 		this.passPropertiesToChildren();
+		this.linkGroupHierarchy();
 
 		this.tokenize(input.args); // first. This will tokenize all Sub-Commands recursively
 
-		var errorsCollector = new ErrorsCollector(this.getFullTokenList(), input.args);
+		var errorCollector = new ErrorCollector(this.getFullTokenList(), input.args);
 
 		// do not parse anything if there are any errors in the tokenizer
 		if (this.tokenizationSucceeded()) {
 			this.parseTokens(); // same thing, this parses all the stuff recursively
-			this.invokeCallbacks();
+
+			// cache the parsed args map. Generating this calls Argument#finishParsing(), which is important
+			// to call before doing other stuff
+			this.generateParsedArgsMap();
 		}
 
-		this.getTokenizer().getTokenizedCommands().forEach(errorsCollector::collect);
+		this.getTokenizer().getTokenizedCommands().forEach(errorCollector::collect);
 		this.isParsed = true;
 
-		return new AfterParseOptions(errorsCollector, !input.isEmpty());
+		return new AfterParseOptions(this, errorCollector, !input.isEmpty());
 	}
 
 	private boolean tokenizationSucceeded() {
@@ -233,7 +242,6 @@ public class ArgumentParser extends Command {
 		this.getParser().parseTokens(null);
 	}
 
-
 	@Override
 	@NotNull ParseResultRoot getParseResult() {
 		return new ParseResultRoot(
@@ -253,19 +261,19 @@ public class ArgumentParser extends Command {
 	}
 
 	/**
-	 * Sets the license of this program. By default, this is shown in the help message.
-	 * @param license The license information to set.
+	 * Sets the details of this program. By default, this is shown in the help message.
+	 * @param details The details text content to set.
 	 */
-	public void setLicense(@NotNull String license) {
-		this.license = license;
+	public void setDetails(@NotNull String details) {
+		this.details = details;
 	}
 
 	/**
-	 * Returns the license of this program.
-	 * @see #setLicense(String)
+	 * Returns the details of this program.
+	 * @see #setDetails(String)
 	 */
-	public @Nullable String getLicense() {
-		return this.license;
+	public @Nullable String getDetails() {
+		return this.details;
 	}
 
 	/**
@@ -278,16 +286,18 @@ public class ArgumentParser extends Command {
 
 	/**
 	 * Adds a 'version' argument which shows the version of the program
-	 * (provided by the {@link ArgumentParser#getVersion()} method).
+	 * (provided by the {@link ArgumentParser#getVersion()} method), and then exits the program with the given return
+	 * code.
+	 * @param returnCode The return code to exit the program with.
 	 */
-	public void addVersionArgument() {
-		this.addArgument(Argument.createOfBoolType("version")
+	public void addVersionArgument(int returnCode) {
+		this.addArgument(Argument.createOfActionType("version")
 			.onOk(t -> {
 				System.out.println("Version: " + Objects.requireNonNullElse(this.getVersion(), "unknown"));
-				System.exit(0);
+				System.exit(returnCode);
 			})
-			.withDescription("Shows the version of this program.")
-			.allowsUnique()
+			.description("Shows the version of this program.")
+			.unique(true)
 		);
 	}
 
@@ -299,266 +309,8 @@ public class ArgumentParser extends Command {
 		return this.version;
 	}
 
-
-	/**
-	 * Provides utilities for the parsed arguments after parsing is done.
-	 */
-	public class AfterParseOptions {
-		private final @NotNull ErrorsCollector errorsCollector;
-		private List<@NotNull String> errors;
-		private final int errorCode;
-		private final boolean receivedArguments;
-
-		private AfterParseOptions(@NotNull ErrorsCollector errorsCollector, boolean receivedArguments) {
-			this.errorsCollector = errorsCollector;
-			this.errorCode = ArgumentParser.this.getErrorCode();
-			this.receivedArguments = receivedArguments;
-		}
-
-		/**
-		 * Returns a list of all the error messages that occurred during parsing.
-		 */
-		public @NotNull List<@NotNull String> getErrors() {
-			if (this.errors == null)
-				this.errors = this.errorsCollector.handleErrors();
-			return this.errors;
-		}
-
-		/**
-		 * @see Command#getErrorCode()
-		 */
-		public int getErrorCode() {
-			return this.errorCode;
-		}
-
-		/**
-		 * Returns whether any errors occurred during parsing.
-		 * @return {@code true} if any errors occurred, {@code false} otherwise.
-		 */
-		public boolean hasErrors() {
-			return this.errorCode != 0;
-		}
-
-		/**
-		 * Prints all errors that occurred during parsing to {@link System#err}.
-		 */
-		public AfterParseOptions printErrors() {
-			for (var error : this.getErrors()) {
-				System.err.println(error);
-			}
-			return this;
-		}
-
-		/** Prints the help message to {@link System#out} if no arguments were passed to the program. */
-		public AfterParseOptions printHelpIfNoInput() {
-			if (!this.receivedArguments)
-				System.out.println(ArgumentParser.this.getHelp());
-			return this;
-		}
-
-		/**
-		 * Exits the program with the error code returned by {@link #getErrorCode()} if any errors occurred during
-		 * parsing.
-		 */
-		public AfterParseOptions exitIfErrors() {
-			if (this.hasErrors())
-				System.exit(this.errorCode);
-
-			return this;
-		}
-
-		/** Exits the program with a code of {@code 0} if no arguments were passed to the program. */
-		public AfterParseOptions exitIfNoInput() {
-			if (!this.receivedArguments)
-				System.exit(0);
-
-			return this;
-		}
-
-		/**
-		 * Returns a {@link ParseResultRoot} object that contains all the parsed arguments.
-		 */
-		public @NotNull ParseResultRoot getResult() {
-			return ArgumentParser.this.getParseResult();
-		}
-
-		/**
-		 * Instantiates the given Command Template class and sets all the fields annotated with {@link Argument.Define}
-		 * corresponding to their respective parsed arguments.
-		 * This method will also instantiate all the sub-commands recursively if defined in the template class properly.
-		 * @param clazz The Command Template class to instantiate.
-		 * @return The instantiated Command Template class.
-		 * @param <T> The type of the Command Template class.
-		 * @see CommandTemplate
-		 */
-		public <T extends CommandTemplate> T into(@NotNull Class<T> clazz) {
-			return AfterParseOptions.into(clazz, this.getResult());
-		}
-
-		/**
-		 * {@link #into(Class)} helper method.
-		 * @param templateClass The Command Template class to instantiate.
-		 * @param parseResult The parsed arguments to set the fields of the Command Template class.
-		 */
-		private static <T extends CommandTemplate> T into(
-			@NotNull Class<T> templateClass,
-			@NotNull ParseResult parseResult
-		)
-		{
-			final T instance = UtlReflection.instantiate(templateClass);
-
-			// set the values of the fields
-			Stream.of(templateClass.getFields())
-				.filter(f -> f.isAnnotationPresent(Argument.Define.class))
-				.forEach(field -> AfterParseOptions.into$setFieldValue(field, parseResult, instance));
-
-			// now handle the sub-command field accessors (if any)
-			Stream.of(templateClass.getDeclaredClasses())
-				.filter(c -> c.isAnnotationPresent(Command.Define.class))
-				.forEach(cmdDef -> {
-					var commandAccesorField = Stream.of(templateClass.getDeclaredFields())
-						.filter(f -> f.isAnnotationPresent(CommandTemplate.CommandAccessor.class))
-						.filter(f -> f.getType() == cmdDef)
-						.findFirst()
-						.orElseThrow(() -> {
-							throw new CommandTemplateException(
-								"The class '" + cmdDef.getSimpleName() + "' is annotated with @Command.Define but it's "
-									+ "enclosing class does not have a field annotated with @CommandAccessor"
-							);
-						});
-
-					AfterParseOptions.into$handleCommandAccessor(instance, commandAccesorField, parseResult);
-				});
-
-			instance.afterInstantiation(parseResult);
-			return instance;
-		}
-
-		/**
-		 * {@link #into(Class)} helper method. Sets the value of the given field based on the parsed arguments.
-		 * @param field The field to set the value of.
-		 * @param parseResult The parsed arguments to set the field value from.
-		 * @param instance The instance of the current Command Template class.
-		 * @param <T> The type of the Command Template class.
-		 */
-		private static <T extends CommandTemplate> void into$setFieldValue(
-			@NotNull Field field,
-			@NotNull ParseResult parseResult,
-			@NotNull T instance
-		) {
-			final var annotation = field.getAnnotation(Argument.Define.class);
-
-			// get the name of the argument from the annotation or field name
-			final String argName = annotation.names().length == 0 ? field.getName() : annotation.names()[0];
-
-			final @NotNull Optional<?> parsedValue = parseResult.get(argName);
-
-			try {
-				// if the field has a value already set and the parsed value is empty, skip it (keep the old value)
-				if (parsedValue.isEmpty() && field.get(instance) != null)
-					return;
-
-				// if the type of the field is an Optional, wrap the value in it.
-				// otherwise, just set the value
-				field.set(
-					instance,
-					field.getType().isAssignableFrom(Optional.class)
-						? parsedValue
-						: AfterParseOptions.into$getNewFieldValue(field, parsedValue)
-				);
-			} catch (IllegalArgumentException e) {
-				if (parsedValue.isEmpty())
-					throw new IncompatibleCommandTemplateType(
-						"Field '" + field.getName() + "' of type '" + field.getType().getSimpleName() + "' does not"
-							+ " accept null values, but the parsed argument '" + argName + "' is null"
-					);
-
-				throw new IncompatibleCommandTemplateType(
-					"Field '" + field.getName() + "' of type '" + field.getType().getSimpleName() + "' is not "
-						+ "compatible with the type (" + parsedValue.get().getClass().getSimpleName() + ") of the "
-						+ "parsed argument '" + argName + "'"
-				);
-
-			} catch (IllegalAccessException e) {
-				throw new RuntimeException(e);
-			}
-		}
-
-		/**
-		 * {@link #into(Class)} helper method. Handles the {@link CommandTemplate.CommandAccessor} annotation.
-		 * @param parsedTemplateInstance The instance of the current Command Template class.
-		 * @param commandAccesorField The field annotated with {@link CommandTemplate.CommandAccessor}.
-		 * @param parseResult The parsed arguments to set the fields of the Command Template class.
-		 */
-		@SuppressWarnings("unchecked")
-		private static <T extends CommandTemplate> void into$handleCommandAccessor(
-			@NotNull T parsedTemplateInstance,
-			@NotNull Field commandAccesorField,
-			@NotNull ParseResult parseResult
-		)
-		{
-			final Class<?> fieldType = commandAccesorField.getType();
-
-			if (!CommandTemplate.class.isAssignableFrom(fieldType))
-				throw new CommandTemplateException(
-					"The field '" + commandAccesorField.getName() + "' is annotated with @CommandAccessor "
-						+ "but its type is not a subclass of CommandTemplate"
-				);
-
-			final String cmdName = CommandTemplate.getTemplateNames((Class<? extends CommandTemplate>)fieldType)[0];
-
-			try {
-				commandAccesorField.set(parsedTemplateInstance,
-					AfterParseOptions.into(
-						(Class<T>)fieldType,
-						parseResult.getSubResult(cmdName)
-					)
-				);
-			} catch (IllegalAccessException e) {
-				throw new RuntimeException(e);
-			}
-		}
-
-		/**
-		 * {@link #into(Class)} helper method. Returns the new value for the given field based on the parsed value.
-		 * If the parsed value is {@code null}, this method will return {@code null} as well.
-		 * If both the field and the parsed value are arrays, this method will return a new array with the same type.
-		 * @param commandAccesorField The field to get the new value for.
-		 * @param parsedValue The parsed value to get the new value from.
-		 * @return The new value for the given field based on the parsed value. This will be {@code null} if the parsed
-		 *  value is {@code null}.
-		 */
-		private static Object into$getNewFieldValue(
-			@NotNull Field commandAccesorField,
-			@NotNull Optional<?> parsedValue
-		) {
-			if (parsedValue.isEmpty())
-				return null;
-
-			final Object value = parsedValue.get();
-
-			if (!(commandAccesorField.getType().isArray() && value.getClass().isArray()))
-				return value;
-
-
-			// handle array types
-			final var fieldType = commandAccesorField.getType().getComponentType();
-			final var originalArray = (Object[])value; // to get rid of warnings
-
-			try {
-				// create a new array of the same type as the field.
-				var newArray = (Object[])Array.newInstance(fieldType, Array.getLength(originalArray));
-
-				// copy the values from the original array to the new array
-				System.arraycopy(originalArray, 0, newArray, 0, originalArray.length);
-
-				return newArray;
-			} catch (ClassCastException e) {
-				throw new IncompatibleCommandTemplateType(
-					"Field '" + commandAccesorField.getName() + "' of type '" + commandAccesorField.getType().getSimpleName()
-						+ "' is not compatible with the type (" + fieldType.arrayType() + ") of the parsed argument"
-				);
-			}
-		}
+	@Override
+	public boolean isRoot() {
+		return true; // this is always the root command
 	}
 }

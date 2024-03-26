@@ -1,10 +1,16 @@
-package lanat.parsing.errors;
+package lanat.parsing.errors.handlers;
 
+import lanat.parsing.errors.Error;
+import lanat.parsing.errors.contexts.ErrorFormattingContext;
+import lanat.parsing.errors.contexts.TokenizeErrorContext;
 import org.jetbrains.annotations.NotNull;
+import utils.exceptions.DisallowedInstantiationException;
 
 /** Contains all the errors definitions for errors that occur during tokenization. */
 public abstract class TokenizeErrors {
-	private TokenizeErrors() {}
+	private TokenizeErrors() {
+		throw new DisallowedInstantiationException(TokenizeErrors.class);
+	}
 
 	/**
 	 * Error that occurs when a tuple is already open.

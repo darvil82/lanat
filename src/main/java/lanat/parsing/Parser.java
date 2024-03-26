@@ -4,7 +4,7 @@ import lanat.Argument;
 import lanat.ArgumentType;
 import lanat.Command;
 import lanat.parsing.errors.Error;
-import lanat.parsing.errors.ParseErrors;
+import lanat.parsing.errors.handlers.ParseErrors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import utils.Range;
@@ -34,6 +34,10 @@ public final class Parser extends ParsingStateBase<Error.ParseError> {
 	 */
 	private int currentTokenIndex = 0;
 
+	/* number of positional arguments that have been parsed.
+	 * if this becomes -1, then we know that we are no longer parsing positional arguments */
+	private int positionalArgCount = 0;
+
 	/**
 	 * Whether we are currently parsing values in a tuple.
 	 */
@@ -44,7 +48,7 @@ public final class Parser extends ParsingStateBase<Error.ParseError> {
 	 * we don't want to run {@link Parser#getParsedArgsMap()} multiple times because that can break stuff badly
 	 * in relation to error handling.
 	 */
-	private HashMap<@NotNull Argument<?, ?>, @Nullable Object> parsedArgumentValues;
+	private HashMap<@NotNull Argument<?, ?>, @Nullable Object> cachedParsedArgumentValues;
 
 	/** Contains the forward value if one was found. */
 	private @Nullable String forwardValue;
@@ -86,34 +90,32 @@ public final class Parser extends ParsingStateBase<Error.ParseError> {
 			? 0
 			: previousParser.currentTokenIndex + previousParser.nestingOffset;
 
-		// number of positional arguments that have been parsed.
-		// if this becomes -1, then we know that we are no longer parsing positional arguments
-		short positionalArgCount = 0;
 		Argument<?, ?> lastPositionalArgument; // this will never be null when being used
 
 		for (this.currentTokenIndex = 0; this.currentTokenIndex < this.tokens.size(); ) {
 			final Token currentToken = this.getCurrentToken();
 
 			if (currentToken.type() == TokenType.ARGUMENT_NAME) {
+				// we encountered an argument name, so we know that we are no longer parsing positional arguments
+				this.positionalArgCount = -1;
 				// encountered an argument name. first skip the token of the name.
 				this.currentTokenIndex++;
 				// find the argument that matches that name and let it parse the values
 				this.runForMatchingArgument(currentToken.contents(), this::executeArgParse);
-				// we encountered an argument name, so we know that we are no longer parsing positional arguments
-				positionalArgCount = -1;
 			} else if (currentToken.type() == TokenType.ARGUMENT_NAME_LIST) {
+				// we encountered a name list, so we know that we are no longer parsing positional arguments
+				this.positionalArgCount = -1;
 				// in a name list, skip the first character because it is the indicator that it is a name list
 				this.parseArgNameList(currentToken.contents().substring(1));
-				positionalArgCount = -1;
 			} else if (
 				(currentToken.type() == TokenType.ARGUMENT_VALUE || currentToken.type() == TokenType.ARGUMENT_VALUE_TUPLE_START)
-					&& positionalArgCount != -1
-					&& (lastPositionalArgument = this.getArgumentByPositionalIndex(positionalArgCount)) != null
+					&& this.positionalArgCount != -1
+					&& (lastPositionalArgument = this.getArgumentByPositionalIndex(this.positionalArgCount)) != null
 			) {
 				// if we are here we encountered an argument value with no prior argument name or name list,
 				// so this must be a positional argument
 				this.executeArgParse(lastPositionalArgument);
-				positionalArgCount++;
+				this.positionalArgCount++;
 			} else if (currentToken.type() == TokenType.COMMAND) {
 				// encountered a command. first skip the token of the command.
 				this.currentTokenIndex++;
@@ -146,7 +148,7 @@ public final class Parser extends ParsingStateBase<Error.ParseError> {
 	 * </p>
 	 */
 	private void executeArgParse(@NotNull Argument<?, ?> arg) {
-		final Range argNumValuesRange = arg.argType.getRequiredArgValueCount();
+		final Range argNumValuesRange = arg.type.getValueCountBounds();
 
 		// just skip the whole thing if it doesn't need any values
 		if (argNumValuesRange.isZero()) {
@@ -161,8 +163,8 @@ public final class Parser extends ParsingStateBase<Error.ParseError> {
 
 		final byte ifTupleOffset = (byte)(this.isInTuple ? 1 : 0);
 
-		final ArrayList<Token> values = new ArrayList<>();
-		short numValues = 0;
+		final ArrayList<Token> values = new ArrayList<>(argNumValuesRange.start());
+		int numValues = 0;
 
 		// add more values until we get to the max of the type, or we encounter another argument specifier
 		for (
@@ -177,7 +179,7 @@ public final class Parser extends ParsingStateBase<Error.ParseError> {
 				if (currentToken.type().isTuple())
 					break;
 			} else {
-				// no more values to gather. we reached a non-value token or we got the max number of values
+				// no more values to gather. we reached a non-value token, or we got the max number of values
 				if (!currentToken.type().isValue() || numValues >= argNumValuesRange.end())
 					break;
 			}
@@ -207,7 +209,7 @@ public final class Parser extends ParsingStateBase<Error.ParseError> {
 	 * </p>
 	 */
 	private void executeArgParse(@NotNull Argument<?, ?> arg, @Nullable String value) {
-		final Range argumentValuesRange = arg.argType.getRequiredArgValueCount();
+		final Range argumentValuesRange = arg.type.getValueCountBounds();
 
 		// just skip the whole thing if it doesn't need any values
 		if (argumentValuesRange.isZero()) {
@@ -237,7 +239,7 @@ public final class Parser extends ParsingStateBase<Error.ParseError> {
 		Argument<?, ?> lastArgument = null;
 
 		// its multiple of them. We can only do this with arguments that accept 0 values.
-		for (short i = 0; i < args.length(); i++) {
+		for (int i = 0; i < args.length(); i++) {
 			var argument = this.getMatchingArgument(args.charAt(i));
 
 			if (argument == null) {
@@ -250,7 +252,7 @@ public final class Parser extends ParsingStateBase<Error.ParseError> {
 			}
 
 			// if the argument accepts 0 values, then we can just parse it like normal
-			if (argument.argType.getRequiredArgValueCount().isZero()) {
+			if (argument.type.getValueCountBounds().isZero()) {
 				this.executeArgParse(argument);
 
 				// -- arguments now may accept 1 or more values from now on:
@@ -283,26 +285,32 @@ public final class Parser extends ParsingStateBase<Error.ParseError> {
 		// if the string is too short, don't bother checking
 		if (str.length() < 2) return;
 
+		char prefix = str.charAt(0);
+
 		// check for the common prefixes
-		Stream.of(Argument.PrefixChar.COMMON_PREFIXES)
-			.map(c -> c.character)
+		Stream.of(Argument.Prefix.COMMON_PREFIXES)
+			.map(Argument.Prefix::getCharacter)
 			.forEach(checkPrefix -> {
 				// if not present, don't bother checking
-				if (str.charAt(0) != checkPrefix) return;
+				if (prefix != checkPrefix) return;
 
 				// get rid of the prefix (single or double)
-				final var nameToCheck = str.substring(str.charAt(1) == checkPrefix ? 2 : 1);
+				final var nameToCheck = Argument.removePrefix(str, checkPrefix);
 
 				for (var arg : this.command.getArguments()) {
-					if (!arg.hasName(nameToCheck)) continue;
+					if (!arg.hasName(nameToCheck)) continue; // does not have the name
 
-					this.addError(new ParseErrors.SimilarArgumentError(this.currentTokenIndex, arg));
+					/* if the prefix is the same, then we know that the token was wrapped in quotes, since
+					 * this token is somehow of type value */
+					this.addError(new ParseErrors.SimilarArgumentError(
+						this.currentTokenIndex, arg, arg.getPrefix().getCharacter() == prefix
+					));
 				}
 			});
 	}
 
 	/** Returns the positional argument at the given index of declaration. */
-	private @Nullable Argument<?, ?> getArgumentByPositionalIndex(short index) {
+	private @Nullable Argument<?, ?> getArgumentByPositionalIndex(int index) {
 		var posArgs = this.command.getPositionalArguments();
 
 		if (index >= posArgs.size())
@@ -317,12 +325,11 @@ public final class Parser extends ParsingStateBase<Error.ParseError> {
 	 * After that, it will return the same hashmap.
 	 * */
 	public @NotNull HashMap<@NotNull Argument<?, ?>, @Nullable Object> getParsedArgsMap() {
-		if (this.parsedArgumentValues == null) {
-			this.parsedArgumentValues = new HashMap<>() {{
-				Parser.this.command.getArguments().forEach(arg -> this.put(arg, arg.finishParsing()));
-			}};
+		if (this.cachedParsedArgumentValues == null) {
+			this.cachedParsedArgumentValues = new HashMap<@NotNull Argument<?, ?>, @Nullable Object>();
+			this.command.getArguments().forEach(arg -> this.cachedParsedArgumentValues.put(arg, arg.finishParsing()));
 		}
-		return this.parsedArgumentValues;
+		return this.cachedParsedArgumentValues;
 	}
 
 	private void argumentTypeParseValues(@NotNull Argument<?, ?> argument, @NotNull String... values) {
@@ -330,7 +337,13 @@ public final class Parser extends ParsingStateBase<Error.ParseError> {
 	}
 
 	private void argumentTypeParseValues(@NotNull Argument<?, ?> argument, int offset, @NotNull String... values) {
-		argument.argType.parseAndUpdateValue(this.currentTokenIndex + offset, this.isInTuple, values);
+		argument.type.parseAndUpdateValue(
+			new ArgumentType.ParseStateSnapshot(
+				this.currentTokenIndex + offset, values.length,
+				this.isInTuple, this.positionalArgCount != -1
+			),
+			values
+		);
 	}
 
 	private @NotNull Token getCurrentToken() {

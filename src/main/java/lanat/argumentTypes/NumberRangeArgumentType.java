@@ -4,8 +4,8 @@ import lanat.ArgumentType;
 import lanat.ArgumentTypeInfer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import textFormatter.Color;
 import textFormatter.TextFormatter;
+import textFormatter.color.SimpleColor;
 
 import java.util.Objects;
 
@@ -37,8 +37,8 @@ public class NumberRangeArgumentType<T extends Number & Comparable<T>> extends A
 	}
 
 	@Override
-	public @Nullable T parseValues(@NotNull String... args) {
-		var result = this.argumentType.parseValues(args);
+	public @Nullable T parseValues(@NotNull String @NotNull... values) {
+		var result = this.argumentType.parseValues(values);
 
 		if (result == null) return null;
 
@@ -53,7 +53,7 @@ public class NumberRangeArgumentType<T extends Number & Comparable<T>> extends A
 	@Override
 	public @NotNull TextFormatter getRepresentation() {
 		return Objects.requireNonNull(this.argumentType.getRepresentation())
-			.concat(new TextFormatter("[%s-%s]".formatted(this.min, this.max)).withForegroundColor(Color.YELLOW));
+			.concat(TextFormatter.of("[%s-%s]".formatted(this.min, this.max)).withForegroundColor(SimpleColor.YELLOW));
 	}
 
 	@Override

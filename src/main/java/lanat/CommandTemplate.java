@@ -1,6 +1,8 @@
 package lanat;
 
+import lanat.argumentTypes.CounterArgumentType;
 import lanat.exceptions.ArgumentNotFoundException;
+import lanat.utils.Builder;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.ElementType;
@@ -42,10 +44,10 @@ import java.util.List;
  * </p>
  * <p>
  * The type of the argument (that extends {@link ArgumentType}) may be specified in the annotation with the
- * {@link Argument.Define#argType()} parameter. Note that any type specified in the annotation must have a public,
+ * {@link Argument.Define#type()} parameter. Note that any type specified in the annotation must have a public,
  * no-argument constructor. If the Argument Type to use has a constructor with arguments, the type must be then
- * specified in {@link CommandTemplate#beforeInit(CommandBuildHelper)} instead, by setting
- * {@link ArgumentBuilder#withArgType(ArgumentType)} to the argument builder corresponding to the argument
+ * specified in {@link CommandTemplate#beforeInit(CommandBuildContext)} instead, by setting
+ * {@link ArgumentBuilder#type(ArgumentType)} to the argument builder corresponding to the argument
  * being defined.
  * </p>
  * <p>
@@ -58,20 +60,19 @@ import java.util.List;
  * <pre>{@code
  * @Command.Define
  * public class ParentCommand extends CommandTemplate {
- *   @Argument.Define(names = {"name", "n"}, argType = StringArgumentType.class)
+ *   @Argument.Define(names = {"name", "n"}, type = StringArgumentType.class)
  *   public String name;
  *
- *   @Argument.Define // name: "numbers". argType: MultipleNumbersArgumentType<Integer>
+ *   @Argument.Define // name: "numbers". type: TupleArgumentType<Integer>
  *   public Integer[] numbers;
  *
- *   @Argument.Define(required = true) // name: "file". argType: NumberRangeArgumentType<Integer>
+ *   @Argument.Define(required = true) // name: "file". type: NumberRangeArgumentType<Integer>
  *   public Integer number;
  *
  *   @InitDef
- *   public static void beforeInit(CommandBuildHelper helper) {
+ *   public static void beforeInit(CommandBuildContext ctx) {
  *      // set the argument type to NumberRangeArgumentType
- *      helper.<NumberRangeArgumentType<Integer>, Integer>getArgument("number")
- *         .withArgType(new NumberRangeArgumentType<>(0, 10);
+ *      ctx.argWithType("number", new NumberRangeArgumentType<>(0, 10));
  *   }
  * }}</pre>
  *
@@ -102,7 +103,7 @@ import java.util.List;
  * may be defined in the Command Template class:
  * </p>
  * <ul>
- *     <li>{@link CommandTemplate#beforeInit(CommandBuildHelper)}: Called before adding the Arguments to the Command.</li>
+ *     <li>{@link CommandTemplate#beforeInit(CommandBuildContext)}: Called before adding the Arguments to the Command.</li>
  *     <li>{@link CommandTemplate#afterInit(Command)}: Called after the Command is initialized.</li>
  * </ul>
  * @see CommandTemplate.Default
@@ -114,16 +115,16 @@ public abstract class CommandTemplate {
 
 	/**
 	 * Called right after the Command Template is instantiated by the Argument Parser.
-	 * Sets the {@link #parseResult} field and calls {@link #onValuesReceived()} if the command was used.
+	 * Sets the {@link #parseResult} field and calls {@link #onUsed()} if the command was used.
 	 * <p>
 	 * The reason this is used instead of a constructor is because we don't want to force inheritors to call
 	 * {@code super()} in their constructors. Also, this method is called first by the innermost Command in
 	 * the hierarchy, and then by the parent Commands.
 	 * @param parseResult The parsed arguments of the command.
 	 */
-	void afterInstantiation(@NotNull ParseResult parseResult) {
+	final void afterInstantiation(@NotNull ParseResult parseResult) {
 		this.parseResult = parseResult;
-		if (this.wasUsed()) this.onValuesReceived();
+		if (this.wasUsed()) this.onUsed();
 	}
 
 	/**
@@ -163,12 +164,12 @@ public abstract class CommandTemplate {
 	 * This method should not be called manually. It is called automatically by the Argument Parser once the Command
 	 * Template is initialized.
 	 */
-	public void onValuesReceived() {}
+	public void onUsed() {}
 
 
 	/**
 	 * Annotation used to define an init method for a Command Template.
-	 * @see CommandTemplate#beforeInit(CommandBuildHelper)
+	 * @see CommandTemplate#beforeInit(CommandBuildContext)
 	 * @see CommandTemplate#afterInit(Command)
 	 */
 	@Retention(RetentionPolicy.RUNTIME)
@@ -186,26 +187,60 @@ public abstract class CommandTemplate {
 	/**
 	 * Helper class that contains the command being initialized and the list of argument builders that may be altered.
 	 * @param cmd The command being initialized.
-	 * @param args The list of argument builders that may be altered. Use {@link CommandBuildHelper#arg(String)}
+	 * @param args The list of argument builders that may be altered. Use {@link CommandBuildContext#arg(String)}
 	 * 		   to get the argument builder corresponding to an argument with a given name.
 	 */
-	public record CommandBuildHelper(@NotNull Command cmd, @NotNull List<ArgumentBuilder<?, ?>> args) {
+	public record CommandBuildContext(@NotNull Command cmd, @NotNull List<ArgumentBuilder<?, ?>> args) {
 		/**
 		 * Returns the argument builder corresponding to the argument with the given name.
 		 * This is a helper method to get the argument builder from the list of argument builders ({@link #args}).
 		 * @param name The name of the argument.
 		 * @return The argument builder corresponding to the argument with the given name.
-		 * @param <T> The type of the argument.
+		 * @param <Type> The type of the argument.
 		 * @param <TInner> The type of the value passed to the argument.
 		 * @throws ArgumentNotFoundException If there is no argument with the given name.
 		 */
 		@SuppressWarnings("unchecked")
-		public <T extends ArgumentType<TInner>, TInner>
-		ArgumentBuilder<T, TInner> arg(@NotNull String name) {
-			return (ArgumentBuilder<T, TInner>)this.args.stream()
+		public <Type extends ArgumentType<TInner>, TInner>
+		ArgumentBuilder<Type, TInner> arg(@NotNull String name) {
+			return (ArgumentBuilder<Type, TInner>)this.args.stream()
 				.filter(a -> a.hasName(name))
 				.findFirst()
 				.orElseThrow(() -> new ArgumentNotFoundException(name));
+		}
+
+		/**
+		 * Sets the type of the argument builder with the given name to the given type, and returns it.
+		 * This is the equivalent of calling {@link #arg(String)} and then setting the type of the
+		 * argument builder by calling {@link ArgumentBuilder#type(ArgumentType)}.
+		 * @param name The name of the argument.
+		 * @param argumentType The type of the argument.
+		 * @return The argument builder corresponding to the argument with the given name.
+		 * @param <Type> The type of the argument.
+		 * @param <TInner> The type of the value passed to the argument.
+		 * @throws ArgumentNotFoundException If there is no argument with the given name.
+		 * @see ArgumentBuilder#type(ArgumentType)
+		 */
+		public <Type extends ArgumentType<TInner>, TInner>
+		ArgumentBuilder<Type, TInner> argWithType(@NotNull String name, Type argumentType) {
+			return this.<Type, TInner>arg(name).type(argumentType);
+		}
+
+		/**
+		 * Sets the type of the argument builder with the given name to the given type, and returns it.
+		 * This is the equivalent of calling {@link #arg(String)} and then setting the type of the
+		 * argument builder by calling {@link ArgumentBuilder#type(ArgumentType)}.
+		 * @param name The name of the argument.
+		 * @param argumentType The type of the argument.
+		 * @return The argument builder corresponding to the argument with the given name.
+		 * @param <Type> The type of the argument.
+		 * @param <TInner> The type of the value passed to the argument.
+		 * @throws ArgumentNotFoundException If there is no argument with the given name.
+		 * @see ArgumentBuilder#type(Builder)
+		 */
+		public <Type extends ArgumentType<TInner>, TInner>
+		ArgumentBuilder<Type, TInner> argWithType(@NotNull String name, Builder<Type> argumentType) {
+			return this.argWithType(name, argumentType.build());
 		}
 	}
 
@@ -223,19 +258,18 @@ public abstract class CommandTemplate {
 	 *   public Integer numberRange;
 	 *
 	 *   @InitDef
-	 *   public static void beforeInit(CommandBuildHelper helper) {
+	 *   public static void beforeInit(CommandBuildContext ctx) {
 	 *      // set the argument type to NumberRangeArgumentType
-	 *      helper.<NumberRangeArgumentType<Integer>, Integer>getArgument("numberRange")
-	 * 			.withArgType(new NumberRangeArgumentType<>(0, 10);
+	 *      ctx.argWithType("numberRange", new NumberRangeArgumentType<>(0, 10));
 	 *   }
 	 * }
 	 * }</pre>
 
-	 * @param helper A helper object that contains the command being initialized and the list of argument builders that may
+	 * @param ctx A helper object that contains the command being initialized and the list of argument builders that may
 	 * 		  be altered.
 	 */
 	@InitDef
-	public static void beforeInit(@NotNull CommandBuildHelper helper) {}
+	public static void beforeInit(@NotNull CommandTemplate.CommandBuildContext ctx) {}
 
 	/**
 	 * This method is called after the Command is initialized. This is after the Arguments are instantiated and added
@@ -266,9 +300,9 @@ public abstract class CommandTemplate {
 	}
 
 	/**
-	 * A default command template that adds the 'help' and 'version' arguments to the command.
-	 * @see Command#addHelpArgument()
-	 * @see ArgumentParser#addVersionArgument()
+	 * A command template that adds the 'help' and 'version' arguments to the command.
+	 * @see Command#addHelpArgument(int)
+	 * @see ArgumentParser#addVersionArgument(int)
 	 */
 	@Command.Define
 	public static class Default extends CommandTemplate {
@@ -279,10 +313,24 @@ public abstract class CommandTemplate {
 		 */
 		@InitDef
 		public static void afterInit(@NotNull Command cmd) {
-			cmd.addHelpArgument();
+			cmd.addHelpArgument(0);
 
 			if (cmd instanceof ArgumentParser ap)
-				ap.addVersionArgument();
+				ap.addVersionArgument(0);
+		}
+
+		/**
+		 * A command template that adds the 'verbose' argument, as well as the 'help' and 'version'
+		 * arguments defined in {@link Default}.
+		 */
+		@Command.Define
+		public static class WithVerbose extends Default {
+			@Argument.Define(
+				type = CounterArgumentType.class,
+				names = { "v", "verbose" },
+				description = "Increase the verbosity of the output. Use multiple times to increase verbosity."
+			)
+			public int verbose;
 		}
 	}
 }

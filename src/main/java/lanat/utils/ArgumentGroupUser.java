@@ -1,5 +1,6 @@
-package lanat;
+package lanat.utils;
 
+import lanat.ArgumentGroup;
 import org.jetbrains.annotations.NotNull;
 
 /**

@@ -1,12 +1,14 @@
 package lanat.helpRepresentation;
 
+import lanat.Argument;
+import lanat.ArgumentGroup;
 import lanat.Command;
-import lanat.CommandUser;
-import lanat.helpRepresentation.descriptions.Tag;
+import lanat.utils.CommandUser;
+import lanat.utils.NamedWithDescription;
 import org.jetbrains.annotations.NotNull;
-import textFormatter.Color;
 import textFormatter.FormatOption;
 import textFormatter.TextFormatter;
+import textFormatter.color.SimpleColor;
 import utils.UtlString;
 
 import java.util.*;
@@ -26,23 +28,18 @@ import java.util.*;
  * @see LayoutItem
  */
 public class HelpFormatter {
-	/** The size of the indent in the help message. */
-	private byte indentSize = 3;
+	/** The default maximum length of a line in the help message. */
+	public static final byte LINE_WRAP_DEFAULT = 110;
+	private static final int LINE_WRAP_MIN = 25;
 
-	/** The maximum length of a line in the help message. */
-	public static short lineWrapMax = 110;
+	private static int lineWrapMax = LINE_WRAP_DEFAULT;
+	private static int indentSize = 3;
 
 	/** The layout that defines the structure of the help message. */
 	private @NotNull List<@NotNull LayoutItem> layout = new LinkedList<>();
 
 	/** Whether to print debug information about the layout when generating the help message. */
 	public static boolean debugLayout = false;
-
-
-	static {
-		// register the default tags before we start parsing descriptions
-		Tag.initTags();
-	}
 
 	/**
 	 * Creates a new {@link HelpFormatter}, initializing the layout.
@@ -54,18 +51,43 @@ public class HelpFormatter {
 	/**
 	 * Sets the indent size to the specified value. The indent size is the number of spaces that are used to indent
 	 * lines in the help message. The default value is 3.
+	 * <p>
+	 * The indent size must be between 0 and 10.
 	 * @param indentSize the new indent size
 	 */
 	public void setIndentSize(int indentSize) {
-		this.indentSize = (byte)Math.max(indentSize, 0);
+		if (indentSize < 0)
+			throw new IllegalArgumentException("indentSize must be at least 0");
+
+		HelpFormatter.indentSize = indentSize;
 	}
 
 	/**
 	 * Returns the indent size.
 	 * @return the indent size
 	 */
-	public byte getIndentSize() {
-		return this.indentSize;
+	public int getIndentSize() {
+		return HelpFormatter.indentSize;
+	}
+
+	/**
+	 * Sets the maximum length of a line in the help message to the specified value.
+	 * When a line exceeds this length, it is wrapped to the next line.
+	 * @param lineWrapMax the new maximum length of a line
+	 */
+	public static void setLineWrapMax(int lineWrapMax) {
+		if (lineWrapMax < LINE_WRAP_MIN)
+			throw new IllegalArgumentException("lineWrapMax must be at least " + LINE_WRAP_MIN);
+
+		HelpFormatter.lineWrapMax = lineWrapMax;
+	}
+
+	/**
+	 * Returns the maximum length of a line in the help message.
+	 * @return the maximum length of a line in the help message
+	 */
+	public static int getLineWrapMax() {
+		return HelpFormatter.lineWrapMax;
 	}
 
 	/**
@@ -83,17 +105,18 @@ public class HelpFormatter {
 		this.setLayout(
 			LayoutItem.of(LayoutGenerators::titleAndDescription),
 			LayoutItem.of(LayoutGenerators::synopsis)
-				.indent(1)
-				.margin(1),
-			LayoutItem.of(LayoutGenerators::argumentDescriptions)
-				.title("Description:")
-				.indent(1),
+				.withIndent(1)
+				.withMargin(1),
+			LayoutItem.of(LayoutGenerators::argumentsDescriptions)
+				.withTitle("Description:")
+				.withIndent(1),
 			LayoutItem.of(LayoutGenerators::subCommandsDescriptions)
-				.title("Sub-Commands:")
-				.indent(1)
-				.marginTop(1),
-			LayoutItem.of(LayoutGenerators::programLicense)
-				.marginTop(2)
+				.withTitle("Sub-Commands:")
+				.withIndent(1)
+				.withMarginTop(1),
+			LayoutItem.of(LayoutGenerators::programDetails)
+				.withTitle("Program Details:")
+				.withMarginTop(2)
 		);
 	}
 
@@ -173,12 +196,12 @@ public class HelpFormatter {
 				continue;
 
 			if (HelpFormatter.debugLayout)
-				buffer.append(new TextFormatter("LayoutItem " + i + ":\n")
+				buffer.append(TextFormatter.of("LayoutItem " + i + ":" + System.lineSeparator())
 					.addFormat(FormatOption.UNDERLINE)
-					.withForegroundColor(Color.GREEN)
+					.withForegroundColor(SimpleColor.GREEN)
 				);
 
-			buffer.append(UtlString.wrap(generatedContent, lineWrapMax)).append('\n');
+			buffer.append(UtlString.wrap(generatedContent, lineWrapMax)).append(System.lineSeparator());
 		}
 
 		// strip() is used here because trim() also removes \022 (escape character)
@@ -209,5 +232,23 @@ public class HelpFormatter {
 			// if obj is a Command, use it, otherwise get the parent command
 			str, obj instanceof Command cmd ? cmd : Objects.requireNonNull(obj.getParentCommand())
 		);
+	}
+
+	/**
+	 * Gets the representation of the object specified.
+	 * This will call the appropriate method from the {@link CommandRepr}, {@link ArgumentRepr} or
+	 * {@link ArgumentGroupRepr} classes.
+	 * If the object is not a command, argument or argument group, the name of the
+	 * object will be returned.
+	 */
+	public static @NotNull String getRepresentation(@NotNull NamedWithDescription obj) {
+		if (obj instanceof Command cmd)
+			return CommandRepr.getRepresentation(cmd);
+		else if (obj instanceof Argument<?, ?> arg)
+			return ArgumentRepr.getRepresentation(arg, false);
+		else if (obj instanceof ArgumentGroup group)
+			return ArgumentGroupRepr.getName(group);
+
+		return obj.getName();
 	}
 }

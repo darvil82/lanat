@@ -1,17 +1,17 @@
 package lanat;
 
-import lanat.argumentTypes.BooleanArgumentType;
+import lanat.argumentTypes.ActionArgumentType;
 import lanat.argumentTypes.DummyArgumentType;
 import lanat.exceptions.ArgumentAlreadyExistsException;
 import lanat.parsing.errors.Error;
-import lanat.parsing.errors.ParseErrors;
-import lanat.utils.ErrorCallbacks;
-import lanat.utils.ErrorsContainer;
-import lanat.utils.Resettable;
-import lanat.utils.UtlMisc;
+import lanat.parsing.errors.handlers.ParseErrors;
+import lanat.utils.*;
+import lanat.utils.errors.ErrorCallbacks;
+import lanat.utils.errors.ErrorContainer;
+import lanat.utils.errors.ErrorLevel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import textFormatter.Color;
+import textFormatter.color.Color;
 import utils.ModifyRecord;
 import utils.MultiComparator;
 import utils.UtlString;
@@ -23,8 +23,8 @@ import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 
 /**
@@ -36,21 +36,20 @@ import java.util.stream.Stream;
  * {@link ArgumentParser#parse(CLInput)}.
  *
  * <p>
- * An Argument can be created using the factory methods available, like {@link Argument#createOfBoolType(String...)}.
+ * An Argument can be created using the factory methods available, like {@link Argument#createOfActionType(String...)}.
  * </p>
  * <br><br>
  * <h3>Example:</h3>
  *
  * <p>
  * An Argument with the names "name" and 'n' that will parse an integer value. In order to create an Argument, you need
- * to call any of the static factory methods available, like {@link Argument#createOfBoolType(String...)}. These methods
+ * to call any of the static factory methods available, like {@link Argument#createOfActionType(String...)}. These methods
  * will return an {@link ArgumentBuilder} object, which can be used to specify the Argument's properties easily.
  * </p>
  * <pre>
  * {@code
- *     Argument.create('n', "name", new IntegerArgumentType());
- *     Argument.create("name", new IntegerArgumentType())
- *         .addNames("n");
+ *     Argument.create(new IntegerArgumentType(), "name", "n");
+ *     Argument.create(new IntegerArgumentType()).names("name", "n");
  * }
  * </pre>
  *
@@ -74,25 +73,25 @@ import java.util.stream.Stream;
  * @see ArgumentParser
  */
 public class Argument<Type extends ArgumentType<TInner>, TInner>
-	implements ErrorsContainer<Error.CustomError>,
-	ErrorCallbacks<TInner,
-			Argument<Type, TInner>>,
-	Resettable,
-	CommandUser,
-	ArgumentGroupUser,
-	MultipleNamesAndDescription
+	implements ErrorContainer<Error.CustomError>,
+		ErrorCallbacks<TInner, Argument<Type, TInner>>,
+		Resettable,
+		CommandUser,
+		ArgumentGroupUser,
+		MultipleNamesAndDescription
 {
 	/**
 	 * The type of this argument. This is the subParser that will be used to parse the value/s this argument should
 	 * receive.
 	 */
-	public final @NotNull Type argType;
-	private PrefixChar prefixChar = PrefixChar.defaultPrefix;
-	private final @NotNull List<@NotNull String> names = new ArrayList<>();
+	public final @NotNull Type type;
+	private @NotNull Argument.Prefix prefix = Prefix.DEFAULT;
+	private @NotNull List<@NotNull String> names = new ArrayList<>(1);
 	private @Nullable String description;
 	private boolean required = false,
 		positional = false,
-		allowUnique = false;
+		unique = false,
+		hidden = false;
 
 	private @Nullable TInner defaultValue;
 
@@ -118,8 +117,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 
 	Argument(@NotNull Type type, @NotNull String... names) {
-		this.argType = type;
-		this.addNames(names);
+		this.type = type;
+		this.setNames(List.of(names));
 	}
 
 	/**
@@ -134,50 +133,33 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 	/**
 	 * Creates an argument builder with the specified type and names.
-	 *
-	 * @param argType the type of the argument. This is the subParser that will be used to parse the value/s this
+	 * @param type the type of the argument. This is the subParser that will be used to parse the value/s this
 	 * 	argument should receive.
-	 * @param names the names of the argument. See {@link Argument#addNames(String...)} for more information.
+	 * @param names the names of the argument. See {@link Argument#setNames(List)} for more information.
 	 */
 	public static <Type extends ArgumentType<TInner>, TInner>
-	ArgumentBuilder<Type, TInner> create(@NotNull Type argType, @NotNull String... names) {
-		return Argument.<Type, TInner>create().withNames(names).withArgType(argType);
+	ArgumentBuilder<Type, TInner> create(@NotNull Type type, @NotNull String... names) {
+		return Argument.<Type, TInner>create().names(names).type(type);
 	}
 
 	/**
-	 * Creates an argument builder with the specified single character name and type.
-	 *
-	 * @param name the name of the argument. See {@link Argument#addNames(String...)} for more information.
-	 * @param argType the type of the argument. This is the subParser that will be used to parse the value/s this
+	 * Creates an argument builder with the specified type and names.
+	 * @param type the type of the argument. This is the subParser that will be used to parse the value/s this
+	 * 	argument should receive.
+	 * @param names the names of the argument. See {@link Argument#setNames(List)} for more information.
 	 */
 	public static <Type extends ArgumentType<TInner>, TInner>
-	ArgumentBuilder<Type, TInner> create(@NotNull Type argType, char name) {
-		return Argument.create(argType, String.valueOf(name));
+	ArgumentBuilder<Type, TInner> create(@NotNull Builder<Type> type, @NotNull String... names) {
+		return Argument.create(type.build(), names);
 	}
 
 	/**
-	 * Creates an argument builder with the specified single character name, full name and type.
-	 * <p>
-	 * This is equivalent to calling <pre>{@code Argument.create(charName, argType).addNames(fullName)}</pre>
-	 *
-	 * @param charName the single character name of the argument.
-	 * @param fullName the full name of the argument.
-	 * @param argType the type of the argument. This is the subParser that will be used to parse the value/s this
+	 * Creates an argument builder with an {@link ActionArgumentType} type.
+	 * @param names the names of the argument. See {@link Argument#setNames(List)} for more information.
 	 */
-	public static <Type extends ArgumentType<TInner>, TInner>
-	ArgumentBuilder<Type, TInner> create(@NotNull Type argType, char charName, @NotNull String fullName) {
-		return Argument.create(argType).withNames(fullName, String.valueOf(charName));
+	public static ArgumentBuilder<ActionArgumentType, Boolean> createOfActionType(@NotNull String... names) {
+		return Argument.create(new ActionArgumentType()).names(names);
 	}
-
-	/**
-	 * Creates an argument builder with a {@link BooleanArgumentType} type.
-	 *
-	 * @param names the names of the argument. See {@link Argument#addNames(String...)} for more information.
-	 */
-	public static ArgumentBuilder<BooleanArgumentType, Boolean> createOfBoolType(@NotNull String... names) {
-		return Argument.create(new BooleanArgumentType()).withNames(names);
-	}
-
 
 	/**
 	 * Marks the argument as required. This means that this argument should <b>always</b> be used by the user.
@@ -204,7 +186,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * </ul>
 	 */
 	public void setPositional(boolean positional) {
-		if (positional && this.argType.getRequiredArgValueCount().end() == 0) {
+		if (positional && this.type.getValueCountBounds().end() == 0) {
 			throw new IllegalArgumentException("An argument that does not accept values cannot be positional");
 		}
 		this.positional = positional;
@@ -220,17 +202,17 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	/**
-	 * Specify the prefix of this argument. By default, this is {@link PrefixChar#MINUS}. If this argument is used in an
+	 * Specify the prefix of this argument. By default, this is {@link Prefix#DEFAULT}. If this argument is used in an
 	 * argument name list (-abc), the prefix that will be valid is any against all the arguments specified in that name
 	 * list.
 	 * <p>
-	 * Note that, for ease of use, the prefixes defined in {@link PrefixChar#COMMON_PREFIXES} are also valid.
+	 * Note that, for ease of use, the prefixes defined in {@link Prefix#COMMON_PREFIXES} are also valid.
 	 *
-	 * @param prefixChar the prefix that should be used for this argument.
-	 * @see PrefixChar
+	 * @param prefix the prefix that should be used for this argument.
+	 * @see Prefix
 	 */
-	public void setPrefix(PrefixChar prefixChar) {
-		this.prefixChar = prefixChar;
+	public void setPrefix(@NotNull Argument.Prefix prefix) {
+		this.prefix = prefix;
 	}
 
 	/**
@@ -238,26 +220,28 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 *
 	 * @return the prefix of this argument.
 	 */
-	public PrefixChar getPrefix() {
-		return this.prefixChar;
+	public @NotNull Argument.Prefix getPrefix() {
+		return this.prefix;
 	}
 
 	/**
 	 * Specifies that this argument has priority over other arguments, even if they are required. This means that if
-	 * an argument in a command is set as required, but one argument with {@link #allowUnique} was used, then the
+	 * an argument in a command is set as required, but one argument with {@link #unique} was used, then the
 	 * unused required argument will not throw an error.
+	 * <p>
+	 * Note that if a unique argument is used, no other argument will be allowed to be used.
 	 */
-	public void setAllowUnique(boolean allowUnique) {
-		this.allowUnique = allowUnique;
+	public void setUnique(boolean unique) {
+		this.unique = unique;
 	}
 
 	/**
 	 * Returns {@code true} if this argument has priority over other arguments, even if they are required.
 	 * @return {@code true} if this argument has priority over other arguments, even if they are required.
-	 * @see #setAllowUnique(boolean)
+	 * @see #setUnique(boolean)
 	 */
-	public boolean isUniqueAllowed() {
-		return this.allowUnique;
+	public boolean isUnique() {
+		return this.unique;
 	}
 
 	/**
@@ -272,6 +256,32 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	/**
+	 * Returns the default value of this argument.
+	 * @return the default value of this argument.
+	 * @see #setDefaultValue(Object)
+	 */
+	public @Nullable TInner getDefaultValue() {
+		return this.defaultValue;
+	}
+
+	/**
+	 * Marks the argument as hidden to not be shown in the help message.
+	 * @param hidden {@code true} if the argument should be hidden.
+	 */
+	public void setHidden(boolean hidden) {
+		this.hidden = hidden;
+	}
+
+	/**
+	 * Returns {@code true} if the argument is hidden.
+	 * @return {@code true} if the argument is hidden.
+	 * @see #setHidden(boolean)
+	 */
+	public boolean isHidden() {
+		return this.hidden;
+	}
+
+	/**
 	 * Add more names to this argument. This is useful if you want the same argument to be used with multiple different
 	 * names.
 	 * <br><br>
@@ -283,17 +293,18 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * @param names the names that should be added to this argument.
 	 */
 	@Override
-	public void addNames(@NotNull String... names) {
-		if (names.length == 0)
+	public void setNames(@NotNull List<@NotNull String> names) {
+		if (names.isEmpty())
 			throw new IllegalArgumentException("at least one name must be specified");
 
-		Stream.of(names)
-			.map(UtlString::requireValidName)
-			.peek(n -> {
-				if (this.names.contains(n))
-					throw new IllegalArgumentException("Name '" + n + "' is already used by this argument.");
-			})
-			.forEach(this.names::add);
+		for (var name : names)
+			UtlString.requireValidName(name);
+
+		UtlMisc.requireUniqueElements(
+			names, n -> new IllegalArgumentException("Name '" + n + "' is already used by this argument"
+		));
+
+		this.names = Collections.unmodifiableList(names);
 
 		// now let the parent command and group know that this argument has been modified. This is necessary to check
 		// for duplicate names
@@ -331,9 +342,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 */
 	@Override
 	public void registerToCommand(@NotNull Command parentCommand) {
-		if (this.parentCommand != null) {
+		if (this.parentCommand != null)
 			throw new ArgumentAlreadyExistsException(this, this.parentCommand);
-		}
 
 		this.parentCommand = parentCommand;
 		this.representationColor.setIfNotModified(parentCommand.colorsPool.next());
@@ -347,12 +357,12 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	/**
 	 * Sets the parent group of this argument. This is called when adding the Argument to a group at
 	 * {@link ArgumentGroup#addArgument(Argument)}
+	 * This will also call {@link Argument#registerToCommand(Command)} if the parent command has not been set yet.
 	 */
 	@Override
 	public void registerToGroup(@NotNull ArgumentGroup parentGroup) {
-		if (this.parentGroup != null) {
+		if (this.parentGroup != null)
 			throw new ArgumentAlreadyExistsException(this, this.parentGroup);
-		}
 
 		this.parentGroup = parentGroup;
 	}
@@ -372,8 +382,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 *
 	 * @return the number of times this argument has been used in a command.
 	 */
-	public short getUsageCount() {
-		return this.argType.usageCount;
+	public int getUsageCount() {
+		return this.type.usageCount;
 	}
 
 	/**
@@ -401,8 +411,10 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * @return the final value parsed by the argument type, or the default value if the argument was not used.
 	 */
 	public @Nullable TInner finishParsing() {
-		final TInner finalValue = this.argType.getFinalValue();
-		final TInner defaultValue = this.defaultValue == null ? this.argType.getInitialValue() : null;
+		final TInner finalValue = this.type.getFinalValue();
+		final TInner defaultValue = this.defaultValue == null
+			? this.type.getInitialValue()
+			: this.defaultValue;
 
 		/* no, | is not a typo. We don't want the OR operator to short-circuit, we want all of them to be evaluated
 		 * because the methods have side effects (they add errors to the parser) */
@@ -424,22 +436,33 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 */
 	private boolean finishParsing$checkUsageCount() {
 		final var usageCount = this.getUsageCount();
+		final var uniqueArgReceivedValue = this.parentCommand.getRoot().uniqueArgumentWasUsed(this);
 
 		if (usageCount == 0) {
-			if (this.required && !this.parentCommand.uniqueArgumentReceivedValue(this)) {
+			// is required so throw error
+			// if its required but some unique argument was used, then we don't need to throw an error
+			if (this.required && !uniqueArgReceivedValue) {
 				this.parentCommand.getParser().addError(new ParseErrors.RequiredArgumentNotUsedError(this));
 			}
+
+			// here if the argument is optional and was not used, so we can just return
 			return false;
 		}
+
+		var lastTokensIndicesPair = this.type.getLastTokensIndicesPair();
+		var usageCountIsInvalid = !this.type.getUsageCountBounds().containsInclusive(usageCount);
+
+		// some unique argument was used, so throw an error
+		if (uniqueArgReceivedValue)
+			this.parentCommand.getParser()
+				.addError(new ParseErrors.UniqueArgumentUsedError(lastTokensIndicesPair, this));
 
 		// make sure that the argument was used the minimum number of times specified
-		if (!this.argType.getRequiredUsageCount().containsInclusive(usageCount)) {
+		if (usageCountIsInvalid)
 			this.parentCommand.getParser()
-				.addError(new ParseErrors.IncorrectUsagesCountError(this.argType.getLastTokensIndicesPair(), this));
-			return false;
-		}
+				.addError(new ParseErrors.IncorrectUsagesCountError(lastTokensIndicesPair, this));
 
-		return true;
+		return !usageCountIsInvalid && !uniqueArgReceivedValue;
 	}
 
 	/**
@@ -455,7 +478,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		if (restrictionViolator == null) return true;
 
 		this.parentCommand.getParser().addError(new ParseErrors.MultipleArgsInRestrictedGroupUsedError(
-			this.argType.getLastTokensIndicesPair(), restrictionViolator
+			this.type.getLastTokensIndicesPair(), restrictionViolator
 		));
 		return false;
 	}
@@ -471,9 +494,11 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * @return {@code true} if the name matches, {@code false} otherwise.
 	 */
 	public boolean checkMatch(@NotNull String name) {
-		final char prefixChar = this.getPrefix().character;
-		return this.names.stream()
-			.anyMatch(a -> name.equals("" + prefixChar + a) || name.equals("" + prefixChar + prefixChar + a));
+		var argPrefix = this.getPrefix().getCharacter();
+
+		if (name.charAt(0) != argPrefix) return false;
+
+		return this.hasName(Argument.removePrefix(name, argPrefix));
 	}
 
 	/**
@@ -544,8 +569,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 */
 	public static int compareByPriority(@NotNull Argument<?, ?> first, @NotNull Argument<?, ?> second) {
 		return new MultiComparator<Argument<?, ?>>()
-			.addPredicate(Argument::isUniqueAllowed, 2)
-			.addPredicate(Argument::isPositional, 1)
+			.addPredicate(Argument::isPositional, 2)
+			.addPredicate(Argument::isUnique, 1)
 			.addPredicate(Argument::isRequired)
 			.compare(first, second);
 	}
@@ -558,113 +583,47 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * @see #compareByPriority(Argument, Argument)
 	 */
 	public static @NotNull List<Argument<?, ?>> sortByPriority(@NotNull List<@NotNull Argument<?, ?>> args) {
-		return new ArrayList<>(args) {{
-			this.sort(Argument::compareByPriority);
-		}};
+		return args.stream()
+			.sorted(Argument::compareByPriority)
+			.toList();
 	}
 
 	@Override
 	public void resetState() {
-		this.argType.resetState();
+		this.type.resetState();
+	}
+
+	/**
+	 * Returns {@code true} if this argument is not part of any command or group.
+	 * @return {@code true} if this argument is not part of any command or group.
+	 */
+	public boolean isOrphan() {
+		return this.parentCommand == null && this.parentGroup == null;
 	}
 
 	@Override
 	public @NotNull String toString() {
-		return "Argument<%s>[names=%s, prefix='%c', required=%b, positional=%b, allowUnique=%b, defaultValue=%s]"
-			.formatted(
-				this.argType.getClass().getSimpleName(), this.names, this.getPrefix().character, this.required,
-				this.positional, this.allowUnique, this.defaultValue
-			);
-	}
+		var buff = new StringBuilder();
 
-	/**
-	 * Used in {@link CommandTemplate}s to specify the properties of an argument belonging to the command.
-	 * @see CommandTemplate
-	 */
-	@Retention(RetentionPolicy.RUNTIME)
-	@Target(ElementType.FIELD)
-	public @interface Define {
-		/** @see Argument#addNames(String...) */
-		String[] names() default { };
+		buff.append("Argument<%s>{names=%s, prefix='%c', defaultValue=%s".formatted(
+			this.type.getClass().getSimpleName(), this.names, this.getPrefix().getCharacter(), this.defaultValue
+		));
 
-		/** @see Argument#setDescription(String) */
-		String description() default "";
+		var options = new ArrayList<String>(4);
+		if (this.required) options.add("required");
+		if (this.positional) options.add("positional");
+		if (this.unique) options.add("unique");
+		if (this.hidden) options.add("hidden");
 
-		/** @see ArgumentBuilder#withArgType(ArgumentType) */
-		Class<? extends ArgumentType<?>> argType() default DummyArgumentType.class;
-
-		/**
-		 * Specifies the prefix character for this argument. This uses {@link PrefixChar#fromCharUnsafe(char)}.
-		 * <p>
-		 * By default, this is set to the value of {@link PrefixChar#defaultPrefix}.
-		 * @see Argument#setPrefix(PrefixChar)
-		 * */
-		char prefix() default Character.MAX_VALUE; // Character.MAX_VALUE will be replaced with PrefixChar.defaultPrefix
-
-		/** @see Argument#setRequired(boolean) */
-		boolean required() default false;
-
-		/** @see Argument#setPositional(boolean) */
-		boolean positional() default false;
-
-		/** @see Argument#setAllowUnique(boolean) */
-		boolean allowsUnique() default false;
-	}
-
-
-	/**
-	 * Specifies the prefix character for an {@link Argument}.
-	 */
-	public static class PrefixChar {
-		public static final PrefixChar MINUS = new PrefixChar('-');
-		public static final PrefixChar PLUS = new PrefixChar('+');
-		public static final PrefixChar SLASH = new PrefixChar('/');
-		public static final PrefixChar AT = new PrefixChar('@');
-		public static final PrefixChar PERCENT = new PrefixChar('%');
-		public static final PrefixChar CARET = new PrefixChar('^');
-		public static final PrefixChar EXCLAMATION = new PrefixChar('!');
-		public static final PrefixChar TILDE = new PrefixChar('~');
-		public static final PrefixChar QUESTION = new PrefixChar('?');
-		public static final PrefixChar EQUALS = new PrefixChar('=');
-		public static final PrefixChar COLON = new PrefixChar(':');
-
-		/**
-		 * This prefix will be automatically set depending on the Operating System. On Linux, it will be
-		 * {@link PrefixChar#MINUS}, and on Windows, it will be {@link PrefixChar#SLASH}.
-		 */
-		public static final PrefixChar AUTO = System.getProperty("os.name").toLowerCase().contains("win") ? SLASH : MINUS;
-
-
-		public final char character;
-		public static @NotNull PrefixChar defaultPrefix = PrefixChar.AUTO;
-
-		/** Prefixes that a user may be familiar with. */
-		public static final @NotNull PrefixChar[] COMMON_PREFIXES = { MINUS, SLASH };
-
-
-		private PrefixChar(char character) {
-			this.character = character;
+		if (!options.isEmpty()) {
+			buff.append(", (");
+			buff.append(String.join(", ", options));
+			buff.append(")");
 		}
 
-		/**
-		 * Creates a new {@link PrefixChar} with the specified non-whitespace character.
-		 * <p>
-		 * <strong>NOTE:<br></strong>
-		 * The constant fields of this class should be used instead of this method. Other characters could break
-		 * compatibility with shells using special characters as prefixes, such as the {@code |} or {@code ;}
-		 * characters.
-		 * </p>
-		 *
-		 * @param character the character that will be used as a prefix. {@link Character#MAX_VALUE} will return
-		 *  {@link PrefixChar#defaultPrefix}.
-		 */
-		public static @NotNull PrefixChar fromCharUnsafe(char character) {
-			if (character == Character.MAX_VALUE)
-				return PrefixChar.defaultPrefix;
-			if (Character.isWhitespace(character))
-				throw new IllegalArgumentException("The character cannot be a whitespace character.");
-			return new PrefixChar(character);
-		}
+		buff.append('}');
+
+		return buff.toString();
 	}
 
 
@@ -672,43 +631,48 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	// just act as a proxy to the type error handling
 
 	@Override
+	public void addError(Error.@NotNull CustomError error) {
+		this.type.addError(error);
+	}
+
+	@Override
 	public @NotNull List<Error.@NotNull CustomError> getErrorsUnderExitLevel() {
-		return this.argType.getErrorsUnderExitLevel();
+		return this.type.getErrorsUnderExitLevel();
 	}
 
 	@Override
 	public @NotNull List<Error.@NotNull CustomError> getErrorsUnderDisplayLevel() {
-		return this.argType.getErrorsUnderDisplayLevel();
+		return this.type.getErrorsUnderDisplayLevel();
 	}
 
 	@Override
 	public boolean hasExitErrors() {
-		return this.argType.hasExitErrors();
+		return this.type.hasExitErrors();
 	}
 
 	@Override
 	public boolean hasDisplayErrors() {
-		return this.argType.hasDisplayErrors();
+		return this.type.hasDisplayErrors();
 	}
 
 	@Override
 	public void setMinimumDisplayErrorLevel(@NotNull ErrorLevel level) {
-		this.argType.setMinimumDisplayErrorLevel(level);
+		this.type.setMinimumDisplayErrorLevel(level);
 	}
 
 	@Override
 	public @NotNull ModifyRecord<@NotNull ErrorLevel> getMinimumDisplayErrorLevel() {
-		return this.argType.getMinimumDisplayErrorLevel();
+		return this.type.getMinimumDisplayErrorLevel();
 	}
 
 	@Override
 	public void setMinimumExitErrorLevel(@NotNull ErrorLevel level) {
-		this.argType.setMinimumExitErrorLevel(level);
+		this.type.setMinimumExitErrorLevel(level);
 	}
 
 	@Override
 	public @NotNull ModifyRecord<@NotNull ErrorLevel> getMinimumExitErrorLevel() {
-		return this.argType.getMinimumExitErrorLevel();
+		return this.type.getMinimumExitErrorLevel();
 	}
 
 	/**
@@ -731,7 +695,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * Specify a function that will be called with the value introduced by the user.
 	 * <p>
 	 * By default this callback is called only if all commands succeed, but you can change this behavior with
-	 * {@link Command#setCallbackInvocationOption(CallbacksInvocationOption)}
+	 * {@link Command#setCallbackInvocationOption(Command.CallbackInvocationOption)}
 	 * </p>
 	 *
 	 * @param callback the function that will be called with the value introduced by the user.
@@ -748,5 +712,173 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	public void invokeCallbacks() {
 		if (this.onErrorCallback == null) return;
 		this.onErrorCallback.accept(this);
+	}
+
+	// -----------------------------------------------------------------------------------------------------------------
+
+	/**
+	 * Removes the prefix from the given name. If the name does not have the prefix, then it will be returned as is.
+	 * <p>
+	 * Example: {@code removePrefix("--name", '-')} or {@code removePrefix("-name", '-')} will return {@code "name"}.
+	 * @param name the name to remove the prefix from
+	 * @param character the prefix character to remove
+	 * @return the name without the prefix
+	 */
+	public static @NotNull String removePrefix(@NotNull String name, char character) {
+		if (name.length() == 1) return name; // if the name is a single character, then it can't have a prefix
+
+		// if the first character is not the prefix, then it can't have a prefix
+		if (name.charAt(0) != character) return name;
+
+		// here we know that the first character is the prefix, so we remove it
+		if (name.charAt(1) != character) return name.substring(1);
+
+		// if the second character is also the prefix, then we remove both
+		return name.substring(2);
+	}
+
+	/**
+	 * Used in {@link CommandTemplate}s to specify the properties of an argument belonging to the command.
+	 * @see CommandTemplate
+	 */
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(ElementType.FIELD)
+	public @interface Define {
+		/** @see Argument#setNames(List)  */
+		@NotNull String[] names() default { };
+
+		/** @see Argument#setDescription(String) */
+		@NotNull String description() default "";
+
+		/** @see ArgumentBuilder#type(ArgumentType) */
+		@NotNull Class<? extends ArgumentType<?>> type() default DummyArgumentType.class;
+
+		/**
+		 * Specifies the prefix character for this argument.
+		 * <p>
+		 * By default, this is set to the value of {@link Prefix#defaultPrefix}.
+		 * @see Argument#setPrefix(Prefix)
+		 * */
+		@NotNull Argument.Prefix prefix() default Prefix.DEFAULT;
+
+		/** @see Argument#setRequired(boolean) */
+		boolean required() default false;
+
+		/** @see Argument#setPositional(boolean) */
+		boolean positional() default false;
+
+		/** @see Argument#setUnique(boolean) */
+		boolean unique() default false;
+
+		/** @see Argument#setHidden(boolean) */
+		boolean hidden() default false;
+
+		/**
+		 * The name of the group this argument will be added to; in the case the named group does not exist then it
+		 * will be created.
+		 * If multiple arguments have the same group name, they will be added to the same group.
+		 */
+		@NotNull String group() default "";
+	}
+
+
+	/**
+	 * Specifies the prefix character for an {@link Argument}.
+	 */
+	public enum Prefix {
+		/** The minus sign (-). */
+		MINUS('-'),
+		/** The plus sign (+). */
+		PLUS('+'),
+		/** The slash (/). */
+		SLASH('/'),
+		/** The at sign (@). */
+		AT('@'),
+		/** The percent sign (%). */
+		PERCENT('%'),
+		/** The caret (^). */
+		CARET('^'),
+		/** The exclamation mark (!). */
+		EXCLAMATION('!'),
+		/** The tilde (~). */
+		TILDE('~'),
+		/** The question mark (?). */
+		QUESTION('?'),
+		/** The equals sign (=). */
+		EQUALS('='),
+		/** The colon (:). */
+		COLON(':'),
+
+		/** Automatically set depending on the Operating System. On Linux, it will be
+		 * {@link Prefix#MINUS}, and on Windows, it will be {@link Prefix#SLASH}. */
+		AUTO(System.getProperty("os.name").toLowerCase().contains("win") ? SLASH : MINUS),
+
+		/** Set to the value of {@link Prefix#getDefaultPrefix()}. */
+		DEFAULT;
+
+
+		private final @Nullable Character character;
+		private static @NotNull Argument.Prefix defaultPrefix = Prefix.AUTO;
+
+		/** Prefixes that a user may be familiar with. */
+		public static final @NotNull Prefix[] COMMON_PREFIXES = { MINUS, SLASH };
+
+
+		Prefix(char character) {
+			this.character = character;
+		}
+
+		Prefix() {
+			this.character = null;
+		}
+
+		Prefix(Prefix prefix) {
+			this.character = prefix.character;
+		}
+
+		/**
+		 * Sets the default prefix character. This is used when the prefix is set to {@link Prefix#DEFAULT}.
+		 * @param prefix the new default prefix character
+		 * @throws IllegalArgumentException if the prefix character is {@link Prefix#DEFAULT}
+		 */
+		public static void setDefaultPrefix(@NotNull Argument.Prefix prefix) {
+			if (prefix == DEFAULT)
+				throw new IllegalArgumentException("Cannot set the default prefix to DEFAULT");
+
+			Prefix.defaultPrefix = prefix;
+		}
+
+		/**
+		 * Returns the default prefix character. This is used when the prefix is set to {@link Prefix#DEFAULT}.
+		 * @return the default prefix character
+		 */
+		public static @NotNull Argument.Prefix getDefaultPrefix() {
+			return Prefix.defaultPrefix;
+		}
+
+		/**
+		 * Returns the character that represents this prefix. If this prefix is {@link Prefix#DEFAULT}, then the
+		 * default prefix character will be returned.
+		 * @return the character that represents this prefix.
+		 */
+		public char getCharacter() {
+			// this can never recurse because the default prefix is never DEFAULT
+			return Objects.requireNonNullElseGet(this.character, () -> Prefix.defaultPrefix.getCharacter());
+		}
+
+		/**
+		 * Returns a {@link Prefix} that can't be {@link Prefix#DEFAULT} from the given {@link Prefix}.
+		 * If the given prefix is {@link Prefix#DEFAULT}, then the default prefix will be returned.
+		 * @param prefix the prefix character
+		 * @return the given prefix character if it is not {@link Prefix#DEFAULT}, or the default prefix otherwise.
+		 */
+		public static @NotNull Argument.Prefix getFromMaybeDefault(@NotNull Argument.Prefix prefix) {
+			return prefix == DEFAULT ? Prefix.getDefaultPrefix() : prefix;
+		}
+
+		@Override
+		public String toString() {
+			return String.valueOf(this.getCharacter());
+		}
 	}
 }

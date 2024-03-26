@@ -5,14 +5,18 @@ module lanat {
 
 	exports lanat;
 	exports lanat.argumentTypes;
+	exports lanat.exceptions;
+
 	exports lanat.helpRepresentation;
 	exports lanat.helpRepresentation.descriptions;
 	exports lanat.helpRepresentation.descriptions.exceptions;
-	exports lanat.parsing;
+
+	exports lanat.utils;
+	exports lanat.utils.errors;
+
 	exports lanat.parsing.errors;
 	exports lanat.parsing.errors.formatGenerators;
-	exports lanat.utils;
-	exports lanat.exceptions;
+	exports lanat.parsing.errors.contexts;
 
-	exports lanat.helpRepresentation.descriptions.tags to utils;
+	opens lanat.helpRepresentation.descriptions.tags to utils;
 }

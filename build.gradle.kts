@@ -1,17 +1,17 @@
 plugins {
-	java
 	`maven-publish`
+	`java-library`
 }
 
 group = "com.darvil"
-version = "0.3.0"
+version = "1.0.0"
 description = "Command line argument parser"
 
 dependencies {
-	implementation("com.darvil:utils:0.1.0")
-	implementation("com.darvil:terminal-text-formatter:1.0.0")
+	api("com.darvil:utils:0.6.1b")
+	api("com.darvil:terminal-text-formatter:2.2.0")
 
-	implementation("org.jetbrains:annotations:24.0.1")
+	implementation("org.jetbrains:annotations:24.1.0")
 	testImplementation(platform("org.junit:junit-bom:5.9.1"))
 	testImplementation("org.junit.jupiter:junit-jupiter")
 }
@@ -25,6 +25,7 @@ java {
 
 repositories {
 	mavenCentral()
+	mavenLocal()
 	maven("https://repsy.io/mvn/darvil/java")
 }
 
@@ -41,6 +42,8 @@ publishing {
 			url = uri("https://repsy.io/mvn/darvil/java")
 			credentials(PasswordCredentials::class)
 		}
+
+		mavenLocal()
 	}
 
 	publications {

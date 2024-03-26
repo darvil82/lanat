@@ -19,13 +19,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class StringJoiner extends ArgumentType<String> {
 	@Override
-	public @NotNull Range getRequiredArgValueCount() {
+	public @NotNull Range getValueCountBounds() {
 		return Range.from(1).to(3);
 	}
 
 	@Override
-	public String parseValues(String @NotNull [] args) {
-		return "(" + String.join("), (", args) + ")";
+	public String parseValues(String @NotNull [] values) {
+		return "(" + String.join("), (", values) + ")";
 	}
 }
 
@@ -35,13 +35,18 @@ class RestrictedDoubleAdder extends ArgumentType<Double> {
 	}
 
 	@Override
-	public @Nullable Double parseValues(@NotNull String @NotNull [] args) {
-		return Double.parseDouble(args[0]) + this.getValue();
+	public @Nullable Double parseValues(@NotNull String @NotNull [] values) {
+		return Double.parseDouble(values[0]) + this.getValue();
 	}
 
 	@Override
-	public @NotNull Range getRequiredUsageCount() {
+	public @NotNull Range getUsageCountBounds() {
 		return Range.from(2).to(4);
+	}
+
+	@Override
+	public @NotNull String getName() {
+		return "doubleSum";
 	}
 }
 
@@ -50,32 +55,33 @@ public class UnitTests {
 	protected TestingParser parser;
 
 	static {
-		HelpFormatter.lineWrapMax = 1000; // just so we don't have to worry about line wrapping
+		HelpFormatter.setLineWrapMax((short)1000); // just so we don't have to worry about line wrapping
 		TextFormatter.enableSequences = false; // just so we don't have to worry about color codes
 
 		// prefix char is set to auto by default (make sure tests run in windows too)
-		Argument.PrefixChar.defaultPrefix = Argument.PrefixChar.MINUS;
+		Argument.Prefix.setDefaultPrefix(Argument.Prefix.MINUS);
 	}
 
 	protected TestingParser setParser() {
 		return new TestingParser("Testing") {{
 			this.setErrorCode(0b0100);
 			this.addArgument(Argument.create(new StringJoiner(), "what")
-				.positional()
-				.required()
+				.positional(true)
+				.required(true)
 			);
 			this.addArgument(Argument.create(new RestrictedDoubleAdder(), "double-adder"));
 			this.addArgument(Argument.create(new StringArgumentType(), "a"));
+			this.addArgument(Argument.create(new IntegerArgumentType(), "integer").defaultValue(34));
 
 			this.addCommand(new Command("subCommand") {{
 				this.setErrorCode(0b0010);
 				this.addArgument(Argument.create(new CounterArgumentType(), "c"));
-				this.addArgument(Argument.create(new StringJoiner(), 's', "more-strings"));
+				this.addArgument(Argument.create(new StringJoiner(), "s", "more-strings"));
 
 				this.addCommand(new Command("another") {{
 					this.setErrorCode(0b0001);
 					this.addArgument(Argument.create(new StringJoiner(), "ball"));
-					this.addArgument(Argument.create(new IntegerArgumentType(), "number").positional().required());
+					this.addArgument(Argument.create(new IntegerArgumentType(), "number").positional(true).required(true));
 				}});
 			}});
 
@@ -84,8 +90,8 @@ public class UnitTests {
 
 				this.addGroup(new ArgumentGroup("restricted-group") {{
 					this.setRestricted(true);
-					this.addArgument(Argument.createOfBoolType("extra"));
-					this.addArgument(Argument.create(new IntegerArgumentType(), 'c').positional());
+					this.addArgument(Argument.createOfActionType("extra"));
+					this.addArgument(Argument.create(new IntegerArgumentType(), "c").positional(true));
 				}});
 			}});
 		}};
@@ -99,7 +105,7 @@ public class UnitTests {
 	/**
 	 * Shorthand for parsing arguments and getting the value of an argument. Same as
 	 * <pre>
-	 * {@code this.parser.parseArgs("--%s %s".formatted(arg, values)).<T>get(arg).get();}
+	 * {@code this.parser.parseGetValues("--%s %s".formatted(arg, values)).<T>get(arg).get();}
 	 * </pre>
 	 */
 	protected <T> T parseArg(@NotNull String arg, @NotNull String values) {

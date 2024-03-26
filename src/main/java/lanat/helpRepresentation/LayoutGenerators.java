@@ -3,12 +3,15 @@ package lanat.helpRepresentation;
 import lanat.Argument;
 import lanat.ArgumentParser;
 import lanat.Command;
-import lanat.helpRepresentation.descriptions.DescriptionFormatter;
+import lanat.helpRepresentation.descriptions.DescriptionParser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import utils.UtlString;
+import utils.exceptions.DisallowedInstantiationException;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This contains methods that may be used in {@link LayoutItem}s to generate the content of the help message.
@@ -16,7 +19,9 @@ import java.util.List;
  * @see LayoutItem
  */
 public final class LayoutGenerators {
-	private LayoutGenerators() {}
+	private LayoutGenerators() {
+		throw new DisallowedInstantiationException(LayoutGenerators.class);
+	}
 
 	/**
 	 * Shows the title of the command, followed by a description, if any.
@@ -25,20 +30,18 @@ public final class LayoutGenerators {
 	 * @return the generated title and description.
 	 */
 	public static @NotNull String titleAndDescription(@NotNull Command cmd) {
-		final var description = DescriptionFormatter.parse(cmd);
 		final var buff = new StringBuilder(CommandRepr.getRepresentation(cmd));
 
 		if (cmd instanceof ArgumentParser ap) {
-			final var version = ap.getVersion();
-			if (version != null) {
-				buff.append(" (").append(version).append(')');
-			}
+			Optional.ofNullable(ap.getVersion())
+				.ifPresent(version -> buff.append(" (").append(version).append(')'));
 		}
 
-		if (description != null) {
-			buff.append(":\n\n");
-			buff.append(HelpFormatter.indent(description, cmd));
-		}
+		Optional.ofNullable(DescriptionParser.parse(cmd))
+			.ifPresent(desc ->
+				buff.append(":").append(System.lineSeparator().repeat(2))
+					.append(HelpFormatter.indent(desc, cmd))
+			);
 
 		return buff.toString();
 	}
@@ -59,22 +62,16 @@ public final class LayoutGenerators {
 	 * @return the generated synopsis.
 	 */
 	public static @Nullable String synopsis(@NotNull Command cmd) {
-		final var args = Argument.sortByPriority(cmd.getArguments());
+		final var args = Argument.sortByPriority(cmd.getArguments()).stream()
+			.filter(arg -> arg.getParentGroup() == null)
+			.filter(arg -> !arg.isHidden())
+			.toList();
 
 		if (args.isEmpty() && cmd.getGroups().isEmpty()) return null;
 		final var buffer = new StringBuilder();
 
-		for (var arg : args) {
-			// skip arguments that are in groups (handled later)
-			if (arg.getParentGroup() != null)
-				continue;
-
-			buffer.append(ArgumentRepr.getRepresentation(arg)).append(' ');
-		}
-
-		for (var group : cmd.getGroups()) {
-			buffer.append(ArgumentGroupRepr.getRepresentation(group)).append(' ');
-		}
+		args.forEach(arg -> buffer.append(ArgumentRepr.getRepresentation(arg, false)).append(' '));
+		cmd.getGroups().forEach(group -> buffer.append(ArgumentGroupRepr.getRepresentation(group)).append(' '));
 
 		if (!cmd.getCommands().isEmpty())
 			buffer.append(CommandRepr.getSubCommandsRepresentation(cmd));
@@ -88,7 +85,7 @@ public final class LayoutGenerators {
 	 * @return the generated heading.
 	 */
 	public static @NotNull String heading(@NotNull String content, char lineChar) {
-		return UtlString.center(content, HelpFormatter.lineWrapMax, lineChar);
+		return UtlString.center(content, HelpFormatter.getLineWrapMax(), lineChar);
 	}
 
 	/**
@@ -98,7 +95,7 @@ public final class LayoutGenerators {
 	 * @return the generated heading.
 	 */
 	public static @NotNull String heading(@NotNull String content) {
-		return UtlString.center(content, HelpFormatter.lineWrapMax, '─');
+		return UtlString.center(content, HelpFormatter.getLineWrapMax(), '─');
 	}
 
 	/**
@@ -111,20 +108,27 @@ public final class LayoutGenerators {
 	 * @param cmd The command to generate the descriptions for.
 	 * @return the generated descriptions.
 	 */
-	public static @Nullable String argumentDescriptions(@NotNull Command cmd) {
+	public static @Nullable String argumentsDescriptions(@NotNull Command cmd) {
 		final var buff = new StringBuilder();
 		// skip arguments that are in groups (handled later)
-		final var arguments = Argument.sortByPriority(cmd.getArguments()).stream().filter(arg ->
-			arg.getParentGroup() == null
-		).toList();
+		final var arguments = Argument.sortByPriority(cmd.getArguments()).stream()
+			.filter(arg -> arg.getParentGroup() == null)
+			.toList();
 
 		if (arguments.isEmpty() && cmd.getGroups().isEmpty()) return null;
 
-		buff.append(ArgumentRepr.getDescriptions(arguments));
+		Optional.ofNullable(ArgumentRepr.getDescriptions(arguments, false))
+			.ifPresent(buff::append);
 
-		for (var group : cmd.getGroups()) {
-			buff.append(ArgumentGroupRepr.getDescriptions(group));
-		}
+		final var groups = cmd.getGroups().stream()
+			.map(ArgumentGroupRepr::getDescriptions)
+			.filter(Objects::nonNull)
+			.toList();
+
+		if (!groups.isEmpty())
+			buff.append(System.lineSeparator().repeat(1));
+
+		groups.forEach(buff::append);
 
 		return buff.toString();
 	}
@@ -140,19 +144,17 @@ public final class LayoutGenerators {
 	}
 
 	/**
-	 * Shows the license of the command, if any.
+	 * Shows the details of the command, if any.
 	 * <p>
 	 * Note that this is a program-only property, so it will only be shown if the command is an instance of
 	 * {@link ArgumentParser}, that is, if it is the root command.
-	 * </p>
-	 *
-	 * @param cmd The command to generate the license for.
-	 * @return the generated license.
-	 * @see ArgumentParser#setLicense(String)
+	 * @param cmd The command to generate the details message for.
+	 * @return the generated details message.
+	 * @see ArgumentParser#setDetails(String)
 	 */
-	public static @Nullable String programLicense(@NotNull Command cmd) {
-		/* This is a bit of a special case. getLicense() is only present in ArgumentParser... It doesn't make much sense
+	public static @Nullable String programDetails(@NotNull Command cmd) {
+		/* This is a bit of a special case. getDetails() is only present in ArgumentParser... It makes little sense
 		 * to have it in Command, since it's a program-only property. So we have to do this check here. */
-		return cmd instanceof ArgumentParser ap ? ap.getLicense() : null;
+		return cmd instanceof ArgumentParser ap ? ap.getDetails() : null;
 	}
 }

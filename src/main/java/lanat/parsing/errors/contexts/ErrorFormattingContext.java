@@ -1,7 +1,8 @@
-package lanat.parsing.errors;
+package lanat.parsing.errors.contexts;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import utils.Pair;
 import utils.Range;
 
 /**
@@ -14,7 +15,6 @@ public class ErrorFormattingContext {
 	/**
 	 * Sets the content of the error message.
 	 * @param content The content of the error message.
-	 * @return This instance.
 	 */
 	public ErrorFormattingContext withContent(@NotNull String content) {
 		this.content = content;
@@ -40,6 +40,17 @@ public class ErrorFormattingContext {
 	}
 
 	/**
+	 * Indicates the formatter to display the user input.
+	 * Same as {@link #highlight(int, int, boolean)} but with a pair of indices.
+	 * @see #highlight(int, int, boolean)
+	 * @param indicesPair The pair of indices to highlight.
+	 * @param showArrows Whether to show arrows instead of highlighting the input.
+	 */
+	public ErrorFormattingContext highlight(@NotNull Pair<Integer, Integer> indicesPair, boolean showArrows) {
+		return this.highlight(indicesPair.first(), indicesPair.second(), showArrows);
+	}
+
+	/**
 	 * Indicates the formatter to display the user input. The input at the given index will be highlighted.
 	 * @param index The index of the input value to highlight.
 	 */
@@ -51,7 +62,7 @@ public class ErrorFormattingContext {
 	 * Returns the options used to display input.
 	 * @return The options used to display input.
 	 */
-	protected @Nullable HighlightOptions getHighlightOptions() {
+	public @Nullable HighlightOptions getHighlightOptions() {
 		return this.tokensViewOptions;
 	}
 

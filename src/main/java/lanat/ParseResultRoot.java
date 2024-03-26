@@ -43,19 +43,19 @@ public class ParseResultRoot extends ParseResult {
 	 */
 	public @NotNull List<@NotNull ParseResult> getUsedResults() {
 		if (!this.wasUsed())
-			return List.of();
+			return new ArrayList<>(0);
 
 		ParseResult current = this;
 		var list = new ArrayList<ParseResult>(1);
 
-		while (current != null) {
+		do {
 			list.add(current);
 
 			current = current.subResults.stream()
 				.filter(ParseResult::wasUsed)
 				.findFirst()
 				.orElse(null);
-		}
+		} while (current != null);
 
 		return list;
 	}

@@ -71,4 +71,22 @@ public class TestParsedValues extends UnitTests {
 			assertFalse(parsedArgs.isPresent());
 		}
 	}
+
+	@Test
+	@DisplayName("Test the getUsedResults() method")
+	public void testGetUsedResults() {
+		var usedResults = this.parseArgs("smth subCommand -cccc another 56").getUsedResults();
+
+		assertEquals(3, usedResults.size());
+		assertEquals("Testing", usedResults.get(0).getCommand().getName());
+		assertEquals("subCommand", usedResults.get(1).getCommand().getName());
+		assertEquals("another", usedResults.get(2).getCommand().getName());
+	}
+
+	@Test
+	@DisplayName("Test the default value")
+	public void testDefaultValue() {
+		assertEquals(34, this.<Integer>parseArg("integer", ""));
+		assertEquals(10, this.<Integer>parseArg("integer", "10"));
+	}
 }

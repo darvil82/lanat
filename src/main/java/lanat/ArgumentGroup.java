@@ -1,7 +1,7 @@
 package lanat;
 
 import lanat.exceptions.ArgumentGroupAlreadyExistsException;
-import lanat.utils.Resettable;
+import lanat.utils.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import utils.UtlString;
@@ -54,12 +54,12 @@ import java.util.List;
  */
 public class ArgumentGroup
 	implements ArgumentAdder,
-	ArgumentGroupAdder,
-	CommandUser,
-	ArgumentGroupUser,
-	Resettable,
-	NamedWithDescription,
-	ParentElementGetter<ArgumentGroup>
+		ArgumentGroupAdder,
+		CommandUser,
+		ArgumentGroupUser,
+		Resettable,
+		NamedWithDescription,
+		ParentElementGetter<ArgumentGroup>
 {
 	private final @NotNull String name;
 	private @Nullable String description;
@@ -84,7 +84,7 @@ public class ArgumentGroup
 	 * We need to later set the parent command of all group children after initialization, so we keep a reference to
 	 * them.
 	 */
-	private final @NotNull List<@NotNull ArgumentGroup> subGroups = new ArrayList<>();
+	private final @NotNull List<@NotNull ArgumentGroup> subGroups = new ArrayList<>(0);
 	private boolean isRestricted = false;
 
 	/**
@@ -115,9 +115,8 @@ public class ArgumentGroup
 
 
 	@Override
-	public <T extends ArgumentType<TInner>, TInner>
-	void addArgument(@NotNull Argument<T, TInner> argument) {
-		argument.registerToGroup(this);
+	public <Type extends ArgumentType<TInner>, TInner>
+	void addArgument(@NotNull Argument<Type, TInner> argument) {
 		this.arguments.add(argument);
 		this.checkUniqueArguments();
 	}
@@ -150,7 +149,6 @@ public class ArgumentGroup
 		}
 
 		this.parentGroup = parentGroup;
-		this.parentCommand = parentGroup.parentCommand;
 	}
 
 	/**
@@ -163,14 +161,29 @@ public class ArgumentGroup
 		}
 
 		this.parentCommand = parentCommand;
+	}
 
-		// if the argument already has a parent command, it means that it was added to the command before this group was
-		// added to it, so we don't need to add it again (it would cause an exception)
+	/**
+	 * Links all the groups in this tree to their parent command.
+	 * <p>
+	 * This makes sure subgroups are properly linked if the user added them by using anonymous classes.
+	 * When executing the instance block of a group subclass, the parent command is not set yet.
+	 */
+	void linkHierarchyToCommand(@NotNull Command parentCommand) {
+		this.parentCommand = parentCommand;
+
+		// now register all arguments properly
 		this.arguments.stream()
-			.filter(a -> a.getParentCommand() == null)
-			.forEach(parentCommand::addArgument);
+			.filter(arg -> arg.getParentGroup() == null) // only register arguments that have no parent group yet
+			.forEach(arg -> {
+				// make sure to attach it to the parent command if it has no parent command set yet
+				if (arg.getParentCommand() == null)
+					parentCommand.addArgument(arg);
 
-		this.subGroups.forEach(g -> g.registerToCommand(parentCommand));
+				arg.registerToGroup(this);
+			});
+
+		this.subGroups.forEach(group -> group.linkHierarchyToCommand(parentCommand));
 	}
 
 	@Override
@@ -283,6 +296,10 @@ public class ArgumentGroup
 			return this.parentCommand == group.parentCommand && this.name.equals(group.name);
 		return false;
 	}
+
+	@Override
+	public String toString() {
+		return "ArgumentGroup{name='%s', description='%s', arguments=%s, sub-groups=%s}"
+			.formatted(this.name, this.description, this.arguments, this.subGroups);
+	}
 }
-
-

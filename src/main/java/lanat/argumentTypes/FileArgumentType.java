@@ -80,22 +80,23 @@ public class FileArgumentType extends ArgumentType<File> {
 	}
 
 	@Override
-	public File parseValues(@NotNull String @NotNull [] args) {
-		File file = new File(args[0]);
+	public File parseValues(@NotNull String @NotNull [] values) {
+		File file = new File(values[0]);
 		return this.checkFile(file) ? file : null;
 	}
 
 	@Override
 	public @Nullable String getDescription() {
-		return "A file path of"
-			+ (this.mustExist ? " an existing " : " a ")
+		return "A path to "
+			+ (this.mustExist ? "an existing" : "a")
+			+ " "
 			+ this.fileType.toString(false)
 			+ ".";
 	}
 
 	@Override
 	public @Nullable TextFormatter getRepresentation() {
-		return new TextFormatter(
+		return TextFormatter.of(
 			"path" + File.separator + "to" + File.separator + this.fileType.toString(true)
 		);
 	}

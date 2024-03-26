@@ -1,15 +1,14 @@
 package lanat.test.units;
 
 import lanat.Argument;
-import lanat.CallbacksInvocationOption;
 import lanat.Command;
-import lanat.NamedWithDescription;
 import lanat.argumentTypes.CounterArgumentType;
 import lanat.argumentTypes.FloatArgumentType;
 import lanat.argumentTypes.IntegerArgumentType;
 import lanat.test.TestingParser;
 import lanat.test.UnitTests;
-import lanat.utils.ErrorCallbacks;
+import lanat.utils.NamedWithDescription;
+import lanat.utils.errors.ErrorCallbacks;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -35,7 +34,7 @@ public class TestErrors extends UnitTests {
 		return obj;
 	}
 
-	private void assertOk(@NotNull String name, @NotNull Object correct) {
+	private void assertOk(@NotNull String name, Object correct) {
 		assertEquals(this.correct.get(name), correct);
 		assertNull(this.invalid.get(name));
 	}
@@ -56,7 +55,7 @@ public class TestErrors extends UnitTests {
 		return this.addCallbacks(new TestingParser("TestCallbacks") {{
 			this.setErrorCode(5);
 
-			this.addArgument(TestErrors.this.addCallbacks(Argument.createOfBoolType("bool-arg").build()));
+			this.addArgument(TestErrors.this.addCallbacks(Argument.createOfActionType("bool-arg").build()));
 			this.addArgument(TestErrors.this.addCallbacks(Argument.create(new IntegerArgumentType(), "int-arg").build()));
 			this.addArgument(TestErrors.this.addCallbacks(Argument.create(new CounterArgumentType(), "counter").build()));
 			this.addArgument(TestErrors.this.addCallbacks(Argument.create(new FloatArgumentType(), "float").build()));
@@ -71,7 +70,7 @@ public class TestErrors extends UnitTests {
 	@Test
 	@DisplayName("Test the argument callbacks (onOk and onErr) (ArgumentCallbacksOption.NO_ERROR_IN_ARGUMENT)")
 	public void testArgumentCallbacks$NoErrorInArg() {
-		this.parser.setCallbackInvocationOption(CallbacksInvocationOption.NO_ERROR_IN_ARGUMENT);
+		this.parser.setCallbackInvocationOption(Command.CallbackInvocationOption.NO_ERROR_IN_ARGUMENT);
 		this.parser.parseGetValues("--bool-arg --int-arg foo --float 55.0 sub --sub-float bar");
 
 		this.assertOk("bool-arg", true);

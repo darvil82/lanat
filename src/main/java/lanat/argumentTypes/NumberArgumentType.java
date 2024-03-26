@@ -20,11 +20,11 @@ public abstract class NumberArgumentType<T extends Number> extends ArgumentType<
 	protected abstract @NotNull Function<@NotNull String, @NotNull T> getParseFunction();
 
 	@Override
-	public T parseValues(@NotNull String @NotNull [] args) {
+	public T parseValues(@NotNull String @NotNull [] values) {
 		try {
-			return this.getParseFunction().apply(args[0]);
+			return this.getParseFunction().apply(values[0]);
 		} catch (NumberFormatException e) {
-			this.addError("Invalid " + this.getName() + " value: '" + args[0] + "'.");
+			this.addError("Invalid " + this.getName() + " value: '" + values[0] + "'.");
 			return null;
 		}
 	}

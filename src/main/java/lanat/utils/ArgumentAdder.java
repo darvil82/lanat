@@ -1,8 +1,9 @@
-package lanat;
+package lanat.utils;
 
+import lanat.Argument;
+import lanat.ArgumentType;
 import lanat.exceptions.ArgumentAlreadyExistsException;
 import lanat.exceptions.ArgumentNotFoundException;
-import lanat.utils.UtlMisc;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -15,20 +16,20 @@ public interface ArgumentAdder extends NamedWithDescription {
 	 * Inserts an argument into this container.
 	 *
 	 * @param argument the argument to be inserted
-	 * @param <T> the type of the argument
+	 * @param <Type> the type of the argument
 	 * @param <TInner> the type of the inner value of the argument
 	 */
-	<T extends ArgumentType<TInner>, TInner> void addArgument(@NotNull Argument<T, TInner> argument);
+	<Type extends ArgumentType<TInner>, TInner> void addArgument(@NotNull Argument<Type, TInner> argument);
 
 	/**
 	 * Inserts an argument into this container. This is a convenience method for {@link #addArgument(Argument)}.
 	 * It is equivalent to {@code addArgument(argument.build())}.
 	 * @param argument the argument to be inserted
-	 * @param <T> the type of the argument
+	 * @param <Type> the type of the argument
 	 * @param <TInner> the type of the inner value of the argument
 	 */
-	default <T extends ArgumentType<TInner>, TInner>
-	void addArgument(@NotNull ArgumentBuilder<T, TInner> argument) {
+	default <Type extends ArgumentType<TInner>, TInner>
+	void addArgument(@NotNull Builder<Argument<Type, TInner>> argument) {
 		this.addArgument(argument.build());
 	}
 

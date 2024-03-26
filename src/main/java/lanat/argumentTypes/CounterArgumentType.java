@@ -15,12 +15,12 @@ public class CounterArgumentType extends ArgumentType<Integer> {
 	}
 
 	@Override
-	public @NotNull Range getRequiredArgValueCount() {
+	public @NotNull Range getValueCountBounds() {
 		return Range.NONE;
 	}
 
 	@Override
-	public @NotNull Range getRequiredUsageCount() {
+	public @NotNull Range getUsageCountBounds() {
 		return Range.AT_LEAST_ONE;
 	}
 
@@ -30,7 +30,7 @@ public class CounterArgumentType extends ArgumentType<Integer> {
 	}
 
 	@Override
-	public Integer parseValues(String @NotNull [] args) {
+	public Integer parseValues(String @NotNull [] values) {
 		return this.getValue() + 1;
 	}
 

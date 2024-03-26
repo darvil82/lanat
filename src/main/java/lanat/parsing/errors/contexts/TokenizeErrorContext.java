@@ -1,4 +1,4 @@
-package lanat.parsing.errors;
+package lanat.parsing.errors.contexts;
 
 import lanat.Command;
 import org.jetbrains.annotations.NotNull;

@@ -1,18 +1,22 @@
 package lanat.helpRepresentation;
 
 import lanat.Command;
-import lanat.helpRepresentation.descriptions.DescriptionFormatter;
-import lanat.utils.UtlMisc;
+import lanat.helpRepresentation.descriptions.DescriptionParser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import textFormatter.FormatOption;
 import textFormatter.TextFormatter;
+import utils.exceptions.DisallowedInstantiationException;
+
+import java.util.Optional;
 
 /**
  * Contains methods for generating the help representations of {@link Command}s.
  */
 public final class CommandRepr {
-	private CommandRepr() {}
+	private CommandRepr() {
+		throw new DisallowedInstantiationException(CommandRepr.class);
+	}
 
 	/**
 	 * Returns the {@link #getRepresentation(Command)} of the Sub-Commands of the given command like shown below:
@@ -42,7 +46,7 @@ public final class CommandRepr {
 	public static @NotNull String getRepresentation(@NotNull Command cmd) {
 		return String.join(
 			"/",
-			cmd.getNames().stream().map(n -> new TextFormatter(n).addFormat(FormatOption.BOLD).toString()).toList()
+			cmd.getNames().stream().map(n -> TextFormatter.of(n).addFormat(FormatOption.BOLD).toString()).toList()
 		);
 	}
 
@@ -53,10 +57,9 @@ public final class CommandRepr {
 	 * @return the parsed description of the command
 	 */
 	public static @Nullable String getDescription(@NotNull Command cmd) {
-		return UtlMisc.nullOrElseGet(
-			DescriptionFormatter.parse(cmd),
-			desc -> CommandRepr.getRepresentation(cmd) + ":\n" + HelpFormatter.indent(desc, cmd)
-		);
+		return Optional.ofNullable(DescriptionParser.parse(cmd))
+			.map(desc -> CommandRepr.getRepresentation(cmd) + ":" + System.lineSeparator() + HelpFormatter.indent(desc, cmd))
+			.orElse(null);
 	}
 
 	/**
@@ -82,7 +85,7 @@ public final class CommandRepr {
 
 			buff.append(desc);
 
-			if (i < subCommands.size() - 1) buff.append("\n\n");
+			if (i < subCommands.size() - 1) buff.append(System.lineSeparator().repeat(2));
 		}
 
 		return buff.toString();

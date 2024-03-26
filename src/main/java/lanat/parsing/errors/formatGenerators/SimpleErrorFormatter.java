@@ -1,9 +1,9 @@
 package lanat.parsing.errors.formatGenerators;
 
-import lanat.parsing.errors.ErrorContext;
 import lanat.parsing.errors.ErrorFormatter;
-import lanat.parsing.errors.ParseErrorContext;
-import lanat.parsing.errors.TokenizeErrorContext;
+import lanat.parsing.errors.contexts.ErrorContext;
+import lanat.parsing.errors.contexts.ParseErrorContext;
+import lanat.parsing.errors.contexts.TokenizeErrorContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import textFormatter.FormatOption;
@@ -18,7 +18,7 @@ import utils.UtlString;
  * With, the values being:
  * <ul>
  * <li>{@code $ERRORLEVEL}: The error level</li>
- * <li>{@code $IN_TYPE}: The type of the input where the error occured (either 'token' or 'char')</li>
+ * <li>{@code $IN_TYPE}: The type of the input where the error occurred (either 'token' or 'char')</li>
  * <li>{@code $POS}: The position of the error in the input</li>
  * <li>{@code $INPUT}: The token at the position of the error, or the characters near the position</li>
  * <li>{@code $CONTENT}: The content of the error</li>
@@ -34,9 +34,7 @@ public class SimpleErrorFormatter extends ErrorFormatter {
 	protected @NotNull String generate() {
 		final var formatter = this.getErrorLevelFormatter()
 			.withContents("[")
-			.concat(this.getErrorLevel().name())
-			.concat(this.getGeneratedView())
-			.concat("]: ");
+			.concat(this.getErrorLevel().name(), this.getGeneratedView(), "]: ");
 
 		return formatter + this.getContentSingleLine();
 	}
@@ -62,7 +60,7 @@ public class SimpleErrorFormatter extends ErrorFormatter {
 			.map(opts -> {
 				final var range = ctx.applyAbsoluteOffset(opts.range());
 
-				var nearContents = new TextFormatter().addFormat(FormatOption.ITALIC);
+				var nearContents = TextFormatter.create().addFormat(FormatOption.ITALIC);
 
 				if (ctx instanceof TokenizeErrorContext tokenizeCtx) {
 					nearContents.concat(UtlString.escapeQuotes(tokenizeCtx.getInputNear(range.start(), 5)));
@@ -70,9 +68,8 @@ public class SimpleErrorFormatter extends ErrorFormatter {
 					nearContents.concat(parseCtx.getTokenAt(range.start()).getFormatter());
 				}
 
-				return new TextFormatter(" (" + (indicator + " " + (range.start() + 1)) + ", '")
-					.concat(nearContents)
-					.concat("')");
+				return TextFormatter.of(" (" + (indicator + " " + (range.start() + 1)) + ", '")
+					.concat(nearContents, "')");
 			})
 			.orElse(null);
 	}

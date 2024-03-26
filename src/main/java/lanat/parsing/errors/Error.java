@@ -1,7 +1,11 @@
 package lanat.parsing.errors;
 
-import lanat.ErrorLevel;
-import lanat.utils.ErrorLevelProvider;
+import lanat.parsing.errors.contexts.ErrorContext;
+import lanat.parsing.errors.contexts.ErrorFormattingContext;
+import lanat.parsing.errors.contexts.ParseErrorContext;
+import lanat.parsing.errors.contexts.TokenizeErrorContext;
+import lanat.utils.errors.ErrorLevel;
+import lanat.utils.errors.ErrorLevelProvider;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -29,6 +33,20 @@ public sealed interface Error<C extends ErrorContext> extends ErrorLevelProvider
 	default @NotNull ErrorLevel getErrorLevel() {
 		return ErrorLevel.ERROR;
 	}
+
+	/**
+	 * Determine whether this error should remove the other error from the list of errors.
+	 * Only errors of the same command are compared.
+	 * <p>
+	 * This method is invoked for each error in the list of errors,
+	 * and the error is removed if this method returns {@code true}.
+	 * @param other the other error
+	 * @return whether this error should remove the other error. By default, this method returns {@code false}.
+	 */
+	default boolean shouldRemoveOther(@NotNull Error<?> other) {
+		return false;
+	}
+
 
 	/** A parse error. Indicates a failure in the parsing process. */
 	non-sealed interface ParseError extends Error<ParseErrorContext> { }

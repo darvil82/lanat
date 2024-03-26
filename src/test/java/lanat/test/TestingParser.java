@@ -1,14 +1,9 @@
 package lanat.test;
 
-import lanat.ArgumentParser;
-import lanat.CLInput;
-import lanat.CommandTemplate;
-import lanat.ParseResultRoot;
+import lanat.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class TestingParser extends ArgumentParser {
 	public TestingParser(String programName, String description) {
@@ -27,9 +22,18 @@ public class TestingParser extends ArgumentParser {
 		return this.parse(CLInput.from(args)).getErrors();
 	}
 
+	@Override
+	public @NotNull AfterParseOptions parse(@NotNull CLInput input) {
+		return super.parse(input).withActions(AfterParseOptions.AfterParseActions::printErrors);
+	}
+
+	public @NotNull AfterParseOptions parse(@NotNull String input) {
+		return this.parse(CLInput.from(input));
+	}
+
 	public @NotNull ParseResultRoot parseGetValues(@NotNull String args) {
-		var res = this.parse(CLInput.from(args)).printErrors().getResult();
-		assertNotNull(res, "The result of the parsing was null (Arguments have failed)");
-		return res;
+		return this.parse(CLInput.from(args))
+			.withActions(AfterParseOptions.AfterParseActions::printErrors)
+			.getResult();
 	}
 }

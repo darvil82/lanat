@@ -1,9 +1,13 @@
 package lanat.parsing.errors;
 
-import lanat.ErrorLevel;
 import lanat.helpRepresentation.HelpFormatter;
+import lanat.parsing.errors.contexts.ErrorContext;
+import lanat.parsing.errors.contexts.ErrorFormattingContext;
+import lanat.parsing.errors.contexts.ParseErrorContext;
+import lanat.parsing.errors.contexts.TokenizeErrorContext;
 import lanat.parsing.errors.formatGenerators.PrettyErrorFormatter;
-import lanat.utils.ErrorLevelProvider;
+import lanat.utils.errors.ErrorLevel;
+import lanat.utils.errors.ErrorLevelProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import textFormatter.FormatOption;
@@ -17,12 +21,12 @@ import java.util.Optional;
  * Base class for error formatters. An error formatter defines how an error should be displayed to the user.
  * <p>
  * To use a custom error formatter, set {@link #errorFormatterClass} to the class of your custom error formatter.
- * This class will be automtically instantiated and used to generate the error message.
+ * This class will be automatically instantiated and used to generate the error message.
  * <p>
  * <strong>NOTE:</strong> the
  * custom error formatter class must <i>always</i> have a constructor that takes a {@link ErrorContext}.
  * <p>
- * An error formatter is instantiated by the {@link ErrorsCollector}, only one per Command at most, to switch to the
+ * An error formatter is instantiated by the {@link ErrorCollector}, only one per Command at most, to switch to the
  * next context. Note that it will only be instantiated if there are errors to display.
  */
 public abstract class ErrorFormatter implements ErrorLevelProvider {
@@ -93,7 +97,7 @@ public abstract class ErrorFormatter implements ErrorLevelProvider {
 		else if (this.currentErrorContext instanceof TokenizeErrorContext tokenizeContext)
 			result = this.generateInputView(tokenizeContext);
 
-		return Objects.requireNonNullElse(result, new TextFormatter());
+		return Objects.requireNonNullElse(result, TextFormatter.create());
 	}
 
 	@Override
@@ -106,7 +110,7 @@ public abstract class ErrorFormatter implements ErrorLevelProvider {
 	 * @return the error level formatter
 	 */
 	protected @NotNull TextFormatter getErrorLevelFormatter() {
-		return new TextFormatter(this.errorLevel.name())
+		return TextFormatter.of(this.errorLevel.name())
 			.withForegroundColor(this.errorLevel.color)
 			.addFormat(FormatOption.BOLD);
 	}
@@ -124,16 +128,16 @@ public abstract class ErrorFormatter implements ErrorLevelProvider {
 	 * @return the contents of the error, with all newlines replaced with spaces
 	 */
 	protected @NotNull String getContentSingleLine() {
-		return this.formattingContext.getContent().replaceAll("\n", " ");
+		return this.formattingContext.getContent().replaceAll(System.lineSeparator(), " ");
 	}
 
 	/**
-	 * Returns the contents of the error, wrapped to fit {@link HelpFormatter#lineWrapMax}.
-	 * @return the contents of the error, wrapped to fit {@link HelpFormatter#lineWrapMax}
+	 * Returns the contents of the error, wrapped to fit {@link HelpFormatter#getLineWrapMax()}.
+	 * @return the contents of the error, wrapped to fit {@link HelpFormatter#getLineWrapMax()}
 	 * @see UtlString#wrap(String, int)
 	 */
 	protected @NotNull String getContentWrapped() {
-		return UtlString.wrap(this.formattingContext.getContent(), HelpFormatter.lineWrapMax);
+		return UtlString.wrap(this.formattingContext.getContent(), HelpFormatter.getLineWrapMax());
 	}
 
 	/**

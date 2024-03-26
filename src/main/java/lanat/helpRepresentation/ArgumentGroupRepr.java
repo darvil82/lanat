@@ -2,19 +2,23 @@ package lanat.helpRepresentation;
 
 import lanat.Argument;
 import lanat.ArgumentGroup;
-import lanat.helpRepresentation.descriptions.DescriptionFormatter;
+import lanat.helpRepresentation.descriptions.DescriptionParser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import textFormatter.FormatOption;
 import textFormatter.TextFormatter;
+import utils.exceptions.DisallowedInstantiationException;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Contains methods for generating the help representations of {@link ArgumentGroup}s.
  */
 public final class ArgumentGroupRepr {
-	private ArgumentGroupRepr() {}
+	private ArgumentGroupRepr() {
+		throw new DisallowedInstantiationException(ArgumentGroupRepr.class);
+	}
 
 	/**
 	 * Returns the name and description of the given group like shown below:
@@ -26,16 +30,18 @@ public final class ArgumentGroupRepr {
 	 * @param group the group
 	 * @return the name and description of the group
 	 */
-	public static @Nullable String getDescription(@NotNull ArgumentGroup group) {
-		final var description = DescriptionFormatter.parse(group);
+	public static @NotNull String getDescription(@NotNull ArgumentGroup group) {
+		final var buff = new StringBuilder(ArgumentGroupRepr.getName(group))
+			.append(':');
+
+		final var description = DescriptionParser.parse(group);
 		if (description == null)
-			return null;
+			return buff.toString();
 
-		final var name = new TextFormatter(group.getName() + ':').addFormat(FormatOption.BOLD);
-		if (group.isRestricted())
-			name.addFormat(FormatOption.UNDERLINE);
+		buff.append(System.lineSeparator());
+		buff.append(HelpFormatter.indent(description, group));
 
-		return '\n' + name.toString() + '\n' + HelpFormatter.indent(description, group);
+		return buff.toString();
 	}
 
 	/**
@@ -52,29 +58,34 @@ public final class ArgumentGroupRepr {
 	 * @param group the group
 	 * @return the descriptions of the arguments and subgroups of the group
 	 */
-	public static @NotNull String getDescriptions(@NotNull ArgumentGroup group) {
-		final var arguments = Argument.sortByPriority(group.getArguments());
+	public static @Nullable String getDescriptions(@NotNull ArgumentGroup group) {
 		final var buff = new StringBuilder();
-		final var name = new TextFormatter(group.getName() + ':').addFormat(FormatOption.BOLD);
-		final var description = DescriptionFormatter.parse(group);
-		final var argumentDescriptions = ArgumentRepr.getDescriptions(arguments);
 
-		if (description == null && argumentDescriptions.isEmpty())
-			return "";
+		final var argDescriptions = ArgumentRepr.getDescriptions(
+			Argument.sortByPriority(group.getArguments()), true
+		);
 
-		if (group.isRestricted())
-			name.addFormat(FormatOption.UNDERLINE);
+		final var grpDescriptions = group.getGroups().stream()
+			.map(ArgumentGroupRepr::getDescriptions)
+			.filter(Objects::nonNull)
+			.toList();
 
-		if (description != null)
-			buff.append(description).append("\n\n");
 
-		buff.append(ArgumentRepr.getDescriptions(arguments));
+		if (grpDescriptions.isEmpty() && argDescriptions == null)
+			return null;
 
-		for (final var subGroup : group.getGroups()) {
-			buff.append(ArgumentGroupRepr.getDescriptions(subGroup));
-		}
+		if (argDescriptions != null)
+			buff.append(argDescriptions);
 
-		return '\n' + name.toString() + '\n' + HelpFormatter.indent(buff.toString(), group);
+		if (argDescriptions != null && !grpDescriptions.isEmpty())
+			buff.append(System.lineSeparator());
+
+		grpDescriptions.forEach(buff::append);
+
+		return ArgumentGroupRepr.getDescription(group)
+			+ System.lineSeparator().repeat(2)
+			+ HelpFormatter.indent(buff.toString(), group)
+			+ System.lineSeparator();
 	}
 
 
@@ -86,7 +97,7 @@ public final class ArgumentGroupRepr {
 	 * The arguments are sorted by priority.
 	 * @param group the group
 	 */
-	public static String getRepresentation(@NotNull ArgumentGroup group) {
+	public static @NotNull String getRepresentation(@NotNull ArgumentGroup group) {
 		final var buff = new StringBuilder();
 
 		// its empty, nothing to append
@@ -96,11 +107,14 @@ public final class ArgumentGroupRepr {
 		if (group.isRestricted())
 			buff.append('(');
 
-		final var arguments = Argument.sortByPriority(group.getArguments());
+		final var arguments = Argument.sortByPriority(group.getArguments()).stream()
+			.filter(arg -> !arg.isHidden())
+			.toList();
+
 		for (int i = 0; i < arguments.size(); i++) {
 			Argument<?, ?> arg = arguments.get(i);
 
-			buff.append(ArgumentRepr.getRepresentation(arg));
+			buff.append(ArgumentRepr.getRepresentation(arg, false));
 			if (i < arguments.size() - 1) {
 				buff.append(' ');
 				if (group.isRestricted())
@@ -130,5 +144,21 @@ public final class ArgumentGroupRepr {
 			buff.append(')');
 
 		return buff.toString();
+	}
+
+
+	/**
+	 * Returns the name of the given group, formatted with bold and underline if restricted.
+	 * @param group the group
+	 * @return the name of the group
+	 */
+	public static @NotNull String getName(@NotNull ArgumentGroup group) {
+		final var name = TextFormatter.of(group.getName())
+			.addFormat(FormatOption.BOLD);
+
+		if (group.isRestricted())
+			name.addFormat(FormatOption.UNDERLINE);
+
+		return name.toString();
 	}
 }

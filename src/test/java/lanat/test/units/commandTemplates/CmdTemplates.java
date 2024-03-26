@@ -13,16 +13,16 @@ import java.util.Optional;
 public class CmdTemplates {
 	@Command.Define(names = "cmd1")
 	public static class CmdTemplate1 extends CommandTemplate {
-		@Argument.Define(argType = IntegerArgumentType.class)
+		@Argument.Define(type = IntegerArgumentType.class)
 		public Integer number;
 
-		@Argument.Define(argType = StringArgumentType.class)
+		@Argument.Define(type = StringArgumentType.class)
 		public String text;
 
-		@Argument.Define(names = { "name1", "f" }, argType = BooleanArgumentType.class)
+		@Argument.Define(names = { "name1", "f" }, type = BooleanArgumentType.class)
 		public boolean flag;
 
-		@Argument.Define(argType = IntegerArgumentType.class)
+		@Argument.Define(type = IntegerArgumentType.class)
 		public Optional<Integer> numberParsedArgValue = Optional.of(0);
 
 
@@ -31,10 +31,10 @@ public class CmdTemplates {
 
 		@Command.Define(names = "cmd1-1")
 		public static class CmdTemplate1_1 extends CommandTemplate {
-			@Argument.Define(argType = FloatArgumentType.class)
+			@Argument.Define(type = FloatArgumentType.class)
 			public Float number;
 
-			@Argument.Define(argType = IntegerArgumentType.class)
+			@Argument.Define(type = IntegerArgumentType.class)
 			public Optional<Integer> number2;
 		}
 	}
@@ -47,7 +47,7 @@ public class CmdTemplates {
 
 	@Command.Define
 	public static class CmdTemplate3 extends CommandTemplate {
-		@Argument.Define(argType = IntegerArgumentType.class, positional = true)
+		@Argument.Define(type = IntegerArgumentType.class, positional = true)
 		public int number;
 
 		@CommandAccessor
@@ -55,7 +55,7 @@ public class CmdTemplates {
 
 		@Command.Define(names = "cmd3-1")
 		public static class CmdTemplate3_1 extends CommandTemplate {
-			@Argument.Define(argType = IntegerArgumentType.class, positional = true)
+			@Argument.Define(type = IntegerArgumentType.class, positional = true)
 			public int number;
 
 			@CommandAccessor
@@ -63,7 +63,7 @@ public class CmdTemplates {
 
 			@Command.Define(names = "cmd3-1-1")
 			public static class CmdTemplate3_1_1 extends CommandTemplate {
-				@Argument.Define(argType = IntegerArgumentType.class, positional = true)
+				@Argument.Define(type = IntegerArgumentType.class, positional = true)
 				public int number;
 			}
 		}

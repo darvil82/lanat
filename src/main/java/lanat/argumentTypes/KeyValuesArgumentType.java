@@ -8,27 +8,29 @@ import utils.Range;
 import utils.UtlString;
 
 import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Map;
 import java.util.Objects;
 
 /**
- * An argument type that takes key-value pairs. The key is a string and the value is of another type that is specified
- * in the constructor.
+ * An argument type that takes key-value pairs. The key is a string, and the value is of the argument type given in the
+ * constructor. The key-value pairs are separated by an equals sign (e.g. {@code key=value}).
  * <p>
  * The final value of this argument type is a {@link HashMap} of the key-value pairs.
  * </p>
- * @param <T> The type of the argument type used to parse the values.
- * @param <Ts> The type of the values.
+ * @param <Type> The type of the argument type used to parse the values.
+ * @param <TInner> The type of the values.
  * @see HashMap
  */
-public class KeyValuesArgumentType<T extends ArgumentType<Ts>, Ts> extends ArgumentType<HashMap<String, Ts>> {
-	private final @NotNull ArgumentType<Ts> valueArgumentType;
+public class KeyValuesArgumentType<Type extends ArgumentType<TInner>, TInner> extends ArgumentType<Map<String, TInner>> {
+	private final @NotNull ArgumentType<TInner> valueArgumentType;
 
 	/**
 	 * Creates a new key-values argument type.
 	 * @param argumentType The argument type used to parse the values.
 	 */
-	public KeyValuesArgumentType(@NotNull T argumentType) {
-		if (argumentType.getRequiredArgValueCount().start() != 1)
+	public KeyValuesArgumentType(@NotNull Type argumentType) {
+		if (argumentType.getValueCountBounds().start() != 1)
 			throw new IllegalArgumentException("The argumentType must at least accept one value.");
 
 		this.valueArgumentType = argumentType;
@@ -36,49 +38,54 @@ public class KeyValuesArgumentType<T extends ArgumentType<Ts>, Ts> extends Argum
 	}
 
 	@Override
-	public @NotNull Range getRequiredArgValueCount() {
+	public @NotNull Range getValueCountBounds() {
 		return Range.AT_LEAST_ONE;
 	}
 
 	@Override
-	public HashMap<@NotNull String, @NotNull Ts> parseValues(String @NotNull [] args) {
-		HashMap<String, Ts> tempHashMap = new HashMap<>();
+	public Map<@NotNull String, @NotNull TInner> parseValues(String @NotNull [] values) {
+		var map = new Hashtable<String, TInner>();
 
-		this.forEachArgValue(args, arg -> {
-			final var split = UtlString.split(arg, '=');
+		this.getArgValuesStream(values)
+			.forEach(arg -> {
+				final var split = UtlString.split(arg, '=');
 
-			if (split.length != 2) {
-				this.addError("Invalid key-value pair: '" + arg + "'.");
-				return;
-			}
+				if (split.length != 2) {
+					this.addError("Invalid key-value pair: '" + arg + "'.");
+					return;
+				}
 
-			final var key = split[0];
-			final var value = split[1];
+				final var key = split[0];
+				final var value = split[1];
 
-			if (key.isEmpty()) {
-				this.addError("Key cannot be empty.");
-				return;
-			}
+				if (key.isBlank()) {
+					this.addError("Key cannot be empty.");
+					return;
+				}
 
-			if (tempHashMap.containsKey(key)) {
-				this.addError("Duplicate key: '" + key + "'.");
-				return;
-			}
+				if (map.containsKey(key)) {
+					this.addError("Duplicate key: '" + key + "'.");
+					return;
+				}
 
-			tempHashMap.put(key, this.valueArgumentType.parseValues(value));
-		});
+				var valueResult = this.valueArgumentType.parseValues(value);
 
-		if (tempHashMap.isEmpty())
+				if (valueResult == null)
+					return;
+
+				map.put(key, valueResult);
+			});
+
+		if (map.isEmpty())
 			return null;
 
-		return tempHashMap;
+		return map;
 	}
 
 	@Override
 	public @NotNull TextFormatter getRepresentation() {
-		return new TextFormatter("(key=")
-			.concat(Objects.requireNonNull(this.valueArgumentType.getRepresentation()))
-			.concat(", ...)");
+		return TextFormatter.of("(key=")
+			.concat(Objects.requireNonNull(this.valueArgumentType.getRepresentation()), ", ...)");
 	}
 
 	@Override

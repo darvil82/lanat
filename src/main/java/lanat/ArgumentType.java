@@ -3,17 +3,19 @@ package lanat;
 import lanat.argumentTypes.FromParseableArgumentType;
 import lanat.argumentTypes.IntegerArgumentType;
 import lanat.argumentTypes.Parseable;
-import lanat.parsing.errors.CustomErrorImpl;
 import lanat.parsing.errors.Error;
-import lanat.utils.ErrorsContainerImpl;
+import lanat.parsing.errors.handlers.CustomErrorImpl;
+import lanat.utils.ParentElementGetter;
 import lanat.utils.Resettable;
+import lanat.utils.errors.ErrorContainerImpl;
+import lanat.utils.errors.ErrorLevel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import utils.Pair;
-import utils.Range;
 
 import java.util.ArrayList;
-import java.util.function.Consumer;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 /**
  * <h2>Argument Type</h2>
@@ -40,10 +42,10 @@ import java.util.function.Consumer;
  * use that implementation, you need to wrap it in a {@link FromParseableArgumentType} instance (which provides the
  * necessary internal functionality).
  * </p>
- * @param <T> The type of the value that this argument type parses.
+ * @param <T> The type of the value that this argument type will parse into.
  */
 public abstract class ArgumentType<T>
-	extends ErrorsContainerImpl<Error.CustomError>
+	extends ErrorContainerImpl<Error.CustomError>
 	implements Resettable, Parseable<T>, ParentElementGetter<ArgumentType<?>>
 {
 	/** This is the value that this argument type current has while being parsed. */
@@ -60,65 +62,69 @@ public abstract class ArgumentType<T>
 	 */
 	private int currentArgValueIndex = 0;
 
-	/**
-	 * This is used for storing errors that occur during parsing. We need to keep track of the index of the token that
-	 * caused the error.
-	 */
-	private int lastTokenIndex = 0;
+	/** A snapshot of the state of the argument type during parsing. */
+	public record ParseStateSnapshot(int tokenIndex, int receivedValuesCount, boolean inTuple, boolean positional) {}
 
-	/**
-	 * This specifies the number of values that this argument received when being parsed.
-	 */
-	private int lastReceivedValuesNum = 0;
-
-	/** This specifies whether the last value that this argument received was in a tuple. */
-	private boolean lastInTuple = false;
+	private ParseStateSnapshot lastParseState;
 
 	/** This specifies the number of times this argument type has been used during parsing. */
-	short usageCount = 0;
+	int usageCount = 0;
 
 	/**
 	 * The parent argument type is the one that wants to listen for errors that occur in this argument type. This value
 	 * is set by the parent argument type when it runs {@link ArgumentType#registerSubType(ArgumentType)}.
 	 */
 	private @Nullable ArgumentType<?> parentArgType;
-	private final @NotNull ArrayList<@NotNull ArgumentType<?>> subTypes = new ArrayList<>();
+	private final @NotNull ArrayList<@NotNull ArgumentType<?>> subTypes = new ArrayList<>(0);
 
 
 	/**
-	 * Constructs a new argument type with the specified initial value.
+	 * Constructs a new argument type with the specified initial value. Also sets the current value.
 	 * @param initialValue The initial value of this argument type.
 	 */
-	public ArgumentType(@NotNull T initialValue) {
+	protected ArgumentType(@NotNull T initialValue) {
 		this();
-		this.setValue(this.initialValue = initialValue);
+		this.initialValue = initialValue;
+		this.currentValue = initialValue;
 	}
 
 	/**
 	 * Constructs a new argument type.
 	 */
-	public ArgumentType() {
-		if (this.getRequiredUsageCount().start() == 0) {
+	protected ArgumentType() {
+		ArgumentType.checkValidState(this);
+	}
+
+	/**
+	 * Constructs a new argument type with the specified parseable.
+	 */
+	protected ArgumentType(@NotNull Parseable<T> parseable) {
+		ArgumentType.checkValidState(parseable);
+	}
+
+	/**
+	 * Checks if the specified parseable is in a valid state.
+	 * @param parseable The parseable to check.
+	 */
+	private static void checkValidState(@NotNull Parseable<?> parseable) {
+		if (parseable.getUsageCountBounds().start() == 0) {
 			throw new IllegalArgumentException("The required usage count must be at least 1.");
 		}
 	}
 
 	/**
 	 * Saves the specified tokenIndex and the number of values received, and then parses the values.
-	 * @param tokenIndex The index of the token that caused the parsing of this argument type.
-	 * @param inTuple Whether the values were received in a tuple.
+	 * @param snapshot The snapshot of this parse operation.
 	 * @param values The values to parse.
 	 */
-	public final void parseAndUpdateValue(int tokenIndex, boolean inTuple, @NotNull String... values) {
+	public final void parseAndUpdateValue(@NotNull ArgumentType.ParseStateSnapshot snapshot, @NotNull String... values) {
 		this.usageCount++;
-		this.lastTokenIndex = tokenIndex;
-		this.lastInTuple = inTuple;
-		this.lastReceivedValuesNum = values.length;
+		this.lastParseState = snapshot;
 		this.currentValue = this.parseValues(values);
 	}
 
 	/**
-	 * By registering a subtype, this allows you to listen for errors that occurred in this subtype during parsing. The
+	 * Registers a subtype. This allows you to listen for errors that occurred in this subtype during parsing. The
 	 * {@link ArgumentType#onSubTypeError(Error.CustomError)} method will be called when an error occurs.
 	 */
 	protected final void registerSubType(@NotNull ArgumentType<?> subType) {
@@ -128,6 +134,18 @@ public abstract class ArgumentType<T>
 
 		subType.parentArgType = this;
 		this.subTypes.add(subType);
+	}
+
+	/**
+	 * Unregisters the specified subtype from this argument type.
+	 */
+	protected final void unregisterSubType(@NotNull ArgumentType<?> subType) {
+		if (subType.parentArgType != this) {
+			throw new IllegalArgumentException("The argument type specified is not registered to this argument type.");
+		}
+
+		subType.parentArgType = null;
+		this.subTypes.remove(subType);
 	}
 
 	/**
@@ -144,11 +162,14 @@ public abstract class ArgumentType<T>
 	/**
 	 * Dispatches the error to the parent argument type.
 	 * @param error The error to dispatch.
+	 * @return {@code true} if the error was dispatched, {@code false} otherwise.
 	 */
-	private void dispatchErrorToParent(@NotNull Error.CustomError error) {
-		if (this.parentArgType != null) {
-			this.parentArgType.onSubTypeError(error);
-		}
+	private boolean dispatchErrorToParent(@NotNull Error.CustomError error) {
+		if (this.parentArgType == null)
+			return false;
+
+		this.parentArgType.onSubTypeError(error);
+		return true;
 	}
 
 	/**
@@ -169,34 +190,11 @@ public abstract class ArgumentType<T>
 	}
 
 	/**
-	 * Sets the current value of this argument type.
-	 */
-	protected void setValue(@NotNull T value) {
-		this.currentValue = value;
-	}
-
-	/**
 	 * Returns the initial value of this argument type, if specified.
 	 * @return The initial value of this argument type, {@code null} if not specified.
 	 */
-	public T getInitialValue() {
+	public final T getInitialValue() {
 		return this.initialValue;
-	}
-
-	@Override
-	public @NotNull Range getRequiredArgValueCount() {
-		return Range.ONE;
-	}
-
-	/**
-	 * Specifies the number of times this argument type can be used during parsing.
-	 * By default, this is 1. ({@link Range#ONE}).
-	 * <p>
-	 * <strong>Note: </strong> The minimum value must be at least 1.
-	 * </p>
-	 */
-	public @NotNull Range getRequiredUsageCount() {
-		return Range.ONE;
 	}
 
 	/**
@@ -245,58 +243,52 @@ public abstract class ArgumentType<T>
 	@Override
 	public void addError(@NotNull Error.CustomError error) {
 		// the index of the error should never be less than 0 or greater than the max value count
-		if (error.getIndex() < 0 || error.getIndex() >= this.getRequiredArgValueCount().end()) {
-			throw new IndexOutOfBoundsException("Index " + error.getIndex() + " is out of range for " + this.getClass().getName());
+		if (error.getIndex() < 0 || error.getIndex() >= this.getValueCountBounds().end()) {
+			throw new IndexOutOfBoundsException(
+				"Error index " + error.getIndex() + " is out of range for argument type '" + this.getName() + "'."
+			);
 		}
+
+		if (this.dispatchErrorToParent(error))
+			return; // if the error was dispatched to the parent, we don't need to add it to the list of errors.
 
 		// the index of the error should be relative to the last token index.
-		// if this is a subtype, lastTokenIndex will be 0, so nothing will be done here.
-		// proper offsetting will be done when the error is dispatched to the parent.
-		error.offsetIndex(this.lastTokenIndex);
-
-		if (this.parentArgType != null) {
-			this.dispatchErrorToParent(error);
-			return;
-		}
-
+		error.offsetIndex(this.lastParseState.tokenIndex);
 		super.addError(error);
 	}
 
 	/**
-	 * Returns the index of the last token that was parsed.
+	 * Returns a pair of two integers. The first integer is the index of the last token that was parsed. The second
+	 * integer is the number of values that this argument received when being parsed the last time.
+	 * These indices take into account whether the last value was in a tuple or not.
+	 * @return The index of the last token that was parsed, and the number of values that this argument received.
 	 */
-	protected int getLastTokenIndex() {
-		return this.lastTokenIndex;
-	}
-
-	/**
-	 * Returns the number of values that this argument received when being parsed the last time.
-	 */
-	int getLastReceivedValuesNum() {
-		return this.lastReceivedValuesNum;
-	}
-
-	@NotNull Pair<Integer, Integer> getLastTokensIndicesPair() {
-		int inTupleOffset = this.lastInTuple ? 1 : 0;
+	@NotNull Pair<@NotNull Integer, @NotNull Integer> getLastTokensIndicesPair() {
+		int inTupleOffset = this.lastParseState.inTuple ? 1 : 0;
+		int positionalOffset = this.lastParseState.positional ? 1 : 0;
 
 		return new Pair<>(
-			this.lastTokenIndex - 1 - inTupleOffset,
-			this.lastReceivedValuesNum + inTupleOffset*2
+			this.lastParseState.tokenIndex - (1 - positionalOffset) - inTupleOffset,
+			this.lastParseState.receivedValuesCount + inTupleOffset*2 - positionalOffset
 		);
 	}
 
 	/**
-	 * Iterates over the values that this argument received when being parsed. This also sets
-	 * {@code this.currentArgValueIndex} to the current index of the value.
-	 *
-	 * @param args The values that this argument received when being parsed.
-	 * @param consumer The consumer that will be called for each value.
+	 * @return The parse state snapshot of the last parsing operation.
 	 */
-	protected final void forEachArgValue(@NotNull String @NotNull [] args, @NotNull Consumer<@NotNull String> consumer) {
-		for (int i = 0; i < args.length; i++) {
-			this.currentArgValueIndex = i;
-			consumer.accept(args[i]);
-		}
+	public ParseStateSnapshot getLastParseState() {
+		return this.lastParseState;
+	}
+
+	/**
+	 * Returns a stream of the values that this argument received when being parsed. This also sets
+	 * {@code this.currentArgValueIndex} to the current index of the value when the stream is consumed.
+	 * @param args The values that this argument received when being parsed.
+	 * @return A stream of the values that this argument received when being parsed.
+	 */
+	protected final Stream<String> getArgValuesStream(@NotNull String @NotNull [] args) {
+		var index = new AtomicInteger(0);
+		return Stream.of(args).peek(arg -> this.currentArgValueIndex = index.getAndIncrement());
 	}
 
 	@Override
@@ -304,11 +296,8 @@ public abstract class ArgumentType<T>
 		super.resetState();
 
 		this.currentValue = this.initialValue;
-		this.lastTokenIndex = 0;
 		this.currentArgValueIndex = 0;
-		this.lastReceivedValuesNum = 0;
 		this.usageCount = 0;
-		this.lastInTuple = false;
 
 		// reset the state of the subtypes.
 		this.subTypes.forEach(ArgumentType::resetState);

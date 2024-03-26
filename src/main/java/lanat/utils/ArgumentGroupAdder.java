@@ -1,8 +1,8 @@
-package lanat;
+package lanat.utils;
 
+import lanat.ArgumentGroup;
 import lanat.exceptions.ArgumentGroupAlreadyExistsException;
 import lanat.exceptions.ArgumentGroupNotFoundException;
-import lanat.utils.UtlMisc;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;

@@ -1,4 +1,4 @@
-package lanat.utils;
+package lanat.utils.errors;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

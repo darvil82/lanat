@@ -14,7 +14,7 @@ import java.util.Scanner;
  */
 public class StdinArgumentType extends ArgumentType<String> {
 	@Override
-	public @NotNull Range getRequiredArgValueCount() {
+	public @NotNull Range getValueCountBounds() {
 		return Range.NONE;
 	}
 
@@ -24,12 +24,12 @@ public class StdinArgumentType extends ArgumentType<String> {
 	}
 
 	@Override
-	public String parseValues(@NotNull String @NotNull [] args) {
+	public String parseValues(@NotNull String @NotNull [] values) {
 		final var input = new StringBuilder();
 
 		try (var scanner = new Scanner(System.in)) {
 			while (scanner.hasNextLine()) {
-				input.append(scanner.nextLine()).append('\n');
+				input.append(scanner.nextLine()).append(System.lineSeparator());
 			}
 		}
 

@@ -1,15 +1,12 @@
 package lanat.helpRepresentation.descriptions;
 
-import lanat.NamedWithDescription;
+import lanat.helpRepresentation.descriptions.exceptions.MalformedTagException;
 import lanat.helpRepresentation.descriptions.exceptions.UnknownTagException;
-import lanat.helpRepresentation.descriptions.tags.ColorTag;
-import lanat.helpRepresentation.descriptions.tags.DescTag;
-import lanat.helpRepresentation.descriptions.tags.FormatTag;
-import lanat.helpRepresentation.descriptions.tags.LinkTag;
+import lanat.helpRepresentation.descriptions.tags.*;
+import lanat.utils.NamedWithDescription;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import utils.UtlReflection;
-import utils.UtlString;
 
 import java.util.Hashtable;
 import java.util.Map;
@@ -37,12 +34,13 @@ public abstract class Tag {
 	protected abstract @NotNull String parse(@NotNull NamedWithDescription user, @Nullable String value);
 
 
-	/** Initialize the tags. This method will register the default tags that are used in descriptions. */
-	public static void initTags() {
+	// Initialize the default tags.
+	static {
 		Tag.register("link", LinkTag.class);
 		Tag.register("desc", DescTag.class);
 		Tag.register("color", ColorTag.class);
 		Tag.register("format", FormatTag.class);
+		Tag.register("default", DefaultValueTag.class);
 	}
 
 	/**
@@ -71,7 +69,26 @@ public abstract class Tag {
 	public static void register(@NotNull String name, @NotNull Class<? extends Tag> tag) {
 		if (!Tag.isValidTagName(name))
 			throw new IllegalArgumentException("Tag name must only contain lowercase letters and dashes");
-		Tag.REGISTERED_TAGS.put(name.toLowerCase(), tag);
+
+		var lowerName = name.toLowerCase();
+
+		if (Tag.REGISTERED_TAGS.containsKey(lowerName))
+			throw new IllegalArgumentException("Tag '" + name + "' is already registered");
+
+		Tag.REGISTERED_TAGS.put(lowerName, tag);
+	}
+
+	/**
+	 * Unregister a tag. This method will unregister the tag with the given name.
+	 * @param name name of the tag to unregister
+	 */
+	public static void unregister(@NotNull String name) {
+		var lowerName = name.toLowerCase();
+
+		if (!Tag.REGISTERED_TAGS.containsKey(lowerName))
+			throw new IllegalArgumentException("Tag '" + name + "' is not registered");
+
+		Tag.REGISTERED_TAGS.remove(lowerName);
 	}
 
 	/**
@@ -93,6 +110,9 @@ public abstract class Tag {
 		if (tagClass == null)
 			throw new UnknownTagException(tagName);
 
+		if (value != null && value.isBlank())
+			throw new MalformedTagException("empty tag value for tag '" + value + "'");
+
 		return UtlReflection.instantiate(tagClass).parse(user, value);
 	}
 
@@ -110,6 +130,6 @@ public abstract class Tag {
 		return !name.isBlank()
 			&& Character.isAlphabetic(name.charAt(0))
 			&& Character.isAlphabetic(name.charAt(name.length() - 1))
-			&& UtlString.allCharsMatch(name, c -> Character.isAlphabetic(c) || c == '-');
+			&& name.chars().allMatch(c -> Character.isAlphabetic(c) || c == '-');
 	}
 }

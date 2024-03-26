@@ -16,7 +16,7 @@ import java.util.function.Supplier;
  * @see HelpFormatter
  */
 public class LayoutItem {
-	private byte indentCount = 0;
+	private int indentCount = 0;
 	private @Nullable String title;
 	private int marginTop, marginBottom;
 	private final @NotNull Function<@NotNull Command, @Nullable String> layoutGenerator;
@@ -63,8 +63,11 @@ public class LayoutItem {
 	 *
 	 * @param indent the indent of the layout item
 	 */
-	public LayoutItem indent(int indent) {
-		this.indentCount = (byte)Math.max(indent, 0);
+	public LayoutItem withIndent(int indent) {
+		if (indent < 0)
+			throw new IllegalArgumentException("indent cannot be negative");
+
+		this.indentCount = indent;
 		return this;
 	}
 
@@ -74,8 +77,11 @@ public class LayoutItem {
 	 *
 	 * @param marginTop the size of the margin at the top of the layout item
 	 */
-	public LayoutItem marginTop(int marginTop) {
-		this.marginTop = Math.max(marginTop, 0);
+	public LayoutItem withMarginTop(int marginTop) {
+		if (marginTop < 0)
+			throw new IllegalArgumentException("marginTop cannot be negative");
+
+		this.marginTop = marginTop;
 		return this;
 	}
 
@@ -85,8 +91,11 @@ public class LayoutItem {
 	 *
 	 * @param marginBottom the size of the margin at the bottom of the layout item
 	 */
-	public LayoutItem marginBottom(int marginBottom) {
-		this.marginBottom = Math.max(marginBottom, 0);
+	public LayoutItem withMarginBottom(int marginBottom) {
+		if (marginBottom < 0)
+			throw new IllegalArgumentException("marginBottom cannot be negative");
+
+		this.marginBottom = marginBottom;
 		return this;
 	}
 
@@ -96,9 +105,9 @@ public class LayoutItem {
 	 *
 	 * @param margin the size of the margin at the top and bottom of the layout item
 	 */
-	public LayoutItem margin(int margin) {
-		this.marginTop(margin);
-		return this.marginBottom(margin);
+	public LayoutItem withMargin(int margin) {
+		this.withMarginTop(margin);
+		return this.withMarginBottom(margin);
 	}
 
 	/**
@@ -114,7 +123,7 @@ public class LayoutItem {
 	 *
 	 * @param title the title of the layout item
 	 */
-	public LayoutItem title(String title) {
+	public LayoutItem withTitle(String title) {
 		this.title = title;
 		return this;
 	}
@@ -138,11 +147,11 @@ public class LayoutItem {
 	public @Nullable String generate(@NotNull HelpFormatter helpFormatter, @NotNull Command cmd) {
 		final var content = this.layoutGenerator.apply(cmd);
 		return (content == null || content.isEmpty()) ? null : (
-			"\n".repeat(this.marginTop)
-				+ (this.title == null ? "" : this.title + "\n\n")
+			System.lineSeparator().repeat(this.marginTop)
+				+ (this.title == null ? "" : this.title + System.lineSeparator().repeat(2))
 				// strip() is used here because trim() also removes \022 (escape character)
 				+ UtlString.indent(content.strip(), this.indentCount * helpFormatter.getIndentSize())
-				+ "\n".repeat(this.marginBottom)
+				+ System.lineSeparator().repeat(this.marginBottom)
 		);
 	}
 }

@@ -1,7 +1,9 @@
 package lanat.argumentTypes;
 
 import lanat.ArgumentType;
+import lanat.ArgumentTypeInfer;
 import lanat.exceptions.ArgumentTypeException;
+import lanat.exceptions.ArgumentTypeInferException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,6 +21,8 @@ import java.util.stream.Stream;
  * The type given must have a static {@code valueOf(String)}, {@code parse(String)}, or {@code from(String)} method,
  * or a constructor that takes a string. If none of these are found, an exception will be thrown.
  * </p>
+ * This argument type will first attempt to infer the argument type from the type given in the constructor,
+ * and if it fails to do so, it will use the method approach.
  * @param <T> The type to parse the string into.
  */
 public class TryParseArgumentType<T> extends ArgumentType<T> {
@@ -37,7 +41,20 @@ public class TryParseArgumentType<T> extends ArgumentType<T> {
 	 */
 	public TryParseArgumentType(@NotNull Class<T> type) {
 		this.type = type;
+		ArgumentType<?> infer = null;
 
+		// first try to infer the type
+		try {
+			infer = ArgumentTypeInfer.get(type);
+		} catch (ArgumentTypeInferException ignored) {}
+
+		if (infer != null) {
+			this.registerSubType(infer);
+			this.parseMethod = infer::parseValues;
+			return;
+		}
+
+		// didnt find an inferred type, so use the method approach
 		if ((this.parseMethod = this.getParseMethod()) == null)
 			throw new ArgumentTypeException(
 				"Type " + type.getName() + " must have a static valueOf(String), parse(String), "
@@ -73,7 +90,7 @@ public class TryParseArgumentType<T> extends ArgumentType<T> {
 	 * <li>One that is a valid executable (see {@link #isValidExecutable(Executable)})</li>
 	 * <li>Has a return type of the type given in the constructor</li>
 	 * </ul>
-	 * @param method
+	 * @param method The method to check
 	 * @return {@code true} if the given method is a valid method for this argument type
 	 */
 	private boolean isValidMethod(Method method) {
@@ -118,11 +135,11 @@ public class TryParseArgumentType<T> extends ArgumentType<T> {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public @Nullable T parseValues(@NotNull String @NotNull [] args) {
+	public @Nullable T parseValues(@NotNull String @NotNull [] values) {
 		try {
-			return (T)this.parseMethod.apply(args[0]);
-		} catch (Exception e) {
-			throw new ArgumentTypeException("Unable to cast value '" + args[0] + "' to type " + this.type.getSimpleName() + ".", e);
+			return (T)this.parseMethod.apply(values[0]);
+		} catch (ClassCastException e) {
+			throw new ArgumentTypeException("Unable to cast value '" + values[0] + "' to type " + this.type.getSimpleName() + ".", e);
 		}
 	}
 

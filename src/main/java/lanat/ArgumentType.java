@@ -107,7 +107,7 @@ public abstract class ArgumentType<T>
 	 * @param parseable The parseable to check.
 	 */
 	private static void checkValidState(@NotNull Parseable<?> parseable) {
-		if (parseable.getRequiredUsageCount().start() == 0) {
+		if (parseable.getUsageCountBounds().start() == 0) {
 			throw new IllegalArgumentException("The required usage count must be at least 1.");
 		}
 	}
@@ -243,7 +243,7 @@ public abstract class ArgumentType<T>
 	@Override
 	public void addError(@NotNull Error.CustomError error) {
 		// the index of the error should never be less than 0 or greater than the max value count
-		if (error.getIndex() < 0 || error.getIndex() >= this.getRequiredArgValueCount().end()) {
+		if (error.getIndex() < 0 || error.getIndex() >= this.getValueCountBounds().end()) {
 			throw new IndexOutOfBoundsException(
 				"Error index " + error.getIndex() + " is out of range for argument type '" + this.getName() + "'."
 			);

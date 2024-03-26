@@ -54,7 +54,7 @@ public class BooleanArgumentType extends ArgumentType<Boolean> {
 
 	@Override
 	// this is a boolean type. if the arg is present, that's enough.
-	public @NotNull Range getRequiredArgValueCount() {
+	public @NotNull Range getValueCountBounds() {
 		return Range.NONE_OR_ONE;
 	}
 }

@@ -29,7 +29,7 @@ public interface Parseable<T> extends NamedWithDescription {
 	 * <strong>Note: </strong> The minimum value must be at least 1.
 	 * </p>
 	 */
-	default @NotNull Range getRequiredUsageCount() {
+	default @NotNull Range getUsageCountBounds() {
 		return Range.ONE;
 	}
 
@@ -37,7 +37,7 @@ public interface Parseable<T> extends NamedWithDescription {
 	 * Specifies the number of values that this parser should receive when calling {@link #parseValues(String[])}.
 	 * By default, this is 1. ({@link Range#ONE}).
 	 * */
-	default @NotNull Range getRequiredArgValueCount() {
+	default @NotNull Range getValueCountBounds() {
 		return Range.ONE;
 	}
 

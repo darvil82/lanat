@@ -14,7 +14,7 @@ import java.util.Scanner;
  */
 public class StdinArgumentType extends ArgumentType<String> {
 	@Override
-	public @NotNull Range getRequiredArgValueCount() {
+	public @NotNull Range getValueCountBounds() {
 		return Range.NONE;
 	}
 

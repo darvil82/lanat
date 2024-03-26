@@ -49,13 +49,13 @@ public class FromParseableArgumentType<T extends Parseable<TInner>, TInner> exte
 	}
 
 	@Override
-	public @NotNull Range getRequiredArgValueCount() {
-		return this.parseable.getRequiredArgValueCount();
+	public @NotNull Range getValueCountBounds() {
+		return this.parseable.getValueCountBounds();
 	}
 
 	@Override
-	public @NotNull Range getRequiredUsageCount() {
-		return this.parseable.getRequiredUsageCount();
+	public @NotNull Range getUsageCountBounds() {
+		return this.parseable.getUsageCountBounds();
 	}
 
 	@Override

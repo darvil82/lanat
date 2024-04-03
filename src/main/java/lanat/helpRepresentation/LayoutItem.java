@@ -18,7 +18,7 @@ import java.util.function.Supplier;
 public class LayoutItem {
 	private int indentCount = 0;
 	private @Nullable String title;
-	private int marginTop, marginBottom;
+	private int marginTop = 0, marginBottom = 0;
 	private final @NotNull Function<@NotNull Command, @Nullable String> generator;
 
 	private LayoutItem(@NotNull Function<@NotNull Command, @Nullable String> generator) {

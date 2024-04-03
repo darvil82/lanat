@@ -121,22 +121,23 @@ public class HelpFormatter {
 	}
 
 	/**
-	 * Moves a {@link LayoutItem} from one position to another.
-	 *
+	 * Moves a {@link LayoutItem} from one position to another and returns the moved item.
 	 * @param from the index of the item to move
 	 * @param to the index to move the item to
+	 * @return the moved item
 	 */
-	public final void moveLayoutItem(int from, int to) {
+	public @NotNull LayoutItem moveLayoutItem(int from, int to) {
 		if (from < 0 || from >= this.layout.size() || to < 0 || to >= this.layout.size()) {
 			throw new IndexOutOfBoundsException("invalid indices given");
 		}
 
 		// same index, nothing to do
 		if (from == to)
-			return;
+			return this.layout.get(from);
 
 		final var item = this.layout.remove(from);
 		this.layout.add(to, item);
+		return item;
 	}
 
 	/**
@@ -144,7 +145,7 @@ public class HelpFormatter {
 	 *
 	 * @param layoutItems the {@link LayoutItem} to add
 	 */
-	public final void addToLayout(@NotNull LayoutItem... layoutItems) {
+	public final void addLayoutItems(@NotNull LayoutItem... layoutItems) {
 		Collections.addAll(this.layout, layoutItems);
 	}
 
@@ -154,29 +155,36 @@ public class HelpFormatter {
 	 * @param at the position to add the item/s at
 	 * @param layoutItems the item/s to add
 	 */
-	public final void addToLayout(int at, @NotNull LayoutItem... layoutItems) {
+	public final void addLayoutItems(int at, @NotNull LayoutItem... layoutItems) {
 		this.layout.addAll(at, Arrays.asList(layoutItems));
 	}
 
 	/**
-	 * Sets the layout to the specified {@link LayoutItem} objects.
-	 *
+	 * Sets the layout to the specified {@link LayoutItem}s.
 	 * @param layoutItems the items to set the layout to
 	 */
 	public final void setLayout(@NotNull LayoutItem... layoutItems) {
-		this.layout = new ArrayList<>(Arrays.asList(layoutItems));
+		this.setLayout(List.of(layoutItems));
+	}
+
+	/**
+	 * Sets the layout to the specified {@link LayoutItem}s.
+	 * @param layoutItems the items to set the layout to
+	 */
+	public final void setLayout(@NotNull List<@NotNull LayoutItem> layoutItems) {
+		this.layout = new ArrayList<>(layoutItems);
 	}
 
 	/**
 	 * Removes one or more {@link LayoutItem} from the layout.
 	 *
-	 * @param positions the positions of the items to remove
+	 * @param indices the indices of the items to remove
 	 */
-	public final void removeFromLayout(int... positions) {
-		Arrays.sort(positions);
+	public final void removeLayoutItems(int... indices) {
+		Arrays.sort(indices);
 
-		for (int i = positions.length - 1; i >= 0; i--) {
-			this.layout.remove(positions[i]);
+		for (int i = indices.length - 1; i >= 0; i--) {
+			this.layout.remove(indices[i]);
 		}
 	}
 
@@ -235,11 +243,13 @@ public class HelpFormatter {
 	}
 
 	/**
-	 * Gets the representation of the object specified.
+	 * Returns the representation of the object specified.
 	 * This will call the appropriate method from the {@link CommandRepr}, {@link ArgumentRepr} or
 	 * {@link ArgumentGroupRepr} classes.
 	 * If the object is not a command, argument or argument group, the name of the
 	 * object will be returned.
+	 * @param obj the object to get the representation from
+	 * @return the representation of the object
 	 */
 	public static @NotNull String getRepresentation(@NotNull NamedWithDescription obj) {
 		if (obj instanceof Command cmd)

@@ -55,7 +55,7 @@ public class HelpFormatter {
 	 * The indent size must be between 0 and 10.
 	 * @param indentSize the new indent size
 	 */
-	public void setIndentSize(int indentSize) {
+	public static void setIndentSize(int indentSize) {
 		if (indentSize < 0)
 			throw new IllegalArgumentException("indentSize must be at least 0");
 
@@ -66,7 +66,7 @@ public class HelpFormatter {
 	 * Returns the indent size.
 	 * @return the indent size
 	 */
-	public int getIndentSize() {
+	public static int getIndentSize() {
 		return HelpFormatter.indentSize;
 	}
 

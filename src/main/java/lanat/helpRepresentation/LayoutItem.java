@@ -146,6 +146,7 @@ public class LayoutItem {
 	 */
 	public @Nullable String generate(@NotNull HelpFormatter helpFormatter, @NotNull Command cmd) {
 		final var content = this.layoutGenerator.apply(cmd);
+
 		return (content == null || content.isEmpty()) ? null : (
 			System.lineSeparator().repeat(this.marginTop)
 				+ (this.title == null ? "" : this.title + System.lineSeparator().repeat(2))

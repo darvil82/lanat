@@ -19,10 +19,10 @@ public class LayoutItem {
 	private int indentCount = 0;
 	private @Nullable String title;
 	private int marginTop, marginBottom;
-	private final @NotNull Function<@NotNull Command, @Nullable String> layoutGenerator;
+	private final @NotNull Function<@NotNull Command, @Nullable String> generator;
 
-	private LayoutItem(@NotNull Function<@NotNull Command, @Nullable String> layoutGenerator) {
-		this.layoutGenerator = layoutGenerator;
+	private LayoutItem(@NotNull Function<@NotNull Command, @Nullable String> generator) {
+		this.generator = generator;
 	}
 
 	/**
@@ -133,8 +133,8 @@ public class LayoutItem {
 	 *
 	 * @return the layout generator
 	 */
-	public @NotNull Function<@NotNull Command, @Nullable String> getLayoutGenerator() {
-		return this.layoutGenerator;
+	public @NotNull Function<@NotNull Command, @Nullable String> getGenerator() {
+		return this.generator;
 	}
 
 	/**
@@ -145,7 +145,7 @@ public class LayoutItem {
 	 * @return the content of the layout item
 	 */
 	public @Nullable String generate(@NotNull HelpFormatter helpFormatter, @NotNull Command cmd) {
-		final var content = this.layoutGenerator.apply(cmd);
+		final var content = this.generator.apply(cmd);
 
 		return (content == null || content.isEmpty()) ? null : (
 			System.lineSeparator().repeat(this.marginTop)

@@ -282,7 +282,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	/**
-	 * Add more names to this argument. This is useful if you want the same argument to be used with multiple different
+	 * {@inheritDoc}
+	 * This is useful if you want the same argument to be used with multiple different
 	 * names.
 	 * <br><br>
 	 * <p>

@@ -6,6 +6,7 @@ import lanat.exceptions.CommandTemplateException;
 import lanat.utils.Builder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import textFormatter.color.Color;
 import utils.UtlReflection;
 
 import java.lang.reflect.Field;
@@ -31,6 +32,7 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> implemen
 	private @Nullable Consumer<@NotNull Argument<Type, TInner>> onErrorCallback;
 	private @Nullable Consumer<@NotNull TInner> onCorrectCallback;
 	private @Nullable Argument.Prefix prefix = Argument.Prefix.DEFAULT;
+	private @Nullable Color representationColor;
 
 	ArgumentBuilder() {}
 
@@ -148,6 +150,12 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> implemen
 	/** @see Argument#setDescription(String) */
 	public ArgumentBuilder<Type, TInner> description(@Nullable String description) {
 		this.description = description;
+		return this;
+	}
+
+	/** @see Argument#setRepresentationColor(Color) */
+	public ArgumentBuilder<Type, TInner> representationColor(@Nullable Color color) {
+		this.representationColor = color;
 		return this;
 	}
 
@@ -287,6 +295,8 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> implemen
 			newArg.setPrefix(this.prefix);
 		newArg.setOnErrorCallback(this.onErrorCallback);
 		newArg.setOnOkCallback(this.onCorrectCallback);
+		if (this.representationColor != null)
+			newArg.setRepresentationColor(this.representationColor);
 		return newArg;
 	}
 }

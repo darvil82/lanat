@@ -40,7 +40,7 @@ public final class LayoutGenerators {
 		Optional.ofNullable(DescriptionParser.parse(cmd))
 			.ifPresent(desc ->
 				buff.append(":").append(System.lineSeparator().repeat(2))
-					.append(HelpFormatter.indent(desc, cmd))
+					.append(HelpFormatter.indent(desc))
 			);
 
 		return buff.toString();

@@ -3,7 +3,6 @@ package lanat.helpRepresentation;
 import lanat.Argument;
 import lanat.ArgumentGroup;
 import lanat.Command;
-import lanat.utils.CommandUser;
 import lanat.utils.NamedWithDescription;
 import org.jetbrains.annotations.NotNull;
 import textFormatter.FormatOption;
@@ -217,29 +216,12 @@ public class HelpFormatter {
 	}
 
 	/**
-	 * Indents a string by the indent size specified in the {@link HelpFormatter} of the specified {@link Command}.
-	 *
+	 * Indents a string by the indent size specified in {@link HelpFormatter#getIndentSize()}.
 	 * @param str the string to indent
-	 * @param cmd the {@link Command} that has the {@link HelpFormatter}
 	 * @return the indented string
 	 */
-	public static @NotNull String indent(@NotNull String str, @NotNull Command cmd) {
-		return UtlString.indent(str, cmd.getHelpFormatter().getIndentSize());
-	}
-
-	/**
-	 * Indents a string by the indent size specified in the {@link HelpFormatter} instance of the {@link Command} this
-	 * object belongs to.
-	 *
-	 * @param str the string to indent
-	 * @param obj the object that belongs to the {@link Command} that has the {@link HelpFormatter}
-	 * @return the indented string
-	 */
-	public static <T extends CommandUser> @NotNull String indent(@NotNull String str, @NotNull T obj) {
-		return HelpFormatter.indent(
-			// if obj is a Command, use it, otherwise get the parent command
-			str, obj instanceof Command cmd ? cmd : Objects.requireNonNull(obj.getParentCommand())
-		);
+	public static @NotNull String indent(@NotNull String str) {
+		return UtlString.indent(str, HelpFormatter.getIndentSize());
 	}
 
 	/**

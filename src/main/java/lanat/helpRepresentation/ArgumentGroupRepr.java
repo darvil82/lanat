@@ -39,7 +39,7 @@ public final class ArgumentGroupRepr {
 			return buff.toString();
 
 		buff.append(System.lineSeparator());
-		buff.append(HelpFormatter.indent(description, group));
+		buff.append(HelpFormatter.indent(description));
 
 		return buff.toString();
 	}
@@ -84,7 +84,7 @@ public final class ArgumentGroupRepr {
 
 		return ArgumentGroupRepr.getDescription(group)
 			+ System.lineSeparator().repeat(2)
-			+ HelpFormatter.indent(buff.toString(), group)
+			+ HelpFormatter.indent(buff.toString())
 			+ System.lineSeparator();
 	}
 

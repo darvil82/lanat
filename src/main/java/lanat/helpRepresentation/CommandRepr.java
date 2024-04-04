@@ -58,7 +58,7 @@ public final class CommandRepr {
 	 */
 	public static @Nullable String getDescription(@NotNull Command cmd) {
 		return Optional.ofNullable(DescriptionParser.parse(cmd))
-			.map(desc -> CommandRepr.getRepresentation(cmd) + ":" + System.lineSeparator() + HelpFormatter.indent(desc, cmd))
+			.map(desc -> CommandRepr.getRepresentation(cmd) + ":" + System.lineSeparator() + HelpFormatter.indent(desc))
 			.orElse(null);
 	}
 

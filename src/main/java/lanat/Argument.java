@@ -91,7 +91,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	private boolean required = false,
 		positional = false,
 		unique = false,
-		hidden = false;
+		visible = true;
 
 	private @Nullable TInner defaultValue;
 
@@ -265,20 +265,20 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	/**
-	 * Marks the argument as hidden to not be shown in the help message.
-	 * @param hidden {@code true} if the argument should be hidden.
+	 * Specifies whether this argument should appear in the help message or not. By default, this is {@code true}.
+	 * @param visible {@code true} if this argument should appear in the help message, {@code false} otherwise.
 	 */
-	public void setHidden(boolean hidden) {
-		this.hidden = hidden;
+	public void setVisible(boolean visible) {
+		this.visible = !visible;
 	}
 
 	/**
-	 * Returns {@code true} if the argument is hidden.
-	 * @return {@code true} if the argument is hidden.
-	 * @see #setHidden(boolean)
+	 * Returns {@code true} if this argument is visible.
+	 * @return {@code true} if this argument is visible.
+	 * @see #setVisible(boolean)
 	 */
-	public boolean isHidden() {
-		return this.hidden;
+	public boolean isVisible() {
+		return this.visible;
 	}
 
 	/**
@@ -614,7 +614,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		if (this.required) options.add("required");
 		if (this.positional) options.add("positional");
 		if (this.unique) options.add("unique");
-		if (this.hidden) options.add("hidden");
+		if (!this.visible) options.add("hidden");
 
 		if (!options.isEmpty()) {
 			buff.append(", (");
@@ -771,8 +771,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		/** @see Argument#setUnique(boolean) */
 		boolean unique() default false;
 
-		/** @see Argument#setHidden(boolean) */
-		boolean hidden() default false;
+		/** @see Argument#setVisible(boolean) */
+		boolean visible() default true;
 
 		/**
 		 * The name of the group this argument will be added to; in the case the named group does not exist then it

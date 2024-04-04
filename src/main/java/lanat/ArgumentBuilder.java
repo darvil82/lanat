@@ -27,7 +27,7 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> implemen
 	private boolean required = false,
 		positional = false,
 		unique = false,
-		hidden = false;
+		visible = true;
 	private @Nullable TInner defaultValue;
 	private @Nullable Consumer<@NotNull Argument<Type, TInner>> onErrorCallback;
 	private @Nullable Consumer<@NotNull TInner> onCorrectCallback;
@@ -86,7 +86,7 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> implemen
 		argumentBuilder.required(annotation.required());
 		argumentBuilder.positional(annotation.positional());
 		argumentBuilder.unique(annotation.unique());
-		argumentBuilder.hidden(annotation.hidden());
+		argumentBuilder.visible(annotation.visible());
 
 		return argumentBuilder;
 	}
@@ -177,9 +177,9 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> implemen
 		return this;
 	}
 
-	/** @see Argument#setHidden(boolean) */
-	public ArgumentBuilder<Type, TInner> hidden(boolean hidden) {
-		this.hidden = hidden;
+	/** @see Argument#setVisible(boolean) */
+	public ArgumentBuilder<Type, TInner> visible(boolean visible) {
+		this.visible = visible;
 		return this;
 	}
 
@@ -289,7 +289,7 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> implemen
 		newArg.setRequired(this.required);
 		newArg.setPositional(this.positional);
 		newArg.setUnique(this.unique);
-		newArg.setHidden(this.hidden);
+		newArg.setVisible(this.visible);
 		newArg.setDefaultValue(this.defaultValue);
 		if (this.prefix != null)
 			newArg.setPrefix(this.prefix);

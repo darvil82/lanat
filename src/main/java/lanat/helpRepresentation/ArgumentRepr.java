@@ -115,7 +115,7 @@ public final class ArgumentRepr {
 	 */
 	public static @Nullable String getDescriptions(@NotNull List<@NotNull Argument<?, ?>> arguments, boolean forceNames) {
 		final var argDescriptions = arguments.stream()
-			.filter(arg -> !arg.isHidden())
+			.filter(Argument::isVisible)
 			.map(arg -> ArgumentRepr.getDescription(arg, forceNames))
 			.filter(Objects::nonNull)
 			.toList();

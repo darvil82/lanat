@@ -64,7 +64,7 @@ public final class LayoutGenerators {
 	public static @Nullable String synopsis(@NotNull Command cmd) {
 		final var args = Argument.sortByPriority(cmd.getArguments()).stream()
 			.filter(arg -> arg.getParentGroup() == null)
-			.filter(arg -> !arg.isHidden())
+			.filter(Argument::isVisible)
 			.toList();
 
 		if (args.isEmpty() && cmd.getGroups().isEmpty()) return null;

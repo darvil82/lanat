@@ -108,7 +108,7 @@ public final class ArgumentGroupRepr {
 			buff.append('(');
 
 		final var arguments = Argument.sortByPriority(group.getArguments()).stream()
-			.filter(arg -> !arg.isHidden())
+			.filter(Argument::isVisible)
 			.toList();
 
 		for (int i = 0; i < arguments.size(); i++) {

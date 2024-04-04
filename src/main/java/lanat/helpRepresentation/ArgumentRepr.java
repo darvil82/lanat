@@ -96,7 +96,7 @@ public final class ArgumentRepr {
 
 		return ArgumentRepr.getRepresentation(arg, true) + ":"
 			+ System.lineSeparator()
-			+ HelpFormatter.indent(description, arg)
+			+ HelpFormatter.indent(description)
 			+ System.lineSeparator();
 	}
 

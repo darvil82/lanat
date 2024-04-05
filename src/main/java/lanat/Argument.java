@@ -269,7 +269,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * @param visible {@code true} if this argument should appear in the help message, {@code false} otherwise.
 	 */
 	public void setVisible(boolean visible) {
-		this.visible = !visible;
+		this.visible = visible;
 	}
 
 	/**

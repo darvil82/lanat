@@ -8,7 +8,7 @@ version = "1.0.0"
 description = "Command line argument parser"
 
 dependencies {
-	api("com.darvil:utils:0.6.1b")
+	api("com.darvil:utils:0.7.0")
 	api("com.darvil:terminal-text-formatter:2.2.0")
 
 	implementation("org.jetbrains:annotations:24.1.0")

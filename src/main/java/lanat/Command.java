@@ -516,9 +516,9 @@ public class Command
 		@NotNull List<? extends ArgumentBuilder<?, ?>> argumentBuilders
 	) {
 		Stream.of(cmdTemplate.getDeclaredMethods())
-			.filter(m -> UtlReflection.hasParameters(m, CommandTemplate.CommandBuildContext.class))
 			.filter(m -> m.isAnnotationPresent(CommandTemplate.InitDef.class))
 			.filter(m -> m.getName().equals("beforeInit"))
+			.filter(m -> UtlReflection.hasParameters(m, CommandTemplate.CommandBuildContext.class))
 			.findFirst()
 			.ifPresent(m -> {
 				try {
@@ -537,9 +537,9 @@ public class Command
 	 */
 	private void from$invokeAfterInitMethod(@NotNull Class<?> cmdTemplate) {
 		Stream.of(cmdTemplate.getDeclaredMethods())
-			.filter(m -> UtlReflection.hasParameters(m, Command.class))
 			.filter(m -> m.isAnnotationPresent(CommandTemplate.InitDef.class))
 			.filter(m -> m.getName().equals("afterInit"))
+			.filter(m -> UtlReflection.hasParameters(m, Command.class))
 			.findFirst()
 			.ifPresent(m -> {
 				try {

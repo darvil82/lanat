@@ -244,41 +244,6 @@ public abstract class CommandTemplate {
 		}
 	}
 
-	// Dummy methods so that we prevent the user from creating an instance method with the same name.
-
-	/**
-	 * This method is called after the Command Template builder reads all the field arguments defined.
-	 * This is before the Arguments are instantiated and finally added to the command.
-	 * <p>
-	 * <strong>Example:</strong>
-	 * <pre>{@code
-	 * @Command.Define
-	 * public class ParentCommand extends CommandTemplate {
-	 *   @Argument.Define
-	 *   public Integer numberRange;
-	 *
-	 *   @InitDef
-	 *   public static void beforeInit(CommandBuildContext ctx) {
-	 *      // set the argument type to NumberRangeArgumentType
-	 *      ctx.argWithType("numberRange", new NumberRangeArgumentType<>(0, 10));
-	 *   }
-	 * }
-	 * }</pre>
-
-	 * @param ctx A helper object that contains the command being initialized and the list of argument builders that may
-	 * 		  be altered.
-	 */
-	@InitDef
-	public static void beforeInit(@NotNull CommandTemplate.CommandBuildContext ctx) {}
-
-	/**
-	 * This method is called after the Command is initialized. This is after the Arguments are instantiated and added
-	 * to the command. This method may be used to create groups of arguments, for example.
-	 * @param cmd The command that was fully initialized.
-	 */
-	@InitDef
-	public static void afterInit(@NotNull Command cmd) {}
-
 	/**
 	 * Returns the names of the command template. If no names are specified in the annotation, the simple name of the
 	 * class will be used.
@@ -333,4 +298,44 @@ public abstract class CommandTemplate {
 			public int verbose;
 		}
 	}
+
+
+
+	// Dummy methods mostly to provide some documentation and so that we prevent the user from
+	// creating an instance method with the same name accidentally.
+
+	/**
+	 * This method is called after the Command Template builder reads all the field arguments defined.
+	 * This is before the arguments are instantiated and finally added to the command.
+	 * <p>
+	 * <strong>Example:</strong>
+	 * <pre>{@code
+	 * @Command.Define
+	 * public class ParentCommand extends CommandTemplate {
+	 *   @Argument.Define
+	 *   public Integer numberRange;
+	 *
+	 *   @InitDef
+	 *   public static void beforeInit(CommandBuildContext ctx) {
+	 *      // set the argument type to NumberRangeArgumentType
+	 *      ctx.argWithType("numberRange", new NumberRangeArgumentType<>(0, 10));
+	 *   }
+	 * }
+	 * }</pre>
+
+	 * @param ctx A helper object that contains the command being initialized and the list of argument builders that may
+	 * 		  be altered.
+	 */
+	public static void beforeInit(@NotNull CommandTemplate.CommandBuildContext ctx) {}
+
+	/**
+	 * This method is called after the Command is initialized. This is after the Arguments are instantiated and added
+	 * to the command. This method may be used to perform actions after the command is finally ready to be parsed.
+	 * Actions such as creating groups of arguments, for example.
+	 * @param cmd The command that was fully initialized.
+	 */
+	public static void afterInit(@NotNull Command cmd) {}
+
+	/** @see #afterInit(Command) */
+	public static void afterInit(@NotNull ArgumentParser cmd) {}
 }

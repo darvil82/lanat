@@ -113,4 +113,9 @@ public sealed abstract class ParsingStateBase<T extends ErrorLevelProvider> exte
 	public int getNestingOffset() {
 		return this.nestingOffset;
 	}
+
+	@Override
+	public void resetState() {
+		throw new UnsupportedOperationException("Cannot reset the state of a parsing state. Use a new instance instead.");
+	}
 }

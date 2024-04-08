@@ -410,12 +410,13 @@ public class Command
 	@Override
 	public void resetState() {
 		super.resetState();
+		
 		this.cachedParseResult = null;
 		this.tokenizer = new Tokenizer(this);
 		this.parser = new Parser(this);
+
 		this.arguments.forEach(Argument::resetState);
 		this.argumentGroups.forEach(ArgumentGroup::resetState);
-
 		this.subCommands.forEach(Command::resetState);
 	}
 

@@ -12,7 +12,7 @@ import java.util.Objects;
 /**
  * Gets the default value of an argument.
  * <p>
- * Returns "Default value: &lt;value&gt;".
+ * Returns {@code Default value: <value>}.
  * </p>
  * If a value is given, it is used. Otherwise, the default value of the argument is used.
  * If neither is available, a {@link MalformedTagException} is thrown.

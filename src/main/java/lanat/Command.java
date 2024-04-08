@@ -359,15 +359,16 @@ public class Command
 
 	/**
 	 * Inherits certain properties from another command, only if they are not already set to something.
+	 * <p>
+	 * This method is automatically called right before parsing begins.
+	 * @param command The command to inherit the properties from. Usually the parent command.
 	 */
-	private void inheritProperties(@NotNull Command parent) {
-		this.getMinimumExitErrorLevel().setIfNotModified(parent.getMinimumExitErrorLevel());
-		this.getMinimumDisplayErrorLevel().setIfNotModified(parent.getMinimumDisplayErrorLevel());
-		this.errorCode.setIfNotModified(parent.errorCode);
-		this.helpFormatter.setIfNotModified(parent.helpFormatter);
-		this.callbackInvocationOption.setIfNotModified(parent.callbackInvocationOption);
-
-		this.passPropertiesToChildren();
+	protected void inheritProperties(@NotNull Command command) {
+		this.getMinimumExitErrorLevel().setIfNotModified(command.getMinimumExitErrorLevel());
+		this.getMinimumDisplayErrorLevel().setIfNotModified(command.getMinimumDisplayErrorLevel());
+		this.errorCode.setIfNotModified(command.errorCode);
+		this.helpFormatter.setIfNotModified(command.helpFormatter);
+		this.callbackInvocationOption.setIfNotModified(command.callbackInvocationOption);
 	}
 
 	/**
@@ -375,7 +376,10 @@ public class Command
 	 * @see #inheritProperties(Command)
 	 */
 	void passPropertiesToChildren() {
-		this.subCommands.forEach(c -> c.inheritProperties(this));
+		this.subCommands.forEach(c -> {
+			c.inheritProperties(this);
+			c.passPropertiesToChildren();
+		});
 	}
 
 	/**

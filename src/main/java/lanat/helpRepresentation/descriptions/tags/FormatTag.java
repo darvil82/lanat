@@ -13,6 +13,10 @@ import utils.UtlString;
  * Changes the format of the text. (e.g. {@code <format=bold>}). The available formats are the ones defined in
  * {@link FormatOption}. The format value is case-insensitive.
  * <p>
+ * The syntax for specifying formats is {@code format[,format,...]} where `format` is {@code [!]format_name}.
+ * {@code !} is used to reset the format of that name.
+ * </p>
+ * <p>
  * The values that may be used are:
  * <ul>
  * <li>reset</li>
@@ -26,11 +30,6 @@ import utils.UtlString;
  * <li>hidden</li>
  * </ul>
  *
- * <p>
- * The tag can receive multiple format values, separated by commas. (e.g. {@code <format=bold,italic>}).
- * If the format value is preceded by an exclamation mark, the format of that kind will be reset. (e.g. {@code <format=!bold>}).
- * Both can be used together. For example, in {@code <format=bold,!italic>}), the text will be bold and the italic format will be reset.
- * </p>
  * <p>
  * If the format value is invalid, a {@link MalformedTagException} is thrown.
  * </p>

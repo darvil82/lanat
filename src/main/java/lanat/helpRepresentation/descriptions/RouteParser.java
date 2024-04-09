@@ -48,19 +48,19 @@ import java.util.function.BiFunction;
  * <ol>
  * <li>
  * Select the type of the argument {@code myArg1} of the current command:
- * {@code "args.myArg1.type"}
+ * {@code args.myArg1.type}
  * </li>
  * <li>
  * Select the Sub-Command {@code myCmd} of the current command:
- * {@code "cmds.myCmd"}
+ * {@code cmds.myCmd}
  * </li>
  * <li>
  * Select the type of the argument {@code myArg1} of the Sub-Command {@code myCmd} of the current command:
- * {@code "cmds.myCmd.args.myArg1.type"}
+ * {@code cmds.myCmd.args.myArg1.type}
  * </li>
  * <li>
  * Select the {@link ArgumentType} of the {@link Argument} that is requesting to parse this description:
- * {@code "!.type"}
+ * {@code !.type}
  * </li>
  * </ol>
  */
@@ -123,13 +123,12 @@ public class RouteParser {
 	 * @throws InvalidRouteException if the object is not a {@link Command} or a {@link CommandUser}
 	 */
 	public static @NotNull Command getCommandOf(@NotNull NamedWithDescription obj) {
-		if (obj instanceof Command cmd) {
+		if (obj instanceof Command cmd)
 			return cmd;
-		} else if (obj instanceof CommandUser cmdUser) {
+		else if (obj instanceof CommandUser cmdUser)
 			return cmdUser.getParentCommand();
-		}
 
-		throw new InvalidRouteException("Cannot get the Command " + obj.getName() + " belongs to");
+		throw new InvalidRouteException("Cannot get the Command '" + obj.getName() + "' belongs to");
 	}
 
 	/**

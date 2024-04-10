@@ -74,7 +74,7 @@ public class RouteParser {
 	private static final @NotNull String SELF_SELECTOR = "!";
 
 
-	private RouteParser(@NotNull DescriptionUser user, @Nullable String route) {
+	private RouteParser(@NotNull NamedWithDescription user, @Nullable String route) {
 		// if route is empty, the command the user belongs to is the target
 		if (UtlString.isNullOrBlank(route)) {
 			this.currentTarget = RouteParser.getCommandOf(user);
@@ -109,17 +109,26 @@ public class RouteParser {
 	 * @return the object the route points to
 	 * @see RouteParser
 	 */
-	public static @NotNull NamedWithDescription parse(@NotNull DescriptionUser user, @Nullable String route) {
+	public static @NotNull NamedWithDescription parse(@NotNull NamedWithDescription user, @Nullable String route) {
 		return new RouteParser(user, route).parse();
 	}
 
 	/**
-	 * Returns the command the object belongs to. If the object is a {@link Command}, it is returned.
+	 * Returns the command the object belongs to. If the object is a {@link Command}, it is returned. If it is a
+	 * {@link CommandUser}, the command it belongs to is returned. Otherwise, an {@link InvalidRouteException} is
+	 * thrown.
+	 *
 	 * @param obj the object to get the command of
 	 * @return the command the object belongs to
+	 * @throws InvalidRouteException if the object is not a {@link Command} or a {@link CommandUser}
 	 */
-	public static @NotNull Command getCommandOf(@NotNull CommandUser obj) {
-		return obj instanceof Command cmd ? cmd : obj.getParentCommand();
+	public static @NotNull Command getCommandOf(@NotNull NamedWithDescription obj) {
+		if (obj instanceof Command cmd)
+			return cmd;
+		else if (obj instanceof CommandUser cmdUser)
+			return cmdUser.getParentCommand();
+
+		throw new InvalidRouteException("Cannot get the Command '" + obj.getName() + "' belongs to");
 	}
 
 	/**

@@ -1,8 +1,8 @@
 package lanat.helpRepresentation.descriptions.tags;
 
-import lanat.helpRepresentation.descriptions.DescriptionUser;
 import lanat.helpRepresentation.descriptions.Tag;
 import lanat.helpRepresentation.descriptions.exceptions.MalformedTagException;
+import lanat.utils.NamedWithDescription;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import textFormatter.FormatOption;
@@ -37,7 +37,7 @@ import utils.UtlString;
  */
 public class FormatTag extends Tag {
 	@Override
-	protected @NotNull String parse(@NotNull DescriptionUser user, @Nullable String value) {
+	protected @NotNull String parse(@NotNull NamedWithDescription user, @Nullable String value) {
 		if (value == null)
 			throw new MalformedTagException(FormatTag.class, "no format specified");
 

@@ -3,7 +3,6 @@ package lanat.helpRepresentation.descriptions;
 import lanat.helpRepresentation.descriptions.exceptions.MalformedTagException;
 import lanat.helpRepresentation.descriptions.exceptions.UnknownTagException;
 import lanat.helpRepresentation.descriptions.tags.*;
-import lanat.utils.NamedWithDescription;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import utils.UtlReflection;
@@ -14,10 +13,10 @@ import java.util.Map;
 
 /**
  * Class for handling parsing of the simple tags used in descriptions. (e.g. {@code <a-tag=the-value>}). Tags may
- * receive no value, in which case the value received by the {@link #parse(NamedWithDescription, String)} method will be
+ * receive no value, in which case the value received by the {@link #parse(DescriptionUser, String)} method will be
  * {@code null}.
  *
- * @see #parse(NamedWithDescription, String)
+ * @see #parse(DescriptionUser, String)
  */
 public abstract class Tag {
 	private static final Hashtable<String, Class<? extends Tag>> REGISTERED_TAGS = new Hashtable<>();
@@ -31,7 +30,7 @@ public abstract class Tag {
 	 * @return parsed value of the tag
 	 * @see Tag
 	 */
-	protected abstract @NotNull String parse(@NotNull NamedWithDescription user, @Nullable String value);
+	protected abstract @NotNull String parse(@NotNull DescriptionUser user, @Nullable String value);
 
 
 	// Initialize the default tags.
@@ -100,7 +99,7 @@ public abstract class Tag {
 	 * @return parsed value of the tag
 	 */
 	static @NotNull String parseTagValue(
-		@NotNull NamedWithDescription user,
+		@NotNull DescriptionUser user,
 		@NotNull String tagName,
 		@Nullable String value
 	)

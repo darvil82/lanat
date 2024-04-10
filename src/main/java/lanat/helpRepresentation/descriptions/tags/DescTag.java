@@ -1,11 +1,11 @@
 package lanat.helpRepresentation.descriptions.tags;
 
 import lanat.helpRepresentation.descriptions.DescriptionParser;
-import lanat.helpRepresentation.descriptions.DescriptionUser;
 import lanat.helpRepresentation.descriptions.RouteParser;
 import lanat.helpRepresentation.descriptions.Tag;
 import lanat.helpRepresentation.descriptions.exceptions.InvalidRouteException;
 import lanat.helpRepresentation.descriptions.exceptions.NoDescriptionDefinedException;
+import lanat.utils.NamedWithDescription;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,7 +24,7 @@ import java.util.Optional;
  */
 public class DescTag extends Tag {
 	@Override
-	protected @NotNull String parse(@NotNull DescriptionUser user, @Nullable String value) {
+	protected @NotNull String parse(@NotNull NamedWithDescription user, @Nullable String value) {
 		final var target = RouteParser.parse(user, value);
 		if (target == user)
 			throw new InvalidRouteException("Cannot use desc tag to describe itself");

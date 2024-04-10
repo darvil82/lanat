@@ -1,9 +1,9 @@
 package lanat.helpRepresentation.descriptions.tags;
 
 import lanat.Argument;
+import lanat.helpRepresentation.descriptions.DescriptionUser;
 import lanat.helpRepresentation.descriptions.Tag;
 import lanat.helpRepresentation.descriptions.exceptions.MalformedTagException;
-import lanat.utils.NamedWithDescription;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,7 +19,7 @@ import java.util.Objects;
  */
 public class DefaultValueTag extends Tag {
 	@Override
-	protected @NotNull String parse(@NotNull NamedWithDescription user, @Nullable String value) {
+	protected @NotNull String parse(@NotNull DescriptionUser user, @Nullable String value) {
 		if (!(user instanceof Argument<?, ?> arg))
 			throw new MalformedTagException("The default value tag can only be used on arguments.");
 

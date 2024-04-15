@@ -49,6 +49,9 @@ public final class ArgumentTypeInfer {
 	 * @param clazz The type to infer the argument type for.
 	 */
 	public static void register(@NotNull Supplier<? extends ArgumentType<?>> type, @NotNull Class<?> clazz) {
+		if (clazz == Optional.class)
+			throw new IllegalArgumentException("Cannot register argument type infer for Optional type.");
+
 		if (clazz.isArray() && clazz.getComponentType().isPrimitive())
 			throw new IllegalArgumentException("Cannot register argument type infer for primitive array type: " + clazz.getName());
 

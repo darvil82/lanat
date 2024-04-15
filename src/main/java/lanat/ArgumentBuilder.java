@@ -12,6 +12,7 @@ import utils.UtlReflection;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -240,6 +241,7 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> implemen
 	/**
 	 * Sets the argument type from the specified field. If the argument type is already set, this method does nothing.
 	 * If the argument type cannot be inferred from the field, an exception will be thrown.
+	 * <strong>Note: </strong> Expects the field to be annotated with {@link Argument.Define}
 	 * @param field the field that will be used to infer the argument type
 	 * @see #setTypeFromField(Field)
 	 * @throws CommandTemplateException if the argument type cannot be inferred from the field
@@ -257,18 +259,24 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> implemen
 		}
 
 		var fieldType = field.getType();
-		boolean isPrimitiveArray = fieldType.isArray() && fieldType.getComponentType().isPrimitive();
+		var exceptionMsg = "Could not infer the argument type from the field '" + field.getName()
+			+ "' with type '" + fieldType.getSimpleName() + "'.";
 
-		throw new CommandTemplateException(
-			"Could not infer the argument type from the field '" + field.getName()
-				+ "' with type '" + fieldType.getSimpleName() + "'."
-				+ (
-					isPrimitiveArray
-						? " Primitive arrays are not supported. Use their wrapper class instead. "
-							+ "(e.g. int[] -> Integer[])"
-						: ""
-				)
-		);
+		// if the field is an Optional
+		if (fieldType == Optional.class)
+			throw new CommandTemplateException(
+				exceptionMsg + " Cannot infer the argument type from an Optional wrapper. Please specify the type "
+				+ "explicitly as well."
+			);
+
+		// if the field is a primitive array
+		if (fieldType.isArray() && fieldType.getComponentType().isPrimitive())
+			throw new CommandTemplateException(
+				exceptionMsg + " Primitive arrays are not supported. "
+				+ "Use their wrapper class instead. (e.g. int[] -> Integer[])"
+			);
+
+		throw new CommandTemplateException(exceptionMsg);
 	}
 
 	/**

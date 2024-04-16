@@ -1,9 +1,9 @@
 package lanat.test;
 
 import lanat.Argument;
-import lanat.ArgumentGroup;
 import lanat.ArgumentType;
 import lanat.Command;
+import lanat.Group;
 import lanat.argumentTypes.CounterArgumentType;
 import lanat.argumentTypes.IntegerArgumentType;
 import lanat.argumentTypes.StringArgumentType;
@@ -88,7 +88,7 @@ public class UnitTests {
 			this.addCommand(new Command("subCommand2") {{
 				this.setErrorCode(0b1000);
 
-				this.addGroup(new ArgumentGroup("restricted-group") {{
+				this.addGroup(new Group("restricted-group") {{
 					this.setRestricted(true);
 					this.addArgument(Argument.createOfActionType("extra"));
 					this.addArgument(Argument.create(new IntegerArgumentType(), "c").positional(true));

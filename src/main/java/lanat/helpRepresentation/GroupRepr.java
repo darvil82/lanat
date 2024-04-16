@@ -1,7 +1,7 @@
 package lanat.helpRepresentation;
 
 import lanat.Argument;
-import lanat.ArgumentGroup;
+import lanat.Group;
 import lanat.helpRepresentation.descriptions.DescriptionParser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -13,11 +13,11 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Contains methods for generating the help representations of {@link ArgumentGroup}s.
+ * Contains methods for generating the help representations of {@link Group}s.
  */
-public final class ArgumentGroupRepr {
-	private ArgumentGroupRepr() {
-		throw new DisallowedInstantiationException(ArgumentGroupRepr.class);
+public final class GroupRepr {
+	private GroupRepr() {
+		throw new DisallowedInstantiationException(GroupRepr.class);
 	}
 
 	/**
@@ -30,8 +30,8 @@ public final class ArgumentGroupRepr {
 	 * @param group the group
 	 * @return the name and description of the group
 	 */
-	public static @NotNull String getDescription(@NotNull ArgumentGroup group) {
-		final var buff = new StringBuilder(ArgumentGroupRepr.getName(group))
+	public static @NotNull String getDescription(@NotNull Group group) {
+		final var buff = new StringBuilder(GroupRepr.getName(group))
 			.append(':');
 
 		final var description = DescriptionParser.parse(group);
@@ -58,7 +58,7 @@ public final class ArgumentGroupRepr {
 	 * @param group the group
 	 * @return the descriptions of the arguments and subgroups of the group
 	 */
-	public static @Nullable String getDescriptions(@NotNull ArgumentGroup group) {
+	public static @Nullable String getDescriptions(@NotNull Group group) {
 		final var buff = new StringBuilder();
 
 		final var argDescriptions = ArgumentRepr.getDescriptions(
@@ -66,7 +66,7 @@ public final class ArgumentGroupRepr {
 		);
 
 		final var grpDescriptions = group.getGroups().stream()
-			.map(ArgumentGroupRepr::getDescriptions)
+			.map(GroupRepr::getDescriptions)
 			.filter(Objects::nonNull)
 			.toList();
 
@@ -82,7 +82,7 @@ public final class ArgumentGroupRepr {
 
 		grpDescriptions.forEach(buff::append);
 
-		return ArgumentGroupRepr.getDescription(group)
+		return GroupRepr.getDescription(group)
 			+ System.lineSeparator().repeat(2)
 			+ HelpFormatter.indent(buff.toString())
 			+ System.lineSeparator();
@@ -97,7 +97,7 @@ public final class ArgumentGroupRepr {
 	 * The arguments are sorted by priority.
 	 * @param group the group
 	 */
-	public static @NotNull String getRepresentation(@NotNull ArgumentGroup group) {
+	public static @NotNull String getRepresentation(@NotNull Group group) {
 		final var buff = new StringBuilder();
 
 		// its empty, nothing to append
@@ -122,7 +122,7 @@ public final class ArgumentGroupRepr {
 			}
 		}
 
-		final List<ArgumentGroup> groups = group.getGroups().stream().filter(g -> !g.isEmpty()).toList();
+		final List<Group> groups = group.getGroups().stream().filter(g -> !g.isEmpty()).toList();
 
 		if (!arguments.isEmpty() && !groups.isEmpty()) {
 			buff.append(' ');
@@ -131,11 +131,11 @@ public final class ArgumentGroupRepr {
 		}
 
 		for (int i = 0; i < groups.size(); i++) {
-			ArgumentGroup grp = groups.get(i);
-			buff.append(ArgumentGroupRepr.getRepresentation(grp)); // append the group's representation recursively
+			Group subGroup = groups.get(i);
+			buff.append(GroupRepr.getRepresentation(subGroup)); // append the group's representation recursively
 			if (i < groups.size() - 1) {
 				buff.append(' ');
-				if (grp.isRestricted())
+				if (subGroup.isRestricted())
 					buff.append('|').append(' ');
 			}
 		}
@@ -152,7 +152,7 @@ public final class ArgumentGroupRepr {
 	 * @param group the group
 	 * @return the name of the group
 	 */
-	public static @NotNull String getName(@NotNull ArgumentGroup group) {
+	public static @NotNull String getName(@NotNull Group group) {
 		final var name = TextFormatter.of(group.getName())
 			.addFormat(FormatOption.BOLD);
 

@@ -122,6 +122,7 @@ public final class LayoutGenerators {
 			.ifPresent(buff::append);
 
 		final var groups = cmd.getGroups().stream()
+			.filter(Group::isRoot)
 			.map(GroupRepr::getDescriptions)
 			.filter(Objects::nonNull)
 			.toList();

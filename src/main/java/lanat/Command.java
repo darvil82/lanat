@@ -30,16 +30,16 @@ import java.util.stream.Stream;
 /**
  * <h2>Command</h2>
  * <p>
- * A command is a container for {@link Argument}s, other Sub{@link Command}s and {@link ArgumentGroup}s.
+ * A command is a container for {@link Argument}s, other Sub{@link Command}s and {@link Group}s.
  *
- * @see ArgumentGroup
+ * @see Group
  * @see Argument
  */
 public class Command
 	extends ErrorContainerImpl<Error.CustomError>
 	implements ErrorCallbacks<ParseResult, Command>,
 		ArgumentAdder,
-		ArgumentGroupAdder,
+		GroupAdder,
 		CommandAdder,
 		CommandUser,
 		Resettable,
@@ -51,7 +51,7 @@ public class Command
 	private final @NotNull ArrayList<@NotNull Argument<?, ?>> arguments = new ArrayList<>();
 	private final @NotNull ArrayList<@NotNull Command> subCommands = new ArrayList<>(0);
 	private @Nullable Command parentCommand;
-	private final @NotNull ArrayList<@NotNull ArgumentGroup> argumentGroups = new ArrayList<>(0);
+	private final @NotNull ArrayList<@NotNull Group> groups = new ArrayList<>(0);
 	private final @NotNull ModifyRecord<@NotNull Integer> errorCode = ModifyRecord.of(1);
 
 	// error handling callbacks
@@ -136,15 +136,15 @@ public class Command
 	}
 
 	@Override
-	public void addGroup(@NotNull ArgumentGroup group) {
+	public void addGroup(@NotNull Group group) {
 		group.registerToCommand(this);
-		this.argumentGroups.add(group);
+		this.groups.add(group);
 		this.checkUniqueGroups();
 	}
 
 	@Override
-	public @NotNull List<@NotNull ArgumentGroup> getGroups() {
-		return Collections.unmodifiableList(this.argumentGroups);
+	public @NotNull List<@NotNull Group> getGroups() {
+		return Collections.unmodifiableList(this.groups);
 	}
 
 	@Override
@@ -173,10 +173,10 @@ public class Command
 
 	/**
 	 * Ensures that all groups in this command tree are properly linked to their parent groups.
-	 * @see ArgumentGroup#linkHierarchyToCommand(Command)
+	 * @see Group#linkHierarchyToCommand(Command)
 	 */
 	void linkGroupHierarchy() {
-		this.argumentGroups.forEach(g -> g.linkHierarchyToCommand(this));
+		this.groups.forEach(g -> g.linkHierarchyToCommand(this));
 
 		// for sub-commands as well
 		this.subCommands.forEach(Command::linkGroupHierarchy);
@@ -416,7 +416,7 @@ public class Command
 		this.parser = new Parser(this);
 
 		this.arguments.forEach(Argument::resetState);
-		this.argumentGroups.forEach(ArgumentGroup::resetState);
+		this.groups.forEach(Group::resetState);
 		this.subCommands.forEach(Command::resetState);
 	}
 
@@ -477,7 +477,7 @@ public class Command
 	private void from$addArguments(
 		List<Pair<Field, ArgumentBuilder<ArgumentType<Object>, Object>>> argumentBuildersFieldPairs
 	) {
-		final var groupsMap = new Hashtable<String, ArgumentGroup>();
+		final var groupsMap = new Hashtable<String, Group>();
 
 		argumentBuildersFieldPairs.forEach(pair -> {
 			Argument<?, ?> builtArgument;
@@ -501,7 +501,7 @@ public class Command
 			var groupToAddInto = groupsMap.get(annotationGroupName);
 			if (groupToAddInto == null) {
 				// the group does not exist, so create it and add it to the command
-				groupToAddInto = new ArgumentGroup(annotationGroupName);
+				groupToAddInto = new Group(annotationGroupName);
 				groupsMap.put(annotationGroupName, groupToAddInto);
 				this.addGroup(groupToAddInto);
 			}

@@ -3,6 +3,7 @@ package lanat.helpRepresentation;
 import lanat.Argument;
 import lanat.ArgumentParser;
 import lanat.Command;
+import lanat.Group;
 import lanat.helpRepresentation.descriptions.DescriptionParser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -49,13 +50,13 @@ public final class LayoutGenerators {
 	/**
 	 * Shows the synopsis of the command, if any.
 	 * <p>
-	 * The synopsis is a list of all {@link Argument}s, {@link lanat.ArgumentGroup}s and Sub-{@link Command}s of the
+	 * The synopsis is a list of all {@link Argument}s, {@link Group}s and Sub-{@link Command}s of the
 	 * command. Each is shown with its own representation, as defined by the {@link ArgumentRepr},
-	 * {@link ArgumentGroupRepr} and {@link CommandRepr} classes.
+	 * {@link GroupRepr} and {@link CommandRepr} classes.
 	 * </p>
 	 * <p>
 	 * First elements shown are the arguments, ordered by {@link Argument#sortByPriority(List)}, then the
-	 * {@link lanat.ArgumentGroup}s, which are shown recursively, and finally the sub-commands.
+	 * {@link Group}s, which are shown recursively, and finally the sub-commands.
 	 * </p>
 	 *
 	 * @param cmd The command to generate the synopsis for.
@@ -71,7 +72,7 @@ public final class LayoutGenerators {
 		final var buffer = new StringBuilder();
 
 		args.forEach(arg -> buffer.append(ArgumentRepr.getRepresentation(arg, false)).append(' '));
-		cmd.getGroups().forEach(group -> buffer.append(ArgumentGroupRepr.getRepresentation(group)).append(' '));
+		cmd.getGroups().forEach(group -> buffer.append(GroupRepr.getRepresentation(group)).append(' '));
 
 		if (!cmd.getCommands().isEmpty())
 			buffer.append(CommandRepr.getSubCommandsRepresentation(cmd));
@@ -99,7 +100,7 @@ public final class LayoutGenerators {
 	}
 
 	/**
-	 * Shows the descriptions of the {@link Argument}s and {@link lanat.ArgumentGroup}s of the command.
+	 * Shows the descriptions of the {@link Argument}s and {@link Group}s of the command.
 	 * <p>
 	 * The descriptions are shown in the same order as the synopsis. If groups are present, they are shown recursively
 	 * too, with their own descriptions and with the correct indentation level.
@@ -121,7 +122,7 @@ public final class LayoutGenerators {
 			.ifPresent(buff::append);
 
 		final var groups = cmd.getGroups().stream()
-			.map(ArgumentGroupRepr::getDescriptions)
+			.map(GroupRepr::getDescriptions)
 			.filter(Objects::nonNull)
 			.toList();
 

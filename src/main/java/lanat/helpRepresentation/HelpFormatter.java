@@ -1,8 +1,8 @@
 package lanat.helpRepresentation;
 
 import lanat.Argument;
-import lanat.ArgumentGroup;
 import lanat.Command;
+import lanat.Group;
 import lanat.utils.NamedWithDescription;
 import org.jetbrains.annotations.NotNull;
 import textFormatter.FormatOption;
@@ -228,7 +228,7 @@ public class HelpFormatter {
 	/**
 	 * Returns the representation of the object specified.
 	 * This will call the appropriate method from the {@link CommandRepr}, {@link ArgumentRepr} or
-	 * {@link ArgumentGroupRepr} classes.
+	 * {@link GroupRepr} classes.
 	 * If the object is not a command, argument or argument group, the name of the
 	 * object will be returned.
 	 * @param obj the object to get the representation from
@@ -239,8 +239,8 @@ public class HelpFormatter {
 			return CommandRepr.getRepresentation(cmd);
 		else if (obj instanceof Argument<?, ?> arg)
 			return ArgumentRepr.getRepresentation(arg, false);
-		else if (obj instanceof ArgumentGroup group)
-			return ArgumentGroupRepr.getName(group);
+		else if (obj instanceof Group group)
+			return GroupRepr.getName(group);
 
 		return obj.getName();
 	}

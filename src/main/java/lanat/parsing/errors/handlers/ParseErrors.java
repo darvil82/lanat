@@ -1,7 +1,7 @@
 package lanat.parsing.errors.handlers;
 
 import lanat.Argument;
-import lanat.ArgumentGroup;
+import lanat.Group;
 import lanat.helpRepresentation.HelpFormatter;
 import lanat.parsing.errors.Error;
 import lanat.parsing.errors.contexts.ErrorFormattingContext;
@@ -171,7 +171,7 @@ public abstract class ParseErrors {
 	 */
 	public record MultipleArgsInRestrictedGroupUsedError(
 		@NotNull Pair<Integer, Integer> indicesPair,
-		@NotNull ArgumentGroup group
+		@NotNull Group group
 	) implements Error.ParseError
 	{
 		@Override

@@ -1,7 +1,7 @@
 package lanat.test.units;
 
 import lanat.Argument;
-import lanat.ArgumentGroup;
+import lanat.Group;
 import lanat.argumentTypes.IntegerArgumentType;
 import lanat.test.TestingParser;
 import lanat.test.UnitTests;
@@ -10,12 +10,12 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TestArgumentGroups extends UnitTests {
+public class TestGroups extends UnitTests {
 	@Override
 	protected TestingParser setParser() {
 		final var parser = super.setParser();
 
-		parser.addGroup(new ArgumentGroup("group") {{
+		parser.addGroup(new Group("group") {{
 			this.setRestricted(true);
 			this.addArgument(Argument.create(new IntegerArgumentType(), "group-arg"));
 			this.addArgument(Argument.create(new IntegerArgumentType(), "group-arg2"));

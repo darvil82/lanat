@@ -1,6 +1,6 @@
 package lanat;
 
-import lanat.exceptions.ArgumentGroupAlreadyExistsException;
+import lanat.exceptions.GroupAlreadyExistsException;
 import lanat.utils.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -52,14 +52,14 @@ import java.util.List;
  * </li>
  * </ul>
  */
-public class ArgumentGroup
+public class Group
 	implements ArgumentAdder,
-		ArgumentGroupAdder,
+		GroupAdder,
 		CommandUser,
-		ArgumentGroupUser,
+		GroupUser,
 		Resettable,
 		NamedWithDescription,
-		ParentElementGetter<ArgumentGroup>
+		ParentElementGetter<Group>
 {
 	private final @NotNull String name;
 	private @Nullable String description;
@@ -68,7 +68,7 @@ public class ArgumentGroup
 	private Command parentCommand;
 
 	/** The parent group of this group. This is set when the group is added to another group. */
-	private @Nullable ArgumentGroup parentGroup;
+	private @Nullable Group parentGroup;
 
 	/**
 	 * The reason we keep references to the Arguments instead of just calling {@link Command#addArgument(Argument)} for
@@ -84,12 +84,12 @@ public class ArgumentGroup
 	 * We need to later set the parent command of all group children after initialization, so we keep a reference to
 	 * them.
 	 */
-	private final @NotNull List<@NotNull ArgumentGroup> subGroups = new ArrayList<>(0);
+	private final @NotNull List<@NotNull Group> subGroups = new ArrayList<>(0);
 	private boolean isRestricted = false;
 
 	/**
 	 * When set to {@code true}, indicates that one argument in this group has been used. This is used when later
-	 * checking for restrictions in the groups tree at {@link ArgumentGroup#getRestrictionViolator(ArgumentGroup)}
+	 * checking for restrictions in the groups tree at {@link Group#getRestrictionViolator(Group)}
 	 */
 	private boolean argumentUsed = false;
 
@@ -100,7 +100,7 @@ public class ArgumentGroup
 	 * @param name The name of the group. Must be a unique name among all groups in the same command.
 	 * @param description The description of the group.
 	 */
-	public ArgumentGroup(@NotNull String name, @Nullable String description) {
+	public Group(@NotNull String name, @Nullable String description) {
 		this.name = UtlString.requireValidName(name);
 		this.description = description;
 	}
@@ -109,7 +109,7 @@ public class ArgumentGroup
 	 * Creates a new Argument Group with the given name and no description.
 	 * @param name The name of the group. Must be a unique name among all groups in the same command.
 	 */
-	public ArgumentGroup(@NotNull String name) {
+	public Group(@NotNull String name) {
 		this(name, null);
 	}
 
@@ -127,12 +127,12 @@ public class ArgumentGroup
 	}
 
 	@Override
-	public @NotNull List<ArgumentGroup> getGroups() {
+	public @NotNull List<Group> getGroups() {
 		return Collections.unmodifiableList(this.subGroups);
 	}
 
 	@Override
-	public void addGroup(@NotNull ArgumentGroup group) {
+	public void addGroup(@NotNull Group group) {
 		if (group == this) {
 			throw new IllegalArgumentException("A group cannot be added to itself");
 		}
@@ -143,9 +143,9 @@ public class ArgumentGroup
 	}
 
 	@Override
-	public void registerToGroup(@NotNull ArgumentGroup parentGroup) {
+	public void registerToGroup(@NotNull Group parentGroup) {
 		if (this.parentGroup != null) {
-			throw new ArgumentGroupAlreadyExistsException(this, this.parentGroup);
+			throw new GroupAlreadyExistsException(this, this.parentGroup);
 		}
 
 		this.parentGroup = parentGroup;
@@ -157,7 +157,7 @@ public class ArgumentGroup
 	@Override
 	public void registerToCommand(@NotNull Command parentCommand) {
 		if (this.parentCommand != null) {
-			throw new ArgumentGroupAlreadyExistsException(this, this.parentCommand);
+			throw new GroupAlreadyExistsException(this, this.parentCommand);
 		}
 
 		this.parentCommand = parentCommand;
@@ -192,13 +192,13 @@ public class ArgumentGroup
 	}
 
 	@Override
-	public @Nullable ArgumentGroup getParentGroup() {
+	public @Nullable Group getParentGroup() {
 		return this.parentGroup;
 	}
 
 	/**
 	 * Sets this group to be restricted, meaning that only one argument in it can be used at a time.
-	 * @see ArgumentGroup#isRestricted()
+	 * @see Group#isRestricted()
 	 */
 	public void setRestricted(boolean isRestricted) {
 		this.isRestricted = isRestricted;
@@ -207,7 +207,7 @@ public class ArgumentGroup
 	/**
 	 * Returns {@code true} if this group is restricted.
 	 * @return {@code true} if this group is restricted.
-	 * @see ArgumentGroup#setRestricted(boolean)
+	 * @see Group#setRestricted(boolean)
 	 */
 	public boolean isRestricted() {
 		return this.isRestricted;
@@ -223,7 +223,8 @@ public class ArgumentGroup
 	 * 	the first call to this method.
 	 * @return The group that caused the violation, or {@code null} if there is no violation.
 	 */
-	@Nullable ArgumentGroup getRestrictionViolator(@Nullable ArgumentGroup childCallee) {
+	@Nullable
+	Group getRestrictionViolator(@Nullable Group childCallee) {
 		if (
 			this.isRestricted && (
 				this.argumentUsed || this.subGroups.stream().filter(g -> g != childCallee).anyMatch(g -> g.argumentUsed)
@@ -285,21 +286,21 @@ public class ArgumentGroup
 	}
 
 	@Override
-	public ArgumentGroup getParent() {
+	public Group getParent() {
 		return this.parentGroup;
 	}
 
 	@Override
 	public boolean equals(@NotNull Object obj) {
 		if (obj == this) return true;
-		if (obj instanceof ArgumentGroup group)
+		if (obj instanceof Group group)
 			return this.parentCommand == group.parentCommand && this.name.equals(group.name);
 		return false;
 	}
 
 	@Override
 	public String toString() {
-		return "ArgumentGroup{name='%s', description='%s', arguments=%s, sub-groups=%s}"
+		return "Group{name='%s', description='%s', arguments=%s, sub-groups=%s}"
 			.formatted(this.name, this.description, this.arguments, this.subGroups);
 	}
 }

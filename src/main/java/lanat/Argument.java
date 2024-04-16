@@ -69,7 +69,7 @@ import java.util.function.Consumer;
  * @param <Type> the {@link ArgumentType} subclass that will parse the value passed to the argument
  * @param <TInner> the actual type of the value passed to the argument
  * @see Command#addArgument(Argument)
- * @see ArgumentGroup
+ * @see Group
  * @see ArgumentParser
  */
 public class Argument<Type extends ArgumentType<TInner>, TInner>
@@ -77,7 +77,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		ErrorCallbacks<TInner, Argument<Type, TInner>>,
 		Resettable,
 		CommandUser,
-		ArgumentGroupUser,
+		GroupUser,
 		MultipleNamesAndDescription
 {
 	/**
@@ -99,10 +99,10 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	private Command parentCommand;
 
 	/**
-	 * The ArgumentGroup that this Argument belongs to. If this Argument does not belong to any group, this may be
+	 * The Group that this Argument belongs to. If this Argument does not belong to any group, this may be
 	 * {@code null}.
 	 */
-	private @Nullable ArgumentGroup parentGroup;
+	private @Nullable Group parentGroup;
 
 	// callbacks for error handling
 	private @Nullable Consumer<@NotNull Argument<Type, TInner>> onErrorCallback;
@@ -357,11 +357,11 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 	/**
 	 * Sets the parent group of this argument. This is called when adding the Argument to a group at
-	 * {@link ArgumentGroup#addArgument(Argument)}
+	 * {@link Group#addArgument(Argument)}
 	 * This will also call {@link Argument#registerToCommand(Command)} if the parent command has not been set yet.
 	 */
 	@Override
-	public void registerToGroup(@NotNull ArgumentGroup parentGroup) {
+	public void registerToGroup(@NotNull Group parentGroup) {
 		if (this.parentGroup != null)
 			throw new ArgumentAlreadyExistsException(this, this.parentGroup);
 
@@ -369,12 +369,12 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	/**
-	 * Returns the {@link ArgumentGroup} that contains this argument, or {@code null} if it does not have one.
+	 * Returns the {@link Group} that contains this argument, or {@code null} if it does not have one.
 	 *
 	 * @return the parent group of this argument, or {@code null} if it does not have one.
 	 */
 	@Override
-	public @Nullable ArgumentGroup getParentGroup() {
+	public @Nullable Group getParentGroup() {
 		return this.parentGroup;
 	}
 
@@ -475,7 +475,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		// check if the parent group of this argument is restricted, and if so, check if any other argument in it has been used
 		if (this.parentGroup == null || this.getUsageCount() == 0) return true;
 
-		ArgumentGroup restrictionViolator = this.parentGroup.getRestrictionViolator(null);
+		Group restrictionViolator = this.parentGroup.getRestrictionViolator(null);
 		if (restrictionViolator == null) return true;
 
 		this.parentCommand.getParser().addError(new ParseErrors.MultipleArgsInRestrictedGroupUsedError(

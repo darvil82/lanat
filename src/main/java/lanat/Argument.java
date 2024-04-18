@@ -859,7 +859,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 
 		/**
 		 * Returns the character that represents this prefix. If this prefix is {@link Prefix#DEFAULT}, then the
-		 * default prefix character will be returned.
+		 * default prefix character ({@link #getDefaultPrefix}) will be returned.
 		 * @return the character that represents this prefix.
 		 */
 		public char getCharacter() {

@@ -34,10 +34,10 @@ public class TestParsedValues extends UnitTests {
 	@DisplayName("Test querying parsed values from arguments in Sub-Commands")
 	public void testNestedArguments() {
 		var parsedArgs = this.parseArgs("smth subCommand -cccc another 56");
-		assertEquals(4, parsedArgs.<Integer>get("subCommand.c").orElse(null));
+		assertEquals(4, parsedArgs.<Integer>get("subCommand", "c").orElse(null));
 		assertEquals(4, parsedArgs.<Integer>get("subCommand", "c").orElse(null));
 
-		assertEquals(56, parsedArgs.<Integer>get("subCommand.another.number").orElse(null));
+		assertEquals(56, parsedArgs.<Integer>get("subCommand", "another", "number").orElse(null));
 		assertEquals(56, parsedArgs.<Integer>get("subCommand", "another", "number").orElse(null));
 	}
 
@@ -47,12 +47,12 @@ public class TestParsedValues extends UnitTests {
 		var parsedArgs = this.parseArgs("smth subCommand -cccc");
 		final byte[] called = { 0 };
 
-		parsedArgs.<Integer>get("subCommand.c").ifPresent(v -> {
+		parsedArgs.<Integer>get("subCommand", "c").ifPresent(v -> {
 			assertEquals(4, v);
 			called[0]++;
 		});
 
-		parsedArgs.<Integer>get("subCommand.another.number").ifPresentOrElse((v) -> {}, () -> called[0]++);
+		parsedArgs.<Integer>get("subCommand", "another", "number").ifPresentOrElse((v) -> {}, () -> called[0]++);
 
 		assertEquals(2, called[0]);
 	}

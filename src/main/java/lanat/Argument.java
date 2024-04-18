@@ -32,7 +32,7 @@ import java.util.function.Consumer;
  * <p>
  * An Argument specifies a value that the user can introduce to the command. This value will be parsed by the specified
  * {@link ArgumentType} each time the Argument is used. Once finished parsing, the value may be retrieved by using
- * {@link ParseResult#get(String)} on the {@link ParseResult} object returned by
+ * {@link ParseResult#get(String...)} on the {@link ParseResult} object returned by
  * {@link ArgumentParser#parse(CLInput)}.
  *
  * <p>

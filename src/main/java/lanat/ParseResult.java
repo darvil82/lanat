@@ -4,7 +4,6 @@ import lanat.exceptions.ArgumentNotFoundException;
 import lanat.exceptions.CommandNotFoundException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import utils.UtlString;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -57,6 +56,7 @@ public class ParseResult {
 		return this.cmd;
 	}
 
+
 	/**
 	 * Returns the parsed value of the argument with the given name.
 	 * @param arg The argument to get the value of
@@ -72,35 +72,6 @@ public class ParseResult {
 
 		return Optional.ofNullable((T)this.parsedArgumentValues.get(arg));
 	}
-
-	/**
-	 * Returns the parsed value of the argument with the given name. In order to access arguments in sub-commands, use
-	 * the {@code .} separator to specify the route to the argument.
-	 *
-	 * <br><br>
-	 *
-	 * <strong>Example:</strong>
-	 * <pre>
-	 * {@code var argValue = result.<String>get("rootCommand.subCommand.argument")}
-	 * </pre>
-	 * <p>
-	 * More info at {@link #get(String...)}
-	 *
-	 * @param argRoute The route to the argument, separated by the {@code .} character.
-	 * @param <T> The type of the value of the argument. This is used to avoid casting. A type that does not match the
-	 * 	argument's type will result in a {@link ClassCastException}.
-	 * @return An {@link Optional} containing the parsed value of the argument with the given name, or
-	 *  {@link Optional#empty()} if the argument was not found.
-	 * @throws CommandNotFoundException If the command specified in the route does not exist
-	 * @throws ArgumentNotFoundException If the argument specified in the route does not exist
-	 */
-	public <T> @NotNull Optional<T> get(@NotNull String argRoute) {
-		if (!argRoute.contains("."))
-			return this.get(new String[] { argRoute });
-
-		return this.get(UtlString.split(argRoute, '.'));
-	}
-
 
 	/**
 	 * Specify the route of Sub-Commands for reaching the argument desired.
@@ -147,12 +118,10 @@ public class ParseResult {
 	 * @throws ArgumentNotFoundException If no argument with the given name is found
 	 */
 	private @NotNull Argument<?, ?> getArgument(@NotNull String name) {
-		for (var arg : this.parsedArgumentValues.keySet()) {
-			if (arg.hasName(name)) {
-				return arg;
-			}
-		}
-		throw new ArgumentNotFoundException(name);
+		return this.parsedArgumentValues.keySet().stream()
+			.filter(a -> a.hasName(name))
+			.findFirst()
+			.orElseThrow(() -> new ArgumentNotFoundException(name));
 	}
 
 	/**
@@ -164,9 +133,9 @@ public class ParseResult {
 	 * @return The sub {@link ParseResult} with the given name
 	 */
 	public @NotNull ParseResult getSubResult(@NotNull String name) {
-		for (var sub : this.subResults)
-			if (sub.cmd.hasName(name)) return sub;
-
-		throw new CommandNotFoundException(name);
+		return this.subResults.stream()
+			.filter(sub -> sub.cmd.hasName(name))
+			.findFirst()
+			.orElseThrow(() -> new CommandNotFoundException(name));
 	}
 }

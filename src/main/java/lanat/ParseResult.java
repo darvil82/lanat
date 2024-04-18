@@ -5,7 +5,6 @@ import lanat.exceptions.CommandNotFoundException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -105,12 +104,25 @@ public class ParseResult {
 			throw new IllegalArgumentException("argument route must not be empty");
 		}
 
-		if (argRoute.length == 1) {
-			return (Optional<T>)this.get(this.getArgument(argRoute[0]));
+		return this.get$recursive(0, argRoute);
+	}
+
+
+	/**
+	 * Recursive implementation for {@link #get(String...)}.
+	 * @param offset The current offset in the route
+	 * @param argRoute The route to the argument
+	 * @return The parsed value of the argument with the given name
+	 * @param <T> The type of the value of the argument
+	 */
+	@SuppressWarnings("unchecked")
+	private <T> @NotNull Optional<T> get$recursive(int offset, @NotNull String... argRoute) {
+		if (offset == argRoute.length - 1) {
+			return (Optional<T>)this.get(this.getArgument(argRoute[offset]));
 		}
 
-		return this.getSubResult(argRoute[0])
-			.get(Arrays.copyOfRange(argRoute, 1, argRoute.length));
+		return this.getSubResult(argRoute[offset])
+			.get$recursive(offset + 1, argRoute);
 	}
 
 	/**

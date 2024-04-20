@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Scanner;
 
 /**
  * A class to gather the input from the command line.
@@ -59,6 +60,16 @@ public final class CLInput {
 			return new CLInput(Files.readString(Path.of(path)));
 		} catch (IOException e) {
 			return new CLInput("");
+		}
+	}
+
+	/**
+	 * Constructs a new {@link CLInput} from the standard input. The input will be the first line read.
+	 * @return A new {@link CLInput} from the standard input.
+	 */
+	public static @NotNull CLInput fromStandardInput() {
+		try (var scanner = new Scanner(System.in)) {
+			return new CLInput(scanner.nextLine());
 		}
 	}
 

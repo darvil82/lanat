@@ -2,9 +2,9 @@ package lanat;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Scanner;
 
 /**
@@ -52,12 +52,12 @@ public final class CLInput {
 	/**
 	 * Constructs a new {@link CLInput} from the given file. The input will be the contents of the file.
 	 * If the file does not exist, the input will be an empty string.
-	 * @param path The path to the file.
+	 * @param file The file to read the input from.
 	 * @return A new {@link CLInput} from the given file.
 	 */
-	public static @NotNull CLInput fromFile(@NotNull String path) {
+	public static @NotNull CLInput fromFile(@NotNull File file) {
 		try {
-			return new CLInput(Files.readString(Path.of(path)));
+			return new CLInput(Files.readString(file.toPath()));
 		} catch (IOException e) {
 			return new CLInput("");
 		}

@@ -119,22 +119,6 @@ public class Command
 		this.checkUniqueArguments();
 	}
 
-	/**
-	 * Adds a 'help' argument which shows the help message of the command
-	 * (provided by the {@link Command#getHelp()} method), and then exits the program with the given return code.
-	 * @param returnCode The return code to exit the program with.
-	 */
-	public void addHelpArgument(int returnCode) {
-		this.addArgument(Argument.createOfActionType("help", "h")
-			.onOk(t -> {
-				System.out.println(this.getHelp());
-				System.exit(returnCode);
-			})
-			.description("Shows this message.")
-			.unique(true)
-		);
-	}
-
 	@Override
 	public void addGroup(@NotNull Group group) {
 		group.registerToCommand(this);
@@ -284,7 +268,7 @@ public class Command
 	 * @return The help message of this command.
 	 */
 	public @NotNull String getHelp() {
-		return this.helpFormatter.get().generate(this) + System.lineSeparator();
+		return this.helpFormatter.get().generate(this);
 	}
 
 	@Override

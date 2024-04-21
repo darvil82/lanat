@@ -1,5 +1,6 @@
 package lanat;
 
+import lanat.argumentTypes.ActionArgumentType;
 import lanat.argumentTypes.CounterArgumentType;
 import lanat.exceptions.ArgumentNotFoundException;
 import lanat.utils.Builder;
@@ -10,6 +11,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.List;
+import java.util.Objects;
 
 
 /**
@@ -266,8 +268,8 @@ public abstract class CommandTemplate {
 
 	/**
 	 * A command template that adds the 'help' and 'version' arguments to the command.
-	 * @see Command#addHelpArgument(int)
-	 * @see ArgumentParser#addVersionArgument(int)
+	 * @see #getHelpArgumentBuilder(Command, int) 
+	 * @see #getVersionArgumentBuilder(ArgumentParser, int)
 	 */
 	@Command.Define
 	public static class Default extends CommandTemplate {
@@ -278,10 +280,47 @@ public abstract class CommandTemplate {
 		 */
 		@InitDef
 		public static void afterInit(@NotNull Command cmd) {
-			cmd.addHelpArgument(0);
+			cmd.addArgument(getHelpArgumentBuilder(cmd, 0));
 
 			if (cmd instanceof ArgumentParser ap)
-				ap.addVersionArgument(0);
+				cmd.addArgument(getVersionArgumentBuilder(ap, 0));
+		}
+
+		/**
+		 * Returns a 'help' argument builder which shows the help message of the command
+		 * (provided by the {@link Command#getHelp()} method), and then exits the program with the given return code.
+		 * @param cmd The command to show the help message of.
+		 * @param returnCode The return code to exit the program with.
+		 * @return A 'help' argument builder.
+		 */
+		public static ArgumentBuilder<ActionArgumentType, Boolean>
+		getHelpArgumentBuilder(@NotNull Command cmd, int returnCode) {
+			return Argument.createOfActionType("help", "h")
+				.onOk(t -> {
+					System.out.println(cmd.getHelp());
+					System.exit(returnCode);
+				})
+				.description("Shows this message.")
+				.unique(true);
+		}
+
+		/**
+		 * Returns a 'version' argument builder which shows the version of the program
+		 * (provided by the {@link ArgumentParser#getVersion()} method), and then exits the program with the given return
+		 * code.
+		 * @param rootCmd The root command to get the version of.
+		 * @param returnCode The return code to exit the program with.
+		 * @return A 'version' argument builder.
+		 */
+		public static ArgumentBuilder<ActionArgumentType, Boolean>
+		getVersionArgumentBuilder(@NotNull ArgumentParser rootCmd, int returnCode) {
+			return Argument.createOfActionType("version")
+				.onOk(t -> {
+					System.out.println("Version: " + Objects.requireNonNullElse(rootCmd.getVersion(), "unknown"));
+					System.exit(returnCode);
+				})
+				.description("Shows the version of this program.")
+				.unique(true);
 		}
 
 		/**

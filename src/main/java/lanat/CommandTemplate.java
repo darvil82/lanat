@@ -375,6 +375,7 @@ public abstract class CommandTemplate {
 	 */
 	public static void afterInit(@NotNull Command cmd) {}
 
+	// just in the case the user wants to do it for the ArgumentParser
 	/** @see #afterInit(Command) */
 	public static void afterInit(@NotNull ArgumentParser cmd) {}
 }

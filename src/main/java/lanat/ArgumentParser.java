@@ -7,7 +7,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Modifier;
-import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -282,23 +281,6 @@ public class ArgumentParser extends Command {
 	 */
 	public void setVersion(@NotNull String version) {
 		this.version = version;
-	}
-
-	/**
-	 * Adds a 'version' argument which shows the version of the program
-	 * (provided by the {@link ArgumentParser#getVersion()} method), and then exits the program with the given return
-	 * code.
-	 * @param returnCode The return code to exit the program with.
-	 */
-	public void addVersionArgument(int returnCode) {
-		this.addArgument(Argument.createOfActionType("version")
-			.onOk(t -> {
-				System.out.println("Version: " + Objects.requireNonNullElse(this.getVersion(), "unknown"));
-				System.exit(returnCode);
-			})
-			.description("Shows the version of this program.")
-			.unique(true)
-		);
 	}
 
 	/**

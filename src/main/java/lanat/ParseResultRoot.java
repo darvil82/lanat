@@ -3,10 +3,7 @@ package lanat;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Container for all the parsed arguments and their respective values.
@@ -43,7 +40,7 @@ public class ParseResultRoot extends ParseResult {
 	 */
 	public @NotNull List<@NotNull ParseResult> getUsedResults() {
 		if (!this.wasUsed())
-			return new ArrayList<>(0);
+			return List.of();
 
 		ParseResult current = this;
 		var list = new ArrayList<ParseResult>(1);
@@ -57,6 +54,6 @@ public class ParseResultRoot extends ParseResult {
 				.orElse(null);
 		} while (current != null);
 
-		return list;
+		return Collections.unmodifiableList(list);
 	}
 }

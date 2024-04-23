@@ -280,7 +280,7 @@ public class AfterParseOptions {
 	 * @return The new value for the given field based on the parsed value. This will be {@code null} if the parsed
 	 * 	value is {@code null}.
 	 */
-	private static Object into$getNewFieldValue(
+	private static @Nullable Object into$getNewFieldValue(
 		@NotNull Field commandAccessorField,
 		@NotNull Optional<?> parsedValue
 	)

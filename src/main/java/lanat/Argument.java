@@ -516,7 +516,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	/**
 	 * Executes the correct or the error callback depending on whether the argument has errors or not.
 	 * <p>
-	 * The correct callback is only executed if the argument has no errors, the usage count is greater than 0, the
+	 * The correct callback is only executed if the argument was used and has no errors.
 	 *
 	 * @param okValue the value to pass to the correct callback
 	 */

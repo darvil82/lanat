@@ -98,7 +98,6 @@ public class ParseResult {
 	 *  {@link Optional#empty()} if the argument was not found.
 	 * @param <T> The type of the value of the argument.
 	 */
-	@SuppressWarnings("unchecked") // we'll just have to trust the user
 	public <T> @NotNull Optional<T> get(@NotNull String... argRoute) {
 		if (argRoute.length == 0) {
 			throw new IllegalArgumentException("argument route must not be empty");
@@ -115,7 +114,7 @@ public class ParseResult {
 	 * @return The parsed value of the argument with the given name
 	 * @param <T> The type of the value of the argument
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked") // we'll just have to trust the user
 	private <T> @NotNull Optional<T> get$recursive(int offset, @NotNull String... argRoute) {
 		if (offset == argRoute.length - 1) {
 			return (Optional<T>)this.get(this.getArgument(argRoute[offset]));

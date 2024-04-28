@@ -117,7 +117,7 @@ public abstract class CommandTemplate {
 
 	/**
 	 * Called right after the Command Template is instantiated by the Argument Parser.
-	 * Sets the {@link #parseResult} field and calls {@link #onUsed()} if the command was used.
+	 * Sets the {@link #parseResult} field and calls {@link #onUsed(ParseResult)} if the command was used.
 	 * <p>
 	 * The reason this is used instead of a constructor is because we don't want to force inheritors to call
 	 * {@code super()} in their constructors. Also, this method is called first by the innermost Command in
@@ -126,7 +126,7 @@ public abstract class CommandTemplate {
 	 */
 	final void afterInstantiation(@NotNull ParseResult parseResult) {
 		this.parseResult = parseResult;
-		if (this.wasUsed()) this.onUsed();
+		if (this.wasUsed()) this.onUsed(parseResult);
 	}
 
 	/**
@@ -166,7 +166,7 @@ public abstract class CommandTemplate {
 	 * This method should not be called manually. It is called automatically by the Argument Parser once the Command
 	 * Template is initialized.
 	 */
-	public void onUsed() {}
+	public void onUsed(@NotNull ParseResult parseResult) {}
 
 
 	/**

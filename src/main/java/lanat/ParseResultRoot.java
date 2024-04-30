@@ -34,8 +34,6 @@ public class ParseResultRoot extends ParseResult {
 	/**
 	 * Returns a list of all the {@link ParseResult} objects that belong to a command that was used by the user.
 	 * The list is ordered from the root command to the last used command.
-	 * <p>
-	 * The list contains this {@link ParseResultRoot} object as well.
 	 * @return A list of all the {@link ParseResult} objects that belong to a command that was used by the user
 	 */
 	public @NotNull List<@NotNull ParseResult> getUsedResults() {

@@ -45,6 +45,10 @@ public final class CLInput {
 	public static @NotNull CLInput fromSystemProperty() {
 		final var args = System.getProperty("sun.java.command");
 
+		// this is just the program name, so no arguments were passed
+		if (!args.contains(" "))
+			return new CLInput("");
+
 		// remove first word from args (the program name)
 		return new CLInput(args.substring(args.indexOf(' ') + 1));
 	}

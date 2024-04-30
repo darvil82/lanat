@@ -103,8 +103,6 @@ public class ArgumentParser extends Command {
 	 * </pre>
 	 * The example above uses the {@link #parseFromInto(Class, CLInput)} overload, which sets the default actions for
 	 * the {@link AfterParseOptions} object.
-	 * <p>
-	 * This method uses {@link #from(Class)}. See that method for more info.
 	 * @param templateClass The class to use as a template.
 	 * @param input The input to parse.
 	 * @param actions A consumer that can be used for configuring the parsing process.
@@ -113,6 +111,7 @@ public class ArgumentParser extends Command {
 	 * @see #parseFromInto(Class, CLInput)
 	 * @see CommandTemplate
 	 * @see #from(Class)
+	 * @see AfterParseOptions#into(Class) 
 	 * @see AfterParseOptions
 	 */
 	public static <T extends CommandTemplate> @NotNull T parseFromInto(

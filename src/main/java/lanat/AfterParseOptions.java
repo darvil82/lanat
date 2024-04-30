@@ -219,16 +219,18 @@ public class AfterParseOptions {
 		} catch (IllegalArgumentException e) {
 			if (parsedValue.isEmpty())
 				throw new IncompatibleCommandTemplateTypeException(
-					"Field '" + field.getName() + "' of type '" + field.getType().getSimpleName() + "' does not"
-						+ " accept null values, but the parsed argument '" + argName + "' is null"
+					"For field of argument '" + argName + "':\n"
+						+ "Field '" + field.getName() + "' of type '" + field.getType().getSimpleName() + "' does not"
+						+ " accept null values, but the parsed value is null"
 				);
 
 			throw new IncompatibleCommandTemplateTypeException(
-				"Field '" + field.getName() + "' of type '" + field.getType().getSimpleName() + "' is not "
-					+ "compatible with the type (" + parsedValue.get().getClass().getSimpleName() + ") of the "
-					+ "parsed argument '" + argName + "'"
+				"For field of argument '" + argName + "':\n"
+					+ "Field '" + field.getName() + "' of type '" + field.getType().getSimpleName() + "' is not "
+					+ "compatible with the type (" + parsedValue.get().getClass().getSimpleName() + ")"
 			);
-
+		} catch (IncompatibleCommandTemplateTypeException e) {
+			throw new IncompatibleCommandTemplateTypeException("For field of argument '" + argName + "':\n" + e.getMessage());
 		} catch (IllegalAccessException e) {
 			throw new RuntimeException(e);
 		}
@@ -308,8 +310,8 @@ public class AfterParseOptions {
 			return newArray;
 		} catch (ClassCastException e) {
 			throw new IncompatibleCommandTemplateTypeException(
-				"Field '" + commandAccessorField.getName() + "' of type '" + commandAccessorField.getType().getSimpleName()
-				+ "' is not compatible with the type (" + fieldType.arrayType() + ") of the parsed argument"
+				"Field '" + commandAccessorField.getName() + "' with array type '" + commandAccessorField.getType().getSimpleName()
+				+ "' is not compatible with the array type (" + fieldType.arrayType() + ") of the parsed argument"
 			);
 		}
 	}

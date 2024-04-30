@@ -1,7 +1,7 @@
 package lanat;
 
 import lanat.exceptions.CommandTemplateException;
-import lanat.exceptions.IncompatibleCommandTemplateType;
+import lanat.exceptions.IncompatibleCommandTemplateTypeException;
 import lanat.parsing.errors.ErrorCollector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -218,12 +218,12 @@ public class AfterParseOptions {
 			);
 		} catch (IllegalArgumentException e) {
 			if (parsedValue.isEmpty())
-				throw new IncompatibleCommandTemplateType(
+				throw new IncompatibleCommandTemplateTypeException(
 					"Field '" + field.getName() + "' of type '" + field.getType().getSimpleName() + "' does not"
 						+ " accept null values, but the parsed argument '" + argName + "' is null"
 				);
 
-			throw new IncompatibleCommandTemplateType(
+			throw new IncompatibleCommandTemplateTypeException(
 				"Field '" + field.getName() + "' of type '" + field.getType().getSimpleName() + "' is not "
 					+ "compatible with the type (" + parsedValue.get().getClass().getSimpleName() + ") of the "
 					+ "parsed argument '" + argName + "'"
@@ -307,7 +307,7 @@ public class AfterParseOptions {
 
 			return newArray;
 		} catch (ClassCastException e) {
-			throw new IncompatibleCommandTemplateType(
+			throw new IncompatibleCommandTemplateTypeException(
 				"Field '" + commandAccessorField.getName() + "' of type '" + commandAccessorField.getType().getSimpleName()
 				+ "' is not compatible with the type (" + fieldType.arrayType() + ") of the parsed argument"
 			);

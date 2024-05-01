@@ -43,11 +43,11 @@ public class ErrorFormattingContext {
 	 * Indicates the formatter to display the user input.
 	 * Same as {@link #highlight(int, int, boolean)} but with a pair of indices.
 	 * @see #highlight(int, int, boolean)
-	 * @param indicesPair The pair of indices to highlight.
+	 * @param indexAndOffset The pair of indices to highlight.
 	 * @param showArrows Whether to show arrows instead of highlighting the input.
 	 */
-	public ErrorFormattingContext highlight(@NotNull Pair<Integer, Integer> indicesPair, boolean showArrows) {
-		return this.highlight(indicesPair.first(), indicesPair.second(), showArrows);
+	public ErrorFormattingContext highlight(@NotNull Pair<Integer, Integer> indexAndOffset, boolean showArrows) {
+		return this.highlight(indexAndOffset.first(), indexAndOffset.second(), showArrows);
 	}
 
 	/**

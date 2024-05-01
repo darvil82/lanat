@@ -53,25 +53,4 @@ public sealed interface Error<C extends ErrorContext> extends ErrorLevelProvider
 
 	/** A tokenize error. Indicates a failure in the tokenization process. */
 	non-sealed interface TokenizeError extends Error<TokenizeErrorContext> { }
-
-	/**
-	 * A custom error. Indicates a failure in the parsing process in an {@link lanat.ArgumentType}.
-	 * <p>
-	 * Allows offsetting the index of the error. This is used by {@link lanat.ArgumentType}s to offset the index
-	 * of the error when the error is dispatched to a parent {@link lanat.ArgumentType}.
-	 * </p>
-	 * */
-	interface CustomError extends ParseError {
-		/**
-		 * Returns the index of the token that caused the error.
-		 * @return the index of the token that caused the error
-		 */
-		int getIndex();
-
-		/**
-		 * Offsets the index of the error by the given offset.
-		 * @param offset the offset to apply to the index
-		 */
-		void offsetIndex(int offset);
-	}
 }

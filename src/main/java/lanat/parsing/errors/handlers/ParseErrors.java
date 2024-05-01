@@ -72,11 +72,11 @@ public abstract class ParseErrors {
 
 	/**
 	 * Error that occurs when an argument is used an incorrect amount of times.
-	 * @param indicesPair The indices of the tokens that caused the error. (start, end)
+	 * @param indexAndOffset The indices of the tokens that caused the error. (start, end)
 	 * @param argument The argument that was used an incorrect amount of times.
 	 */
 	public record IncorrectUsagesCountError(
-		@NotNull Pair<Integer, Integer> indicesPair,
+		@NotNull Pair<Integer, Integer> indexAndOffset,
 		@NotNull Argument<?, ?> argument
 	) implements Error.ParseError
 	{
@@ -89,7 +89,7 @@ public abstract class ParseErrors {
 						UtlString.plural("time", this.argument.getUsageCount())
 					)
 				)
-				.highlight(this.indicesPair, false);
+				.highlight(this.indexAndOffset, false);
 		}
 	}
 
@@ -166,11 +166,11 @@ public abstract class ParseErrors {
 
 	/**
 	 * Error that occurs when multiple arguments in a restricted group are used.
-	 * @param indicesPair The indices of the tokens that caused the error. (start, end)
+	 * @param indexAndOffset The indices of the tokens that caused the error. (start, end)
 	 * @param group The restricted group that contains the arguments.
 	 */
 	public record MultipleArgsInRestrictedGroupUsedError(
-		@NotNull Pair<Integer, Integer> indicesPair,
+		@NotNull Pair<Integer, Integer> indexAndOffset,
 		@NotNull Group group
 	) implements Error.ParseError
 	{
@@ -178,7 +178,7 @@ public abstract class ParseErrors {
 		public void handle(@NotNull ErrorFormattingContext fmt, @NotNull ParseErrorContext ctx) {
 			fmt
 				.withContent("Multiple arguments in restricted group " + HelpFormatter.getRepresentation(this.group) + " used.")
-				.highlight(this.indicesPair, false);
+				.highlight(this.indexAndOffset, false);
 		}
 	}
 
@@ -221,11 +221,11 @@ public abstract class ParseErrors {
 
 	/**
 	 * Error that occurs when an argument is used while there's a unique argument that has been used.
-	 * @param indicesPair The indices of the tokens that caused the error. (start, end)
+	 * @param indexAndOffset The indices of the tokens that caused the error. (start, end)
 	 * @param argument The argument that thrown the error.
 	 */
 	public record UniqueArgumentUsedError(
-		@NotNull Pair<Integer, Integer> indicesPair,
+		@NotNull Pair<Integer, Integer> indexAndOffset,
 		@NotNull Argument<?, ?> argument
 	) implements Error.ParseError
 	{
@@ -238,7 +238,7 @@ public abstract class ParseErrors {
 						+ (this.argument.isUnique() ? "another" : "a")
 						+ " unique argument is used."
 				)
-				.highlight(this.indicesPair, false);
+				.highlight(this.indexAndOffset, false);
 		}
 
 		@Override

@@ -3,6 +3,7 @@ package lanat.parsing.errors.formatGenerators;
 import lanat.parsing.Token;
 import lanat.parsing.errors.ErrorFormatter;
 import lanat.parsing.errors.contexts.ErrorContext;
+import lanat.parsing.errors.contexts.ErrorFormattingContext;
 import lanat.parsing.errors.contexts.ParseErrorContext;
 import lanat.parsing.errors.contexts.TokenizeErrorContext;
 import org.jetbrains.annotations.NotNull;
@@ -69,18 +70,21 @@ public class PrettyErrorFormatter extends ErrorFormatter {
 		tokensFormatters.add(ctx.getRootCommandToken().getFormatter());
 		tokensFormatters.addAll(ctx.getTokens(false).stream().map(Token::getFormatter).toList());
 
-		this.getHighlightOptions().ifPresent(opts -> {
-			BiConsumer<List<TextFormatter>, Range> highlighter;
+		this.getHighlightOptions()
+			.map(ErrorFormattingContext.HighlightOptions::range)
+			.map(range -> ctx.applyAbsoluteOffset(range).offset(1))
+			.ifPresent(range -> {
+				BiConsumer<List<TextFormatter>, Range> highlighter;
 
-			if (opts.showArrows())
-				highlighter = this::placeTokenArrowsExplicit;
-			else if (!TextFormatter.enableSequences)
-				highlighter = this::placeTokenArrowsImplicit;
-			else
-				highlighter = this::highlightTokens;
+				if (this.getHighlightOptions().get().showArrows())
+					highlighter = this::placeTokenArrowsExplicit;
+				else if (!TextFormatter.enableSequences)
+					highlighter = this::placeTokenArrowsImplicit;
+				else
+					highlighter = this::highlightTokens;
 
-			highlighter.accept(tokensFormatters, ctx.applyAbsoluteOffset(opts.range()).offset(1));
-		});
+				highlighter.accept(tokensFormatters, range);
+			});
 
 		// dim tokens before the command
 		for (int i = 0; i < ctx.getAbsoluteIndex(); i++) {
@@ -99,13 +103,13 @@ public class PrettyErrorFormatter extends ErrorFormatter {
 
 		return TextFormatter.of(
 			this.getHighlightOptions()
-				.map(opts -> {
-					var range = ctx.applyAbsoluteOffset(opts.range()).offset(cmdName.length() + 2);
-
+				.map(ErrorFormattingContext.HighlightOptions::range)
+				.map(range -> ctx.applyAbsoluteOffset(range).offset(cmdName.length() + 2))
+				.map(range -> {
 					if (range.start() > in.length())
 						return SimpleColor.BRIGHT_WHITE + in + this.getArrow(false);
 
-					if (opts.showArrows() || !TextFormatter.enableSequences)
+					if (this.getHighlightOptions().get().showArrows() || !TextFormatter.enableSequences)
 						return this.placeArrows(in, range);
 
 					return this.highlightText(in, range);

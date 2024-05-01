@@ -2,6 +2,7 @@ package lanat.parsing.errors.formatGenerators;
 
 import lanat.parsing.errors.ErrorFormatter;
 import lanat.parsing.errors.contexts.ErrorContext;
+import lanat.parsing.errors.contexts.ErrorFormattingContext;
 import lanat.parsing.errors.contexts.ParseErrorContext;
 import lanat.parsing.errors.contexts.TokenizeErrorContext;
 import org.jetbrains.annotations.NotNull;
@@ -57,9 +58,9 @@ public class SimpleErrorFormatter extends ErrorFormatter {
 	 */
 	private @Nullable TextFormatter getView(@NotNull ErrorContext ctx, @NotNull String indicator) {
 		return this.getHighlightOptions()
-			.map(opts -> {
-				final var range = ctx.applyAbsoluteOffset(opts.range());
-
+			.map(ErrorFormattingContext.HighlightOptions::range)
+			.map(ctx::applyAbsoluteOffset)
+			.map(range -> {
 				var nearContents = TextFormatter.create().addFormat(FormatOption.ITALIC);
 
 				if (ctx instanceof TokenizeErrorContext tokenizeCtx) {

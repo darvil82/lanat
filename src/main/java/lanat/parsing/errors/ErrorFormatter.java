@@ -86,11 +86,16 @@ public abstract class ErrorFormatter implements ErrorLevelProvider {
 	 * Gets the appropriate generated view for the current error, depending on the type of the current error context.
 	 * <p>
 	 * This will call either {@link #generateTokensView(ParseErrorContext)} or {@link #generateInputView(TokenizeErrorContext)}.
-	 * @return the generated view
+	 * </p>
+	 * If no view is generated, an empty {@link TextFormatter} is returned.
+	 * @return the generated view.
 	 * @see #generateTokensView(ParseErrorContext)
 	 * @see #generateInputView(TokenizeErrorContext)
 	 */
 	protected final @NotNull TextFormatter getGeneratedView() {
+		if (this.formattingContext.getHighlightOptions() == null)
+			return TextFormatter.create();
+
 		TextFormatter result = null;
 		if (this.currentErrorContext instanceof ParseErrorContext parseContext)
 			result = this.generateTokensView(parseContext);

@@ -21,6 +21,12 @@ public class ErrorFormattingContext {
 		return this;
 	}
 
+	/** Indicates the formatter to display the user input. */
+	public ErrorFormattingContext showInput() {
+		this.tokensViewOptions = new HighlightOptions(null, false);
+		return this;
+	}
+
 	/**
 	 * Indicates the formatter to display the user input.
 	 * <p>
@@ -76,19 +82,8 @@ public class ErrorFormattingContext {
 
 	/**
 	 * Options used to display the input.
+	 * @param range The range of the input to highlight.
+	 * @param showArrows Whether to show arrows instead of highlighting the input.
 	 */
-	public record HighlightOptions(@NotNull Range range, boolean showArrows) {
-		/**
-		 * Returns a new instance with the range offset by the given value.
-		 * @param offset The offset to apply to the range.
-		 * @return A new instance with the range offset by the given value.
-		 * @see Range#offset(int)
-		 */
-		public @NotNull HighlightOptions withOffset(int offset) {
-			return new HighlightOptions(
-				this.range.offset(offset),
-				this.showArrows
-			);
-		}
-	}
+	public record HighlightOptions(@Nullable Range range, boolean showArrows) {}
 }

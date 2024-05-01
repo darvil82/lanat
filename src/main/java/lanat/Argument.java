@@ -3,7 +3,7 @@ package lanat;
 import lanat.argumentTypes.ActionArgumentType;
 import lanat.argumentTypes.DummyArgumentType;
 import lanat.exceptions.ArgumentAlreadyExistsException;
-import lanat.parsing.errors.Error;
+import lanat.parsing.errors.handlers.ArgumentTypeError;
 import lanat.parsing.errors.handlers.ParseErrors;
 import lanat.utils.*;
 import lanat.utils.errors.ErrorCallbacks;
@@ -73,7 +73,7 @@ import java.util.function.Consumer;
  * @see ArgumentParser
  */
 public class Argument<Type extends ArgumentType<TInner>, TInner>
-	implements ErrorContainer<Error.CustomError>,
+	implements ErrorContainer<ArgumentTypeError>,
 		ErrorCallbacks<TInner, Argument<Type, TInner>>,
 		Resettable,
 		CommandUser,
@@ -116,7 +116,13 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	private final @NotNull ModifyRecord<Color> representationColor = ModifyRecord.empty();
 
 
-	Argument(@NotNull Type type, @NotNull String... names) {
+	/**
+	 * Creates an argument with the specified type and names.
+	 * @param type the type of the argument. This is the subParser that will be used to parse the value/s this
+	 * 	argument should receive.
+	 * @param names the names of the argument. See {@link Argument#setNames(List)} for more information.
+	 */
+	protected Argument(@NotNull Type type, @NotNull String... names) {
 		this.type = type;
 		this.setNames(List.of(names));
 	}
@@ -450,18 +456,18 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 			return false;
 		}
 
-		var lastTokensIndicesPair = this.type.getLastTokensIndicesPair();
+		var lastTokensIndexAndOffset = this.type.getLastParseState().getIndexAndOffset();
 		var usageCountIsInvalid = !this.type.getUsageCountBounds().containsInclusive(usageCount);
 
 		// some unique argument was used, so throw an error
 		if (uniqueArgReceivedValue)
 			this.parentCommand.getParser()
-				.addError(new ParseErrors.UniqueArgumentUsedError(lastTokensIndicesPair, this));
+				.addError(new ParseErrors.UniqueArgumentUsedError(lastTokensIndexAndOffset, this));
 
 		// make sure that the argument was used the minimum number of times specified
 		if (usageCountIsInvalid)
 			this.parentCommand.getParser()
-				.addError(new ParseErrors.IncorrectUsagesCountError(lastTokensIndicesPair, this));
+				.addError(new ParseErrors.IncorrectUsagesCountError(lastTokensIndexAndOffset, this));
 
 		return !usageCountIsInvalid && !uniqueArgReceivedValue;
 	}
@@ -479,7 +485,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		if (restrictionViolator == null) return true;
 
 		this.parentCommand.getParser().addError(new ParseErrors.MultipleArgsInRestrictedGroupUsedError(
-			this.type.getLastTokensIndicesPair(), restrictionViolator
+			this.type.getLastParseState().getIndexAndOffset(), restrictionViolator
 		));
 		return false;
 	}
@@ -560,7 +566,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 * Compares two arguments by the synopsis view priority order.
 	 * <p>
 	 * <b>Order:</b>
-	 * Allows Unique > Positional > Required > Optional.
+	 * Positional > Unique > Required > Optional.
 	 * </p>
 	 *
 	 * @param first the first argument to compare
@@ -632,17 +638,17 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	// just act as a proxy to the type error handling
 
 	@Override
-	public void addError(Error.@NotNull CustomError error) {
+	public void addError(@NotNull ArgumentTypeError error) {
 		this.type.addError(error);
 	}
 
 	@Override
-	public @NotNull List<Error.@NotNull CustomError> getErrorsUnderExitLevel() {
+	public @NotNull List<@NotNull ArgumentTypeError> getErrorsUnderExitLevel() {
 		return this.type.getErrorsUnderExitLevel();
 	}
 
 	@Override
-	public @NotNull List<Error.@NotNull CustomError> getErrorsUnderDisplayLevel() {
+	public @NotNull List<@NotNull ArgumentTypeError> getErrorsUnderDisplayLevel() {
 		return this.type.getErrorsUnderDisplayLevel();
 	}
 

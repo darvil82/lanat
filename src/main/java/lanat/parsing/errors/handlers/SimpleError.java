@@ -1,8 +1,8 @@
 package lanat.parsing.errors.handlers;
 
 import lanat.parsing.errors.Error;
-import lanat.parsing.errors.contexts.ErrorFormattingContext;
 import lanat.parsing.errors.contexts.ParseErrorContext;
+import lanat.parsing.errors.contexts.formatting.ErrorFormattingContext;
 import lanat.utils.errors.ErrorLevel;
 import org.jetbrains.annotations.NotNull;
 
@@ -38,7 +38,7 @@ public class SimpleError implements Error.ParseError {
 		fmt.withContent(this.message);
 
 		if (this.showInput)
-			fmt.showInput();
+			fmt.displayInput();
 	}
 
 	@Override

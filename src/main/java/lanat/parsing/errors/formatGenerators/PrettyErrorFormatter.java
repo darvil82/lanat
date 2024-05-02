@@ -3,9 +3,9 @@ package lanat.parsing.errors.formatGenerators;
 import lanat.parsing.Token;
 import lanat.parsing.errors.ErrorFormatter;
 import lanat.parsing.errors.contexts.ErrorContext;
-import lanat.parsing.errors.contexts.ErrorFormattingContext;
 import lanat.parsing.errors.contexts.ParseErrorContext;
 import lanat.parsing.errors.contexts.TokenizeErrorContext;
+import lanat.parsing.errors.contexts.formatting.DisplayInput;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import textFormatter.FormatOption;
@@ -71,7 +71,7 @@ public class PrettyErrorFormatter extends ErrorFormatter {
 		tokensFormatters.addAll(ctx.getTokens(false).stream().map(Token::getFormatter).toList());
 
 		this.getHighlightOptions()
-			.map(ErrorFormattingContext.HighlightOptions::range)
+			.map(DisplayInput.Highlight::range)
 			.map(range -> ctx.applyAbsoluteOffset(range).offset(1))
 			.ifPresent(range -> {
 				BiConsumer<List<TextFormatter>, Range> highlighter;
@@ -103,7 +103,7 @@ public class PrettyErrorFormatter extends ErrorFormatter {
 
 		return TextFormatter.of(
 			this.getHighlightOptions()
-				.map(ErrorFormattingContext.HighlightOptions::range)
+				.map(DisplayInput.Highlight::range)
 				.map(range -> ctx.applyAbsoluteOffset(range).offset(cmdName.length() + 2))
 				.map(range -> {
 					if (range.start() > in.length())

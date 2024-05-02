@@ -1,8 +1,9 @@
 package lanat.parsing.errors.handlers;
 
 import lanat.parsing.errors.Error;
-import lanat.parsing.errors.contexts.ErrorFormattingContext;
 import lanat.parsing.errors.contexts.TokenizeErrorContext;
+import lanat.parsing.errors.contexts.formatting.DisplayInput;
+import lanat.parsing.errors.contexts.formatting.ErrorFormattingContext;
 import org.jetbrains.annotations.NotNull;
 import utils.exceptions.DisallowedInstantiationException;
 
@@ -21,7 +22,7 @@ public abstract class TokenizeErrors {
 		public void handle(@NotNull ErrorFormattingContext fmt, @NotNull TokenizeErrorContext ctx) {
 			fmt
 				.withContent("Tuple already open.")
-				.showAndHighlightInput(this.index, 0, false);
+				.displayAndHighlightInput(new DisplayInput.Highlight(this.index, 0, false));
 		}
 	}
 
@@ -34,7 +35,7 @@ public abstract class TokenizeErrors {
 		public void handle(@NotNull ErrorFormattingContext fmt, @NotNull TokenizeErrorContext ctx) {
 			fmt
 				.withContent("Tuple not closed.")
-				.showAndHighlightInput(this.index, ctx.getCount() - this.index - 1, false);
+				.displayAndHighlightInput(new DisplayInput.Highlight(this.index, ctx.getCount() - this.index - 1, false));
 		}
 	}
 
@@ -47,7 +48,7 @@ public abstract class TokenizeErrors {
 		public void handle(@NotNull ErrorFormattingContext fmt, @NotNull TokenizeErrorContext ctx) {
 			fmt
 				.withContent("Unexpected tuple close.")
-				.showAndHighlightInput(this.index, 0, false);
+				.displayAndHighlightInput(new DisplayInput.Highlight(this.index, 0, false));
 		}
 	}
 
@@ -60,7 +61,7 @@ public abstract class TokenizeErrors {
 		public void handle(@NotNull ErrorFormattingContext fmt, @NotNull TokenizeErrorContext ctx) {
 			fmt
 				.withContent("String not closed.")
-				.showAndHighlightInput(this.index, ctx.getCount() - this.index - 1, false);
+				.displayAndHighlightInput(new DisplayInput.Highlight(this.index, ctx.getCount() - this.index - 1, false));
 		}
 	}
 
@@ -73,7 +74,7 @@ public abstract class TokenizeErrors {
 		public void handle(@NotNull ErrorFormattingContext fmt, @NotNull TokenizeErrorContext ctx) {
 			fmt
 				.withContent("A space is required between these characters.")
-				.showAndHighlightInput(this.index, 1, false);
+				.displayAndHighlightInput(new DisplayInput.Highlight(this.index, 1, false));
 		}
 	}
 }

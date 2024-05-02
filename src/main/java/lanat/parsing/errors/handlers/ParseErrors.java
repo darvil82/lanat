@@ -4,8 +4,9 @@ import lanat.Argument;
 import lanat.Group;
 import lanat.helpRepresentation.HelpFormatter;
 import lanat.parsing.errors.Error;
-import lanat.parsing.errors.contexts.ErrorFormattingContext;
 import lanat.parsing.errors.contexts.ParseErrorContext;
+import lanat.parsing.errors.contexts.formatting.DisplayInput;
+import lanat.parsing.errors.contexts.formatting.ErrorFormattingContext;
 import lanat.utils.errors.ErrorLevel;
 import org.jetbrains.annotations.NotNull;
 import utils.Pair;
@@ -46,21 +47,21 @@ public abstract class ParseErrors {
 
 			// special case for when the error is caused by an argument name list
 			if (this.isInArgNameList) {
-				fmt.showAndHighlightInput(this.index, 0, false);
+				fmt.displayAndHighlightInput(new DisplayInput.Highlight(this.index, 0, false));
 				return;
 			}
 
 			// if the tuple is empty, highlight both tuple tokens
 			if (this.isInTuple && this.receivedValueCount == 0) {
-				fmt.showAndHighlightInput(this.index, 1, false);
+				fmt.displayAndHighlightInput(new DisplayInput.Highlight(this.index, 1, false));
 				return;
 			}
 
-			fmt.showAndHighlightInput(
+			fmt.displayAndHighlightInput(new DisplayInput.Highlight(
 				this.index + (this.isInTuple ? 1 : 0),
 				Math.max(0, this.receivedValueCount - 1), // only offset if the value count is greater than 1
 				this.receivedValueCount == 0
-			);
+			));
 		}
 
 		@Override
@@ -89,7 +90,7 @@ public abstract class ParseErrors {
 						UtlString.plural("time", this.argument.getUsageCount())
 					)
 				)
-				.showAndHighlightInput(this.indexAndOffset, false);
+				.displayAndHighlightInput(new DisplayInput.Highlight(this.indexAndOffset, false));
 		}
 	}
 
@@ -109,7 +110,7 @@ public abstract class ParseErrors {
 						? "Required argument " + argRepr + " not used."
 						: "Required argument %s for command %s not used.".formatted(argRepr, HelpFormatter.getRepresentation(argCmd))
 				)
-				.showAndHighlightInput(0); // always just highlight at the position of the command token
+				.displayAndHighlightInput(new DisplayInput.Highlight(0)); // always just highlight at the position of the command token
 		}
 	}
 
@@ -127,7 +128,7 @@ public abstract class ParseErrors {
 						+ ctx.getTokenAt(ctx.getAbsoluteIndex(this.index)).contents()
 						+ "' does not correspond with a valid argument, argument list, value, or command."
 				)
-				.showAndHighlightInput(this.index, 0, false);
+				.displayAndHighlightInput(new DisplayInput.Highlight(this.index, 0, false));
 		}
 
 		@Override
@@ -155,7 +156,7 @@ public abstract class ParseErrors {
 					"Argument " + HelpFormatter.getRepresentation(this.argument) + " does not take any values, but got '"
 						+ this.errorValue + "'."
 				)
-				.showAndHighlightInput(this.index, 0, false);
+				.displayAndHighlightInput(new DisplayInput.Highlight(this.index, 0, false));
 		}
 
 		@Override
@@ -178,7 +179,7 @@ public abstract class ParseErrors {
 		public void handle(@NotNull ErrorFormattingContext fmt, @NotNull ParseErrorContext ctx) {
 			fmt
 				.withContent("Multiple arguments in restricted group " + HelpFormatter.getRepresentation(this.group) + " used.")
-				.showAndHighlightInput(this.indexAndOffset, false);
+				.displayAndHighlightInput(new DisplayInput.Highlight(this.indexAndOffset, false));
 		}
 	}
 
@@ -186,6 +187,7 @@ public abstract class ParseErrors {
 	 * Warning that occurs when the contents of a token are found to be similar to the name of an argument.
 	 * @param index The index of the token that caused the error.
 	 * @param argument The argument that was found to be similar.
+	 * @param isSamePrefix Whether the token has the same prefix as the argument.
 	 */
 	public record SimilarArgumentError(
 		int index,
@@ -203,8 +205,7 @@ public abstract class ParseErrors {
 						+ this.argument.getPrefix().getCharacter() + ")."
 				);
 
-
-			fmt.showAndHighlightInput(this.index, 0, false);
+			fmt.displayAndHighlightInput(new DisplayInput.Highlight(this.index, 0, false));
 		}
 
 		@Override
@@ -238,7 +239,7 @@ public abstract class ParseErrors {
 						+ (this.argument.isUnique() ? "another" : "a")
 						+ " unique argument is used."
 				)
-				.showAndHighlightInput(this.indexAndOffset, false);
+				.displayAndHighlightInput(new DisplayInput.Highlight(this.indexAndOffset, false));
 		}
 
 		@Override

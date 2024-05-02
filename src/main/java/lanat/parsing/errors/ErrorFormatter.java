@@ -2,9 +2,10 @@ package lanat.parsing.errors;
 
 import lanat.helpRepresentation.HelpFormatter;
 import lanat.parsing.errors.contexts.ErrorContext;
-import lanat.parsing.errors.contexts.ErrorFormattingContext;
 import lanat.parsing.errors.contexts.ParseErrorContext;
 import lanat.parsing.errors.contexts.TokenizeErrorContext;
+import lanat.parsing.errors.contexts.formatting.DisplayInput;
+import lanat.parsing.errors.contexts.formatting.ErrorFormattingContext;
 import lanat.parsing.errors.formatGenerators.PrettyErrorFormatter;
 import lanat.utils.errors.ErrorLevel;
 import lanat.utils.errors.ErrorLevelProvider;
@@ -74,12 +75,21 @@ public abstract class ErrorFormatter implements ErrorLevelProvider {
 	protected abstract @Nullable TextFormatter generateInputView(@NotNull TokenizeErrorContext ctx);
 
 	/**
-	 * Gets the highlight options for the current error.
+	 * Returns the display options for the current error.
 	 * @return the highlight options
-	 * @see ErrorFormattingContext.HighlightOptions
+	 * @see DisplayInput
 	 */
-	public final @NotNull Optional<ErrorFormattingContext.HighlightOptions> getHighlightOptions() {
-		return Optional.ofNullable(this.formattingContext.getHighlightOptions());
+	public final @NotNull Optional<DisplayInput> getDisplayOptions() {
+		return Optional.ofNullable(this.formattingContext.getDisplayOptions());
+	}
+
+	/**
+	 * Returns the highlight options for the current error if the {@link #getDisplayOptions()} are present.
+	 * @return the highlight options
+	 * @see DisplayInput#highlight()
+	 */
+	public final @NotNull Optional<DisplayInput.Highlight> getHighlightOptions() {
+		return this.getDisplayOptions().map(DisplayInput::highlight);
 	}
 
 	/**
@@ -93,7 +103,7 @@ public abstract class ErrorFormatter implements ErrorLevelProvider {
 	 * @see #generateInputView(TokenizeErrorContext)
 	 */
 	protected final @NotNull TextFormatter getGeneratedView() {
-		if (this.formattingContext.getHighlightOptions() == null)
+		if (this.formattingContext.getDisplayOptions() == null)
 			return TextFormatter.create();
 
 		TextFormatter result = null;

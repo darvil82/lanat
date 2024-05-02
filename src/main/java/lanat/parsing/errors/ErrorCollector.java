@@ -3,9 +3,10 @@ package lanat.parsing.errors;
 import lanat.Command;
 import lanat.parsing.Token;
 import lanat.parsing.errors.contexts.ErrorContext;
-import lanat.parsing.errors.contexts.ErrorFormattingContext;
 import lanat.parsing.errors.contexts.ParseErrorContext;
 import lanat.parsing.errors.contexts.TokenizeErrorContext;
+import lanat.parsing.errors.contexts.formatting.DisplayInput;
+import lanat.parsing.errors.contexts.formatting.ErrorFormattingContext;
 import org.jetbrains.annotations.NotNull;
 import utils.Pair;
 import utils.Range;
@@ -105,7 +106,7 @@ public class ErrorCollector {
 				errorMessages.add(new Pair<>(
 					formatter.generateInternal(error, errorFormattingCtx), // generate the error message
 					formatter.getHighlightOptions()
-						.map(ErrorFormattingContext.HighlightOptions::range)
+						.map(DisplayInput.Highlight::range)
 						.map(Range::start)
 						.orElse(Integer.MAX_VALUE) // if there are no highlight options or range, put the error at the end
 				));

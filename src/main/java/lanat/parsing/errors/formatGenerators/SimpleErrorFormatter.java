@@ -2,9 +2,9 @@ package lanat.parsing.errors.formatGenerators;
 
 import lanat.parsing.errors.ErrorFormatter;
 import lanat.parsing.errors.contexts.ErrorContext;
-import lanat.parsing.errors.contexts.ErrorFormattingContext;
 import lanat.parsing.errors.contexts.ParseErrorContext;
 import lanat.parsing.errors.contexts.TokenizeErrorContext;
+import lanat.parsing.errors.contexts.formatting.DisplayInput;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import textFormatter.FormatOption;
@@ -58,16 +58,15 @@ public class SimpleErrorFormatter extends ErrorFormatter {
 	 */
 	private @Nullable TextFormatter getView(@NotNull ErrorContext ctx, @NotNull String indicator) {
 		return this.getHighlightOptions()
-			.map(ErrorFormattingContext.HighlightOptions::range)
+			.map(DisplayInput.Highlight::range)
 			.map(ctx::applyAbsoluteOffset)
 			.map(range -> {
 				var nearContents = TextFormatter.create().addFormat(FormatOption.ITALIC);
 
-				if (ctx instanceof TokenizeErrorContext tokenizeCtx) {
+				if (ctx instanceof TokenizeErrorContext tokenizeCtx)
 					nearContents.concat(UtlString.escapeQuotes(tokenizeCtx.getInputNear(range.start(), 5)));
-				} else if (ctx instanceof ParseErrorContext parseCtx) {
+				else if (ctx instanceof ParseErrorContext parseCtx)
 					nearContents.concat(parseCtx.getTokenAt(range.start()).getFormatter());
-				}
 
 				return TextFormatter.of(" (" + (indicator + " " + (range.start() + 1)) + ", '")
 					.concat(nearContents, "')");

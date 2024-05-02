@@ -21,7 +21,7 @@ public abstract class TokenizeErrors {
 		public void handle(@NotNull ErrorFormattingContext fmt, @NotNull TokenizeErrorContext ctx) {
 			fmt
 				.withContent("Tuple already open.")
-				.highlight(this.index, 0, false);
+				.showAndHighlightInput(this.index, 0, false);
 		}
 	}
 
@@ -34,7 +34,7 @@ public abstract class TokenizeErrors {
 		public void handle(@NotNull ErrorFormattingContext fmt, @NotNull TokenizeErrorContext ctx) {
 			fmt
 				.withContent("Tuple not closed.")
-				.highlight(this.index, ctx.getCount() - this.index - 1, false);
+				.showAndHighlightInput(this.index, ctx.getCount() - this.index - 1, false);
 		}
 	}
 
@@ -47,7 +47,7 @@ public abstract class TokenizeErrors {
 		public void handle(@NotNull ErrorFormattingContext fmt, @NotNull TokenizeErrorContext ctx) {
 			fmt
 				.withContent("Unexpected tuple close.")
-				.highlight(this.index, 0, false);
+				.showAndHighlightInput(this.index, 0, false);
 		}
 	}
 
@@ -60,7 +60,7 @@ public abstract class TokenizeErrors {
 		public void handle(@NotNull ErrorFormattingContext fmt, @NotNull TokenizeErrorContext ctx) {
 			fmt
 				.withContent("String not closed.")
-				.highlight(this.index, ctx.getCount() - this.index - 1, false);
+				.showAndHighlightInput(this.index, ctx.getCount() - this.index - 1, false);
 		}
 	}
 
@@ -73,7 +73,7 @@ public abstract class TokenizeErrors {
 		public void handle(@NotNull ErrorFormattingContext fmt, @NotNull TokenizeErrorContext ctx) {
 			fmt
 				.withContent("A space is required between these characters.")
-				.highlight(this.index, 1, false);
+				.showAndHighlightInput(this.index, 1, false);
 		}
 	}
 }

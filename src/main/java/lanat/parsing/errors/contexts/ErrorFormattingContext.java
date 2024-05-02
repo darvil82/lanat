@@ -37,7 +37,7 @@ public class ErrorFormattingContext {
 	 * @param offsetEnd The number of values to highlight after the value at the index {@code start}.
 	 * @param showArrows Whether to show arrows instead of highlighting the input.
 	 */
-	public ErrorFormattingContext highlight(int start, int offsetEnd, boolean showArrows) {
+	public ErrorFormattingContext showAndHighlightInput(int start, int offsetEnd, boolean showArrows) {
 		this.tokensViewOptions = new HighlightOptions(
 			Range.from(start).to(start + offsetEnd),
 			showArrows
@@ -47,21 +47,21 @@ public class ErrorFormattingContext {
 
 	/**
 	 * Indicates the formatter to display the user input.
-	 * Same as {@link #highlight(int, int, boolean)} but with a pair of indices.
-	 * @see #highlight(int, int, boolean)
+	 * Same as {@link #showAndHighlightInput(int, int, boolean)} but with a pair of indices.
+	 * @see #showAndHighlightInput(int, int, boolean)
 	 * @param indexAndOffset The pair of indices to highlight.
 	 * @param showArrows Whether to show arrows instead of highlighting the input.
 	 */
-	public ErrorFormattingContext highlight(@NotNull Pair<Integer, Integer> indexAndOffset, boolean showArrows) {
-		return this.highlight(indexAndOffset.first(), indexAndOffset.second(), showArrows);
+	public ErrorFormattingContext showAndHighlightInput(@NotNull Pair<Integer, Integer> indexAndOffset, boolean showArrows) {
+		return this.showAndHighlightInput(indexAndOffset.first(), indexAndOffset.second(), showArrows);
 	}
 
 	/**
 	 * Indicates the formatter to display the user input. The input at the given index will be highlighted.
 	 * @param index The index of the input value to highlight.
 	 */
-	public ErrorFormattingContext highlight(int index) {
-		return this.highlight(index, 0, true);
+	public ErrorFormattingContext showAndHighlightInput(int index) {
+		return this.showAndHighlightInput(index, 0, true);
 	}
 
 	/**

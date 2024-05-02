@@ -46,17 +46,17 @@ public abstract class ParseErrors {
 
 			// special case for when the error is caused by an argument name list
 			if (this.isInArgNameList) {
-				fmt.highlight(this.index, 0, false);
+				fmt.showAndHighlightInput(this.index, 0, false);
 				return;
 			}
 
 			// if the tuple is empty, highlight both tuple tokens
 			if (this.isInTuple && this.receivedValueCount == 0) {
-				fmt.highlight(this.index, 1, false);
+				fmt.showAndHighlightInput(this.index, 1, false);
 				return;
 			}
 
-			fmt.highlight(
+			fmt.showAndHighlightInput(
 				this.index + (this.isInTuple ? 1 : 0),
 				Math.max(0, this.receivedValueCount - 1), // only offset if the value count is greater than 1
 				this.receivedValueCount == 0
@@ -89,7 +89,7 @@ public abstract class ParseErrors {
 						UtlString.plural("time", this.argument.getUsageCount())
 					)
 				)
-				.highlight(this.indexAndOffset, false);
+				.showAndHighlightInput(this.indexAndOffset, false);
 		}
 	}
 
@@ -109,7 +109,7 @@ public abstract class ParseErrors {
 						? "Required argument " + argRepr + " not used."
 						: "Required argument %s for command %s not used.".formatted(argRepr, HelpFormatter.getRepresentation(argCmd))
 				)
-				.highlight(0); // always just highlight at the position of the command token
+				.showAndHighlightInput(0); // always just highlight at the position of the command token
 		}
 	}
 
@@ -127,7 +127,7 @@ public abstract class ParseErrors {
 						+ ctx.getTokenAt(ctx.getAbsoluteIndex(this.index)).contents()
 						+ "' does not correspond with a valid argument, argument list, value, or command."
 				)
-				.highlight(this.index, 0, false);
+				.showAndHighlightInput(this.index, 0, false);
 		}
 
 		@Override
@@ -155,7 +155,7 @@ public abstract class ParseErrors {
 					"Argument " + HelpFormatter.getRepresentation(this.argument) + " does not take any values, but got '"
 						+ this.errorValue + "'."
 				)
-				.highlight(this.index, 0, false);
+				.showAndHighlightInput(this.index, 0, false);
 		}
 
 		@Override
@@ -178,7 +178,7 @@ public abstract class ParseErrors {
 		public void handle(@NotNull ErrorFormattingContext fmt, @NotNull ParseErrorContext ctx) {
 			fmt
 				.withContent("Multiple arguments in restricted group " + HelpFormatter.getRepresentation(this.group) + " used.")
-				.highlight(this.indexAndOffset, false);
+				.showAndHighlightInput(this.indexAndOffset, false);
 		}
 	}
 
@@ -204,7 +204,7 @@ public abstract class ParseErrors {
 				);
 
 
-			fmt.highlight(this.index, 0, false);
+			fmt.showAndHighlightInput(this.index, 0, false);
 		}
 
 		@Override
@@ -238,7 +238,7 @@ public abstract class ParseErrors {
 						+ (this.argument.isUnique() ? "another" : "a")
 						+ " unique argument is used."
 				)
-				.highlight(this.indexAndOffset, false);
+				.showAndHighlightInput(this.indexAndOffset, false);
 		}
 
 		@Override

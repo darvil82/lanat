@@ -412,7 +412,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	/**
-	 * This method is called when the command is finished parsing. <strong>And should only ever be called once (per
+	 * This method is called when the command is finished parsing. <strong>This method should only ever be called once (per
 	 * parse).</strong>
 	 *
 	 * @return the final value parsed by the argument type, or the default value if the argument was not used.

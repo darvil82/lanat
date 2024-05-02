@@ -326,7 +326,7 @@ public final class Parser extends ParsingStateBase<Error.ParseError> {
 	 * */
 	public @NotNull HashMap<@NotNull Argument<?, ?>, @Nullable Object> getParsedArgsMap() {
 		if (this.cachedParsedArgumentValues == null) {
-			this.cachedParsedArgumentValues = new HashMap<@NotNull Argument<?, ?>, @Nullable Object>();
+			this.cachedParsedArgumentValues = new HashMap<>();
 			this.command.getArguments().forEach(arg -> this.cachedParsedArgumentValues.put(arg, arg.finishParsing()));
 		}
 		return this.cachedParsedArgumentValues;

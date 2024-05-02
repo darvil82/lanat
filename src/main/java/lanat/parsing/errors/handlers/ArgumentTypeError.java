@@ -1,8 +1,9 @@
 package lanat.parsing.errors.handlers;
 
 import lanat.parsing.errors.Error;
-import lanat.parsing.errors.contexts.ErrorFormattingContext;
 import lanat.parsing.errors.contexts.ParseErrorContext;
+import lanat.parsing.errors.contexts.formatting.DisplayInput;
+import lanat.parsing.errors.contexts.formatting.ErrorFormattingContext;
 import lanat.utils.errors.ErrorLevel;
 import org.jetbrains.annotations.NotNull;
 import utils.Pair;
@@ -58,7 +59,7 @@ public class ArgumentTypeError implements Error.ParseError {
 	public void handle(@NotNull ErrorFormattingContext fmt, @NotNull ParseErrorContext ctx) {
 		fmt
 			.withContent(this.message)
-			.showAndHighlightInput(this.index, this.offset, false);
+			.displayAndHighlightInput(new DisplayInput.Highlight(this.index, this.offset, false));
 	}
 
 	/**

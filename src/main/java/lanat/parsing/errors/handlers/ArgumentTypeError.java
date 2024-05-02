@@ -58,7 +58,7 @@ public class ArgumentTypeError implements Error.ParseError {
 	public void handle(@NotNull ErrorFormattingContext fmt, @NotNull ParseErrorContext ctx) {
 		fmt
 			.withContent(this.message)
-			.highlight(this.index, this.offset, false);
+			.showAndHighlightInput(this.index, this.offset, false);
 	}
 
 	/**

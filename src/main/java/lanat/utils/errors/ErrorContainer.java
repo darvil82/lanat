@@ -47,7 +47,7 @@ public interface ErrorContainer<T extends ErrorLevelProvider> {
 	/**
 	 * The minimum error level that will cause the program to exit.
 	 * All errors with a level equal to or higher than this will cause the program to exit.
-	 * For example, if this is set to {@link ErrorLevel#WARNING}, then all errors with a
+	 * For example, if this is set to {@link ErrorLevel#WARNING}, then errors with a
 	 * level of {@link ErrorLevel#WARNING} or {@link ErrorLevel#ERROR} will cause the program to exit.
 	 * @param level The minimum error level that will cause the program to exit.
 	 * @throws IllegalStateException If the minimum exit error level is higher than the minimum display error level.
@@ -63,7 +63,7 @@ public interface ErrorContainer<T extends ErrorLevelProvider> {
 	/**
 	 * The minimum error level that will be displayed to the user.
 	 * All errors with a level lower than this will be ignored.
-	 * For example, If this is set to {@link ErrorLevel#INFO}, then all errors (including
+	 * For example, If this is set to {@link ErrorLevel#INFO}, then errors including
 	 * {@link ErrorLevel#INFO}, {@link ErrorLevel#WARNING}, and {@link ErrorLevel#ERROR}) will be displayed, but
 	 * {@link ErrorLevel#DEBUG} will not.
 	 * @param level The minimum error level that will be displayed to the user.

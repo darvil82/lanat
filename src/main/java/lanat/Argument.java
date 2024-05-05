@@ -556,7 +556,6 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	 */
 	@Override
 	public boolean equals(@NotNull Object obj) {
-		if (obj == this) return true;
 		if (obj instanceof Argument<?, ?> arg)
 			return UtlMisc.equalsByNamesAndParentCmd(this, arg);
 		return false;

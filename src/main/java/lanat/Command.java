@@ -44,7 +44,8 @@ public class Command
 		CommandUser,
 		Resettable,
 		MultipleNamesAndDescription,
-		ParentElementGetter<Command>
+		ParentElementGetter<Command>,
+		PostCreationInheritor<Command>
 {
 	private @NotNull List<@NotNull String> names = new ArrayList<>(1);
 	private @Nullable String description;
@@ -341,13 +342,8 @@ public class Command
 		return Collections.unmodifiableList(list);
 	}
 
-	/**
-	 * Inherits certain properties from another command, only if they are not already set to something.
-	 * <p>
-	 * This method is automatically called right before parsing begins.
-	 * @param command The command to inherit the properties from. Usually the parent command.
-	 */
-	protected void inheritProperties(@NotNull Command command) {
+	@Override
+	public void inheritProperties(@NotNull Command command) {
 		this.getMinimumExitErrorLevel().setIfNotModified(command.getMinimumExitErrorLevel());
 		this.getMinimumDisplayErrorLevel().setIfNotModified(command.getMinimumDisplayErrorLevel());
 		this.errorCode.setIfNotModified(command.errorCode);
@@ -356,13 +352,15 @@ public class Command
 	}
 
 	/**
-	 * Passes certain properties to all the Sub-Commands of this command.
+	 * Passes certain properties to all the Sub-Commands and argument types of this command.
 	 * @see #inheritProperties(Command)
+	 * @see ArgumentType#inheritProperties(Command)
 	 */
 	void passPropertiesToChildren() {
-		this.subCommands.forEach(c -> {
-			c.inheritProperties(this);
-			c.passPropertiesToChildren();
+		this.subCommands.forEach(cmd -> {
+			cmd.inheritProperties(this);
+			cmd.getArguments().forEach(arg -> arg.type.inheritProperties(this));
+			cmd.passPropertiesToChildren();
 		});
 	}
 

@@ -5,6 +5,7 @@ import lanat.argumentTypes.IntegerArgumentType;
 import lanat.argumentTypes.Parseable;
 import lanat.parsing.errors.handlers.ArgumentTypeError;
 import lanat.utils.ParentElementGetter;
+import lanat.utils.PostCreationInheritor;
 import lanat.utils.Resettable;
 import lanat.utils.errors.ErrorContainerImpl;
 import lanat.utils.errors.ErrorLevel;
@@ -45,7 +46,7 @@ import java.util.stream.Stream;
  */
 public abstract class ArgumentType<T>
 	extends ErrorContainerImpl<ArgumentTypeError>
-	implements Resettable, Parseable<T>, ParentElementGetter<ArgumentType<?>>
+	implements Resettable, Parseable<T>, ParentElementGetter<ArgumentType<?>>, PostCreationInheritor<Command>
 {
 	/** This is the value that this argument type current has while being parsed. */
 	private T currentValue;
@@ -273,6 +274,12 @@ public abstract class ArgumentType<T>
 	protected final Stream<String> getArgValuesStream(@NotNull String @NotNull [] args) {
 		var index = new AtomicInteger(0);
 		return Stream.of(args).peek(arg -> this.currentArgValueIndex = index.getAndIncrement());
+	}
+
+	@Override
+	public void inheritProperties(@NotNull Command command) {
+		this.getMinimumExitErrorLevel().setIfNotModified(command.getMinimumExitErrorLevel());
+		this.getMinimumDisplayErrorLevel().setIfNotModified(command.getMinimumDisplayErrorLevel());
 	}
 
 	@Override

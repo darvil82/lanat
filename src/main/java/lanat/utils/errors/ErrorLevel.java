@@ -25,6 +25,6 @@ public enum ErrorLevel {
 	 * @return Whether this error level is under the given minimum.
 	 */
 	public boolean isInMinimum(@NotNull ErrorLevel minimum) {
-		return this.ordinal() <= minimum.ordinal();
+		return this.ordinal() >= minimum.ordinal();
 	}
 }

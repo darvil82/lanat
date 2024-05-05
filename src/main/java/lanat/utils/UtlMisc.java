@@ -40,7 +40,7 @@ public final class UtlMisc {
 	 */
 	public static <T extends MultipleNamesAndDescription & CommandUser>
 	boolean equalsByNamesAndParentCmd(@NotNull T a, @NotNull T b) {
-		return a.getParentCommand() == b.getParentCommand() && a.getNames().stream().anyMatch(b::hasName);
+		return a == b || (a.getParentCommand() == b.getParentCommand() && a.getNames().stream().anyMatch(b::hasName));
 	}
 
 	/**

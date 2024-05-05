@@ -376,7 +376,6 @@ public class Command
 	 */
 	@Override
 	public boolean equals(@NotNull Object obj) {
-		if (obj == this) return true;
 		if (obj instanceof Command cmd)
 			return UtlMisc.equalsByNamesAndParentCmd(this, cmd);
 		return false;

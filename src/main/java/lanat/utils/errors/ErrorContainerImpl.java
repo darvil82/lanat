@@ -72,11 +72,8 @@ public abstract class ErrorContainerImpl<T extends ErrorLevelProvider> implement
 	}
 
 	private <TErr extends ErrorLevelProvider> boolean errorIsInMinimumLevel(@NotNull TErr error, boolean isDisplayError) {
-		return error.getErrorLevel().isInMinimum((
-			isDisplayError
-				? this.minimumDisplayErrorLevel
-				: this.minimumExitErrorLevel
-		).get());
+		return (isDisplayError ? this.minimumDisplayErrorLevel : this.minimumExitErrorLevel).get()
+			.isInMinimum(error.getErrorLevel());
 	}
 
 	protected <TErr extends ErrorLevelProvider> boolean anyErrorInMinimum(@NotNull List<TErr> errors, boolean isDisplayError) {
@@ -112,7 +109,7 @@ public abstract class ErrorContainerImpl<T extends ErrorLevelProvider> implement
 	 * error level, then an {@link IllegalStateException} is thrown.
 	 */
 	private void checkValidMinimums() {
-		if (!this.minimumExitErrorLevel.get().isInMinimum(this.minimumDisplayErrorLevel.get())) {
+		if (!this.minimumDisplayErrorLevel.get().isInMinimum(this.minimumExitErrorLevel.get())) {
 			throw new IllegalStateException("Minimum exit error level must be less than or equal to minimum display error level.");
 		}
 	}

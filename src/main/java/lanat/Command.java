@@ -357,9 +357,10 @@ public class Command
 	 * @see ArgumentType#inheritProperties(Command)
 	 */
 	void passPropertiesToChildren() {
+		this.getArguments().forEach(arg -> arg.type.inheritProperties(this));
+
 		this.subCommands.forEach(cmd -> {
 			cmd.inheritProperties(this);
-			cmd.getArguments().forEach(arg -> arg.type.inheritProperties(this));
 			cmd.passPropertiesToChildren();
 		});
 	}

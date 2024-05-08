@@ -29,10 +29,10 @@ public class AfterParseOptions {
 	private boolean ranActions = false;
 
 	public static final Consumer<@NotNull AfterParseActions> DEFAULT_ACTIONS = a -> a
-		.printErrors()
 		.printHelpIfNoInput()
-		.exitIfErrors()
-		.exitIfNoInput();
+		.exitIfNoInput()
+		.printErrors()
+		.exitIfErrors();
 
 
 	AfterParseOptions(

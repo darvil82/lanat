@@ -100,13 +100,13 @@ public class AfterParseOptions {
 	 * <p>
 	 * By default, the actions are:
 	 * <ul>
-	 * <li>Print all errors to {@link System#err}.</li>
 	 * <li>Print the help message to {@link System#out} if no arguments were passed to the program.</li>
+	 * <li>Exit the program with a code of {@code 0} if no arguments were passed to the program.</li>
+	 * <li>Print all errors to {@link System#err}.</li>
 	 * <li>
 	 *     Exit the program with the error code returned by {@link #getErrorCode()} if any errors occurred during
 	 *     parsing.
 	 * </li>
-	 * <li>Exit the program with a code of {@code 0} if no arguments were passed to the program.</li>
 	 * </ul>
 	 * @param actions The actions to be executed after parsing is done.
 	 */

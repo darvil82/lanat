@@ -183,10 +183,10 @@ public class Command
 	 * fail, the program will return the result of the OR bit operation that will be applied to all other command
 	 * results. For example:
 	 * <ul>
-	 *     <li>Command 'foo' has a return value of 2. {@code (0b010)}</li>
-	 *     <li>Command 'bar' has a return value of 5. {@code (0b101)}</li>
+	 *     <li>Command 'foo' has an error code value of 2. {@code (0b010)}</li>
+	 *     <li>Command 'bar' has an error code value of 5. {@code (0b101)}</li>
 	 * </ul>
-	 * Both commands failed, so in this case the resultant return value would be 7 {@code (0b111)}.
+	 * Both commands failed, so in this case the program will exit with a return value of 7 {@code (0b111)}.
 	 * @param errorCode The error code to return when this command fails.
 	 */
 	public void setErrorCode(int errorCode) {

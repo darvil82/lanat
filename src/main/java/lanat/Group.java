@@ -300,7 +300,7 @@ public class Group
 
 	@Override
 	public String toString() {
-		return "Group{name='%s', description='%s', arguments=%s, sub-groups=%s}"
-			.formatted(this.name, this.description, this.arguments, this.subGroups);
+		return "Group{name='%s', description='%s', arguments=%s, sub-groups=%s, restricted=%s}"
+			.formatted(this.name, this.description, this.arguments, this.subGroups, this.isRestricted);
 	}
 }

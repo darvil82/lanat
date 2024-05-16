@@ -60,9 +60,6 @@
 
 ## Documentation
 
-> [!WARNING]
-> The documentation is still work in progress. Some parts may be missing or incomplete.
-
 [Click here](https://darvil82.github.io/lanat-docs/acquire-lanat.html) to get started with Lanat, and to check out the
 full documentation of the latest stable version.
 

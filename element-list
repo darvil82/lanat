@@ -8,5 +8,9 @@ lanat.helpRepresentation.descriptions.exceptions
 lanat.helpRepresentation.descriptions.tags
 lanat.parsing
 lanat.parsing.errors
+lanat.parsing.errors.contexts
+lanat.parsing.errors.contexts.formatting
 lanat.parsing.errors.formatGenerators
+lanat.parsing.errors.handlers
 lanat.utils
+lanat.utils.errors

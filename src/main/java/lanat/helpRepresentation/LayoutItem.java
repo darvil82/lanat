@@ -39,7 +39,7 @@ public class LayoutItem {
 	/**
 	 * Creates a new {@link LayoutItem} with the given {@link Supplier} that generates a {@link String}.
 	 *
-	 * @param layoutGenerator the supplier that generates the content of the layout item
+	 * @param layoutGenerator the typeSupplier that generates the content of the layout item
 	 * @return the new LayoutItem
 	 */
 	public static LayoutItem of(@NotNull Supplier<@Nullable String> layoutGenerator) {
@@ -140,18 +140,16 @@ public class LayoutItem {
 	/**
 	 * Generates the content of the layout item. The reason this method requires a {@link HelpFormatter} is because it
 	 * provides the indent size and the parent command.
-	 *
-	 * @param helpFormatter the help formatter that is generating the help message
 	 * @return the content of the layout item
 	 */
-	public @Nullable String generate(@NotNull HelpFormatter helpFormatter, @NotNull Command cmd) {
+	public @Nullable String generate(@NotNull Command cmd) {
 		final var content = this.generator.apply(cmd);
 
 		return (content == null || content.isEmpty()) ? null : (
 			System.lineSeparator().repeat(this.marginTop)
 				+ (this.title == null ? "" : this.title + System.lineSeparator().repeat(2))
 				// strip() is used here because trim() also removes \022 (escape character)
-				+ UtlString.indent(content.strip(), this.indentCount * helpFormatter.getIndentSize())
+				+ UtlString.indent(content.strip(), this.indentCount * HelpFormatter.getIndentSize())
 				+ System.lineSeparator().repeat(this.marginBottom)
 		);
 	}

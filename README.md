@@ -14,9 +14,9 @@
 
 <br><br>
 
-### Example
+## Example
 - First, we define our Command by creating a *Command Template*.
-	
+
 	```java
 	@Command.Define
 	class MyProgram {
@@ -33,32 +33,33 @@
 		public static void beforeInit(@NotNull CommandBuildContext ctx) {
 			// configure the argument "age" to have an argument type of
 			// number range and set the range to 1-100
-			ctx.argWithType("age", new NumberRangeArgumentType<>(1, 100))
+			ctx.argWithType("age", new NumberRangeArgumentType<>(18, 100))
 				.onOk(v -> System.out.println("The age is valid!"));
 		}
 	}
 	```
- 
- - Then, let that class definition also serve as the container for the parsed values.
+
+- Then, let that class definition also serve as the container for the parsed values.
+
 	```java
- 	class Test {
-		public static void main(String[] args) {
-			// example: david +a20
-			var myProgram = ArgumentParser.parseFromInto(MyProgram.class, args);
-			
-			System.out.printf(
-				"Welcome %s! You are %d years old.%n",
-				myProgram.name, myProgram.age
-			);
-	
-			// if no surname was specified, we'll show "none" instead
-			System.out.printf("The surname of the user is %s.%n", myProgram.surname.orElse("none"));
-		}
+	public static void main(String[] args) {
+		// example: david +a20
+		var myProgram = ArgumentParser.parseFromInto(MyProgram.class, args);
+		
+		System.out.printf(
+			"Welcome %s! You are %d years old.%n",
+			myProgram.name, myProgram.age
+		);
+
+		// if no surname was specified, we'll show "none" instead
+		System.out.printf("The surname of the user is %s.%n", myProgram.surname.orElse("none"));
 	}
- 	```
+	```
 
 
 ## Documentation
+
+Check out the [website](https://darvil82.github.io/lanat-web/) for more information.
 
 [Click here](https://darvil82.github.io/lanat-docs/acquire-lanat.html) to get started with Lanat, and to check out the
 full documentation of the latest stable version.

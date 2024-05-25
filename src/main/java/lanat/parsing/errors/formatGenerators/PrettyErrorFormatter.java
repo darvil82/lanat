@@ -45,7 +45,7 @@ public class PrettyErrorFormatter extends ErrorFormatter {
 		final var formatter = this.getErrorLevelFormatter();
 		final String tokensFormatting = this.getGeneratedView().withConcatGap(" ").toString();
 
-		final var longestLineLength = UtlString.removeSequences(UtlString.getLongestLine(contents)).length();
+		final var longestLineLength = UtlString.getLengthIgnoreSequences(UtlString.getLongestLine(contents));
 
 		return formatter.withContents(" ┌─%s".formatted(this.getErrorLevel())).toString()
 			// only add a new line if there are tokens to display

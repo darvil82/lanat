@@ -1,6 +1,7 @@
 package lanat.argumentTypes;
 
 import lanat.ArgumentType;
+import lanat.utils.UtlMisc;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import textFormatter.FormatOption;
@@ -47,14 +48,21 @@ public abstract class SingleValueListArgumentType<T> extends ArgumentType<T> {
 		if (this.listValues.length == 0)
 			throw new IllegalArgumentException("The list of values cannot be empty.");
 
-		return Stream.of(this.listValues)
+		var sanitized = Stream.of(this.listValues)
 			.map(this::valueToString)
 			.map(String::trim)
 			.peek(v -> {
+				if (v.isEmpty())
+					throw new IllegalArgumentException("Value cannot be empty.");
+
 				if (v.chars().anyMatch(Character::isWhitespace))
 					throw new IllegalArgumentException("Value cannot contain spaces: '" + v + "'.");
 			})
-			.toArray(String[]::new);
+			.toList();
+
+		UtlMisc.requireUniqueElements(sanitized, e -> new IllegalArgumentException("Duplicate value: '" + e + "'."));
+
+		return sanitized.toArray(String[]::new);
 	}
 
 	/**
@@ -75,7 +83,7 @@ public abstract class SingleValueListArgumentType<T> extends ArgumentType<T> {
 				return this.listValues[i];
 		}
 
-		this.addError("Invalid value: '" + values[0] + "'.");
+		this.addError("Value '" + values[0] + "' not matching any in " + this.getRepresentation());
 		return null;
 	}
 
@@ -105,9 +113,16 @@ public abstract class SingleValueListArgumentType<T> extends ArgumentType<T> {
 
 	@Override
 	public @Nullable String getDescription() {
+		var initialValue = this.getInitialValue();
+
 		return "Specify one of the following values: "
 			+ String.join(", ", Stream.of(this.listValuesStr).toList())
-			+ (this.getInitialValue() == null ? "" : (". Default is " + this.getInitialValue()))
+			+ (
+				initialValue == null
+					? ""
+					: (". Default is " + TextFormatter.of(this.valueToString(initialValue), SimpleColor.YELLOW)
+						.addFormat(FormatOption.BOLD))
+			)
 			+ ".";
 	}
 }

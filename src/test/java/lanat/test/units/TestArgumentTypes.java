@@ -15,7 +15,16 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class TestArgumentTypes extends UnitTests {
 	private enum TestEnum {
-		ONE, TWO, THREE
+		ONE,
+		@EnumArgumentType.Default
+		TWO,
+		THREE
+	}
+
+	private enum TestEnum2 {
+		ONE,
+		TWO,
+		THREE
 	}
 
 	@Override
@@ -31,8 +40,8 @@ public class TestArgumentTypes extends UnitTests {
 				.defaultValue(new Integer[] { 10101 })
 			);
 			this.addArgument(Argument.create(new FileArgumentType(true), "file"));
-			this.addArgument(Argument.create(new EnumArgumentType<>(TestEnum.TWO), "enum"));
-			this.addArgument(Argument.create(new EnumArgumentType<>(TestEnum.class), "enum2"));
+			this.addArgument(Argument.create(new EnumArgumentType<>(TestEnum.class), "enum"));
+			this.addArgument(Argument.create(new EnumArgumentType<>(TestEnum2.class), "enum2"));
 			this.addArgument(Argument.create(new OptListArgumentType(List.of("foo", "bar", "qux"), "qux"), "optlist"));
 			this.addArgument(Argument.create(new OptListArgumentType("foo", "bar", "qux"), "optlist2"));
 			this.addArgument(Argument.create(new KeyValuesArgumentType<>(new IntegerArgumentType()), "key-value"));
@@ -107,8 +116,8 @@ public class TestArgumentTypes extends UnitTests {
 		assertEquals(TestEnum.TWO, this.parser.parseGetValues("").get("enum").orElse(null)); // default value
 
 		// test without default value
-		assertEquals(TestEnum.ONE, this.parseArg("enum2", "ONE"));
-		assertEquals(TestEnum.TWO, this.parseArg("enum2", "TWO"));
+		assertEquals(TestEnum2.ONE, this.parseArg("enum2", "ONE"));
+		assertEquals(TestEnum2.TWO, this.parseArg("enum2", "TWO"));
 		this.assertNotPresent("enum2");
 	}
 

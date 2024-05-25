@@ -14,7 +14,7 @@
 
 <br><br>
 
-### Example
+## Example
 - First, we define our Command by creating a *Command Template*.
 	
 	```java
@@ -28,17 +28,9 @@
 	
 		@Argument.Define(names = {"age", "a"}, description = "The age of the user.", prefix = Argument.Prefix.PLUS)
 		public int age = 18;
-		
-		@InitDef
-		public static void beforeInit(@NotNull CommandBuildContext ctx) {
-			// configure the argument "age" to have an argument type of
-			// number range and set the range to 1-100
-			ctx.argWithType("age", new NumberRangeArgumentType<>(1, 100))
-				.onOk(v -> System.out.println("The age is valid!"));
-		}
 	}
 	```
- 
+
  - Then, let that class definition also serve as the container for the parsed values.
 	```java
  	class Test {

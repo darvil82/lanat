@@ -198,7 +198,7 @@ public class HelpFormatter {
 		final var buffer = new StringBuilder();
 
 		for (int i = 0; i < this.layout.size(); i++) {
-			final var generatedContent = this.layout.get(i).generate(this, cmd);
+			final var generatedContent = this.layout.get(i).generate(cmd);
 
 			if (generatedContent == null)
 				continue;

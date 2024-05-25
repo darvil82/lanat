@@ -75,7 +75,7 @@ public abstract class SingleValueListArgumentType<T> extends ArgumentType<T> {
 				return this.listValues[i];
 		}
 
-		this.addError("Invalid value: '" + values[0] + "'.");
+		this.addError("Value '" + values[0] + "' not matching any in " + this.getRepresentation());
 		return null;
 	}
 
@@ -105,9 +105,16 @@ public abstract class SingleValueListArgumentType<T> extends ArgumentType<T> {
 
 	@Override
 	public @Nullable String getDescription() {
-		return "Specify one of the following values: "
+		var initialValue = this.getInitialValue();
+
+		return "Specify one of the values in "
 			+ String.join(", ", Stream.of(this.listValuesStr).toList())
-			+ (this.getInitialValue() == null ? "" : (". Default is " + this.getInitialValue()))
+			+ (
+				initialValue == null
+					? ""
+					: (". Default is " + TextFormatter.of(this.valueToString(initialValue), SimpleColor.YELLOW)
+						.addFormat(FormatOption.BOLD))
+			)
 			+ ".";
 	}
 }

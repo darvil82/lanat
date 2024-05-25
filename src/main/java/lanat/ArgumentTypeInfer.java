@@ -40,7 +40,7 @@ public final class ArgumentTypeInfer {
 	 */
 	public record PredicateInfer<T>(
 		Predicate<Class<?>> predicate,
-		Function<Class<T>, ? extends ArgumentType<?>> supplier,
+		Function<Class<T>, ? extends ArgumentType<?>> typeSupplier,
 		@NotNull String name
 	) {
 		boolean matches(@NotNull Class<?> clazz) {
@@ -49,7 +49,7 @@ public final class ArgumentTypeInfer {
 
 		@SuppressWarnings("unchecked")
 		@NotNull ArgumentType<T> apply(@NotNull Class<?> clazz) {
-			return (ArgumentType<T>)this.supplier.apply((Class<T>)clazz);
+			return (ArgumentType<T>)this.typeSupplier.apply((Class<T>)clazz);
 		}
 	}
 
@@ -85,13 +85,19 @@ public final class ArgumentTypeInfer {
 	/**
 	 * Registers an argument type to be inferred for the specified type, if the predicate is true.
 	 * The predicate will be called each time any type is required to be inferred.
-	 * @param predicateInfer The predicate to check if the argument type should be inferred.
+	 * @param predicate The predicate to check if the argument type should be inferred.
+	 * @param typeSupplier The argument type to infer.
+	 * @param name The name of the predicate infer.
 	 */
-	public static void register(@NotNull ArgumentTypeInfer.PredicateInfer<?> predicateInfer) {
-		if (ArgumentTypeInfer.PREDICATE_INFERS.stream().anyMatch(c -> c.name().equals(predicateInfer.name())))
-			throw new IllegalArgumentException("Predicate infer already registered with name: " + predicateInfer.name());
+	public static <T> void register(
+		@NotNull Predicate<Class<?>> predicate,
+		@NotNull Function<Class<T>, ? extends ArgumentType<?>> typeSupplier,
+		@NotNull String name
+	) {
+		if (ArgumentTypeInfer.PREDICATE_INFERS.stream().anyMatch(c -> c.name().equals(name)))
+			throw new IllegalArgumentException("Predicate infer already registered with name: " + name);
 
-		ArgumentTypeInfer.PREDICATE_INFERS.add(predicateInfer);
+		ArgumentTypeInfer.PREDICATE_INFERS.add(new PredicateInfer<>(predicate, typeSupplier, name));
 	}
 
 	/**
@@ -239,6 +245,6 @@ public final class ArgumentTypeInfer {
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	private static void setDefaultPredicateInfers() {
-		register(new PredicateInfer<>(Enum.class::isAssignableFrom, c -> new EnumArgumentType(c), "EnumArgumentType"));
+		register(Enum.class::isAssignableFrom, c -> new EnumArgumentType(c), "EnumArgumentType");
 	}
 }

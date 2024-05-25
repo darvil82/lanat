@@ -115,7 +115,7 @@ public abstract class SingleValueListArgumentType<T> extends ArgumentType<T> {
 	public @Nullable String getDescription() {
 		var initialValue = this.getInitialValue();
 
-		return "Specify one of the values in "
+		return "Specify one of the following values: "
 			+ String.join(", ", Stream.of(this.listValuesStr).toList())
 			+ (
 				initialValue == null

@@ -104,6 +104,22 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="nested-class-summary" id="nested-class-summary">
 <h2>Nested Class Summary</h2>
+<div class="caption"><span>Nested Classes</span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Class</div>
+<div class="table-header col-last">Description</div>
+<div class="col-first even-row-color"><code>static @interface&nbsp;</code></div>
+<div class="col-second even-row-color"><code><a href="EnumArgumentType.Default.html" class="type-name-link" title="annotation interface in lanat.argumentTypes">EnumArgumentType.Default</a></code></div>
+<div class="col-last even-row-color">
+<div class="block">An annotation that specifies the default value of the enum type.</div>
+</div>
+<div class="col-first odd-row-color"><code>static @interface&nbsp;</code></div>
+<div class="col-second odd-row-color"><code><a href="EnumArgumentType.WithName.html" class="type-name-link" title="annotation interface in lanat.argumentTypes">EnumArgumentType.WithName</a></code></div>
+<div class="col-last odd-row-color">
+<div class="block">An annotation that specifies the name the user will have to write to select this value.</div>
+</div>
+</div>
 <div class="inherited-list">
 <h2 id="nested-classes-inherited-from-class-lanat.ArgumentType">Nested classes/interfaces inherited from class&nbsp;lanat.<a href="../ArgumentType.html" title="class in lanat">ArgumentType</a></h2>
 <code><a href="../ArgumentType.ParseStateSnapshot.html" title="class in lanat">ArgumentType.ParseStateSnapshot</a></code></div>
@@ -128,10 +144,6 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(java.lang.Class)" class="member-name-link">EnumArgumentType</a><wbr>(@NotNull <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;<a href="EnumArgumentType.html" title="type parameter in EnumArgumentType">T</a>&gt;&nbsp;clazz)</code></div>
 <div class="col-last even-row-color">
-<div class="block">Creates a new enum argument type.</div>
-</div>
-<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(T)" class="member-name-link">EnumArgumentType</a><wbr>(<a href="EnumArgumentType.html" title="type parameter in EnumArgumentType">T</a>&nbsp;defaultValue)</code></div>
-<div class="col-last odd-row-color">
 <div class="block">Creates a new enum argument type.</div>
 </div>
 </div>
@@ -161,7 +173,7 @@ loadScripts(document, 'script');</script>
 <code><a href="SingleValueListArgumentType.html#getDescription()">getDescription</a>, <a href="SingleValueListArgumentType.html#getRepresentation()">getRepresentation</a>, <a href="SingleValueListArgumentType.html#parseValues(java.lang.String%5B%5D)">parseValues</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-lanat.ArgumentType">Methods inherited from class&nbsp;lanat.<a href="../ArgumentType.html" title="class in lanat">ArgumentType</a></h3>
-<code><a href="../ArgumentType.html#addError(java.lang.String)">addError</a>, <a href="../ArgumentType.html#addError(java.lang.String,int)">addError</a>, <a href="../ArgumentType.html#addError(java.lang.String,int,lanat.utils.errors.ErrorLevel)">addError</a>, <a href="../ArgumentType.html#addError(java.lang.String,lanat.utils.errors.ErrorLevel)">addError</a>, <a href="../ArgumentType.html#addError(lanat.parsing.errors.handlers.ArgumentTypeError)">addError</a>, <a href="../ArgumentType.html#getArgValuesStream(java.lang.String%5B%5D)">getArgValuesStream</a>, <a href="../ArgumentType.html#getFinalValue()">getFinalValue</a>, <a href="../ArgumentType.html#getInitialValue()">getInitialValue</a>, <a href="../ArgumentType.html#getLastParseState()">getLastParseState</a>, <a href="../ArgumentType.html#getParent()">getParent</a>, <a href="../ArgumentType.html#getValue()">getValue</a>, <a href="../ArgumentType.html#inheritProperties(lanat.Command)">inheritProperties</a>, <a href="../ArgumentType.html#onSubTypeError(lanat.parsing.errors.handlers.ArgumentTypeError)">onSubTypeError</a>, <a href="../ArgumentType.html#parseAndUpdateValue(lanat.ArgumentType.ParseStateSnapshot,java.lang.String...)">parseAndUpdateValue</a>, <a href="../ArgumentType.html#registerSubType(lanat.ArgumentType)">registerSubType</a>, <a href="../ArgumentType.html#resetState()">resetState</a>, <a href="../ArgumentType.html#unregisterSubType(lanat.ArgumentType)">unregisterSubType</a></code></div>
+<code><a href="../ArgumentType.html#addError(java.lang.String)">addError</a>, <a href="../ArgumentType.html#addError(java.lang.String,int)">addError</a>, <a href="../ArgumentType.html#addError(java.lang.String,int,lanat.utils.errors.ErrorLevel)">addError</a>, <a href="../ArgumentType.html#addError(java.lang.String,lanat.utils.errors.ErrorLevel)">addError</a>, <a href="../ArgumentType.html#addError(lanat.parsing.errors.handlers.ArgumentTypeError)">addError</a>, <a href="../ArgumentType.html#getArgValuesStream(java.lang.String%5B%5D)">getArgValuesStream</a>, <a href="../ArgumentType.html#getFinalValue()">getFinalValue</a>, <a href="../ArgumentType.html#getInitialValue()">getInitialValue</a>, <a href="../ArgumentType.html#getLastParseState()">getLastParseState</a>, <a href="../ArgumentType.html#getParent()">getParent</a>, <a href="../ArgumentType.html#getValue()">getValue</a>, <a href="../ArgumentType.html#inheritProperties(lanat.Command)">inheritProperties</a>, <a href="../ArgumentType.html#onSubTypeError(lanat.parsing.errors.handlers.ArgumentTypeError)">onSubTypeError</a>, <a href="../ArgumentType.html#parseAndUpdateValue(lanat.ArgumentType.ParseStateSnapshot,java.lang.String...)">parseAndUpdateValue</a>, <a href="../ArgumentType.html#registerSubType(lanat.ArgumentType)">registerSubType</a>, <a href="../ArgumentType.html#resetState()">resetState</a>, <a href="../ArgumentType.html#setInitialValue(T)">setInitialValue</a>, <a href="../ArgumentType.html#unregisterSubType(lanat.ArgumentType)">unregisterSubType</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-lanat.utils.errors.ErrorContainerImpl">Methods inherited from class&nbsp;lanat.utils.errors.<a href="../utils/errors/ErrorContainerImpl.html" title="class in lanat.utils.errors">ErrorContainerImpl</a></h3>
 <code><a href="../utils/errors/ErrorContainerImpl.html#anyErrorInMinimum(java.util.List,boolean)">anyErrorInMinimum</a>, <a href="../utils/errors/ErrorContainerImpl.html#getErrorsInLevelMinimum(java.util.List,boolean)">getErrorsInLevelMinimum</a>, <a href="../utils/errors/ErrorContainerImpl.html#getErrorsUnderDisplayLevel()">getErrorsUnderDisplayLevel</a>, <a href="../utils/errors/ErrorContainerImpl.html#getErrorsUnderExitLevel()">getErrorsUnderExitLevel</a>, <a href="../utils/errors/ErrorContainerImpl.html#getMinimumDisplayErrorLevel()">getMinimumDisplayErrorLevel</a>, <a href="../utils/errors/ErrorContainerImpl.html#getMinimumExitErrorLevel()">getMinimumExitErrorLevel</a>, <a href="../utils/errors/ErrorContainerImpl.html#hasDisplayErrors()">hasDisplayErrors</a>, <a href="../utils/errors/ErrorContainerImpl.html#hasExitErrors()">hasExitErrors</a>, <a href="../utils/errors/ErrorContainerImpl.html#setMinimumDisplayErrorLevel(lanat.utils.errors.ErrorLevel)">setMinimumDisplayErrorLevel</a>, <a href="../utils/errors/ErrorContainerImpl.html#setMinimumExitErrorLevel(lanat.utils.errors.ErrorLevel)">setMinimumExitErrorLevel</a></code></div>
@@ -185,18 +197,6 @@ loadScripts(document, 'script');</script>
 <section class="constructor-details" id="constructor-detail">
 <h2>Constructor Details</h2>
 <ul class="member-list">
-<li>
-<section class="detail" id="&lt;init&gt;(T)">
-<h3 id="&lt;init&gt;(java.lang.Enum)">EnumArgumentType</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">EnumArgumentType</span><wbr><span class="parameters">(@NotNull
- <a href="EnumArgumentType.html" title="type parameter in EnumArgumentType">T</a>&nbsp;defaultValue)</span></div>
-<div class="block">Creates a new enum argument type.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>defaultValue</code> - The default value of the enum type. This is also used to infer the type of the enum.</dd>
-</dl>
-</section>
-</li>
 <li>
 <section class="detail" id="&lt;init&gt;(java.lang.Class)">
 <h3>EnumArgumentType</h3>

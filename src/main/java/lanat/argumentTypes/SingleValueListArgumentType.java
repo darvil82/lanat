@@ -1,6 +1,7 @@
 package lanat.argumentTypes;
 
 import lanat.ArgumentType;
+import lanat.utils.UtlMisc;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import textFormatter.FormatOption;
@@ -47,14 +48,21 @@ public abstract class SingleValueListArgumentType<T> extends ArgumentType<T> {
 		if (this.listValues.length == 0)
 			throw new IllegalArgumentException("The list of values cannot be empty.");
 
-		return Stream.of(this.listValues)
+		var sanitized = Stream.of(this.listValues)
 			.map(this::valueToString)
 			.map(String::trim)
 			.peek(v -> {
+				if (v.isEmpty())
+					throw new IllegalArgumentException("Value cannot be empty.");
+
 				if (v.chars().anyMatch(Character::isWhitespace))
 					throw new IllegalArgumentException("Value cannot contain spaces: '" + v + "'.");
 			})
-			.toArray(String[]::new);
+			.toList();
+
+		UtlMisc.requireUniqueElements(sanitized, e -> new IllegalArgumentException("Duplicate value: '" + e + "'."));
+
+		return sanitized.toArray(String[]::new);
 	}
 
 	/**

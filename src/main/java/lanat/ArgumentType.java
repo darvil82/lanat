@@ -187,6 +187,14 @@ public abstract class ArgumentType<T>
 	}
 
 	/**
+	 * Sets the initial value of this argument type.
+	 * @param initialValue The initial value of this argument type.
+	 */
+	public void setInitialValue(T initialValue) {
+		this.initialValue = initialValue;
+	}
+
+	/**
 	 * Returns the initial value of this argument type, if specified.
 	 * @return The initial value of this argument type, {@code null} if not specified.
 	 */

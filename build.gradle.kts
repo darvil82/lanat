@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "com.darvil"
-version = "1.0.0"
+version = "1.1.0"
 description = "Command line argument parser"
 
 dependencies {

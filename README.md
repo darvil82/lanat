@@ -23,7 +23,7 @@
 		@Argument.Define(required = true, positional = true, description = "The name of the user.")
 		public String name;
 	
-		@Argument.Define(type = StringArgumentType.class, description = "The surname of the user.")
+		@Argument.Define(type = String.class, description = "The surname of the user.")
 		public Optional<String> surname;
 	
 		@Argument.Define(names = {"age", "a"}, description = "The age of the user.", prefix = Argument.Prefix.PLUS)

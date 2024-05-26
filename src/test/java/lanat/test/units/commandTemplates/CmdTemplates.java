@@ -4,19 +4,17 @@ import lanat.Argument;
 import lanat.Command;
 import lanat.CommandTemplate;
 import lanat.argumentTypes.BooleanArgumentType;
-import lanat.argumentTypes.FloatArgumentType;
 import lanat.argumentTypes.IntegerArgumentType;
-import lanat.argumentTypes.StringArgumentType;
 
 import java.util.Optional;
 
 public class CmdTemplates {
 	@Command.Define(names = "cmd1")
 	public static class CmdTemplate1 extends CommandTemplate {
-		@Argument.Define(type = IntegerArgumentType.class)
+		@Argument.Define(type = Integer.class)
 		public Integer number;
 
-		@Argument.Define(type = StringArgumentType.class)
+		@Argument.Define(type = String.class)
 		public String text;
 
 		@Argument.Define(names = { "name1", "f" }, type = BooleanArgumentType.class)
@@ -31,7 +29,7 @@ public class CmdTemplates {
 
 		@Command.Define(names = "cmd1-1")
 		public static class CmdTemplate1_1 extends CommandTemplate {
-			@Argument.Define(type = FloatArgumentType.class)
+			@Argument.Define(type = Float.class)
 			public Float number;
 
 			@Argument.Define(type = IntegerArgumentType.class)

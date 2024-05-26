@@ -45,24 +45,24 @@ import java.util.Objects;
  * If no name is specified, the name of the field will be used.
  * </p>
  * <p>
- * The type of the argument (that extends {@link ArgumentType}) may be specified in the annotation with the
- * {@link Argument.Define#type()} parameter. Note that any type specified in the annotation must have a public,
+ * The type of the argument may be specified in the annotation with the
+ * {@link Argument.Define#type()} parameter. If an {@link ArgumentType} subclass is specified, it must have a public,
  * no-argument constructor. If the Argument Type to use has a constructor with arguments, the type must be then
  * specified in {@link CommandTemplate#beforeInit(CommandBuildContext)} instead, by setting
  * {@link ArgumentBuilder#type(ArgumentType)} to the argument builder corresponding to the argument
  * being defined.
  * </p>
  * <p>
- * If no Argument Type is specified on the annotation, the Argument Type will be attempted to be inferred from the
- * field type if possible, which is the case for some built-in types, such as
- * {@link String}, {@link Integer}, {@link java.io.File}, etc.
+ * If a class that does not subclass {@link ArgumentType} is specified on the annotation, or simply none is specified,
+ * the Argument Type will be attempted to be inferred from the field/annotation type if
+ * possible. (See {@link ArgumentTypeInfer})
  * </p>
  *
  * <strong>Example:</strong>
  * <pre>{@code
  * @Command.Define
  * public class ParentCommand extends CommandTemplate {
- *   @Argument.Define(names = {"name", "n"}, type = StringArgumentType.class)
+ *   @Argument.Define(names = {"name", "n"}, type = String.class) // type: StringArgumentType
  *   public String name;
  *
  *   @Argument.Define // name: "numbers". type: TupleArgumentType<Integer>

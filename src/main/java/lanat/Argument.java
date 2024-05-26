@@ -1,7 +1,6 @@
 package lanat;
 
 import lanat.argumentTypes.ActionArgumentType;
-import lanat.argumentTypes.DummyArgumentType;
 import lanat.exceptions.ArgumentAlreadyExistsException;
 import lanat.parsing.errors.handlers.ArgumentTypeError;
 import lanat.parsing.errors.handlers.ParseErrors;
@@ -757,7 +756,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		@NotNull String description() default "";
 
 		/** @see ArgumentBuilder#type(ArgumentType) */
-		@NotNull Class<? extends ArgumentType<?>> type() default DummyArgumentType.class;
+		@NotNull Class<?> type() default Void.class;
 
 		/**
 		 * Specifies the prefix character for this argument.

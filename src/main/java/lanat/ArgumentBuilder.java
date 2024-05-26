@@ -1,6 +1,5 @@
 package lanat;
 
-import lanat.argumentTypes.DummyArgumentType;
 import lanat.exceptions.ArgumentTypeInferException;
 import lanat.exceptions.CommandTemplateException;
 import lanat.utils.Builder;
@@ -51,13 +50,16 @@ public class ArgumentBuilder<Type extends ArgumentType<TInner>, TInner> implemen
 		final var annotation = field.getAnnotation(Argument.Define.class);
 		assert annotation != null : "The field must have an @Argument.Define annotation.";
 
-		// if the type is not a dummy type (it was specified on the annotation), instantiate it and return it
-		if (annotation.type() != DummyArgumentType.class)
-			return UtlReflection.instantiate(annotation.type());
+		var annotationType = annotation.type();
+		var annotationTypeDefined = annotationType != Void.class;
+
+		// if the type is not a Void, instantiate it or try to infer it if its not an ArgumentType
+		if (annotationTypeDefined && ArgumentType.class.isAssignableFrom(annotationType))
+			return (ArgumentType<?>)UtlReflection.instantiate(annotationType);
 
 		// try to infer the type from the field type. If it can't be inferred, return null
 		try {
-			return ArgumentTypeInfer.get(field.getType());
+			return ArgumentTypeInfer.get(annotationTypeDefined ? annotationType : field.getType());
 		} catch (ArgumentTypeInferException e) {
 			return null;
 		}

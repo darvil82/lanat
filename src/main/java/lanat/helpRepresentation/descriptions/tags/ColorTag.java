@@ -14,8 +14,9 @@ import utils.UtlString;
 /**
  * Changes the color of the text.
  * <p>
- * The syntax for specifying colors is {@code foreground[:background]}, where {@code foreground} and {@code background}
- * follow the syntax {@code color_name|#rrggbb|r,g,b}.
+ * The syntax for specifying colors is {@code foreground[:background]} or {@code [foreground]:background},
+ * where {@code foreground} and {@code background} follow the syntax {@code color_name|#rrggbb|r,g,b}.
+ * If the background is specified, the foreground may be left blank.
  * <ul>
  * <li>{@code #rrggbb} is the hexadecimal value of the color.</li>
  * <li>{@code r,g,b} are the RGB values of the color.</li>
@@ -62,10 +63,10 @@ public class ColorTag extends Tag {
 		final String[] split = UtlString.split(value, ':');
 		if (split.length != 2)
 			throw new MalformedTagException(
-				ColorTag.class, "invalid color format '" + value + "' (expected format: 'foreground:background')"
+				ColorTag.class, "invalid color format '" + value + "' (expected format: '[foreground]:background')"
 			);
 
-		return ColorTag.getColor(split[0]).fg() + ColorTag.getColor(split[1]).bg();
+		return (split[0].isEmpty() ? "" : ColorTag.getColor(split[0]).fg()) + ColorTag.getColor(split[1]).bg();
 	}
 
 	private static @NotNull Color getColor(@NotNull String colorName) {

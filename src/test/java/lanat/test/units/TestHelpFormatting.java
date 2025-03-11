@@ -16,6 +16,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import textFormatter.FormatOption;
+import textFormatter.TextFormatter;
+import textFormatter.color.SimpleColor;
 
 import java.util.List;
 
@@ -123,6 +126,49 @@ public class TestHelpFormatting extends UnitTests {
 		assertEquals("TestHelpFormatting: hello", DescriptionParser.parse(this.parser, "<test=hello>"));
 		assertEquals("No value!", DescriptionParser.parse(this.parser, "<test>"));
 		assertThrows(MalformedTagException.class, () -> DescriptionParser.parse(this.parser, "<test=>"));
+	}
+
+
+	@Test
+	@DisplayName("Test color tag")
+	public void testColorTag() {
+		TextFormatter.enableSequences = true;
+
+		assertEquals(
+			SimpleColor.BRIGHT_RED.fg() + "red" + FormatOption.RESET_ALL,
+			DescriptionParser.parse(this.parser, "<color=red>red")
+		);
+		assertEquals(
+			SimpleColor.BRIGHT_BLUE.bg() + "bluebg" + FormatOption.RESET_ALL,
+			DescriptionParser.parse(this.parser, "<color=:blue>bluebg")
+		);
+		assertEquals(
+			SimpleColor.BRIGHT_RED.fg() + SimpleColor.BRIGHT_BLUE.bg() + "bluebg" + FormatOption.RESET_ALL,
+			DescriptionParser.parse(this.parser, "<color=red:blue>bluebg")
+		);
+
+		TextFormatter.enableSequences = false;
+	}
+
+	@Test
+	@DisplayName("Test format tag")
+	public void testFormatTag() {
+		TextFormatter.enableSequences = true;
+
+		assertEquals(
+			FormatOption.BOLD + "bold" + FormatOption.BOLD.reset() + " is no more" + FormatOption.RESET_ALL,
+			DescriptionParser.parse(this.parser, "<format=bold>bold<format=!bold> is no more")
+		);
+
+		assertEquals(
+			FormatOption.STRIKETHROUGH.toString() + FormatOption.ITALIC + "test"
+				+ FormatOption.STRIKETHROUGH.reset() + " no strike"
+				+ FormatOption.ITALIC.reset() + " no italics" + FormatOption.RESET_ALL,
+			DescriptionParser.parse(this.parser, "<format=s,i>test<format=!s> no strike<format=!i> no italics")
+		);
+
+
+		TextFormatter.enableSequences = false;
 	}
 
 	@Test

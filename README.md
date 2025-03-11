@@ -32,7 +32,7 @@
 		@InitDef
 		public static void beforeInit(@NotNull CommandBuildContext ctx) {
 			// configure the argument "age" to have an argument type of
-			// number range and set the range to 1-100
+			// number range and set the range to 18-100
 			ctx.argWithType("age", new NumberRangeArgumentType<>(18, 100))
 				.onOk(v -> System.out.println("The age is valid!"));
 		}

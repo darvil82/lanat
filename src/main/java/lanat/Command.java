@@ -454,7 +454,8 @@ public class Command
 	/**
 	 * Adds all the arguments from the given list of argument builders to this command.
 	 * The arguments with the same group name will be added to the same group.
-	 * @param argumentBuildersFieldPairs The list of argument builders to add the arguments from.
+	 * @param argumentBuildersFieldPairs A list of pairs containing a properly annotated argument field and its
+	 *   respective argument builder.
 	 */
 	private void from$addArguments(
 		List<Pair<Field, ArgumentBuilder<ArgumentType<Object>, Object>>> argumentBuildersFieldPairs
@@ -472,19 +473,21 @@ public class Command
 				);
 			}
 
-			var annotationGroupName = pair.first().getAnnotation(Argument.Define.class).group();
-			if (annotationGroupName.isBlank()) {
+			var annotation = pair.first().getAnnotation(Argument.Define.class);
+			assert annotation != null; // we expect the field to have the annotation
+
+			if (annotation.group().isBlank()) {
 				// the argument does not belong to a group, so add it directly.
 				this.addArgument(builtArgument);
 				return;
 			}
 
 			// the argument belongs to a group, so add it to it
-			var groupToAddInto = groupsMap.get(annotationGroupName);
+			var groupToAddInto = groupsMap.get(annotation.group());
 			if (groupToAddInto == null) {
 				// the group does not exist, so create it and add it to the command
-				groupToAddInto = new Group(annotationGroupName);
-				groupsMap.put(annotationGroupName, groupToAddInto);
+				groupToAddInto = new Group(annotation.group());
+				groupsMap.put(annotation.group(), groupToAddInto);
 				this.addGroup(groupToAddInto);
 			}
 

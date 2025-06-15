@@ -100,13 +100,14 @@ public class RouteParser {
 	 * Parses a route and returns the object it points to. If the route is empty or null, the command the user belongs
 	 * to is returned.
 	 * <p>
-	 * The reason why the user is needed is because its likely that it will be needed to gather the Command it belongs
+	 * The reason why the user is needed is that its likely that it will be necessary to gather the Command it belongs
 	 * to, and also if the route starts with {@code !}, the user itself becomes the initial target.
 	 * </p>
 	 *
 	 * @param user the user that is requesting to parse the route
 	 * @param route the route to parse
 	 * @return the object the route points to
+	 * @throws InvalidRouteException if the route is invalid or the object it points to does not exist
 	 * @see RouteParser
 	 */
 	public static @NotNull NamedWithDescription parse(@NotNull NamedWithDescription user, @Nullable String route) {
@@ -136,6 +137,7 @@ public class RouteParser {
 	 * {@link InvalidRouteException} is thrown.
 	 *
 	 * @return the object the route points to
+	 * @throws InvalidRouteException if the route is invalid or the object it points to does not exist
 	 */
 	private @NotNull NamedWithDescription parse() {
 		for (this.index = 0; this.index < this.route.length; this.index++) {

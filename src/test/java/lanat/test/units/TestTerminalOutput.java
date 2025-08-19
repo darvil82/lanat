@@ -122,6 +122,16 @@ public class TestTerminalOutput extends UnitTests {
 	}
 
 	@Test
+	@DisplayName("Test unhandled error for invalid values")
+	public void testUnhandledError() {
+		this.assertErrorOutput("foo --double-adder 5.0 --double-adder huh", """
+			ERROR
+			Testing foo --double-adder 5.0 --double-adder huh <-
+			An unhandled exception occurred while parsing the value/s:
+			java.lang.NumberFormatException: For input string: "huh\"""");
+	}
+
+	@Test
 	@DisplayName("Test group restriction error")
 	public void testGroupRestrictionError() {
 		this.assertErrorOutput("foo subCommand2 --extra --c 5", """

@@ -117,7 +117,12 @@ public abstract class ArgumentType<T>
 	public final void parseAndUpdateValue(@NotNull ArgumentType.ParseStateSnapshot snapshot, @NotNull String... values) {
 		this.usageCount++;
 		this.lastParseState = snapshot;
-		this.currentValue = this.parseValues(values);
+
+		try {
+			this.currentValue = this.parseValues(values);
+		} catch (Exception e) {
+			this.addError("An unhandled exception occurred while parsing the value/s:" + System.lineSeparator() + e, ErrorLevel.ERROR);
+		}
 	}
 
 	/**

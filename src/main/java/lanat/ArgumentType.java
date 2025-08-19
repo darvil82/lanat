@@ -120,7 +120,7 @@ public abstract class ArgumentType<T>
 
 		try {
 			this.currentValue = this.parseValues(values);
-		} catch (Exception e) {
+		} catch (RuntimeException e) {
 			this.addError("An unhandled exception occurred while parsing the value/s:" + System.lineSeparator() + e, ErrorLevel.ERROR);
 		}
 	}

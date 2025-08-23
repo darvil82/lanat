@@ -8,10 +8,10 @@ import textFormatter.color.SimpleColor;
  * Represents the multiple levels that an error can have.
  */
 public enum ErrorLevel {
-	ERROR(SimpleColor.BRIGHT_RED),
-	WARNING(SimpleColor.BRIGHT_YELLOW),
+	DEBUG(SimpleColor.BRIGHT_GREEN),
 	INFO(SimpleColor.BRIGHT_BLUE),
-	DEBUG(SimpleColor.BRIGHT_GREEN);
+	WARNING(SimpleColor.BRIGHT_YELLOW),
+	ERROR(SimpleColor.BRIGHT_RED);
 
 	public final @NotNull Color color;
 

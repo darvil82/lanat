@@ -72,8 +72,8 @@ public abstract class ErrorContainerImpl<T extends ErrorLevelProvider> implement
 	}
 
 	private <TErr extends ErrorLevelProvider> boolean errorIsInMinimumLevel(@NotNull TErr error, boolean isDisplayError) {
-		return (isDisplayError ? this.minimumDisplayErrorLevel : this.minimumExitErrorLevel).get()
-			.isInMinimum(error.getErrorLevel());
+		return error.getErrorLevel()
+			.isInMinimum((isDisplayError ? this.minimumDisplayErrorLevel : this.minimumExitErrorLevel).get());
 	}
 
 	protected <TErr extends ErrorLevelProvider> boolean anyErrorInMinimum(@NotNull List<TErr> errors, boolean isDisplayError) {

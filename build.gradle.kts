@@ -1,15 +1,20 @@
 plugins {
-	`maven-publish`
 	`java-library`
+	id("com.vanniktech.maven.publish") version "0.34.0"
 }
 
 group = "com.darvil"
 version = "1.2.1"
-description = "Command line argument parser"
+description = "A highly customizable command line argument parser."
+
+repositories {
+	mavenCentral()
+	mavenLocal()
+}
 
 dependencies {
-	api("com.darvil:utils:0.7.0")
-	api("com.darvil:terminal-text-formatter:2.2.0")
+	api("io.github.darvil82:utils:0.7.1")
+	api("io.github.darvil82:terminal-text-formatter:2.2.0")
 
 	implementation("org.jetbrains:annotations:24.1.0")
 	testImplementation(platform("org.junit:junit-bom:5.9.1"))
@@ -17,38 +22,37 @@ dependencies {
 }
 
 java {
-	withJavadocJar()
-	withSourcesJar()
-
 	sourceCompatibility = JavaVersion.VERSION_17
 }
 
-repositories {
-	mavenCentral()
-	mavenLocal()
-	maven("https://api.repsy.io/mvn/darvil/java/")
-}
+mavenPublishing {
+	publishToMavenCentral()
+	signAllPublications()
+	coordinates(group.toString(), name.toString(), version.toString())
 
-publishing {
-	repositories {
-		maven {
-			name = "Github"
-			url = uri("https://maven.pkg.github.com/darvil82/Lanat")
-			credentials(PasswordCredentials::class)
+	pom {
+		name.set("Lanat")
+		description.set(project.description)
+		inceptionYear.set("2022")
+		url.set("https://github.com/darvil82/lanat")
+		licenses {
+			license {
+				name.set("MIT License")
+				url.set("https://opensource.org/license/mit")
+				distribution.set("https://opensource.org/license/mit")
+			}
 		}
-
-		maven {
-			name = "Repsy"
-			url = uri("https://api.repsy.io/mvn/darvil/java/")
-			credentials(PasswordCredentials::class)
+		developers {
+			developer {
+				id.set("darvil82")
+				name.set("darvil82")
+				url.set("https://github.com/darvil82/")
+			}
 		}
-
-		mavenLocal()
-	}
-
-	publications {
-		create<MavenPublication>("mavenJava") {
-			from(components["java"])
+		scm {
+			url.set("https://github.com/darvil82/lanat")
+			connection.set("scm:git:git://github.com/darvil82/lanat.git")
+			developerConnection.set("scm:git:ssh://git@github.com/darvil82/lanat.git")
 		}
 	}
 }

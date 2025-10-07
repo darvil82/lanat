@@ -61,7 +61,7 @@
 
 Check out the [website](https://darvil82.github.io/lanat-web/) for more information.
 
-[Click here](https://darvil82.github.io/lanat-docs/acquire-lanat.html) to get started with Lanat, and to check out the
+[Click here](https://darvil82.github.io/lanat-docs/getting-lanat.html) to get started with Lanat, and to check out the
 full documentation of the latest stable version.
 
 Javadocs for the latest stable version is available [here](https://darvil82.github.io/lanat/).

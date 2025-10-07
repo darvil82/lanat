@@ -3,7 +3,7 @@ plugins {
 	id("com.vanniktech.maven.publish") version "0.34.0"
 }
 
-group = "com.darvil"
+group = "io.github.darvil82"
 version = "1.2.1"
 description = "A highly customizable command line argument parser."
 

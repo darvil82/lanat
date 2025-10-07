@@ -57,10 +57,10 @@ public class ErrorCollector {
 	public void collect(@NotNull Command command) {
 		var errors = new ArrayList<Error<?>>();
 
-		errors.addAll(command.getTokenizer().getErrorsUnderDisplayLevel());
-		errors.addAll(command.getParser().getErrorsUnderDisplayLevel());
-		command.getArguments().forEach(arg -> errors.addAll(arg.getErrorsUnderDisplayLevel()));
-		errors.addAll(command.getErrorsUnderDisplayLevel());
+		errors.addAll(command.getTokenizer().getErrorsUnderDisplayThreshold());
+		errors.addAll(command.getParser().getErrorsUnderDisplayThreshold());
+		command.getArguments().forEach(arg -> errors.addAll(arg.getErrorsUnderDisplayThreshold()));
+		errors.addAll(command.getErrorsUnderDisplayThreshold());
 
 		this.errors.put(command, errors);
 	}

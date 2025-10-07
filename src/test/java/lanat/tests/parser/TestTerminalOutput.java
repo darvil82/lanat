@@ -1,19 +1,18 @@
-package lanat.test.units;
+package lanat.tests.parser;
 
-import lanat.test.UnitTests;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class TestTerminalOutput extends UnitTests {
+public class TestTerminalOutput extends TestParser {
 	private void assertErrorOutput(String args, String expected) {
 		final var errors = this.parser.parseGetErrors(args);
 		System.out.printf("Expected error output:%n%s%n%n", expected);
 
 		System.out.println("Test error output:");
 
-		// remove all the decorations to not make the tests a pain to write
+		// remove all the decorations to not make the lanat.tests a pain to write
 		assertTrue(
 			errors.stream()
 				.map(e -> e.replaceAll(" *[│─└┌\r] ?", "").strip())

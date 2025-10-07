@@ -1,9 +1,7 @@
-package lanat.test.units;
+package lanat.tests.parser;
 
 import lanat.Argument;
 import lanat.argumentTypes.*;
-import lanat.test.TestingParser;
-import lanat.test.UnitTests;
 import org.junit.jupiter.api.Test;
 import utils.Range;
 
@@ -13,7 +11,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestArgumentTypes extends UnitTests {
+public class TestArgumentTypes extends TestParser {
 	private enum TestEnum {
 		ONE,
 		@EnumArgumentType.Default

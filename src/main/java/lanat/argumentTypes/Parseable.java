@@ -26,7 +26,7 @@ public interface Parseable<T> extends NamedWithDescription {
 	 * Specifies the number of times this argument type can be used during parsing.
 	 * By default, this is 1. ({@link Range#ONE}).
 	 * <p>
-	 * <strong>Note: </strong> The minimum value must be at least 1.
+	 * <strong>Note: </strong> The value must be at least 1.
 	 * </p>
 	 */
 	default @NotNull Range getUsageCountBounds() {

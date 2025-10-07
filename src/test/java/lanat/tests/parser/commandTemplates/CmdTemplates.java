@@ -1,4 +1,4 @@
-package lanat.test.units.commandTemplates;
+package lanat.tests.parser.commandTemplates;
 
 import lanat.Argument;
 import lanat.Command;

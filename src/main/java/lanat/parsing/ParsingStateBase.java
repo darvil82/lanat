@@ -31,7 +31,7 @@ public sealed abstract class ParsingStateBase<T extends ErrorLevelProvider> exte
 	 * @param command the command that is being parsed
 	 */
 	public ParsingStateBase(@NotNull Command command) {
-		super(command.getMinimumExitErrorLevel(), command.getMinimumDisplayErrorLevel());
+		super(command.getErrorExitThreshold(), command.getErrorDisplayThreshold());
 		this.command = command;
 	}
 

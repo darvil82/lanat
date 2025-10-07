@@ -22,14 +22,14 @@ public interface ErrorContainer<T extends ErrorLevelProvider> {
 	 * These are errors that would cause the program to exit.
 	 * @return a list of all the errors under the exit level
 	 */
-	@NotNull List<@NotNull T> getErrorsUnderExitLevel();
+	@NotNull List<@NotNull T> getErrorsUnderExitThreshold();
 
 	/**
 	 * Returns a list of all the errors under the display level defined in this error container.
 	 * These are errors that would be displayed to the user.
 	 * @return a list of all the errors under the display level
 	 */
-	@NotNull List<@NotNull T> getErrorsUnderDisplayLevel();
+	@NotNull List<@NotNull T> getErrorsUnderDisplayThreshold();
 
 	/**
 	 * Returns {@code true} if there are errors under the exit level defined in this error container.
@@ -45,35 +45,36 @@ public interface ErrorContainer<T extends ErrorLevelProvider> {
 
 
 	/**
-	 * The minimum error level that will cause the program to exit.
+	 * Specify the error level threshold at which the program should exit.
 	 * All errors with a level equal to or higher than this will cause the program to exit.
-	 * For example, if this is set to {@link ErrorLevel#WARNING}, then errors with a
-	 * level of {@link ErrorLevel#WARNING} or {@link ErrorLevel#ERROR} will cause the program to exit.
-	 * @param level The minimum error level that will cause the program to exit.
-	 * @throws IllegalStateException If the minimum exit error level is higher than the minimum display error level.
+	 * For example, If this is set to {@link ErrorLevel#WARNING}, then errors including
+	 * {@link ErrorLevel#WARNING} and {@link ErrorLevel#ERROR} will cause the program to exit, but
+	 * {@link ErrorLevel#INFO} and below will not.
+	 * @param level The threshold error level at which the program should exit.
+	 * @throws IllegalStateException If the exit threshold is set lower than the display threshold.
 	 */
-	void setMinimumExitErrorLevel(@NotNull ErrorLevel level);
+	void setErrorExitThreshold(@NotNull ErrorLevel level);
 
 	/**
-	 * Returns the minimum level that errors should have in order to cause the program to exit.
-	 * @return the minimum exit error level
+	 * Returns the threshold error level that will cause the program to exit.
+	 * @return the error exit threshold
 	 */
-	@NotNull ModifyRecord<@NotNull ErrorLevel> getMinimumExitErrorLevel();
+	@NotNull ModifyRecord<@NotNull ErrorLevel> getErrorExitThreshold();
 
 	/**
-	 * The minimum error level that will be displayed to the user.
+	 * Specify the error level threshold at which errors should be displayed to the user.
 	 * All errors with a level lower than this will be ignored.
 	 * For example, If this is set to {@link ErrorLevel#INFO}, then errors including
 	 * {@link ErrorLevel#INFO}, {@link ErrorLevel#WARNING}, and {@link ErrorLevel#ERROR}) will be displayed, but
 	 * {@link ErrorLevel#DEBUG} will not.
-	 * @param level The minimum error level that will be displayed to the user.
-	 * @throws IllegalStateException If the minimum exit error level is higher than the minimum display error level.
+	 * @param level The threshold error level at which errors should be displayed to the user.
+	 * @throws IllegalStateException If the display threshold is set lower than the exit threshold.
 	 */
-	void setMinimumDisplayErrorLevel(@NotNull ErrorLevel level);
+	void setErrorDisplayThreshold(@NotNull ErrorLevel level);
 
 	/**
-	 * Returns the minimum level that errors should have in order to be displayed to the user.
-	 * @return the minimum display error level
+	 * Returns the threshold error level at which errors will be displayed to the user.
+	 * @return the error display threshold
 	 */
-	@NotNull ModifyRecord<@NotNull ErrorLevel> getMinimumDisplayErrorLevel();
+	@NotNull ModifyRecord<@NotNull ErrorLevel> getErrorDisplayThreshold();
 }

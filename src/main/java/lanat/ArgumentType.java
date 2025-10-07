@@ -26,7 +26,7 @@ import java.util.stream.Stream;
  * <h3>Creating custom Argument Types</h3>
  * <p>
  * Creating new Argument Types is an easy task. Extending this class already provides you with most of the functionality
- * that you need. The minimum method that should be implemented is the {@link ArgumentType#parseValues(String[])} method.
+ * that you need. The least method that should be implemented is the {@link ArgumentType#parseValues(String[])} method.
  * Which will be called by the main parser when it needs to parse the values of an argument of this type.
  * </p>
  * The custom Argument Type can push errors to the main parser by using the {@link ArgumentType#addError(String)} method
@@ -291,8 +291,8 @@ public abstract class ArgumentType<T>
 
 	@Override
 	public void inheritProperties(@NotNull Command command) {
-		this.getMinimumExitErrorLevel().setIfNotModified(command.getMinimumExitErrorLevel());
-		this.getMinimumDisplayErrorLevel().setIfNotModified(command.getMinimumDisplayErrorLevel());
+		this.getErrorExitThreshold().setIfNotModified(command.getErrorExitThreshold());
+		this.getErrorDisplayThreshold().setIfNotModified(command.getErrorDisplayThreshold());
 	}
 
 	@Override

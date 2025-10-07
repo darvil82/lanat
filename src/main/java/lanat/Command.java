@@ -344,8 +344,8 @@ public class Command
 
 	@Override
 	public void inheritProperties(@NotNull Command command) {
-		this.getMinimumExitErrorLevel().setIfNotModified(command.getMinimumExitErrorLevel());
-		this.getMinimumDisplayErrorLevel().setIfNotModified(command.getMinimumDisplayErrorLevel());
+		this.getErrorExitThreshold().setIfNotModified(command.getErrorExitThreshold());
+		this.getErrorDisplayThreshold().setIfNotModified(command.getErrorDisplayThreshold());
 		this.errorCode.setIfNotModified(command.errorCode);
 		this.helpFormatter.setIfNotModified(command.helpFormatter);
 		this.callbackInvocationOption.setIfNotModified(command.callbackInvocationOption);

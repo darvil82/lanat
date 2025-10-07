@@ -1,4 +1,4 @@
-package lanat.test.units;
+package lanat.tests.parser;
 
 import lanat.Argument;
 import lanat.argumentTypes.CounterArgumentType;
@@ -9,8 +9,6 @@ import lanat.helpRepresentation.descriptions.RouteParser;
 import lanat.helpRepresentation.descriptions.Tag;
 import lanat.helpRepresentation.descriptions.exceptions.InvalidRouteException;
 import lanat.helpRepresentation.descriptions.exceptions.MalformedTagException;
-import lanat.test.TestingParser;
-import lanat.test.UnitTests;
 import lanat.utils.NamedWithDescription;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -25,7 +23,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class TestHelpFormatting extends UnitTests {
+public class TestHelpFormatting extends TestParser {
 	private HelpFormatter helpFormatter;
 
 	@Override

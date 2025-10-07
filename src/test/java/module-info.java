@@ -5,7 +5,7 @@ module lanat.test {
 	requires utils;
 	requires textFormatter;
 
-	exports lanat.test to org.junit.platform.commons, lanat;
-	exports lanat.test.units to lanat, org.junit.platform.commons, utils;
-	exports lanat.test.units.commandTemplates to lanat, org.junit.platform.commons, utils;
+	exports lanat.tests to lanat, org.junit.platform.commons, utils;
+	exports lanat.tests.parser.commandTemplates to lanat, org.junit.platform.commons, utils;
+	exports lanat.tests.parser to lanat, org.junit.platform.commons, utils;
 }

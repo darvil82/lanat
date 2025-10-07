@@ -65,3 +65,17 @@ Check out the [website](https://darvil82.github.io/lanat-web/) for more informat
 full documentation of the latest stable version.
 
 Javadocs for the latest stable version is available [here](https://darvil82.github.io/lanat/).
+
+
+## Installation
+
+The package is currently available on Maven Central.
+
+Add the following to your `dependencies` block:
+```kotlin
+implementation("io.github.darvil82:lanat:+")
+```
+
+> [!NOTE]
+> The `+` symbol is a wildcard that will automatically use the latest version of the package.
+> You can also specify a specific version.

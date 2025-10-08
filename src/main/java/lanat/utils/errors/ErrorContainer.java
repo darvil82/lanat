@@ -47,7 +47,7 @@ public interface ErrorContainer<T extends ErrorLevelProvider> {
 	/**
 	 * Specify the error level threshold at which the program should exit.
 	 * All errors with a level equal to or higher than this will cause the program to exit.
-	 * For example, If this is set to {@link ErrorLevel#WARNING}, then errors including
+	 * For example, if this is set to {@link ErrorLevel#WARNING}, then errors including
 	 * {@link ErrorLevel#WARNING} and {@link ErrorLevel#ERROR} will cause the program to exit, but
 	 * {@link ErrorLevel#INFO} and below will not.
 	 * @param level The threshold error level at which the program should exit.
@@ -64,7 +64,7 @@ public interface ErrorContainer<T extends ErrorLevelProvider> {
 	/**
 	 * Specify the error level threshold at which errors should be displayed to the user.
 	 * All errors with a level lower than this will be ignored.
-	 * For example, If this is set to {@link ErrorLevel#INFO}, then errors including
+	 * For example, if this is set to {@link ErrorLevel#INFO}, then errors including
 	 * {@link ErrorLevel#INFO}, {@link ErrorLevel#WARNING}, and {@link ErrorLevel#ERROR}) will be displayed, but
 	 * {@link ErrorLevel#DEBUG} will not.
 	 * @param level The threshold error level at which errors should be displayed to the user.

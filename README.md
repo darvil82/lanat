@@ -14,6 +14,10 @@
 
 <br><br>
 
+> [!WARNING]
+> The currently hosted package at Maven Central is a snapshot of this (development) branch (despite saying it is version 1.2.1).
+> Do not use it yet since it is not finished and is still pending changes.
+
 ## Example
 - First, we define our Command by creating a *Command Template*.
 

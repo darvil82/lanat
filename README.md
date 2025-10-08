@@ -1,8 +1,8 @@
 <div align="center">
 	<a href="https://darvil82.github.io/lanat-web/">
 	  <picture>
-		<source media="(prefers-color-scheme: dark)" srcset="resources/logo.png" width="450">
-		<img width="450" src="resources/logo_dark.png">
+		<source media="(prefers-color-scheme: dark)" srcset="resources/logo.svg" width="450">
+		<img width="450" src="resources/logo_dark.svg">
 	  </picture>
 	</a>
 	<br>

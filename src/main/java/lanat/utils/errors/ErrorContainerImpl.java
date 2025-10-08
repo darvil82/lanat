@@ -8,19 +8,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A container for errors. This class is used to store errors and their respective minimum error levels.
- * It also has methods for getting errors under the minimum error level.
- *
+ * A container for errors.
+ * This class is used to store errors and their respective thresholds.
  * @param <T> The type of the errors to store.
  */
 public abstract class ErrorContainerImpl<T extends ErrorLevelProvider> implements ErrorContainer<T>, Resettable {
-	private final @NotNull ModifyRecord<ErrorLevel> minimumExitErrorLevel;
-	private final @NotNull ModifyRecord<ErrorLevel> minimumDisplayErrorLevel;
+	private final @NotNull ModifyRecord<ErrorLevel> errorExitThreshold;
+	private final @NotNull ModifyRecord<ErrorLevel> errorDisplayThreshold;
 	private final @NotNull List<T> errors = new ArrayList<>(5);
 
 	/**
 	 * Creates a new {@link ErrorContainerImpl} with the default values, those being {@link ErrorLevel#ERROR} for
-	 * {@link #minimumExitErrorLevel} and {@link ErrorLevel#INFO} for {@link #minimumDisplayErrorLevel}.
+	 * {@link #errorExitThreshold} and {@link ErrorLevel#INFO} for {@link #errorDisplayThreshold}.
 	 */
 	public ErrorContainerImpl() {
 		// default values
@@ -29,16 +28,17 @@ public abstract class ErrorContainerImpl<T extends ErrorLevelProvider> implement
 
 	/**
 	 * Creates a new {@link ErrorContainerImpl} with the given values.
-	 * @param minimumExitErrorLevelRecord    The minimum error level that will cause the program to exit.
-	 * @param minimumDisplayErrorLevelRecord The minimum error level that will be displayed to the user.
+	 * @param errorExitThreshold The threshold error level at which the program should exit.
+	 * @param errorDisplayThreshold The threshold error level at which errors should be displayed to the user.
 	 */
 	public ErrorContainerImpl(
-		@NotNull ModifyRecord<ErrorLevel> minimumExitErrorLevelRecord,
-		@NotNull ModifyRecord<ErrorLevel> minimumDisplayErrorLevelRecord
+		@NotNull ModifyRecord<ErrorLevel> errorExitThreshold,
+		@NotNull ModifyRecord<ErrorLevel> errorDisplayThreshold
 	)
 	{
-		this.minimumExitErrorLevel = minimumExitErrorLevelRecord;
-		this.minimumDisplayErrorLevel = minimumDisplayErrorLevelRecord;
+		this.errorExitThreshold = errorExitThreshold;
+		this.errorDisplayThreshold = errorDisplayThreshold;
+		this.checkValidThresholds();
 	}
 
 	@Override
@@ -48,69 +48,59 @@ public abstract class ErrorContainerImpl<T extends ErrorLevelProvider> implement
 
 	@Override
 	public boolean hasExitErrors() {
-		return !this.getErrorsUnderExitLevel().isEmpty();
+		return !this.getErrorsUnderExitThreshold().isEmpty();
 	}
 
 	@Override
 	public boolean hasDisplayErrors() {
-		return !this.getErrorsUnderDisplayLevel().isEmpty();
+		return !this.getErrorsUnderDisplayThreshold().isEmpty();
 	}
 
 	@Override
-	public @NotNull List<T> getErrorsUnderExitLevel() {
-		return this.getErrorsInLevelMinimum(this.errors, false);
+	public @NotNull List<T> getErrorsUnderExitThreshold() {
+		return this.getErrorsUnderThreshold(this.errors, this.errorExitThreshold.get());
 	}
 
 	@Override
-	public @NotNull List<T> getErrorsUnderDisplayLevel() {
-		return this.getErrorsInLevelMinimum(this.errors, true);
+	public @NotNull List<T> getErrorsUnderDisplayThreshold() {
+		return this.getErrorsUnderThreshold(this.errors, this.errorDisplayThreshold.get());
 	}
 
 	protected <TErr extends ErrorLevelProvider>
-	@NotNull List<TErr> getErrorsInLevelMinimum(@NotNull List<TErr> errors, boolean isDisplayError) {
-		return errors.stream().filter(e -> this.errorIsInMinimumLevel(e, isDisplayError)).toList();
-	}
-
-	private <TErr extends ErrorLevelProvider> boolean errorIsInMinimumLevel(@NotNull TErr error, boolean isDisplayError) {
-		return (isDisplayError ? this.minimumDisplayErrorLevel : this.minimumExitErrorLevel).get()
-			.isInMinimum(error.getErrorLevel());
-	}
-
-	protected <TErr extends ErrorLevelProvider> boolean anyErrorInMinimum(@NotNull List<TErr> errors, boolean isDisplayError) {
-		return errors.stream().anyMatch(e -> this.errorIsInMinimumLevel(e, isDisplayError));
+	@NotNull List<TErr> getErrorsUnderThreshold(@NotNull List<TErr> errors, @NotNull ErrorLevel threshold) {
+		return errors.stream().filter(e -> e.getErrorLevel().isInThreshold(threshold)).toList();
 	}
 
 	@Override
-	public void setMinimumExitErrorLevel(@NotNull ErrorLevel level) {
-		this.minimumExitErrorLevel.set(level);
-		this.checkValidMinimums();
+	public void setErrorExitThreshold(@NotNull ErrorLevel level) {
+		this.errorExitThreshold.set(level);
+		this.checkValidThresholds();
 	}
 
 	@Override
-	public @NotNull ModifyRecord<ErrorLevel> getMinimumExitErrorLevel() {
-		return this.minimumExitErrorLevel;
+	public @NotNull ModifyRecord<ErrorLevel> getErrorExitThreshold() {
+		return this.errorExitThreshold;
 	}
 
 
 	@Override
-	public void setMinimumDisplayErrorLevel(@NotNull ErrorLevel level) {
-		this.minimumDisplayErrorLevel.set(level);
-		this.checkValidMinimums();
+	public void setErrorDisplayThreshold(@NotNull ErrorLevel level) {
+		this.errorDisplayThreshold.set(level);
+		this.checkValidThresholds();
 	}
 
 	@Override
-	public @NotNull ModifyRecord<ErrorLevel> getMinimumDisplayErrorLevel() {
-		return this.minimumDisplayErrorLevel;
+	public @NotNull ModifyRecord<ErrorLevel> getErrorDisplayThreshold() {
+		return this.errorDisplayThreshold;
 	}
 
 	/**
-	 * Checks if the minimum error levels are valid.
-	 * If the minimum exit error level is higher than the minimum display
-	 * error level, then an {@link IllegalStateException} is thrown.
+	 * Checks if the thresholds are valid, i.e. if the error exit threshold is not lower than the error display threshold.
+	 * @throws IllegalStateException if the thresholds are not valid.
 	 */
-	private void checkValidMinimums() {
-		if (!this.minimumDisplayErrorLevel.get().isInMinimum(this.minimumExitErrorLevel.get())) {
-			throw new IllegalStateException("Minimum exit error level must be less than or equal to minimum display error level.");
+	private void checkValidThresholds() {
+		if (!this.errorExitThreshold.get().isInThreshold(this.errorDisplayThreshold.get())) {
+			throw new IllegalStateException("The error exit threshold cannot be lower than the error display threshold.");
 		}
 	}
 

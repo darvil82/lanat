@@ -145,52 +145,50 @@ public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
 				lastTupleCharIndex = this.currentCharIndex;
 
 				// reached a possible tuple end character
-			} else {
-				if (cChar == TupleChar.current.close) {
-					// tuple close char require a space after them
-					if (!this.isCharAtRelativeIndex(1, Character::isWhitespace) && !this.isLastChar()) {
-						this.addError(new TokenizeErrors.SpaceRequiredError(this.currentCharIndex));
-						continue;
-					}
-
-					// if we are not in a tuple, set error and stop tokenizing
-					if (!this.isTupleOpen) {
-						// push tuple start token so the user can see the incorrect tuple char
-						this.addError(new TokenizeErrors.UnexpectedTupleCloseError(this.currentCharIndex));
-						continue;
-					}
-
-					// if there was something before the tuple, tokenize it
-					if (!this.currentValue.isEmpty()) {
-						this.addToken(TokenType.ARGUMENT_VALUE, this.currentValue.toString());
-					}
-
-					// set the state to tuple closed
-					this.addToken(TokenType.ARGUMENT_VALUE_TUPLE_END, TupleChar.current.close);
-					this.currentValue.setLength(0);
-					this.isTupleOpen = false;
-
-					// reached a "--". Push all the rest as a FORWARD_VALUE.
-				} else if (
-					cChar == '-'
-						&& this.isCharAtRelativeIndex(1, '-')
-						&& this.isCharAtRelativeIndex(2, Character::isWhitespace)
-				) {
-					this.addToken(TokenType.FORWARD_VALUE, this.inputString.substring(this.currentCharIndex + 3));
-					break;
-
-					// reached a possible separator
-				} else if (
-					(Character.isWhitespace(cChar) && !this.currentValue.isEmpty()) // there's a space and some value to tokenize
-						// also check if this is defining the value of an argument, or we are in a tuple. If so, don't tokenize
-						|| (cChar == '=' && !this.isTupleOpen && this.isArgumentSpecifier(this.currentValue.toString()))
-				) {
-					this.tokenizeCurrentValue();
-
-					// push the current char to the current value
-				} else if (!Character.isWhitespace(cChar)) {
-					this.currentValue.append(cChar);
+			} else if (cChar == TupleChar.current.close) {
+				// tuple close char require a space after them
+				if (!this.isCharAtRelativeIndex(1, Character::isWhitespace) && !this.isLastChar()) {
+					this.addError(new TokenizeErrors.SpaceRequiredError(this.currentCharIndex));
+					continue;
 				}
+
+				// if we are not in a tuple, set error and stop tokenizing
+				if (!this.isTupleOpen) {
+					// push tuple start token so the user can see the incorrect tuple char
+					this.addError(new TokenizeErrors.UnexpectedTupleCloseError(this.currentCharIndex));
+					continue;
+				}
+
+				// if there was something before the tuple, tokenize it
+				if (!this.currentValue.isEmpty()) {
+					this.addToken(TokenType.ARGUMENT_VALUE, this.currentValue.toString());
+				}
+
+				// set the state to tuple closed
+				this.addToken(TokenType.ARGUMENT_VALUE_TUPLE_END, TupleChar.current.close);
+				this.currentValue.setLength(0);
+				this.isTupleOpen = false;
+
+				// reached a "--". Push all the rest as a FORWARD_VALUE.
+			} else if (
+				cChar == '-'
+					&& this.isCharAtRelativeIndex(1, '-')
+					&& this.isCharAtRelativeIndex(2, Character::isWhitespace)
+			) {
+				this.addToken(TokenType.FORWARD_VALUE, this.inputString.substring(this.currentCharIndex + 3));
+				break;
+
+				// reached a possible separator
+			} else if (
+				(Character.isWhitespace(cChar) && !this.currentValue.isEmpty()) // there's a space and some value to tokenize
+					// also check if this is defining the value of an argument, or we are in a tuple. If so, don't tokenize
+					|| (cChar == '=' && !this.isTupleOpen && this.isArgumentSpecifier(this.currentValue.toString()))
+			) {
+				this.tokenizeCurrentValue();
+
+				// push the current char to the current value
+			} else if (!Character.isWhitespace(cChar)) {
+				this.currentValue.append(cChar);
 			}
 		}
 

@@ -20,11 +20,11 @@ public enum ErrorLevel {
 	}
 
 	/**
-	 * Returns whether this error level is under the given minimum.
-	 * @param minimum The minimum to check against.
-	 * @return Whether this error level is under the given minimum.
+	 * Returns whether this error level is under the given threshold.
+	 * @param threshold The threshold to check against.
+	 * @return Whether this error level is under the given threshold.
 	 */
-	public boolean isInMinimum(@NotNull ErrorLevel minimum) {
-		return this.ordinal() >= minimum.ordinal();
+	public boolean isInThreshold(@NotNull ErrorLevel threshold) {
+		return this.ordinal() <= threshold.ordinal();
 	}
 }

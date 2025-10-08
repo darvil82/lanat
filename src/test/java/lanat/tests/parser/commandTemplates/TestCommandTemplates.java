@@ -1,15 +1,15 @@
-package lanat.test.units.commandTemplates;
+package lanat.tests.parser.commandTemplates;
 
 import lanat.Command;
 import lanat.exceptions.ArgumentNotFoundException;
-import lanat.test.TestingParser;
-import lanat.test.UnitTests;
+import lanat.tests.parser.TestParser;
+import lanat.tests.parser.TestingParser;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestCommandTemplates extends UnitTests {
+public class TestCommandTemplates extends TestParser {
 	@Override
 	protected TestingParser setParser() {
 		return new TestingParser(CmdTemplates.CmdTemplate1.class) {{

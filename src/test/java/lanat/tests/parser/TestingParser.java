@@ -1,4 +1,4 @@
-package lanat.test;
+package lanat.tests.parser;
 
 import lanat.*;
 import org.jetbrains.annotations.NotNull;

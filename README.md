@@ -1,8 +1,8 @@
 <div align="center">
 	<a href="https://darvil82.github.io/lanat-web/">
 	  <picture>
-		<source media="(prefers-color-scheme: dark)" srcset="resources/logo.png" width="450">
-		<img width="450" src="resources/logo_dark.png">
+		<source media="(prefers-color-scheme: dark)" srcset="resources/logo.svg" width="450">
+		<img width="450" src="resources/logo_dark.svg">
 	  </picture>
 	</a>
 	<br>
@@ -61,7 +61,21 @@
 
 Check out the [website](https://darvil82.github.io/lanat-web/) for more information.
 
-[Click here](https://darvil82.github.io/lanat-docs/acquire-lanat.html) to get started with Lanat, and to check out the
+[Click here](https://darvil82.github.io/lanat-docs/getting-lanat.html) to get started with Lanat, and to check out the
 full documentation of the latest stable version.
 
 Javadocs for the latest stable version is available [here](https://darvil82.github.io/lanat/).
+
+
+## Installation
+
+The package is currently available on Maven Central.
+
+Add the following to your `dependencies` block:
+```kotlin
+implementation("io.github.darvil82:lanat:+")
+```
+
+> [!NOTE]
+> The `+` symbol is a wildcard that will automatically use the latest version of the package.
+> You can also specify a specific version.

@@ -1,4 +1,4 @@
-package lanat.test;
+package lanat.tests.parser;
 
 import lanat.Argument;
 import lanat.ArgumentType;
@@ -51,14 +51,14 @@ class RestrictedDoubleAdder extends ArgumentType<Double> {
 }
 
 
-public class UnitTests {
+public class TestParser {
 	protected TestingParser parser;
 
 	static {
 		HelpFormatter.setLineWrapMax((short)1000); // just so we don't have to worry about line wrapping
 		TextFormatter.enableSequences = false; // just so we don't have to worry about color codes
 
-		// prefix char is set to auto by default (make sure tests run in windows too)
+		// prefix char is set to auto by default (make sure lanat.tests run in windows too)
 		Argument.Prefix.setDefaultPrefix(Argument.Prefix.MINUS);
 	}
 

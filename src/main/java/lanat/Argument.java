@@ -463,7 +463,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 			this.parentCommand.getParser()
 				.addError(new ParseErrors.UniqueArgumentUsedError(lastTokensIndexAndOffset, this));
 
-		// make sure that the argument was used the minimum number of times specified
+		// make sure that the argument was used the number of times specified
 		if (usageCountIsInvalid)
 			this.parentCommand.getParser()
 				.addError(new ParseErrors.IncorrectUsagesCountError(lastTokensIndexAndOffset, this));
@@ -641,13 +641,13 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	@Override
-	public @NotNull List<@NotNull ArgumentTypeError> getErrorsUnderExitLevel() {
-		return this.type.getErrorsUnderExitLevel();
+	public @NotNull List<@NotNull ArgumentTypeError> getErrorsUnderExitThreshold() {
+		return this.type.getErrorsUnderExitThreshold();
 	}
 
 	@Override
-	public @NotNull List<@NotNull ArgumentTypeError> getErrorsUnderDisplayLevel() {
-		return this.type.getErrorsUnderDisplayLevel();
+	public @NotNull List<@NotNull ArgumentTypeError> getErrorsUnderDisplayThreshold() {
+		return this.type.getErrorsUnderDisplayThreshold();
 	}
 
 	@Override
@@ -661,23 +661,23 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	@Override
-	public void setMinimumDisplayErrorLevel(@NotNull ErrorLevel level) {
-		this.type.setMinimumDisplayErrorLevel(level);
+	public void setErrorDisplayThreshold(@NotNull ErrorLevel level) {
+		this.type.setErrorDisplayThreshold(level);
 	}
 
 	@Override
-	public @NotNull ModifyRecord<@NotNull ErrorLevel> getMinimumDisplayErrorLevel() {
-		return this.type.getMinimumDisplayErrorLevel();
+	public @NotNull ModifyRecord<@NotNull ErrorLevel> getErrorDisplayThreshold() {
+		return this.type.getErrorDisplayThreshold();
 	}
 
 	@Override
-	public void setMinimumExitErrorLevel(@NotNull ErrorLevel level) {
-		this.type.setMinimumExitErrorLevel(level);
+	public void setErrorExitThreshold(@NotNull ErrorLevel level) {
+		this.type.setErrorExitThreshold(level);
 	}
 
 	@Override
-	public @NotNull ModifyRecord<@NotNull ErrorLevel> getMinimumExitErrorLevel() {
-		return this.type.getMinimumExitErrorLevel();
+	public @NotNull ModifyRecord<@NotNull ErrorLevel> getErrorExitThreshold() {
+		return this.type.getErrorExitThreshold();
 	}
 
 	/**

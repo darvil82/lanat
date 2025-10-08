@@ -1,13 +1,12 @@
-package lanat.test.units;
+package lanat.tests.parser;
 
 import lanat.TupleChar;
-import lanat.test.UnitTests;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TestTuples extends UnitTests {
+public class TestTuples extends TestParser {
 	@Test
 	@DisplayName("Test tuples")
 	public void testTuples() {

@@ -1,16 +1,14 @@
-package lanat.test.units;
+package lanat.tests.parser;
 
 import lanat.Argument;
 import lanat.Group;
 import lanat.argumentTypes.IntegerArgumentType;
-import lanat.test.TestingParser;
-import lanat.test.UnitTests;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TestGroups extends UnitTests {
+public class TestGroups extends TestParser {
 	@Override
 	protected TestingParser setParser() {
 		final var parser = super.setParser();

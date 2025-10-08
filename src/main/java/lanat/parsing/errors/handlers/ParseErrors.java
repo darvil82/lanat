@@ -115,7 +115,7 @@ public abstract class ParseErrors {
 	}
 
 	/**
-	 * Warning that occurs when a token in the input does match any argument, argument list, value, or command.
+	 * Warning that occurs when a token in the input does not match any argument, argument list, value, or command.
 	 * <br>
 	 * @param index The index of the token that caused the error.
 	 */

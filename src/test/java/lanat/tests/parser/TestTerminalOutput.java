@@ -1,19 +1,18 @@
-package lanat.test.units;
+package lanat.tests.parser;
 
-import lanat.test.UnitTests;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class TestTerminalOutput extends UnitTests {
+public class TestTerminalOutput extends TestParser {
 	private void assertErrorOutput(String args, String expected) {
 		final var errors = this.parser.parseGetErrors(args);
 		System.out.printf("Expected error output:%n%s%n%n", expected);
 
 		System.out.println("Test error output:");
 
-		// remove all the decorations to not make the tests a pain to write
+		// remove all the decorations to not make the lanat.tests a pain to write
 		assertTrue(
 			errors.stream()
 				.map(e -> e.replaceAll(" *[│─└┌\r] ?", "").strip())
@@ -119,6 +118,16 @@ public class TestTerminalOutput extends UnitTests {
 			Testing foo --double-adder 5.0 --double-adder 5.0 --double-adder 5.0 --double-adder 5.0 -> --double-adder 5.0 <-
 			Argument -double-adder doubleSum was used an incorrect amount of times.
 			Expected from 2 to 4 usages, but was used 5 times.""");
+	}
+
+	@Test
+	@DisplayName("Test unhandled error for invalid values")
+	public void testUnhandledError() {
+		this.assertErrorOutput("foo --double-adder 5.0 --double-adder huh", """
+			ERROR
+			Testing foo --double-adder 5.0 --double-adder huh <-
+			An unhandled exception occurred while parsing the value/s:
+			java.lang.NumberFormatException: For input string: "huh\"""");
 	}
 
 	@Test

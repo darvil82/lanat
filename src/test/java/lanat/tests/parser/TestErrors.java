@@ -1,12 +1,10 @@
-package lanat.test.units;
+package lanat.tests.parser;
 
 import lanat.Argument;
 import lanat.Command;
 import lanat.argumentTypes.CounterArgumentType;
 import lanat.argumentTypes.FloatArgumentType;
 import lanat.argumentTypes.IntegerArgumentType;
-import lanat.test.TestingParser;
-import lanat.test.UnitTests;
 import lanat.utils.NamedWithDescription;
 import lanat.utils.errors.ErrorCallbacks;
 import org.jetbrains.annotations.NotNull;
@@ -18,7 +16,7 @@ import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestErrors extends UnitTests {
+public class TestErrors extends TestParser {
 	private final @NotNull HashMap<String, Object> correct = new HashMap<>();
 	private final @NotNull HashMap<String, Object> invalid = new HashMap<>();
 
@@ -103,6 +101,6 @@ public class TestErrors extends UnitTests {
 	@DisplayName("The error code must be the result of 5 | 2 = 7")
 	public void testCommandsErrorCode() {
 		this.parser.parseGetValues("sub --sub-float bar");
-		assertEquals(this.parser.getErrorCode(), 7);
+		assertEquals(7, this.parser.getErrorCode());
 	}
 }

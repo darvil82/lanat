@@ -1,4 +1,4 @@
-module darvil.lanat {
+module io.github.darvil.lanat {
 	requires org.jetbrains.annotations;
 	requires io.github.darvil.utils;
 	requires io.github.darvil.terminal.textformatter;

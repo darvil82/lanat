@@ -24,7 +24,7 @@
 
 	```java
 	@Command.Define
-	class MyProgram {
+	class MyProgram extends CommandTemplate {
 		@Argument.Define(required = true, positional = true, description = "The name of the user.")
 		public String name;
 	

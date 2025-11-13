@@ -1,8 +1,8 @@
 package lanat.utils.errors;
 
+import io.github.darvil.terminal.textformatter.color.Color;
+import io.github.darvil.terminal.textformatter.color.SimpleColor;
 import org.jetbrains.annotations.NotNull;
-import textFormatter.color.Color;
-import textFormatter.color.SimpleColor;
 
 /**
  * Represents the multiple levels that an error can have.

@@ -1,11 +1,11 @@
 package lanat.argumentTypes;
 
+import io.github.darvil.terminal.textformatter.TextFormatter;
+import io.github.darvil.utils.Range;
+import io.github.darvil.utils.UtlString;
 import lanat.ArgumentType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import textFormatter.TextFormatter;
-import utils.Range;
-import utils.UtlString;
 
 import java.util.HashMap;
 import java.util.Hashtable;

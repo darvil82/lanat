@@ -1,8 +1,8 @@
 package lanat.parsing.errors.contexts;
 
+import io.github.darvil.utils.Range;
 import lanat.Command;
 import org.jetbrains.annotations.NotNull;
-import utils.Range;
 
 /**
  * Base class for error contexts. Provides methods to easily get data about the context in which the error occurred.

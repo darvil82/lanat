@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "io.github.darvil82"
-version = "1.3.0"
+version = "1.4.0"
 description = "A highly customizable command line argument parser."
 
 repositories {
@@ -13,8 +13,8 @@ repositories {
 }
 
 dependencies {
-	api("io.github.darvil82:utils:0.8")
-	api("io.github.darvil82:terminal-text-formatter:2.3.0")
+	api("io.github.darvil82:utils:0.8b")
+	api("io.github.darvil82:terminal-text-formatter:2.3.0b")
 
 	implementation("org.jetbrains:annotations:24.1.0")
 	testImplementation(platform("org.junit:junit-bom:5.9.1"))

@@ -1,8 +1,8 @@
 package lanat.parsing;
 
+import io.github.darvil.terminal.textformatter.TextFormatter;
+import io.github.darvil.utils.UtlString;
 import org.jetbrains.annotations.NotNull;
-import textFormatter.TextFormatter;
-import utils.UtlString;
 
 public record Token(@NotNull TokenType type, @NotNull String contents) {
 	/**

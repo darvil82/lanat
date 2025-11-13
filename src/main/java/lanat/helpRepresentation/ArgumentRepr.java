@@ -1,12 +1,12 @@
 package lanat.helpRepresentation;
 
+import io.github.darvil.terminal.textformatter.FormatOption;
+import io.github.darvil.terminal.textformatter.TextFormatter;
+import io.github.darvil.utils.exceptions.DisallowedInstantiationException;
 import lanat.Argument;
 import lanat.helpRepresentation.descriptions.DescriptionParser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import textFormatter.FormatOption;
-import textFormatter.TextFormatter;
-import utils.exceptions.DisallowedInstantiationException;
 
 import java.util.List;
 import java.util.Objects;

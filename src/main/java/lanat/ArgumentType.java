@@ -1,5 +1,6 @@
 package lanat;
 
+import io.github.darvil.utils.Pair;
 import lanat.argumentTypes.FromParseableArgumentType;
 import lanat.argumentTypes.IntegerArgumentType;
 import lanat.argumentTypes.Parseable;
@@ -11,7 +12,6 @@ import lanat.utils.errors.ErrorContainerImpl;
 import lanat.utils.errors.ErrorLevel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import utils.Pair;
 
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;

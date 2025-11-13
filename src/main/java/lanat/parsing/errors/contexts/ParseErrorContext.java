@@ -1,10 +1,10 @@
 package lanat.parsing.errors.contexts;
 
+import io.github.darvil.utils.Range;
 import lanat.Command;
 import lanat.parsing.Token;
 import lanat.parsing.TokenType;
 import org.jetbrains.annotations.NotNull;
-import utils.Range;
 
 import java.util.Collections;
 import java.util.List;

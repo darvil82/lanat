@@ -1,5 +1,7 @@
 package lanat.tests.parser;
 
+import io.github.darvil.terminal.textformatter.TextFormatter;
+import io.github.darvil.utils.Range;
 import lanat.Argument;
 import lanat.ArgumentType;
 import lanat.Command;
@@ -11,8 +13,6 @@ import lanat.helpRepresentation.HelpFormatter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
-import textFormatter.TextFormatter;
-import utils.Range;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

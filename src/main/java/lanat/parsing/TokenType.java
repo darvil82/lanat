@@ -1,8 +1,8 @@
 package lanat.parsing;
 
+import io.github.darvil.terminal.textformatter.color.Color;
+import io.github.darvil.terminal.textformatter.color.SimpleColor;
 import org.jetbrains.annotations.NotNull;
-import textFormatter.color.Color;
-import textFormatter.color.SimpleColor;
 
 public enum TokenType {
 	ARGUMENT_NAME(SimpleColor.BRIGHT_GREEN),

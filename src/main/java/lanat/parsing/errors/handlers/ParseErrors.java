@@ -1,5 +1,8 @@
 package lanat.parsing.errors.handlers;
 
+import io.github.darvil.utils.Pair;
+import io.github.darvil.utils.UtlString;
+import io.github.darvil.utils.exceptions.DisallowedInstantiationException;
 import lanat.Argument;
 import lanat.Group;
 import lanat.helpRepresentation.HelpFormatter;
@@ -9,9 +12,6 @@ import lanat.parsing.errors.contexts.formatting.DisplayInput;
 import lanat.parsing.errors.contexts.formatting.ErrorFormattingContext;
 import lanat.utils.errors.ErrorLevel;
 import org.jetbrains.annotations.NotNull;
-import utils.Pair;
-import utils.UtlString;
-import utils.exceptions.DisallowedInstantiationException;
 
 /** Contains all the errors definitions for errors that occur during parsing. */
 public abstract class ParseErrors {

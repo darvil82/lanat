@@ -1,5 +1,8 @@
 package lanat.parsing.errors;
 
+import io.github.darvil.terminal.textformatter.FormatOption;
+import io.github.darvil.terminal.textformatter.TextFormatter;
+import io.github.darvil.utils.UtlString;
 import lanat.helpRepresentation.HelpFormatter;
 import lanat.parsing.errors.contexts.ErrorContext;
 import lanat.parsing.errors.contexts.ParseErrorContext;
@@ -11,9 +14,6 @@ import lanat.utils.errors.ErrorLevel;
 import lanat.utils.errors.ErrorLevelProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import textFormatter.FormatOption;
-import textFormatter.TextFormatter;
-import utils.UtlString;
 
 import java.util.Objects;
 import java.util.Optional;

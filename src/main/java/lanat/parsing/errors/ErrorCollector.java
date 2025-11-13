@@ -1,5 +1,8 @@
 package lanat.parsing.errors;
 
+import io.github.darvil.utils.Pair;
+import io.github.darvil.utils.Range;
+import io.github.darvil.utils.UtlReflection;
 import lanat.Command;
 import lanat.parsing.Token;
 import lanat.parsing.errors.contexts.ErrorContext;
@@ -8,9 +11,6 @@ import lanat.parsing.errors.contexts.TokenizeErrorContext;
 import lanat.parsing.errors.contexts.formatting.DisplayInput;
 import lanat.parsing.errors.contexts.formatting.ErrorFormattingContext;
 import org.jetbrains.annotations.NotNull;
-import utils.Pair;
-import utils.Range;
-import utils.UtlReflection;
 
 import java.util.ArrayList;
 import java.util.Comparator;

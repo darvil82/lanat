@@ -1,8 +1,8 @@
 package lanat.argumentTypes;
 
+import io.github.darvil.terminal.textformatter.TextFormatter;
 import lanat.ArgumentType;
 import org.jetbrains.annotations.NotNull;
-import textFormatter.TextFormatter;
 
 /**
  * An argument type that takes a string of characters.

@@ -1,12 +1,12 @@
 package lanat.helpRepresentation.descriptions;
 
+import io.github.darvil.terminal.textformatter.FormatOption;
+import io.github.darvil.utils.exceptions.DisallowedInstantiationException;
 import lanat.helpRepresentation.descriptions.exceptions.MalformedTagException;
 import lanat.utils.CommandUser;
 import lanat.utils.NamedWithDescription;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import textFormatter.FormatOption;
-import utils.exceptions.DisallowedInstantiationException;
 
 import java.util.Optional;
 

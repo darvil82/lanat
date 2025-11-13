@@ -1,12 +1,12 @@
 package lanat;
 
+import io.github.darvil.terminal.textformatter.color.Color;
+import io.github.darvil.utils.UtlReflection;
 import lanat.exceptions.ArgumentTypeInferException;
 import lanat.exceptions.CommandTemplateException;
 import lanat.utils.Builder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import textFormatter.color.Color;
-import utils.UtlReflection;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;

@@ -1,10 +1,10 @@
 package lanat.argumentTypes;
 
+import io.github.darvil.terminal.textformatter.TextFormatter;
+import io.github.darvil.utils.Range;
 import lanat.ArgumentType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import textFormatter.TextFormatter;
-import utils.Range;
 
 /**
  * An argument type that uses a {@link Parseable} to parse values. If the {@link Parseable#parseValues(String[])}

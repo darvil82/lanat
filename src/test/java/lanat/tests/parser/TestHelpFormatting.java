@@ -1,5 +1,8 @@
 package lanat.tests.parser;
 
+import io.github.darvil.terminal.textformatter.FormatOption;
+import io.github.darvil.terminal.textformatter.TextFormatter;
+import io.github.darvil.terminal.textformatter.color.SimpleColor;
 import lanat.Argument;
 import lanat.argumentTypes.CounterArgumentType;
 import lanat.helpRepresentation.HelpFormatter;
@@ -14,9 +17,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import textFormatter.FormatOption;
-import textFormatter.TextFormatter;
-import textFormatter.color.SimpleColor;
 
 import java.util.List;
 

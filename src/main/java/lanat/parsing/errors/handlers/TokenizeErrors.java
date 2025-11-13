@@ -1,11 +1,11 @@
 package lanat.parsing.errors.handlers;
 
+import io.github.darvil.utils.exceptions.DisallowedInstantiationException;
 import lanat.parsing.errors.Error;
 import lanat.parsing.errors.contexts.TokenizeErrorContext;
 import lanat.parsing.errors.contexts.formatting.DisplayInput;
 import lanat.parsing.errors.contexts.formatting.ErrorFormattingContext;
 import org.jetbrains.annotations.NotNull;
-import utils.exceptions.DisallowedInstantiationException;
 
 /** Contains all the errors definitions for errors that occur during tokenization. */
 public abstract class TokenizeErrors {

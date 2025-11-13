@@ -1,5 +1,8 @@
 package lanat;
 
+import io.github.darvil.terminal.textformatter.color.Color;
+import io.github.darvil.utils.ModifyRecord;
+import io.github.darvil.utils.MultiComparator;
 import lanat.argumentTypes.ActionArgumentType;
 import lanat.exceptions.ArgumentAlreadyExistsException;
 import lanat.parsing.errors.handlers.ArgumentTypeError;
@@ -10,9 +13,6 @@ import lanat.utils.errors.ErrorContainer;
 import lanat.utils.errors.ErrorLevel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import textFormatter.color.Color;
-import utils.ModifyRecord;
-import utils.MultiComparator;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -800,16 +800,8 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 		AT('@'),
 		/** The percent sign (%). */
 		PERCENT('%'),
-		/** The caret (^). */
-		CARET('^'),
-		/** The exclamation mark (!). */
-		EXCLAMATION('!'),
 		/** The tilde (~). */
 		TILDE('~'),
-		/** The question mark (?). */
-		QUESTION('?'),
-		/** The equals sign (=). */
-		EQUALS('='),
 		/** The colon (:). */
 		COLON(':'),
 

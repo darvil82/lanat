@@ -1,7 +1,7 @@
 package lanat.utils.errors;
 
+import io.github.darvil.utils.ModifyRecord;
 import org.jetbrains.annotations.NotNull;
-import utils.ModifyRecord;
 
 import java.util.List;
 

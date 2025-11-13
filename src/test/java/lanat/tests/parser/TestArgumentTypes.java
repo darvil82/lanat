@@ -1,9 +1,9 @@
 package lanat.tests.parser;
 
+import io.github.darvil.utils.Range;
 import lanat.Argument;
 import lanat.argumentTypes.*;
 import org.junit.jupiter.api.Test;
-import utils.Range;
 
 import java.io.File;
 import java.util.HashMap;

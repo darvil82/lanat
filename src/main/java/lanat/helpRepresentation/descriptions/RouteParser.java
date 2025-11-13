@@ -1,5 +1,7 @@
 package lanat.helpRepresentation.descriptions;
 
+import io.github.darvil.utils.UtlReflection;
+import io.github.darvil.utils.UtlString;
 import lanat.Argument;
 import lanat.ArgumentType;
 import lanat.Command;
@@ -7,8 +9,6 @@ import lanat.helpRepresentation.descriptions.exceptions.InvalidRouteException;
 import lanat.utils.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import utils.UtlReflection;
-import utils.UtlString;
 
 import java.util.Arrays;
 import java.util.List;

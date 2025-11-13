@@ -1,8 +1,8 @@
 package lanat.utils.errors;
 
+import io.github.darvil.utils.ModifyRecord;
 import lanat.utils.Resettable;
 import org.jetbrains.annotations.NotNull;
-import utils.ModifyRecord;
 
 import java.util.ArrayList;
 import java.util.List;

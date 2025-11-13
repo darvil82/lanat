@@ -1,10 +1,10 @@
 package lanat;
 
+import io.github.darvil.utils.Range;
+import io.github.darvil.utils.exceptions.DisallowedInstantiationException;
 import lanat.argumentTypes.*;
 import lanat.exceptions.ArgumentTypeInferException;
 import org.jetbrains.annotations.NotNull;
-import utils.Range;
-import utils.exceptions.DisallowedInstantiationException;
 
 import java.io.File;
 import java.util.*;

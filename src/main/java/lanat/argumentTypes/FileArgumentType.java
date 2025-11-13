@@ -1,9 +1,9 @@
 package lanat.argumentTypes;
 
+import io.github.darvil.terminal.textformatter.TextFormatter;
 import lanat.ArgumentType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import textFormatter.TextFormatter;
 
 import java.io.File;
 

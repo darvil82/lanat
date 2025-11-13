@@ -1,7 +1,7 @@
 package lanat.utils;
 
+import io.github.darvil.utils.exceptions.DisallowedInstantiationException;
 import org.jetbrains.annotations.NotNull;
-import utils.exceptions.DisallowedInstantiationException;
 
 import java.util.List;
 import java.util.function.Function;
@@ -64,16 +64,16 @@ public final class UtlMisc {
 	 * @throws IllegalArgumentException if the name is invalid.
 	 */
 	public static @NotNull String requireValidName(@NotNull String name) {
-		if (name.isEmpty())
+		if (name.isBlank())
 			throw new IllegalArgumentException("name must contain at least one character");
 
-		if (!Character.isAlphabetic(name.charAt(0)))
-			throw new IllegalArgumentException("name must start with an alphabetic character");
-
-		if (!name.chars().allMatch(
-			chr -> Character.isAlphabetic(chr) || Character.isDigit(chr) || chr == '_' || chr == '-'
-		))
-			throw new IllegalArgumentException("name must only contain alphabetic characters, numbers, underscores and dashes");
+//		if (!Character.isAlphabetic(name.charAt(0)))
+//			throw new IllegalArgumentException("name must start with an alphabetic character");
+//
+//		if (!name.chars().allMatch(
+//			chr -> Character.isAlphabetic(chr) || Character.isDigit(chr) || chr == '_' || chr == '-'
+//		))
+//			throw new IllegalArgumentException("name must only contain alphabetic characters, numbers, underscores and dashes");
 
 		return name;
 	}

@@ -1,12 +1,12 @@
 package lanat.helpRepresentation.descriptions;
 
+import io.github.darvil.utils.UtlReflection;
 import lanat.helpRepresentation.descriptions.exceptions.MalformedTagException;
 import lanat.helpRepresentation.descriptions.exceptions.UnknownTagException;
 import lanat.helpRepresentation.descriptions.tags.*;
 import lanat.utils.NamedWithDescription;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import utils.UtlReflection;
 
 import java.util.Hashtable;
 import java.util.Map;

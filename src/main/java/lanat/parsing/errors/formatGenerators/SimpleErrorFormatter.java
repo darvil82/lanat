@@ -1,5 +1,8 @@
 package lanat.parsing.errors.formatGenerators;
 
+import io.github.darvil.terminal.textformatter.FormatOption;
+import io.github.darvil.terminal.textformatter.TextFormatter;
+import io.github.darvil.utils.UtlString;
 import lanat.parsing.errors.ErrorFormatter;
 import lanat.parsing.errors.contexts.ErrorContext;
 import lanat.parsing.errors.contexts.ParseErrorContext;
@@ -7,9 +10,6 @@ import lanat.parsing.errors.contexts.TokenizeErrorContext;
 import lanat.parsing.errors.contexts.formatting.DisplayInput;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import textFormatter.FormatOption;
-import textFormatter.TextFormatter;
-import utils.UtlString;
 
 /**
  * An error formatter that displays the error in the next format:

@@ -1,9 +1,9 @@
 package lanat.parsing.errors.contexts.formatting;
 
+import io.github.darvil.utils.Pair;
+import io.github.darvil.utils.Range;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import utils.Pair;
-import utils.Range;
 
 /**
  * Options used to display the input.

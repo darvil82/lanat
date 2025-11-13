@@ -1,14 +1,14 @@
 package lanat.helpRepresentation;
 
+import io.github.darvil.terminal.textformatter.FormatOption;
+import io.github.darvil.terminal.textformatter.TextFormatter;
+import io.github.darvil.terminal.textformatter.color.SimpleColor;
+import io.github.darvil.utils.UtlString;
 import lanat.Argument;
 import lanat.Command;
 import lanat.Group;
 import lanat.utils.NamedWithDescription;
 import org.jetbrains.annotations.NotNull;
-import textFormatter.FormatOption;
-import textFormatter.TextFormatter;
-import textFormatter.color.SimpleColor;
-import utils.UtlString;
 
 import java.util.*;
 

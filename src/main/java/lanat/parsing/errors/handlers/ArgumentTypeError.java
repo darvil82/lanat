@@ -1,12 +1,12 @@
 package lanat.parsing.errors.handlers;
 
+import io.github.darvil.utils.Pair;
 import lanat.parsing.errors.Error;
 import lanat.parsing.errors.contexts.ParseErrorContext;
 import lanat.parsing.errors.contexts.formatting.DisplayInput;
 import lanat.parsing.errors.contexts.formatting.ErrorFormattingContext;
 import lanat.utils.errors.ErrorLevel;
 import org.jetbrains.annotations.NotNull;
-import utils.Pair;
 
 /**
  * An error that may be thrown by an argument type.

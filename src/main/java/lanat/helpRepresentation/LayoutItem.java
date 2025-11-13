@@ -1,9 +1,9 @@
 package lanat.helpRepresentation;
 
+import io.github.darvil.utils.UtlString;
 import lanat.Command;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import utils.UtlString;
 
 import java.util.function.Function;
 import java.util.function.Supplier;

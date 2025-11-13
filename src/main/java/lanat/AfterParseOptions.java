@@ -1,11 +1,11 @@
 package lanat;
 
+import io.github.darvil.utils.UtlReflection;
 import lanat.exceptions.CommandTemplateException;
 import lanat.exceptions.IncompatibleCommandTemplateTypeException;
 import lanat.parsing.errors.ErrorCollector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import utils.UtlReflection;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;

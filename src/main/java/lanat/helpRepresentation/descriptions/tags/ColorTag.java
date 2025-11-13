@@ -1,15 +1,15 @@
 package lanat.helpRepresentation.descriptions.tags;
 
+import io.github.darvil.terminal.textformatter.TextFormatter;
+import io.github.darvil.terminal.textformatter.color.Color;
+import io.github.darvil.terminal.textformatter.color.SimpleColor;
+import io.github.darvil.terminal.textformatter.color.TrueColor;
+import io.github.darvil.utils.UtlString;
 import lanat.helpRepresentation.descriptions.Tag;
 import lanat.helpRepresentation.descriptions.exceptions.MalformedTagException;
 import lanat.utils.NamedWithDescription;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import textFormatter.TextFormatter;
-import textFormatter.color.Color;
-import textFormatter.color.SimpleColor;
-import textFormatter.color.TrueColor;
-import utils.UtlString;
 
 /**
  * Changes the color of the text.

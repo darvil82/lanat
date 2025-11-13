@@ -1,5 +1,7 @@
 package lanat.helpRepresentation;
 
+import io.github.darvil.utils.UtlString;
+import io.github.darvil.utils.exceptions.DisallowedInstantiationException;
 import lanat.Argument;
 import lanat.ArgumentParser;
 import lanat.Command;
@@ -7,8 +9,6 @@ import lanat.Group;
 import lanat.helpRepresentation.descriptions.DescriptionParser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import utils.UtlString;
-import utils.exceptions.DisallowedInstantiationException;
 
 import java.util.List;
 import java.util.Objects;

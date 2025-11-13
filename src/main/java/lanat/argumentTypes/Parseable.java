@@ -1,10 +1,10 @@
 package lanat.argumentTypes;
 
+import io.github.darvil.terminal.textformatter.TextFormatter;
+import io.github.darvil.utils.Range;
 import lanat.utils.NamedWithDescription;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import textFormatter.TextFormatter;
-import utils.Range;
 
 /**
  * The basic interface for all argument types. In order to use a class that implements this interface as an

@@ -1,12 +1,12 @@
 package lanat.argumentTypes;
 
+import io.github.darvil.terminal.textformatter.TextFormatter;
+import io.github.darvil.utils.Range;
 import lanat.ArgumentType;
 import lanat.utils.Builder;
 import lanat.utils.errors.ErrorLevel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import textFormatter.TextFormatter;
-import utils.Range;
 
 import java.util.Objects;
 

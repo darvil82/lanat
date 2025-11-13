@@ -1,5 +1,6 @@
 package lanat.parsing;
 
+import io.github.darvil.utils.Range;
 import lanat.Argument;
 import lanat.ArgumentType;
 import lanat.Command;
@@ -7,7 +8,6 @@ import lanat.parsing.errors.Error;
 import lanat.parsing.errors.handlers.ParseErrors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import utils.Range;
 
 import java.util.ArrayList;
 import java.util.HashMap;

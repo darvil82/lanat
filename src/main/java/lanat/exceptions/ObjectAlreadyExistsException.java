@@ -1,8 +1,8 @@
 package lanat.exceptions;
 
+import io.github.darvil.utils.UtlReflection;
 import lanat.utils.NamedWithDescription;
 import org.jetbrains.annotations.NotNull;
-import utils.UtlReflection;
 
 /**
  * Thrown when an object is added to a container that already contains an object equal to the added one.

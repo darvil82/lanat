@@ -1,5 +1,11 @@
 package lanat;
 
+import io.github.darvil.terminal.textformatter.color.Color;
+import io.github.darvil.terminal.textformatter.color.SimpleColor;
+import io.github.darvil.utils.LoopPool;
+import io.github.darvil.utils.ModifyRecord;
+import io.github.darvil.utils.Pair;
+import io.github.darvil.utils.UtlReflection;
 import lanat.exceptions.CommandAlreadyExistsException;
 import lanat.exceptions.CommandTemplateException;
 import lanat.helpRepresentation.HelpFormatter;
@@ -13,12 +19,6 @@ import lanat.utils.errors.ErrorCallbacks;
 import lanat.utils.errors.ErrorContainerImpl;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import textFormatter.color.Color;
-import textFormatter.color.SimpleColor;
-import utils.LoopPool;
-import utils.ModifyRecord;
-import utils.Pair;
-import utils.UtlReflection;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -1,7 +1,7 @@
 package io.github.darvil.lanat.tests.parser;
 
 import io.github.darvil.lanat.Argument;
-import io.github.darvil.lanat.argumentTypes.*;
+import io.github.darvil.lanat.argtypes.*;
 import io.github.darvil.utils.Range;
 import org.junit.jupiter.api.Test;
 

@@ -1,6 +1,6 @@
 package io.github.darvil.lanat;
 
-import io.github.darvil.lanat.argumentTypes.*;
+import io.github.darvil.lanat.argtypes.*;
 import io.github.darvil.lanat.exceptions.ArgumentTypeInferException;
 import io.github.darvil.utils.Range;
 import io.github.darvil.utils.exceptions.DisallowedInstantiationException;

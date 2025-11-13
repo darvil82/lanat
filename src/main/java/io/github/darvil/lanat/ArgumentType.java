@@ -1,8 +1,8 @@
 package io.github.darvil.lanat;
 
-import io.github.darvil.lanat.argumentTypes.FromParseableArgumentType;
-import io.github.darvil.lanat.argumentTypes.IntegerArgumentType;
-import io.github.darvil.lanat.argumentTypes.Parseable;
+import io.github.darvil.lanat.argtypes.FromParseableArgumentType;
+import io.github.darvil.lanat.argtypes.IntegerArgumentType;
+import io.github.darvil.lanat.argtypes.Parseable;
 import io.github.darvil.lanat.parsing.errors.handlers.ArgumentTypeError;
 import io.github.darvil.lanat.utils.ParentElementGetter;
 import io.github.darvil.lanat.utils.PostCreationInheritor;

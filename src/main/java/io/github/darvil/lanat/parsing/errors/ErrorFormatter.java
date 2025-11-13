@@ -1,12 +1,12 @@
 package io.github.darvil.lanat.parsing.errors;
 
-import io.github.darvil.lanat.helpRepresentation.HelpFormatter;
+import io.github.darvil.lanat.helpgen.HelpFormatter;
 import io.github.darvil.lanat.parsing.errors.contexts.ErrorContext;
 import io.github.darvil.lanat.parsing.errors.contexts.ParseErrorContext;
 import io.github.darvil.lanat.parsing.errors.contexts.TokenizeErrorContext;
 import io.github.darvil.lanat.parsing.errors.contexts.formatting.DisplayInput;
 import io.github.darvil.lanat.parsing.errors.contexts.formatting.ErrorFormattingContext;
-import io.github.darvil.lanat.parsing.errors.formatGenerators.PrettyErrorFormatter;
+import io.github.darvil.lanat.parsing.errors.formatters.PrettyErrorFormatter;
 import io.github.darvil.lanat.utils.errors.ErrorLevel;
 import io.github.darvil.lanat.utils.errors.ErrorLevelProvider;
 import io.github.darvil.terminal.textformatter.FormatOption;

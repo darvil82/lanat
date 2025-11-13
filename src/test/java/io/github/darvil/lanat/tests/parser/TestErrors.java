@@ -2,9 +2,9 @@ package io.github.darvil.lanat.tests.parser;
 
 import io.github.darvil.lanat.Argument;
 import io.github.darvil.lanat.Command;
-import io.github.darvil.lanat.argumentTypes.CounterArgumentType;
-import io.github.darvil.lanat.argumentTypes.FloatArgumentType;
-import io.github.darvil.lanat.argumentTypes.IntegerArgumentType;
+import io.github.darvil.lanat.argtypes.CounterArgumentType;
+import io.github.darvil.lanat.argtypes.FloatArgumentType;
+import io.github.darvil.lanat.argtypes.IntegerArgumentType;
 import io.github.darvil.lanat.utils.NamedWithDescription;
 import io.github.darvil.lanat.utils.errors.ErrorCallbacks;
 import org.jetbrains.annotations.NotNull;

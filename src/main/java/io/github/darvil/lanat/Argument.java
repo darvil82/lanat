@@ -1,6 +1,6 @@
 package io.github.darvil.lanat;
 
-import io.github.darvil.lanat.argumentTypes.ActionArgumentType;
+import io.github.darvil.lanat.argtypes.ActionArgumentType;
 import io.github.darvil.lanat.exceptions.ArgumentAlreadyExistsException;
 import io.github.darvil.lanat.parsing.errors.handlers.ArgumentTypeError;
 import io.github.darvil.lanat.parsing.errors.handlers.ParseErrors;

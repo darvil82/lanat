@@ -2,7 +2,7 @@ package io.github.darvil.lanat.tests.parser;
 
 import io.github.darvil.lanat.Argument;
 import io.github.darvil.lanat.Group;
-import io.github.darvil.lanat.argumentTypes.IntegerArgumentType;
+import io.github.darvil.lanat.argtypes.IntegerArgumentType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

@@ -1,7 +1,7 @@
 package io.github.darvil.lanat;
 
-import io.github.darvil.lanat.argumentTypes.ActionArgumentType;
-import io.github.darvil.lanat.argumentTypes.CounterArgumentType;
+import io.github.darvil.lanat.argtypes.ActionArgumentType;
+import io.github.darvil.lanat.argtypes.CounterArgumentType;
 import io.github.darvil.lanat.exceptions.ArgumentNotFoundException;
 import io.github.darvil.lanat.utils.Builder;
 import org.jetbrains.annotations.NotNull;

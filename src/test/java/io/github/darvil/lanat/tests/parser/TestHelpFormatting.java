@@ -1,14 +1,14 @@
 package io.github.darvil.lanat.tests.parser;
 
 import io.github.darvil.lanat.Argument;
-import io.github.darvil.lanat.argumentTypes.CounterArgumentType;
-import io.github.darvil.lanat.helpRepresentation.HelpFormatter;
-import io.github.darvil.lanat.helpRepresentation.LayoutItem;
-import io.github.darvil.lanat.helpRepresentation.descriptions.DescriptionParser;
-import io.github.darvil.lanat.helpRepresentation.descriptions.RouteParser;
-import io.github.darvil.lanat.helpRepresentation.descriptions.Tag;
-import io.github.darvil.lanat.helpRepresentation.descriptions.exceptions.InvalidRouteException;
-import io.github.darvil.lanat.helpRepresentation.descriptions.exceptions.MalformedTagException;
+import io.github.darvil.lanat.argtypes.CounterArgumentType;
+import io.github.darvil.lanat.helpgen.HelpFormatter;
+import io.github.darvil.lanat.helpgen.LayoutItem;
+import io.github.darvil.lanat.helpgen.descriptions.DescriptionParser;
+import io.github.darvil.lanat.helpgen.descriptions.RouteParser;
+import io.github.darvil.lanat.helpgen.descriptions.Tag;
+import io.github.darvil.lanat.helpgen.descriptions.exceptions.InvalidRouteException;
+import io.github.darvil.lanat.helpgen.descriptions.exceptions.MalformedTagException;
 import io.github.darvil.lanat.utils.NamedWithDescription;
 import io.github.darvil.terminal.textformatter.FormatOption;
 import io.github.darvil.terminal.textformatter.TextFormatter;

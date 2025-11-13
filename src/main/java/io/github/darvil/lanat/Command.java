@@ -2,7 +2,7 @@ package io.github.darvil.lanat;
 
 import io.github.darvil.lanat.exceptions.CommandAlreadyExistsException;
 import io.github.darvil.lanat.exceptions.CommandTemplateException;
-import io.github.darvil.lanat.helpRepresentation.HelpFormatter;
+import io.github.darvil.lanat.helpgen.HelpFormatter;
 import io.github.darvil.lanat.parsing.Parser;
 import io.github.darvil.lanat.parsing.Token;
 import io.github.darvil.lanat.parsing.TokenType;

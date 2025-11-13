@@ -2,7 +2,7 @@ package io.github.darvil.lanat.parsing.errors.handlers;
 
 import io.github.darvil.lanat.Argument;
 import io.github.darvil.lanat.Group;
-import io.github.darvil.lanat.helpRepresentation.HelpFormatter;
+import io.github.darvil.lanat.helpgen.HelpFormatter;
 import io.github.darvil.lanat.parsing.errors.Error;
 import io.github.darvil.lanat.parsing.errors.contexts.ParseErrorContext;
 import io.github.darvil.lanat.parsing.errors.contexts.formatting.DisplayInput;

@@ -1,7 +1,7 @@
 module darvil.lanat {
 	requires org.jetbrains.annotations;
-	requires utils;
-	requires textFormatter;
+	requires darvil.utils;
+	requires darvil.textFormatter;
 
 	exports lanat;
 	exports lanat.argumentTypes;
@@ -21,5 +21,5 @@ module darvil.lanat {
 	exports lanat.parsing.errors.contexts.formatting;
 	exports lanat.parsing.errors.handlers;
 
-	opens lanat.helpRepresentation.descriptions.tags to utils;
+	opens lanat.helpRepresentation.descriptions.tags to darvil.utils;
 }

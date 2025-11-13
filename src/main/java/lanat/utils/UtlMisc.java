@@ -52,4 +52,29 @@ public final class UtlMisc {
 	public static <T> T last(@NotNull List<T> list) {
 		return list.get(list.size() - 1);
 	}
+
+	/**
+	 * Check if a string is a valid name. A valid name must:
+	 * <ul>
+	 * <li>Contain at least one character</li>
+	 * <li>Start with an alphabetic character</li>
+	 * <li>Only contain alphabetic characters, numbers, underscores or dashes</li>
+	 * </ul>
+	 * @param name The name to check.
+	 * @throws IllegalArgumentException if the name is invalid.
+	 */
+	public static @NotNull String requireValidName(@NotNull String name) {
+		if (name.isEmpty())
+			throw new IllegalArgumentException("name must contain at least one character");
+
+		if (!Character.isAlphabetic(name.charAt(0)))
+			throw new IllegalArgumentException("name must start with an alphabetic character");
+
+		if (!name.chars().allMatch(
+			chr -> Character.isAlphabetic(chr) || Character.isDigit(chr) || chr == '_' || chr == '-'
+		))
+			throw new IllegalArgumentException("name must only contain alphabetic characters, numbers, underscores and dashes");
+
+		return name;
+	}
 }

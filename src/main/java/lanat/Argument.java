@@ -13,7 +13,6 @@ import org.jetbrains.annotations.Nullable;
 import textFormatter.color.Color;
 import utils.ModifyRecord;
 import utils.MultiComparator;
-import utils.UtlString;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -304,7 +303,7 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 			throw new IllegalArgumentException("at least one name must be specified");
 
 		for (var name : names)
-			UtlString.requireValidName(name);
+			UtlMisc.requireValidName(name);
 
 		UtlMisc.requireUniqueElements(
 			names, n -> new IllegalArgumentException("Name '" + n + "' is already used by this argument"

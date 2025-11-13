@@ -1,4 +1,4 @@
-module lanat {
+module darvil.lanat {
 	requires org.jetbrains.annotations;
 	requires utils;
 	requires textFormatter;

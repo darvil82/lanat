@@ -15,7 +15,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import textFormatter.color.Color;
 import textFormatter.color.SimpleColor;
-import utils.*;
+import utils.LoopPool;
+import utils.ModifyRecord;
+import utils.Pair;
+import utils.UtlReflection;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -200,7 +203,7 @@ public class Command
 			throw new IllegalArgumentException("at least one name must be specified");
 
 		for (var name : names)
-			UtlString.requireValidName(name);
+			UtlMisc.requireValidName(name);
 
 		UtlMisc.requireUniqueElements(
 			names, n -> new IllegalArgumentException("Name '" + n + "' is already used by this command"

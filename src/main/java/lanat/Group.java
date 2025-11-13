@@ -4,7 +4,6 @@ import lanat.exceptions.GroupAlreadyExistsException;
 import lanat.utils.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import utils.UtlString;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -101,7 +100,7 @@ public class Group
 	 * @param description The description of the group.
 	 */
 	public Group(@NotNull String name, @Nullable String description) {
-		this.name = UtlString.requireValidName(name);
+		this.name = UtlMisc.requireValidName(name);
 		this.description = description;
 	}
 

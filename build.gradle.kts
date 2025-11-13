@@ -13,8 +13,8 @@ repositories {
 }
 
 dependencies {
-	api("io.github.darvil82:utils:0.8b")
-	api("io.github.darvil82:terminal-text-formatter:2.3.0b")
+	api("io.github.darvil82:utils:0.8.0b")
+	api("io.github.darvil82:terminal-text-formatter:2.3.0c")
 
 	implementation("org.jetbrains:annotations:24.1.0")
 	testImplementation(platform("org.junit:junit-bom:5.9.1"))

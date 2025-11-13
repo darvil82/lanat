@@ -5,7 +5,7 @@ module darvil.lanat.test {
 	requires io.github.darvil.utils;
 	requires io.github.darvil.terminal.textformatter;
 
-	exports lanat.tests to darvil.lanat, org.junit.platform.commons, io.github.darvil.utils;
-	exports lanat.tests.parser.commandTemplates to darvil.lanat, org.junit.platform.commons, io.github.darvil.utils;
-	exports lanat.tests.parser to darvil.lanat, org.junit.platform.commons, io.github.darvil.utils;
+	exports io.github.darvil.lanat.tests to darvil.lanat, org.junit.platform.commons, io.github.darvil.utils;
+	exports io.github.darvil.lanat.tests.parser.commandTemplates to darvil.lanat, org.junit.platform.commons, io.github.darvil.utils;
+	exports io.github.darvil.lanat.tests.parser to darvil.lanat, org.junit.platform.commons, io.github.darvil.utils;
 }

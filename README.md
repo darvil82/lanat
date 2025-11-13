@@ -10,16 +10,21 @@
 		A command line argument parser for Java 17 with <br>
 		ease of use and high customization possibilities in mind.
 	</strong>
+<br><br>
+
+[![Maven Central Version](https://img.shields.io/maven-central/v/io.github.darvil82/lanat)](https://central.sonatype.com/artifact/io.github.darvil82/lanat)
+[![APIdia](https://apidia.net/mvn/io.github.darvil82/lanat/badge.svg)](https://apidia.net/mvn/io.github.darvil82/lanat)
+
 </div>
 
-<br><br>
+<br>
 
 ## Example
 - First, we define our Command by creating a *Command Template*.
 
 	```java
 	@Command.Define
-	class MyProgram {
+	class MyProgram extends CommandTemplate {
 		@Argument.Define(required = true, positional = true, description = "The name of the user.")
 		public String name;
 	
@@ -64,7 +69,8 @@ Check out the [website](https://darvil82.github.io/lanat-web/) for more informat
 [Click here](https://darvil82.github.io/lanat-docs/getting-lanat.html) to get started with Lanat, and to check out the
 full documentation of the latest stable version.
 
-Javadocs for the latest stable version is available [here](https://darvil82.github.io/lanat/).
+Javadocs for the latest stable version are available online hosted on [APIdia](https://apidia.net/mvn/io.github.darvil82/lanat)
+and on [GitHub pages](https://darvil82.github.io/lanat).
 
 
 ## Installation

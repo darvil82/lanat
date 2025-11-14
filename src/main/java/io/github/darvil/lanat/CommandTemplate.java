@@ -280,10 +280,10 @@ public abstract class CommandTemplate {
 		 */
 		@InitDef
 		public static void afterInit(@NotNull Command cmd) {
-			cmd.addArgument(getHelpArgumentBuilder(cmd, 0));
+			cmd.addArgument(Default.getHelpArgumentBuilder(cmd, 0));
 
 			if (cmd instanceof ArgumentParser ap)
-				cmd.addArgument(getVersionArgumentBuilder(ap, 0));
+				cmd.addArgument(Default.getVersionArgumentBuilder(ap, 0));
 		}
 
 		/**

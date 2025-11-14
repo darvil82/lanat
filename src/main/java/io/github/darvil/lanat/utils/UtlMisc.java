@@ -67,13 +67,13 @@ public final class UtlMisc {
 		if (name.isBlank())
 			throw new IllegalArgumentException("name must contain at least one character");
 
-//		if (!Character.isAlphabetic(name.charAt(0)))
-//			throw new IllegalArgumentException("name must start with an alphabetic character");
-//
-//		if (!name.chars().allMatch(
-//			chr -> Character.isAlphabetic(chr) || Character.isDigit(chr) || chr == '_' || chr == '-'
-//		))
-//			throw new IllegalArgumentException("name must only contain alphabetic characters, numbers, underscores and dashes");
+		if (!Character.isAlphabetic(name.charAt(0)))
+			throw new IllegalArgumentException("name must start with an alphabetic character");
+
+		if (!name.chars().allMatch(
+			chr -> Character.isAlphabetic(chr) || Character.isDigit(chr) || chr == '_' || chr == '-'
+		))
+			throw new IllegalArgumentException("name must only contain alphabetic characters, numbers, underscores and dashes");
 
 		return name;
 	}

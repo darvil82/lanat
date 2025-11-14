@@ -1,11 +1,11 @@
-module lanat.test {
+module io.github.darvil.lanat.test {
 	requires org.junit.jupiter.api;
-	requires lanat;
+	requires io.github.darvil.lanat;
 	requires org.jetbrains.annotations;
-	requires utils;
-	requires textFormatter;
+	requires io.github.darvil.utils;
+	requires io.github.darvil.terminal.textformatter;
 
-	exports lanat.tests to lanat, org.junit.platform.commons, utils;
-	exports lanat.tests.parser.commandTemplates to lanat, org.junit.platform.commons, utils;
-	exports lanat.tests.parser to lanat, org.junit.platform.commons, utils;
+	exports io.github.darvil.lanat.tests to io.github.darvil.lanat, org.junit.platform.commons, io.github.darvil.utils;
+	exports io.github.darvil.lanat.tests.parser.templates to io.github.darvil.lanat, org.junit.platform.commons, io.github.darvil.utils;
+	exports io.github.darvil.lanat.tests.parser to io.github.darvil.lanat, org.junit.platform.commons, io.github.darvil.utils;
 }

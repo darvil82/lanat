@@ -165,18 +165,18 @@ public class AfterParseOptions {
 		// now handle the sub-command field accessors (if any)
 		Stream.of(templateClass.getDeclaredClasses())
 			.filter(c -> c.isAnnotationPresent(Command.Define.class))
-			.forEach(cmdDef -> {
-				var commandAccesorField = Stream.of(templateClass.getDeclaredFields())
+			.forEach(cmdDef -> AfterParseOptions.into$handleCommandAccessor(
+				instance,
+				Stream.of(templateClass.getDeclaredFields())
 					.filter(f -> f.isAnnotationPresent(CommandTemplate.CommandAccessor.class))
 					.filter(f -> f.getType() == cmdDef)
 					.findFirst()
 					.orElseThrow(() -> new CommandTemplateException(
 						"The class '" + cmdDef.getSimpleName() + "' is annotated with @Command.Define but it's "
 							+ "enclosing class does not have a field annotated with @CommandAccessor"
-					));
-
-				AfterParseOptions.into$handleCommandAccessor(instance, commandAccesorField, parseResult);
-			});
+					)),
+				parseResult
+			));
 
 		instance.afterInstantiation(parseResult);
 		return instance;

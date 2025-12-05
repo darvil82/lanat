@@ -1,1 +1,1 @@
-moduleSearchIndex = [{"l":"lanat"}];updateSearchResults();
+moduleSearchIndex = [{"l":"io.github.darvil.lanat"}];updateSearchResults();

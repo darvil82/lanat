@@ -1,25 +1,25 @@
-module lanat {
+module io.github.darvil.lanat {
 	requires org.jetbrains.annotations;
-	requires utils;
-	requires textFormatter;
+	requires io.github.darvil.utils;
+	requires io.github.darvil.terminal.textformatter;
 
-	exports lanat;
-	exports lanat.argumentTypes;
-	exports lanat.exceptions;
+	exports io.github.darvil.lanat;
+	exports io.github.darvil.lanat.argtypes;
+	exports io.github.darvil.lanat.exceptions;
 
-	exports lanat.helpRepresentation;
-	exports lanat.helpRepresentation.descriptions;
-	exports lanat.helpRepresentation.descriptions.exceptions;
+	exports io.github.darvil.lanat.helpgen;
+	exports io.github.darvil.lanat.helpgen.descriptions;
+	exports io.github.darvil.lanat.helpgen.descriptions.exceptions;
 
-	exports lanat.utils;
-	exports lanat.utils.errors;
+	exports io.github.darvil.lanat.utils;
+	exports io.github.darvil.lanat.utils.errors;
 
-	exports lanat.parsing;
-	exports lanat.parsing.errors;
-	exports lanat.parsing.errors.formatGenerators;
-	exports lanat.parsing.errors.contexts;
-	exports lanat.parsing.errors.contexts.formatting;
-	exports lanat.parsing.errors.handlers;
+	exports io.github.darvil.lanat.parsing;
+	exports io.github.darvil.lanat.parsing.errors;
+	exports io.github.darvil.lanat.parsing.errors.formatters;
+	exports io.github.darvil.lanat.parsing.errors.contexts;
+	exports io.github.darvil.lanat.parsing.errors.contexts.formatting;
+	exports io.github.darvil.lanat.parsing.errors.handlers;
 
-	opens lanat.helpRepresentation.descriptions.tags to utils;
+	opens io.github.darvil.lanat.helpgen.descriptions.tags to io.github.darvil.utils;
 }

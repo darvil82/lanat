@@ -49,13 +49,17 @@ public final class TokenizeErrorContext extends ErrorContext {
 	/**
 	 * Returns a substring of the input string, centered around the given index.
 	 * @param index the index to center around
-	 * @param length the length of the substring to apply at each side of the index
+	 * @param length the positive length of the substring to apply at each side of the index.
+	 *  A value of {@code 0} will just return the character at that position.
 	 * @return the substring
 	 */
 	public @NotNull String getInputNear(int index, int length) {
+		if (length < 0)
+			throw new IllegalArgumentException("length must be greater or equal to 0");
+
 		return this.getInputString(true).substring(
 			Math.max(0, index - length),
-			Math.min(this.getCount(), index + length)
+			Math.min(this.getCount(), index + length + 1)
 		);
 	}
 }

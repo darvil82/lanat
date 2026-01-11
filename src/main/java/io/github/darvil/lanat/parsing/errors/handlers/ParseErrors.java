@@ -221,7 +221,7 @@ public abstract class ParseErrors {
 	}
 
 	/**
-	 * Error that occurs when an argument is used while there's a unique argument that has been used.
+	 * Warning that occurs when an argument is used while there's a unique argument that has been used.
 	 * @param indexAndOffset The indices of the tokens that caused the error. (start, end)
 	 * @param argument The argument that thrown the error.
 	 */

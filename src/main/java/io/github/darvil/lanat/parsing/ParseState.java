@@ -14,7 +14,7 @@ import java.util.function.Consumer;
  * by both.
  * @param <T> The type of the errors to store.
  */
-public sealed abstract class ParsingStateBase<T extends ErrorLevelProvider> extends ErrorContainerImpl<T>
+public sealed abstract class ParseState<T extends ErrorLevelProvider> extends ErrorContainerImpl<T>
 	permits Tokenizer, Parser
 {
 	/** The command that is being parsed. */
@@ -30,7 +30,7 @@ public sealed abstract class ParsingStateBase<T extends ErrorLevelProvider> exte
 	 * Instantiates a new parsing state.
 	 * @param command the command that is being parsed
 	 */
-	public ParsingStateBase(@NotNull Command command) {
+	public ParseState(@NotNull Command command) {
 		super(command.getErrorExitThreshold(), command.getErrorDisplayThreshold());
 		this.command = command;
 	}

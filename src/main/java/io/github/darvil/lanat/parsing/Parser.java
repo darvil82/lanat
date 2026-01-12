@@ -23,7 +23,7 @@ import java.util.stream.Stream;
  * When finished parsing, this class will contain a map of the arguments to their parsed values. This map can be accessed
  * by calling {@link Parser#getParsedArgsMap()}.
  */
-public final class Parser extends ParsingStateBase<Error.ParseError> {
+public final class Parser extends ParseState<Error.ParseError> {
 	/**
 	 * Array of all the tokens that we have tokenized from the CLI arguments.
 	 */

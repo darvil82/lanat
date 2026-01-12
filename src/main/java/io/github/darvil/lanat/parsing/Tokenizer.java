@@ -18,7 +18,7 @@ import java.util.function.Predicate;
  * Tokenizes the input string given. When finished, the tokens can be retrieved using
  * {@link Tokenizer#getFinalTokens()}
  */
-public final class Tokenizer extends ParsingStateBase<Error.TokenizeError> {
+public final class Tokenizer extends ParseState<Error.TokenizeError> {
 	/** Are we currently within a tuple? */
 	private boolean isTupleOpen = false;
 

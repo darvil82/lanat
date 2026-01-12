@@ -292,7 +292,10 @@ public final class Tokenizer extends ParseState<Error.TokenizeError> {
 			// if an argument is found with that char name, append its prefix to the possible prefixes
 			// and increment the foundArgs counter.
 			// If no argument is found, stop checking
-			if (!this.runForMatchingArgument(argName, argument -> possiblePrefixes.add(argument.getPrefix())))
+			if (!this.runForMatchingArgument(
+				new Argument.SpecifierMatcher(argName, Argument.SpecifierMatcher.Kind.SHORT),
+				argument -> possiblePrefixes.add(argument.getPrefix())
+			))
 				break;
 			foundArgs++;
 		}
@@ -309,7 +312,7 @@ public final class Tokenizer extends ParseState<Error.TokenizeError> {
 	 */
 	private boolean isArgName(@NotNull String str) {
 		// make sure we are working with long enough strings
-		return str.length() > 1 && this.getMatchingArgument(str) != null;
+		return str.length() > 1 && this.getMatchingArgument(new Argument.SpecifierMatcher(str, Argument.SpecifierMatcher.Kind.LONG)) != null;
 	}
 
 	/**

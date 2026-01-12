@@ -489,32 +489,40 @@ public class Argument<Type extends ArgumentType<TInner>, TInner>
 	}
 
 	/**
-	 * Checks if this argument matches the given name, including the prefix.
+	 * Checks if this argument matches the given specifier. If {@link SpecifierMatcher.Kind} is {@code LONG}, then it is
+	 * assumed that the specifier includes a prefix that should be taken into consideration.
 	 * <p>
 	 * For example, if the prefix is {@code '-'} and the argument has the name {@code "help"}, this method
 	 * will return {@code true} if the name is {@code "--help"}.
 	 * </p>
 	 *
-	 * @param name the name to check
+	 * @param matcher the name to check
 	 * @return {@code true} if the name matches, {@code false} otherwise.
 	 */
-	public boolean checkMatch(@NotNull String name) {
-		var argPrefix = this.getPrefix().getCharacter();
+	public boolean checkMatch(@NotNull SpecifierMatcher matcher) {
+		return switch (matcher.kind) {
+			case SHORT -> this.hasName(matcher.specifier);
+			case LONG -> {
+				var argPrefix = this.getPrefix().getCharacter();
 
-		if (name.charAt(0) != argPrefix) return false;
+				if (matcher.specifier.charAt(0) != argPrefix) yield false;
 
-		return this.hasName(Argument.removePrefix(name, argPrefix));
+				yield this.hasName(Argument.removePrefix(matcher.specifier, argPrefix));
+			}
+		};
 	}
 
 	/**
-	 * Checks if this argument matches the given single character name.
-	 *
-	 * @param name the name to check
-	 * @return {@code true} if the name matches, {@code false} otherwise.
-	 * @see #checkMatch(String)
+	 * Helper to easily specify how {@link #checkMatch(SpecifierMatcher)} should behave.
+	 * @param specifier the specifier for the argument
+	 * @param kind the kind of checks to perform when checking for a match
 	 */
-	public boolean checkMatch(char name) {
-		return this.hasName(Character.toString(name));
+	public record SpecifierMatcher(@NotNull String specifier, @NotNull Kind kind) {
+		public SpecifierMatcher(char specifier, @NotNull Kind kind) {
+			this(String.valueOf(specifier), kind);
+		}
+
+		public enum Kind { SHORT, LONG }
 	}
 
 	/**

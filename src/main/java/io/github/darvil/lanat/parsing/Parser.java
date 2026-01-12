@@ -101,7 +101,10 @@ public final class Parser extends ParseState<Error.ParseError> {
 				// encountered an argument name. first skip the token of the name.
 				this.currentTokenIndex++;
 				// find the argument that matches that name and let it parse the values
-				this.runForMatchingArgument(currentToken.contents(), this::executeArgParse);
+				this.runForMatchingArgument(
+					new Argument.SpecifierMatcher(currentToken.contents(), Argument.SpecifierMatcher.Kind.LONG),
+					this::executeArgParse
+				);
 			} else if (currentToken.type() == TokenType.ARGUMENT_NAME_LIST) {
 				// we encountered a name list, so we know that we are no longer parsing positional arguments
 				this.positionalArgCount = -1;
@@ -240,7 +243,9 @@ public final class Parser extends ParseState<Error.ParseError> {
 
 		// its multiple of them. We can only do this with arguments that accept 0 values.
 		for (int i = 0; i < args.length(); i++) {
-			var argument = this.getMatchingArgument(args.charAt(i));
+			var argument = this.getMatchingArgument(
+				new Argument.SpecifierMatcher(args.charAt(i), Argument.SpecifierMatcher.Kind.SHORT)
+			);
 
 			if (argument == null) {
 				assert lastArgument != null; // we know for sure that lastArgument is not null here

@@ -69,8 +69,8 @@ Check out the [website](https://darvil82.github.io/lanat-web/) for more informat
 [Click here](https://darvil82.github.io/lanat-docs/getting-lanat.html) to get started with Lanat, and to check out the
 full documentation of the latest stable version.
 
-Javadocs for the latest stable version are available online hosted on [APIdia](https://apidia.net/mvn/io.github.darvil82/lanat)
-and on [GitHub pages](https://darvil82.github.io/lanat).
+Javadocs for the latest stable version are available online hosted on [GitHub pages](https://darvil82.github.io/lanat)
+and on [APIdia](https://apidia.net/mvn/io.github.darvil82/lanat).
 
 
 ## Installation

@@ -292,11 +292,13 @@ public final class Tokenizer extends ParseState<Error.TokenizeError> {
 			// if an argument is found with that char name, append its prefix to the possible prefixes
 			// and increment the foundArgs counter.
 			// If no argument is found, stop checking
-			if (!this.runForMatchingArgument(
-				new Argument.SpecifierMatcher(argName, Argument.SpecifierMatcher.Kind.SHORT),
-				argument -> possiblePrefixes.add(argument.getPrefix())
-			))
-				break;
+			var match = this.getMatchingArgument(
+				new Argument.SpecifierMatcher(argName, Argument.SpecifierMatcher.Kind.SHORT)
+			);
+
+			if (match == null) break;
+
+			possiblePrefixes.add(match.getPrefix());
 			foundArgs++;
 		}
 

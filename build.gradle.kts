@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "io.github.darvil82"
-version = "1.4.0"
+version = "1.4.1"
 description = "A highly customizable command line argument parser."
 
 repositories {
